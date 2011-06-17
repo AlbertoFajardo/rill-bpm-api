@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>rill - bpm - api</name>
+    <groupId>org.rill</groupId>
+    <artifactId>rill-bpm-api</artifactId>
+    <version>1.0</version>
+    
+    <parent>
+        <groupId>org.rill</groupId>
+        <artifactId>rill-bpm</artifactId>
+        <relativePath>../</relativePath>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/src/test/resources/com/baidu/rigel/service/workflow/api</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>D:\\01EclipseDev\\workspace\\activiti.pangu2\\src\\main\\resources\\diagrams</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>rigel-tcom-workflow</classifier>
+                            <includes>
+                                <include>**/rigel/service/workflow/**/*</include>
+                                <include>**/org/eclipse/swt/**/*</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>rigel-tcom-workflow</finalName>
+                            <includes>
+                                <include>**/rigel/service/workflow/**/*</include>
+                                <include>**/org/eclipse/swt/**/*</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-test-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar-no-fork</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>rigel-tcom-workflow</finalName>
+                            <includes>
+                                <include>**/rigel/service/workflow/**/*</include>
+                                <include>com/baidu/rigel/service/workflow/activiti.cfg.xml</include>
+                                <include>logging.properties</include>
+                                <include>com/baidu/rigel/service/workflow/api/continuous.activiti.cfg.xml</include>
+                                <include>**/org/activiti/db/create/activiti.mysql.create.cp.sql</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <packaging>jar</packaging>
+</project>
