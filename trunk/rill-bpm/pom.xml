@@ -8,6 +8,9 @@
     <packaging>pom</packaging>
     <name>rill - bpm</name>
   
+    <modules>
+        <module>rill-bpm-api</module>    
+    </modules>
     <properties>
         <spring.framework.version>3.0.3.RELEASE</spring.framework.version>
         <activiti.engine.version>5.4</activiti.engine.version>
@@ -103,6 +106,12 @@
             <version>5.1.6</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.2.132</version>
+            <scope>test</scope>
+      </dependency>
     </dependencies>
 
     <repositories>
@@ -154,6 +163,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <optimize>true</optimize>
+                    <encoding>UTF8</encoding>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
