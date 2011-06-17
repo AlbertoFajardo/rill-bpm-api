@@ -1,0 +1,819 @@
+package com.baidu.rigel.service.workflow.api.activiti;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import org.activiti.engine.ActivitiException;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.impl.ServiceImpl;
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.task.TaskDefinition;
+import org.activiti.engine.impl.task.TaskEntity;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.apache.commons.lang.ArrayUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.SimpleApplicationEventMulticaster;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+
+import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
+import com.baidu.rigel.service.workflow.api.ProcessInstanceEndEvent;
+import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
+import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
+import com.baidu.rigel.service.workflow.api.TaskOperationInteceptor;
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
+import com.baidu.rigel.service.workflow.cache.WorkflowCache;
+import com.baidu.rigel.service.workflow.cache.WorkflowCache.TaskInformations;
+import com.baidu.rigel.service.workflow.common.mail.TemplateMailSender;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import org.activiti.engine.FormService;
+import org.activiti.engine.delegate.TaskListener;
+import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.impl.ProcessEngineImpl;
+import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.db.DbSqlSession;
+import org.springframework.util.CollectionUtils;
+
+/**
+ * 公司名：百度 <br>
+ * 系统名：Rigel直销系统<br>
+ * 子系统名: <br>
+ * 模块名：HT-SUPPORT <br>
+ * 文件名：ActivitiAccessor.java<br>
+ * 功能说明: GWFP工作流操作基类。<br>
+ * <p>
+ * 	提供一些常用的支持方法。包括工作流基本信息缓存、Activiti中扩展属性取得、任务生命周期组件转化（ID->Bean）<br>
+ * 	公布事件等常用方法。
+ * @author mengran
+ * @version 1.0.0
+ * @date 2010-5-14下午04:08:05
+ **/
+public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, ApplicationEventPublisherAware {
+
+    public static final String TASK_LIFECYCLE_INTERCEPTOR = "task_lifecycle_interceptor";
+    public static final String TASK_OPERATION_INTERCEPTOR = "task_operation_interceptor";
+    public static final String TASK_FORM_KEY = "url";
+    public static final String TASK_ROLE_TAG = "task_role_tag";
+    public static final String TASK_SERVICE_INVOKE_EXPRESSION = "taskServiceInvokeExpression";
+    // Activiti5中流程编辑器中任务定义ID有重命名的限制(目前为自动生成)。
+    public static final String TASK_DEFINE_ID = "__task_define_id__";
+    /** Logger available to subclasses */
+    protected final Logger logger = Logger.getLogger(ActivitiAccessor.class.getName());
+
+    private Map<String, String[]> taskInstanceInfoCache = new HashMap<String, String[]>();
+    private BeanFactory beanFactory;
+    private ApplicationEventPublisher applicationEventPublisher;
+    private RuntimeService runtimeService;
+    private TaskService taskService;
+    private RepositoryService repositoryService;
+    private IdentityService identityService;
+    private FormService formService;
+    private List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor;
+    private List<TaskOperationInteceptor> commonTaskOperationInterceptor;
+    private List<ProcessCreateInteceptor> processCreateInteceptor;
+    private List<ProcessOperationInteceptor> processOperationInteceptors;
+    private TemplateMailSender templateMailSender;
+    private SimpleMailMessage distributeTransactionMessage;
+    private String distributeTransactionMailTemplate;
+    private ActivitiExtraService extraService;
+    private ProcessEngine processEngine;
+    private ProcessEngineConfiguration processEngineConfiguration;
+    private boolean serializeVarPermission = true;
+    private boolean rigelWfInitialize = false;
+    private WorkflowCache externalWorkflowCache;
+
+    public WorkflowCache getExternalWorkflowCache() {
+        return externalWorkflowCache;
+    }
+
+    public void setExternalWorkflowCache(WorkflowCache externalWorkflowCache) {
+        this.externalWorkflowCache = externalWorkflowCache;
+    }
+
+    public boolean isRigelWfInitialize() {
+        return rigelWfInitialize;
+    }
+
+    public void setRigelWfInitialize(boolean rigelWfInitialize) {
+        this.rigelWfInitialize = rigelWfInitialize;
+    }
+
+    public boolean isSerializeVarPermission() {
+        return serializeVarPermission;
+    }
+
+    public FormService getFormService() {
+        return formService;
+    }
+
+    public void setFormService(FormService formService) {
+        this.formService = formService;
+    }
+
+    public ProcessEngineConfiguration getProcessEngineConfiguration() {
+        return processEngineConfiguration;
+    }
+
+    public void setProcessEngineConfiguration(ProcessEngineConfiguration processEngineConfiguration) {
+        this.processEngineConfiguration = processEngineConfiguration;
+    }
+
+    public ProcessEngine getProcessEngine() {
+        return processEngine;
+    }
+
+    public void setProcessEngine(ProcessEngine processEngine) {
+        this.processEngine = processEngine;
+    }
+
+    public RepositoryService getRepositoryService() {
+        return repositoryService;
+    }
+
+    public void setRepositoryService(RepositoryService repositoryService) {
+        this.repositoryService = repositoryService;
+    }
+
+    public IdentityService getIdentityService() {
+        return identityService;
+    }
+
+    public void setIdentityService(IdentityService identityService) {
+        this.identityService = identityService;
+    }
+
+    /**
+     * @return the taskInstanceInfoCache
+     */
+    public final Map<String, String[]> getTaskInstanceInfoCache() {
+        return taskInstanceInfoCache;
+    }
+
+    /**
+     * @param taskInstanceInfoCache the taskInstanceInfoCache to set
+     */
+    public final void setTaskInstanceInfoCache(
+            Map<String, String[]> taskInstanceInfoCache) {
+        this.taskInstanceInfoCache = taskInstanceInfoCache;
+    }
+
+    /**
+     * @return the runtimeService
+     */
+    public final RuntimeService getRuntimeService() {
+        return runtimeService;
+    }
+
+    /**
+     * @param runtimeService the runtimeService to set
+     */
+    public final void setRuntimeService(RuntimeService runtimeService) {
+        this.runtimeService = runtimeService;
+    }
+
+    /**
+     * @return the distributeTransactionMailTemplate
+     */
+    public final String getDistributeTransactionMailTemplate() {
+        return distributeTransactionMailTemplate;
+    }
+
+    /**
+     * @param distributeTransactionMailTemplate the distributeTransactionMailTemplate to set
+     */
+    public final void setDistributeTransactionMailTemplate(
+            String distributeTransactionMailTemplate) {
+        this.distributeTransactionMailTemplate = distributeTransactionMailTemplate;
+    }
+
+    /**
+     * @return the distributeTransactionMessage
+     */
+    public final SimpleMailMessage getDistributeTransactionMessage() {
+        return distributeTransactionMessage;
+    }
+
+    /**
+     * @param distributeTransactionMessage the distributeTransactionMessage to set
+     */
+    public final void setDistributeTransactionMessage(
+            SimpleMailMessage distributeTransactionMessage) {
+        this.distributeTransactionMessage = distributeTransactionMessage;
+    }
+
+    /**
+     * @return the templateMailSender
+     */
+    public final TemplateMailSender getTemplateMailSender() {
+        return templateMailSender;
+    }
+
+    /**
+     * @param templateMailSender the templateMailSender to set
+     */
+    public final void setTemplateMailSender(TemplateMailSender templateMailSender) {
+        this.templateMailSender = templateMailSender;
+    }
+
+    /**
+     * @return the processCreateInteceptor
+     */
+    public List<ProcessCreateInteceptor> getProcessCreateInteceptor() {
+        return processCreateInteceptor;
+    }
+
+    /**
+     * @param processCreateInteceptor the processCreateInteceptor to set
+     */
+    public void setProcessCreateInteceptor(
+            List<ProcessCreateInteceptor> processCreateInteceptor) {
+        this.processCreateInteceptor = processCreateInteceptor;
+    }
+
+    /**
+     * @return the processOperationInteceptors
+     */
+    public List<ProcessOperationInteceptor> getProcessOperationInteceptors() {
+        return processOperationInteceptors;
+    }
+
+    /**
+     * @param processOperationInteceptors the processOperationInteceptors to set
+     */
+    public void setProcessOperationInteceptors(
+            List<ProcessOperationInteceptor> processOperationInteceptors) {
+        this.processOperationInteceptors = processOperationInteceptors;
+    }
+
+    public TaskService getTaskService() {
+        return taskService;
+    }
+
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    /**
+     * @return the beanFactory
+     */
+    public BeanFactory getBeanFactory() {
+        return beanFactory;
+    }
+
+    /**
+     * @return the commonTaskLifecycleInterceptor
+     */
+    public List<TaskLifecycleInteceptor> getCommonTaskLifecycleInterceptor() {
+        return commonTaskLifecycleInterceptor;
+    }
+
+    /**
+     * @param commonTaskLifecycleInterceptor the commonTaskLifecycleInterceptor to set
+     */
+    public void setCommonTaskLifecycleInterceptor(
+            List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor) {
+        this.commonTaskLifecycleInterceptor = commonTaskLifecycleInterceptor;
+    }
+
+    /**
+     * @return the commonTaskOperationInterceptor
+     */
+    public List<TaskOperationInteceptor> getCommonTaskOperationInterceptor() {
+        return commonTaskOperationInterceptor;
+    }
+
+    /**
+     * @param commonTaskOperationInterceptor the commonTaskOperationInterceptor to set
+     */
+    public void setCommonTaskOperationInterceptor(
+            List<TaskOperationInteceptor> commonTaskOperationInterceptor) {
+        this.commonTaskOperationInterceptor = commonTaskOperationInterceptor;
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+
+        this.beanFactory = beanFactory;
+    }
+
+    /**
+     * @param applicationEventPublisher the applicationEventPublisher to set
+     */
+    public void setApplicationEventPublisher(
+            ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    /**
+     * @return the applicationEventPublisher
+     */
+    public ApplicationEventPublisher getApplicationEventPublisher() {
+        return applicationEventPublisher;
+    }
+
+    /**
+     * Package access allowed.
+     * @return Activiti extra service for run Command
+     */
+    ActivitiExtraService getExtraService() {
+        return extraService;
+    }
+
+    /**
+     * (SPI method and for internal usage)
+     * @param <T> type of return
+     * @param command command to execute
+     * @return execute result
+     */
+    public final <T> T runExtraCommand(Command<T> command) {
+
+        return getExtraService().doOperation(command);
+    }
+
+    public void afterPropertiesSet() throws Exception {
+
+        if (this.getProcessEngine() == null) {
+            Assert.notNull(this.getProcessEngineConfiguration(), "Properties 'ProcessEngineConfiguration' is required.");
+
+            // Retrieve process engine from it's holder
+            this.setProcessEngine(ProcessEngines.getProcessEngine(this.getProcessEngineConfiguration().getProcessEngineName()));
+            if (getProcessEngine() != null) {
+                logger.info("Retrive process engine from it's holder." + getProcessEngine());
+            } else {
+                // Build process engine
+                this.setProcessEngine(getProcessEngineConfiguration().buildProcessEngine());
+                logger.info("Build process engine from it's configuration." + getProcessEngine());
+            }
+        } else {
+            logger.info("Retrieve process engine from inject property." + getProcessEngine());
+        }
+
+        if (this.getProcessEngineConfiguration() == null) {
+            Assert.notNull(this.getProcessEngine(), "Properties 'processEngine' is required.");
+            this.setProcessEngineConfiguration(((ProcessEngineImpl) getProcessEngine()).getProcessEngineConfiguration());
+            logger.info("Retrieve process configuration from processEngine." + getProcessEngine());
+        }
+
+        List<BpmnParseListener> postParseListeners = ((ProcessEngineConfigurationImpl) getProcessEngineConfiguration()).getPostParseListeners();
+        if (!CollectionUtils.isEmpty(postParseListeners)) {
+            for (BpmnParseListener listener : postParseListeners) {
+                if (listener.getClass().isAssignableFrom(RetrieveNextTasksHelper.class)) {
+                    serializeVarPermission = ((RetrieveNextTasksHelper) listener).isSerializeVarPermission();
+                    logger.info("serialize variable permission flag is " + serializeVarPermission);
+                }
+            }
+        }
+
+        // Retrieve service from engine if not inject with property
+        if (getRuntimeService() == null) {
+            this.setRuntimeService(getProcessEngine().getRuntimeService());
+        }
+        if (getTaskService() == null) {
+            this.setTaskService(getProcessEngine().getTaskService());
+        }
+        if (getRepositoryService() == null) {
+            this.setRepositoryService(getProcessEngine().getRepositoryService());
+        }
+        if (getIdentityService() == null) {
+            this.setIdentityService(getProcessEngine().getIdentityService());
+        }
+        if (getFormService() == null) {
+            this.setFormService(getProcessEngine().getFormService());
+        }
+
+        // Initialize extra service
+        this.extraService = new ActivitiExtraService();
+        BeanUtils.copyProperties(this.getRuntimeService(), this.extraService);
+
+        // Generate application context as event publisher
+        if (!(getBeanFactory() instanceof ApplicationEventPublisher)) {
+            // Means aware method have not been call.
+            // FIXME: Adapt spring v2.0 implemetation, we use new SimpleApplicationEventMulticaster() but not new SimpleApplicationEventMulticaster(BeanFactory)
+            logger.info("Adapt external environment[Not ApplicationContext]." + getBeanFactory());
+            this.applicationEventPublisher = new ApplicationEventPublisherAdapter(new SimpleApplicationEventMulticaster());
+        }
+
+        // RIGEL_WF_* data-base initialize
+        if (!rigelWfInitialize) {
+            rigelWfInitialize = runExtraCommand(new Command<Boolean>() {
+
+                public Boolean execute(CommandContext commandContext) {
+
+                    boolean tablePresent = commandContext.getDbSqlSession().isTablePresent("RIGEL_WF_TRANSITION_TAKE_TRACE");
+                    if (tablePresent) {
+                        return true;
+                    }
+
+                    // Do create
+                    String resourceName = getResourceForDbOperation(commandContext.getDbSqlSession(), "create", "create", "wf");
+                    commandContext.getDbSqlSession().executeSchemaResource("create", "wf", resourceName, false);
+                    return true;
+                }
+
+                String getResourceForDbOperation(DbSqlSession dbSqlSession, String directory, String operation, String component) {
+                    String databaseType = dbSqlSession.getDbSqlSessionFactory().getDatabaseType();
+                    return "com/baidu/rigel/service/workflow/db/" + directory + "/rigel." + databaseType + "." + operation + "." + component + ".sql";
+                }
+            });
+        }
+
+        // Work flow cache provider
+        if (getExternalWorkflowCache() == null) {
+            logger.info("No configuration for external work flow cache.");
+        }
+    }
+
+    private class ActivitiExtraService extends ServiceImpl {
+
+        public <T> T doOperation(Command<T> command) {
+
+            logger.info("Run extra command[" + command + "].");
+            return getCommandExecutor().execute(command);
+        }
+    }
+
+    private class ApplicationEventPublisherAdapter implements ApplicationEventPublisher {
+
+        private SimpleApplicationEventMulticaster saemc;
+
+        public ApplicationEventPublisherAdapter(SimpleApplicationEventMulticaster aemc) {
+            this.saemc = aemc;
+//            this.saemc.setBeanFactory(getBeanFactory());
+            String[] listenerNames = ((ListableBeanFactory) getBeanFactory()).getBeanNamesForType(ApplicationListener.class);
+            if (listenerNames != null && listenerNames.length > 0) {
+                for (String listenerName : listenerNames) {
+                    logger.info("Add application listener named [" + listenerName + "].");
+                    aemc.addApplicationListener((ApplicationListener) getBeanFactory().getBean(listenerName));
+                }
+            }
+        }
+
+        public void publishEvent(ApplicationEvent event) {
+
+            // Delegate operatoin
+            this.saemc.multicastEvent(event);
+        }
+    }
+
+    /**
+     * Obtain cache informations from cache. Cache data will fill in every node in cluster.
+     *
+     * <p>
+     *  For work fine, we first find from external cache. Fall back to original cache(JVM cache) if any exception occurred.
+     * 
+     * @param taskInstanceId task instance's ID
+     * @return cache information specify by enum given
+     */
+    protected String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo) {
+
+        Assert.hasText(taskInstanceId, "taskInstanceId pass in must not empty");
+        Assert.notNull(cacheInfo, "taskInformations must not null");
+
+        String cacheHit = null;
+        // For work fine, we first find from external cache.
+        if (getExternalWorkflowCache() != null) {
+            try {
+                cacheHit = getExternalWorkflowCache().getTaskInfos(taskInstanceId, cacheInfo);
+            } catch(Throwable t) {
+                logger.log(Level.WARNING, "External cache provider:" + getExternalWorkflowCache().getClass().getName() + " throw a exception.", t);
+            }
+        }
+        if (cacheHit == null) {
+            logger.fine("Can not hit external cache of task instance id:" + taskInstanceId + ", cache info:" + cacheInfo + ", and try to get cache info from native cache.");
+            cacheHit = peerJVMCache(taskInstanceId, cacheInfo);
+        } else {
+            logger.fine("Hit external cache of task instance id:" + taskInstanceId + ", cache info:" + cacheInfo);
+        }
+
+        return cacheHit;
+    }
+
+    private String peerJVMCache(String taskInstanceId, TaskInformations cacheInfo) {
+
+        // FIXME: Using concurrent package class to prevent thread-safe
+        if (taskInstanceInfoCache.get(taskInstanceId) != null) {
+            String cacheHit = taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
+            logger.fine("Hit cache of task instance id[" + taskInstanceId + "], return " + cacheHit + " as " + cacheInfo.name());
+            return cacheHit;
+        }
+
+        Task task = null;
+        try {
+            task = getTaskService().createTaskQuery().taskId(taskInstanceId).singleResult();
+        } catch (ActivitiException e) {
+            throw new ProcessException("Can't get task instance by giving ID" + taskInstanceId, e);
+        }
+
+        synchronized (this) {
+            // Have cached in another thread already?
+            // FIXME: Using concurrent package class to prevent thread-safe
+            if (taskInstanceInfoCache.get(taskInstanceId) != null) {
+                String cacheHit = taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
+                logger.fine("Hit cache of task instance id[" + taskInstanceId + "], return " + cacheHit + " as " + cacheInfo.name());
+                return cacheHit;
+            }
+
+            String[] taskRelatedInfo = new String[TaskInformations.values().length];
+            taskRelatedInfo[0] = task.getProcessInstanceId();
+            String activityDefineId = null;
+            activityDefineId = task.getTaskDefinitionKey();
+            taskRelatedInfo[1] = activityDefineId;
+
+            final List<String> tdDefines = new ArrayList<String>(4);
+            ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+            final TaskEntity taskEntity = (TaskEntity) task;
+            this.extraService.doOperation(new Command<List<String>>() {
+
+                public List<String> execute(CommandContext commandContext) {
+                    TaskDefinition td = taskEntity.getTaskDefinition();
+                    // FIXME: Support single role definition temporarily
+                    tdDefines.add(td.getCandidateGroupIdExpressions().iterator().next().getExpressionText());
+                    if (td.getTaskListeners() != null && td.getTaskListeners().size() > 0) {
+                        for (List<TaskListener> value : td.getTaskListeners().values()) {
+                            if (value != null && !value.isEmpty()) {
+                                for (TaskListener tl : value) {
+                                    if (TLITOIClassDelegateAdapter.class.isInstance(tl)) {
+                                        tdDefines.add(((TLITOIClassDelegateAdapter) tl).obtainTaskLifycycleInterceptors());
+                                        tdDefines.add(((TLITOIClassDelegateAdapter) tl).obtainTaskOperationInterceptors());
+                                        tdDefines.add(((TLITOIClassDelegateAdapter) tl).getTaskServiceInvokeExpression());
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    return tdDefines;
+                }
+            });
+
+            taskRelatedInfo[2] = tdDefines.get(0);
+            taskRelatedInfo[3] = pi.getBusinessKey();
+
+            // Task extend-attributes
+            taskRelatedInfo[4] = tdDefines.size() > 1 ? tdDefines.get(1) : null;
+            taskRelatedInfo[5] = tdDefines.size() > 2 ? tdDefines.get(2) : null;
+
+            TaskFormData formData = getFormService().getTaskFormData(taskInstanceId);
+            taskRelatedInfo[6] = formData.getFormKey();
+
+            // Task service invoke expression
+            taskRelatedInfo[7] = tdDefines.size() > 3 ? tdDefines.get(3) : null;
+
+            // Put into cache
+            taskInstanceInfoCache.put(taskInstanceId, taskRelatedInfo);
+            logger.fine("Cache informations of task instance id[" + taskInstanceId + "]." + ObjectUtils.getDisplayString(taskRelatedInfo));
+        }
+
+        return taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
+    }
+
+    /**
+     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
+     * @param taskInstanceId 任务ID
+     * @return 流程ID
+     */
+    protected String obtainProcessInstanceId(String taskInstanceId) {
+
+        return obtainCacheInfos(taskInstanceId, TaskInformations.PROCESS_INSTANCE_ID);
+    }
+
+    /**
+     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
+     * @param taskInstanceId 任务ID
+     * @return 流程ID
+     */
+    protected String obtainTaskTag(String taskInstanceId) {
+
+        return obtainCacheInfos(taskInstanceId, TaskInformations.TASK_TAG);
+    }
+
+    /**
+     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
+     * @param taskInstanceId 任务ID
+     * @return 流程ID
+     */
+    protected String obtainTaskRoleTag(String taskInstanceId) {
+
+        return obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
+    }
+
+    /**
+     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
+     * @param taskInstanceId 任务ID
+     * @return 业务对象ID
+     */
+    protected String obtainBusinessObjectId(String taskInstanceId) {
+
+        // FIXME: Business object may contain in GWFP engine, current version set it into otherInfos
+        return obtainCacheInfos(taskInstanceId, TaskInformations.BUSINESS_OBJECT_ID);
+    }
+
+    protected Map<String, String> getExtendAttrs(String taskInstanceId) {
+
+        try {
+//            Task task = getTaskService().createTaskQuery().taskId(taskInstanceId).singleResult();
+//            String document = task.getDescription();
+
+            Map<String, String> extendAttrsMap = new HashMap<String, String>();
+            // Retrieve from TLITOI holder
+            String tli = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TLI);
+            logger.finest("Retrieve from TLI holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(tli));
+            String toi = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TOI);
+            logger.finest("Retrieve from TOI holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(toi));
+            String formKey = obtainCacheInfos(taskInstanceId, TaskInformations.FORM_KEY);
+            logger.finest("Retrieve from formKey holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(formKey));
+            String taskRoleTag = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
+            logger.finest("Retrieve from taskRoleTag holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(taskRoleTag));
+            String taskServiceInvoikeExpression = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION);
+            logger.finest("Retrieve from taskServiceInvoikeExpression holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(taskServiceInvoikeExpression));
+
+            if (StringUtils.hasLength(tli)) {
+                extendAttrsMap.put(TASK_LIFECYCLE_INTERCEPTOR, tli);
+            }
+            if (StringUtils.hasLength(toi)) {
+                extendAttrsMap.put(TASK_OPERATION_INTERCEPTOR, toi);
+            }
+            if (StringUtils.hasLength(formKey)) {
+                extendAttrsMap.put(TASK_FORM_KEY, formKey.trim());
+            }
+            if (StringUtils.hasLength(taskRoleTag)) {
+                extendAttrsMap.put(TASK_ROLE_TAG, taskRoleTag.trim());
+            }
+            if (StringUtils.hasLength(taskServiceInvoikeExpression)) {
+                extendAttrsMap.put(TASK_SERVICE_INVOKE_EXPRESSION, taskServiceInvoikeExpression.trim());
+            }
+//            if (!StringUtils.hasText(document)) {
+//                logger.finest("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description is empty.");
+//                return extendAttrsMap.isEmpty() ? null : extendAttrsMap;
+//            }
+//
+//            logger.finest("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description:" + document);
+//
+//            String[] arrayString = StringUtils.tokenizeToStringArray(document, "\r\n");
+            Map<String, String> forReturn = new HashMap<String, String>();
+//            for (String element : arrayString) {
+//                forReturn.put(StringUtils.split(element, ":")[0], StringUtils.split(element, ":")[1]);
+//            }
+
+            forReturn.putAll(extendAttrsMap);
+            logger.fine("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description/TLITOI holder result:" + ObjectUtils.getDisplayString(forReturn));
+            return forReturn;
+
+        } catch (ActivitiException e) {
+            throw new ProcessException("Can not obtain task[" + taskInstanceId + "] extension attribute", e);
+        }
+
+    }
+
+    protected final String[] obtainCommaSplitSpecifyValues(String taskInstanceId, String extendsAttributeKey) {
+
+        Map<String, String> adArray = getExtendAttrs(taskInstanceId);
+        if (adArray == null || adArray.isEmpty()) {
+            logger.fine("Return empty array because extend attribute is empty.");
+            return new String[0];
+        }
+
+        Set<String> valueSet = new LinkedHashSet<String>();
+        for (Entry<String, String> entry : adArray.entrySet()) {
+            if (extendsAttributeKey.equals(entry.getKey())) {
+                logger.finest("Match entry for key[" + extendsAttributeKey + "], value[" + entry.getValue() + "].");
+                String[] interceptorData = StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(entry.getValue()));
+                if (interceptorData != null && interceptorData.length > 0) {
+                    valueSet.addAll(Arrays.asList(interceptorData));
+                }
+            }
+        }
+
+        logger.fine("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] extension attribute key[" + extendsAttributeKey + "]:" + ObjectUtils.getDisplayString(valueSet));
+        return valueSet.toArray(new String[valueSet.size()]);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T[] convertNameToBean(Class<T> clazz, String[] beanName) {
+
+        if (ObjectUtils.isEmpty(beanName)) {
+            logger.fine("Return empty array because bean names is empty.");
+            return (T[]) Array.newInstance(clazz, 0);
+        }
+
+        LinkedHashSet<T> beanList = new LinkedHashSet<T>(beanName.length);
+        for (String name : beanName) {
+            Assert.isTrue(this.beanFactory.containsBean(name), "Bean name[" + name + "] may not be registed in Spring bean factory.");
+            logger.finest("Find bean named[" + name + "] and add it for return.");
+            beanList.add((T) this.beanFactory.getBean(name));
+        }
+
+        T[] array = (T[]) Array.newInstance(clazz, beanList.size());
+        int i = 0;
+        for (Iterator<T> it = beanList.iterator(); it.hasNext();) {
+            array[i] = it.next();
+            i++;
+        }
+
+        logger.fine("Convert bean names[" + ObjectUtils.getDisplayString(beanName) + "] to beans " + ObjectUtils.getDisplayString(array));
+        return array;
+    }
+
+    protected final TaskLifecycleInteceptor[] obtainTaskLifecycleInterceptors(String taskInstanceId) {
+
+        TaskLifecycleInteceptor[] taskExtendAttributes = null;
+
+        String[] perTaskInterceptors = obtainCommaSplitSpecifyValues(taskInstanceId, TASK_LIFECYCLE_INTERCEPTOR);
+        // Check bean name is available and return beans registed in spring application context
+        taskExtendAttributes = convertNameToBean(TaskLifecycleInteceptor.class, perTaskInterceptors);
+
+        if (this.commonTaskLifecycleInterceptor != null && !this.commonTaskLifecycleInterceptor.isEmpty()) {
+            logger.finest("Combin common task-lifecycle-interceptor[" + ObjectUtils.getDisplayString(this.commonTaskLifecycleInterceptor) + "].");
+            taskExtendAttributes = (TaskLifecycleInteceptor[]) ArrayUtils.addAll(
+                    commonTaskLifecycleInterceptor.toArray(new TaskLifecycleInteceptor[commonTaskLifecycleInterceptor.size()]), taskExtendAttributes);
+        }
+        logger.fine("Return task[" + taskInstanceId + "] task-lifecycle-interceptor:" + ObjectUtils.getDisplayString(taskExtendAttributes));
+        return taskExtendAttributes;
+    }
+
+    protected final TaskOperationInteceptor[] obtainTaskOperationInterceptors(String taskInstanceId) {
+
+        TaskOperationInteceptor[] taskExtendAttributes = null;
+
+        String[] perTaskInterceptors = obtainCommaSplitSpecifyValues(taskInstanceId, TASK_OPERATION_INTERCEPTOR);
+        // Check bean name is available and return beans registed in spring application context
+        taskExtendAttributes = (TaskOperationInteceptor[]) convertNameToBean(TaskOperationInteceptor.class, perTaskInterceptors);
+
+        if (this.commonTaskOperationInterceptor != null && !this.commonTaskOperationInterceptor.isEmpty()) {
+            logger.finest("Combin common task-operation-interceptor[" + ObjectUtils.getDisplayString(this.commonTaskOperationInterceptor) + "].");
+            taskExtendAttributes = (TaskOperationInteceptor[]) ArrayUtils.addAll(
+                    commonTaskOperationInterceptor.toArray(new TaskOperationInteceptor[commonTaskOperationInterceptor.size()]), taskExtendAttributes);
+        }
+
+        logger.fine("Return task[" + taskInstanceId + "] task-operation-interceptor:" + ObjectUtils.getDisplayString(taskExtendAttributes));
+        return taskExtendAttributes;
+    }
+
+    protected final boolean hasParentProcess(String processInstanceId) {
+
+        // Delegate this operation
+        // != change to !equals by MENGRAN at 2011-01-05
+        return !obtainRootProcess(processInstanceId).equals(processInstanceId);
+    }
+
+    protected final String obtainRootProcess(String processInstanceId) {
+
+        Assert.hasText(processInstanceId);
+
+        String parentProcessId = processInstanceId;
+        String rootProcessId = processInstanceId;
+        while (parentProcessId != null) {
+            try {
+                rootProcessId = parentProcessId;
+                ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().subProcessInstanceId(parentProcessId).singleResult();
+                logger.finest("Found parent process instance [" + ObjectUtils.getDisplayString(pi) + "] of [" + parentProcessId);
+                parentProcessId = pi == null ? null : pi.getProcessInstanceId();
+            } catch (ActivitiException e) {
+                throw new ProcessException("Can not found local process instance when try to handle sub-process.", e);
+            }
+        }
+
+        logger.fine("Return root process ID[" + rootProcessId + "] of " + processInstanceId);
+        return rootProcessId;
+    }
+
+    protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) {
+
+        logger.info("Process instance[" + processInstanceId + "] end. Trigger task[" + triggerTaskInstanceId + "]");
+        this.applicationEventPublisher.publishEvent(new ProcessInstanceEndEvent(processInstanceId,
+                triggerTaskInstanceId, hasParentProcess(processInstanceId), triggerTaskExecutionContext));
+    }
+//	protected final String[] obtainTaskExecuteActions(String taskInstanceId) {
+//
+//		return obtainCommaSplitSpecifyValues(taskInstanceId, COMPLETE_TASK_EXECUTE_ACTION);
+//	}
+}

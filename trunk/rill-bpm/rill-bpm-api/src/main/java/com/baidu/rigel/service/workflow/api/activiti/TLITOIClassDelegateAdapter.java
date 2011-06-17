@@ -1,0 +1,102 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.baidu.rigel.service.workflow.api.activiti;
+
+import java.util.List;
+import java.util.logging.Logger;
+import org.activiti.engine.ActivitiException;
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.delegate.Expression;
+import org.activiti.engine.impl.bpmn.helper.ClassDelegate;
+import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
+import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
+import org.springframework.util.Assert;
+
+/**
+ * Specify Activiti listener for adapt t-com's workflow task-lifecycle-interceptor(TLI)/task-operation-interceptor(TOI).
+ * 
+ * @author mengran
+ * @see ActivitiAccessor#TASK_LIFECYCLE_INTERCEPTOR
+ * @see ActivitiAccessor#TASK_OPERATION_INTERCEPTOR
+ * @see #TASK_SERVICE_INVOKE_EXPRESSION
+ */
+public final class TLITOIClassDelegateAdapter extends ClassDelegate {
+
+    private static final Logger logger = Logger.getLogger(TLITOIClassDelegateAdapter.class.getName());
+
+    private static final String TASK_SERVICE_INVOKE_EXPRESSION = ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION;
+    
+    private String taskLifycycleInterceptors;
+    private String taskOperationInterceptors;
+    private String taskServiceInvokeExpression;
+
+    public TLITOIClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
+        super(className, fieldDeclarations);
+
+        Assert.notEmpty(fieldDeclarations, "Please inject fields for task-lifecycle-interceptor/task-operation-interceptor.");
+        for (FieldDeclaration fd : fieldDeclarations) {
+
+            String value = null;
+            if (fd.getType().equals(Expression.class.getName())) {
+                value = ((Expression) fd.getValue()).getExpressionText();
+            } else {
+                throw new ActivitiException("Field declarations type[" + fd.getType() +
+                        "] not equals" + Expression.class.getName());
+            }
+            if (ActivitiAccessor.TASK_LIFECYCLE_INTERCEPTOR.equals(fd.getName().trim())) {
+                taskLifycycleInterceptors = value;
+            }
+            if (ActivitiAccessor.TASK_OPERATION_INTERCEPTOR.equals(fd.getName().trim())) {
+                taskOperationInterceptors = value;
+            }
+            if (TASK_SERVICE_INVOKE_EXPRESSION.equals(fd.getName().trim())) {
+                taskServiceInvokeExpression = value;
+            }
+        }
+
+        Assert.notNull(taskLifycycleInterceptors, "Please inject fields for task-lifecycle-interceptor.");
+        if (taskOperationInterceptors == null) {
+            logger.fine("Not found injected field for task-operation-interceptor.");
+        }
+        if (taskServiceInvokeExpression == null) {
+            logger.fine("Not found injected field for taskServiceInvokeExpression.");
+        }
+    }
+
+    @Override
+    public void notify(DelegateExecution execution) throws Exception {
+
+        logger.fine("Do nothing when TLIClassDelegateAdapter as a execution listener.");
+    }
+
+    @Override
+    public void notify(DelegateTask delegateTask) {
+
+        logger.fine("Do nothing when TLIClassDelegateAdapter as a task listener.");
+    }
+
+    @Override
+    public void execute(ActivityExecution execution) throws Exception {
+
+        logger.fine("Do nothing when TLIClassDelegateAdapter as a activity behavior.");
+    }
+
+    public final String obtainTaskLifycycleInterceptors() {
+
+        return taskLifycycleInterceptors;
+    }
+
+    public final String obtainTaskOperationInterceptors() {
+
+        return taskOperationInterceptors;
+    }
+
+    public String getTaskServiceInvokeExpression() {
+        return taskServiceInvokeExpression;
+    }
+
+}
