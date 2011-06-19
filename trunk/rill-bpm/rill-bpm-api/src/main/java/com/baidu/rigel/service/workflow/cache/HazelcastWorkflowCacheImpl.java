@@ -12,6 +12,7 @@ import com.hazelcast.core.Hazelcast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
@@ -87,7 +88,7 @@ public class HazelcastWorkflowCacheImpl implements WorkflowCache {
         // Using concurrent package class to prevent thread-safe
         if (taskInstanceInfoCache.get(taskInstanceId) != null) {
             String cacheHit = taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
-            logger.fine("Hit cache of task instance id[" + taskInstanceId + "], return " + cacheHit + " as " + cacheInfo.name());
+            logger.log(Level.FINE, "Hit cache of task instance id[{0}], return {1} as {2}", new Object[]{taskInstanceId, cacheHit, cacheInfo.name()});
             return cacheHit;
         }
 
@@ -147,7 +148,7 @@ public class HazelcastWorkflowCacheImpl implements WorkflowCache {
 
         // Put into cache
         taskInstanceInfoCache.putIfAbsent(taskInstanceId, taskRelatedInfo);
-        logger.fine("Cache informations of task instance id[" + taskInstanceId + "]." + ObjectUtils.getDisplayString(taskRelatedInfo));
+        logger.log(Level.FINE, "Cache informations of task instance id[{0}].{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskRelatedInfo)});
 
         return taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
     }
