@@ -1,3 +1,15 @@
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.baidu.rigel.service.workflow.api.activiti;
 
 import java.io.PrintWriter;
@@ -24,7 +36,6 @@ import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
 import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
 import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.exception.ProcessDistributeTransactionException;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -51,16 +62,9 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * 公司名：百度 <br>
- * 系统名：Rigel直销系统<br>
- * 子系统名: <br>
- * 模块名：HT-SUPPORT <br>
- * 文件名：ActivitiTemplate.java<br>
- * 功能说明: Activiti工作流操作实现类。使用Activiti本地工作流API接口。<br>
+ * Activiti implementation of {@link WorkflowOperations}.
  * @author mengran
- * @version 1.0.0
- * @date 2010-5-14下午04:32:06
- **/
+ */
 public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperations {
 
     private static final String THREAD_RESOURCE_SCOPE = ActivitiTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
@@ -72,7 +76,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
         // Ensure business object not null
         if (businessObjectId == null) {
-            throw new ProcessException("Parameter[businessObjectId] is null.");
+            throw new ProcessException("Parameter[businessObjectId] is null.").setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE);
         }
 
         UUID uuid = obtainAccessUUID();
@@ -87,17 +91,18 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                     releaseThreadLocalResource(uuid);
 
                     // Throw exception for terminal process creation
-                    throw new ProcessException("Fail to create process:" + pe.getMessage(), pe);
+                    throw pe.setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE).setBoId(businessObjectId.toString());
                 }
             }
         }
         if (cpRequest == null) {
             // Release thread-local resource
             releaseThreadLocalResource(uuid);
-            throw new ProcessException("Fail to create process, because processDefinitionKey is null. And you can set it though [modelInfo] parameter simply, or using " + ProcessCreateInteceptor.class.getName());
+            throw new ProcessException("Fail to create process, because processDefinitionKey is null. "
+                    + "And you can set it though [modelInfo] parameter simply, or using " + ProcessCreateInteceptor.class.getName()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE).setBoId(businessObjectId.toString());
         }
 
-        // Call GWFP service to create a process
+        // Call engine service to create a process
         ProcessInstance response = null;
         try {
             // Do create process instance of work flow engine
@@ -112,39 +117,33 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 List<ProcessCreateInteceptor> reverseList = new ArrayList<ProcessCreateInteceptor>();
                 reverseList.addAll(getProcessCreateInteceptor());
                 Collections.reverse(reverseList);
-                logger.fine("Process create interceptor after reverse " + ObjectUtils.getDisplayString(reverseList));
+                logger.log(Level.FINE, "Process create interceptor after reverse {0}", ObjectUtils.getDisplayString(reverseList));
                 for (ProcessCreateInteceptor pci : reverseList) {
                     // Do post operation
                     try {
                         pci.postOperation(response, businessObjectId, processStarterInfo);
-                    } catch (Exception e) {
-                        throw new ProcessDistributeTransactionException("null",
-                                response.getProcessInstanceId(), null,
-                                ProcessDistributeTransactionException.EXCEPTION_TRIGGER_ACTION.START_PROCESS_INSTANCE, e);
+                    } catch (ProcessException pe) {
+                        throw pe.setBoId(response.getBusinessKey()).setEngineProcessInstanceId(response.getProcessInstanceId()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE);
                     }
                 }
             }
 
-            // Handle task initialize event
+            // Handle task initialize phase
             try {
                 List<Task> taskList = new ArrayList<Task>(taskIds.size());
                 for (String taskId : taskIds) {
                     taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
                 }
-                logger.fine("Retrieve generated-task" + ObjectUtils.getDisplayString(taskList));
+                logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
                 handleTaskInit(taskList, response.getProcessInstanceId(), null, null);
-            } catch (Exception e) {
-                throw new ProcessDistributeTransactionException("null",
-                        response.getProcessInstanceId(), null,
-                        ProcessDistributeTransactionException.EXCEPTION_TRIGGER_ACTION.INIT_TASK_INSTANCE, e);
+            } catch (ProcessException e) {
+                throw e.setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.INIT).setBoId(response.getBusinessKey()).setEngineProcessInstanceId(response.getProcessInstanceId());
             }
         } catch (ActivitiException e) {
-            throw new ProcessException("Fail to create process: " + e.getMessage(), e);
-        } catch (ProcessDistributeTransactionException pdte) {
-            logger.severe("Occurred distribute transaction exception. we try to rollback it.");
-
+            throw new ProcessException("Fail to create process: " + e.getMessage(), e).setBoId(businessObjectId.toString()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.ENGINE_OPERATION);
+        } catch (ProcessException pdte) {
             // Call exception handle procedure
-            handleProcessDistributeTransactionException(pdte);
+            handleProcessException(pdte);
         } finally {
             // Release resource
             releaseThreadLocalResource(uuid);
@@ -160,11 +159,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
         // Compare UUID
         if (uuid == threadUUID || uuid.equals(threadUUID)) {
-            logger.info("Clear thread-local resource. UUID given:" + uuid + "; thread UUID:" + threadUUID);
+            logger.log(Level.INFO, "Clear thread-local resource. UUID given:{0}; thread UUID:{1}", new Object[]{uuid, threadUUID});
             // Release resource.
             ThreadLocalResourceHolder.getThreadMap().clear();
         } else {
-            logger.info("Do not clear thread-local resource. UUID given:" + uuid + "; thread UUID:" + threadUUID);
+            logger.log(Level.INFO, "Do not clear thread-local resource. UUID given:{0}; thread UUID:{1}", new Object[]{uuid, threadUUID});
         }
     }
 
@@ -174,11 +173,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             // Means scope start point
             UUID uuid = UUID.randomUUID();
             ThreadLocalResourceHolder.bindProperty(THREAD_RESOURCE_SCOPE, uuid);
-            logger.fine("Start thread local resource scope. Cache UUID:" + uuid);
+            logger.log(Level.FINE, "Start thread local resource scope. Cache UUID:{0}", uuid);
             return uuid;
         } else {
             UUID newUUID = UUID.randomUUID();
-            logger.fine("Nested workflow access, return new UUID" + newUUID);
+            logger.log(Level.FINE, "Nested workflow access, return new UUID{0}", newUUID);
             return newUUID;
         }
     }
@@ -240,7 +239,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                             Iterator<IdentifierNode> iterator = listIdentifierNode.iterator();
                             while (iterator.hasNext()) {
                                 String variableNames = iterator.next().toString();
-                                logger.finest("Found process variables:" + variableNames + " on transition:" + pt);
+                                logger.log(Level.FINEST, "Found process variables:{0} on transition:{1}", new Object[]{variableNames, pt});
                                 processAllVariables.add(variableNames);
                             }
                         } catch (IllegalArgumentException ex) {
@@ -250,7 +249,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                         }
                     }
                 }
-                logger.fine("Found process variables:" + ObjectUtils.getDisplayString(processAllVariables) + ", process instance id:" + engineProcessInstanceId);
+                logger.log(Level.FINE, "Found process variables:{0}, process instance id:{1}", new Object[]{ObjectUtils.getDisplayString(processAllVariables), engineProcessInstanceId});
                 return processAllVariables;
             }
         });
@@ -259,12 +258,12 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     /**
      *
-     * 流程操作Call-Back类
+     * Process operation call-back
      */
     private interface ProcessInstanceOperationCallBack {
 
         /**
-         * @return 流程操作类型
+         * @return Operation type
          */
         WorkflowOperations.PROCESS_OPERATION_TYPE operationType();
 
@@ -273,12 +272,12 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     /**
-     * 流程操作模板方法
-     * @param engineProcessInstanceId 流程实例ID
-     * @param operator 操作者
-     * @param reason 原因
-     * @param callback 流程操作CallBack防范
-     * @throws ProcessException 工作流异常
+     * Process operation template method.
+     * @param engineProcessInstanceId engine process instance ID
+     * @param operator operator
+     * @param reason Reason
+     * @param callback Call back
+     * @throws ProcessException Exception when execute operation
      */
     private void processInstanceOperationTemplate(String engineProcessInstanceId,
             String operator, String reason, ProcessInstanceOperationCallBack callback) throws ProcessException {
@@ -296,7 +295,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                     // Release resource
                     releaseThreadLocalResource(uuid);
                     throw new ProcessException("Fail to do " + callback.operationType().name()
-                            + " on process instance[" + engineProcessInstanceId + pe.getMessage(), pe);
+                            + " on process instance[" + engineProcessInstanceId + pe.getMessage(), pe).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_OPERATION).setOperator(operator);
                 }
             }
         }
@@ -312,24 +311,24 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 reverseList.addAll(getProcessOperationInteceptors());
                 Collections.reverse(reverseList);
                 for (ProcessOperationInteceptor poi : reverseList) {
-                    try {
-                        // Throw NullPointerException if not implementation rightly
-                        if (poi.handleOpeationType().equals(callback.operationType())) {
+                    // Throw NullPointerException if not implementation rightly
+                    if (poi.handleOpeationType().equals(callback.operationType())) {
+                        try {
                             poi.postOperation(engineProcessInstanceId);
+                        } catch (ProcessException pe) {
+                            throw new ProcessException("Fail to do " + callback.operationType().name()
+                                    + " on process instance[" + engineProcessInstanceId + pe.getMessage(), pe).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_OPERATION).setOperator(operator);
                         }
-                    } catch (Exception e) {
-                        throw new ProcessDistributeTransactionException(operator, engineProcessInstanceId, null,
-                                ProcessDistributeTransactionException.convertWorkflowOperation(callback.operationType()), e);
+
                     }
                 }
             }
 
         } catch (ActivitiException e) {
-            throw new ProcessException("Fail to do " + callback.operationType().name() + " on process instance[" + engineProcessInstanceId + "].", e);
-        } catch (ProcessDistributeTransactionException pdte) {
-            logger.severe("Occurred distribute transaction exception. we try to rollback it.");
+            throw new ProcessException("Fail to do " + callback.operationType().name() + " on process instance[" + engineProcessInstanceId + "].", e).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_OPERATION).setOperator(operator);
+        } catch (ProcessException pdte) {
             // Call exception handle procedure
-            handleProcessDistributeTransactionException(pdte);
+            handleProcessException(pdte);
         } finally {
             // Release resource
             releaseThreadLocalResource(uuid);
@@ -345,7 +344,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
             public void doOperation(String processInstanceId,
                     String operator, String reason) throws ActivitiException {
-                logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation" + operationType() + ".");
+                logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation{0}.", operationType());
 //                throw new ActivitiException("Unsupported operation" + operationType() + ".");
             }
 
@@ -364,7 +363,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
             public void doOperation(String processInstanceId,
                     String operator, String reason) throws ActivitiException {
-                logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation" + operationType() + ".");
+                logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation{0}.", operationType());
 //                throw new ActivitiException("Unsupported operation" + operationType() + ".");
             }
 
@@ -384,7 +383,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             public void doOperation(String engineProcessInstanceId,
                     String operator, String reason) throws ActivitiException {
 
-                logger.info("ACTIVITI5: Terminal process instance[" + engineProcessInstanceId + ".");
+                logger.log(Level.INFO, "ACTIVITI5: Terminal process instance[{0}.", engineProcessInstanceId);
                 // Do terminal operation
                 getRuntimeService().deleteProcessInstance(engineProcessInstanceId, reason);
             }
@@ -396,18 +395,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     }
 
-//    public void terminalProcessOfGWFP(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
-//        try {
-//            logger.info("ACTIVITI5: DO NOTHING WHEN [RESUME PROCESS-INSTANCE] OPERATION.");
-////			ProcessStatus processStatusOfGWFP = getProcessStateFromGWFP(engineProcessInstanceId);
-////			if(processStatusOfGWFP != null && !ProcessStatus.terminaled.equals(processStatusOfGWFP)){
-//////				this.getBpmServiceClient().terminalProcess(engineProcessInstanceId, operator, reason);
-////				logger.info("ACTIVITI5: DO NOTHING WHEN [RESUME PROCESS-INSTANCE] OPERATION.");
-////			}
-//        } catch (ActivitiException e) {
-//            throw new ProcessException("终止流程失败：GWFP异常。流程Id：" + engineProcessInstanceId, e);
-//        }
-//    }
     // -------------------------------- Task related API ---------------------------------- //
     public void batchCompleteTaskIntances(
             LinkedHashMap<String, Map<String, Object>> batchDTO,
@@ -415,7 +402,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
         Assert.notEmpty(batchDTO);
 
-        logger.info("Batch complete task instance. Params:" + ObjectUtils.getDisplayString(batchDTO));
+        logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
         for (Entry<String, Map<String, Object>> entry : batchDTO.entrySet()) {
 
             // Delegate to single-task operation
@@ -471,7 +458,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     protected void doCompleteTaskInstance(String engineTaskInstanceId,
             String operator, Map<String, Object> workflowParams) throws ProcessException {
 
-        logger.info("Complete task instance. Params:" + ObjectUtils.getDisplayString(workflowParams));
+        logger.log(Level.INFO, "Complete task instance. Params:{0}", ObjectUtils.getDisplayString(workflowParams));
 
         // Build task execution context
         ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, workflowParams);
@@ -490,7 +477,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 } catch (ProcessException pe) {
                     // Call work-flow operations exception handler
                     taskLifecycleInterceptorExceptionHandler(pe, tasklifecycleInteceptor, tasklifecycleInteceptors);
-                    throw new ProcessException("Fail to complete task id:" + engineTaskInstanceId, pe);
+                    throw new ProcessException("Fail to complete task id:" + engineTaskInstanceId, pe).setEngineTaskInstanceId(engineTaskInstanceId).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.PRE_COMPLETE).setOperator(operator);
                 }
             }
         }
@@ -507,7 +494,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             Set<String> nonPri = new HashSet<String>();
             for (Entry<String, Object> entry : workflowParams.entrySet()) {
                 if (!ClassUtils.isPrimitiveOrWrapper(entry.getValue().getClass())) {
-                    logger.finest("Find not primitive or it's wrapper object[key=" + entry.getKey() + "], we will discard it for performance.");
+                    logger.log(Level.FINEST, "Find not primitive or it''s wrapper object[key={0}], we will discard it for performance.", entry.getKey());
                     nonPri.add(entry.getKey());
                 }
             }
@@ -517,8 +504,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         }
         // Filter engine-driven DTO is nessesary
         workflowParams.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
-        
-        logger.info("Complete task:" + engineTaskInstanceId + ", with workflow params:" + ObjectUtils.getDisplayString(workflowParams));
+
+        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(workflowParams)});
 
         // Access engine
         try {
@@ -531,8 +518,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             getTaskService().complete(engineTaskInstanceId, workflowParams);
             taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
             long endCompleteTime = System.currentTimeMillis();
-            logger.info("Complete task operation done. [taskInstanceid: "
-                    + engineTaskInstanceId + ", operator: " + operator + ", timeCost: " + (endCompleteTime - startCompleteTime) + " ms]");
+            logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
             // Get new generated tasks
             List<Task> taskList = new ArrayList<Task>(taskIds.size());
             for (String taskId : taskIds) {
@@ -552,9 +538,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                     } catch (Exception pe) {
                         // Call work-flow operations exception handler
                         taskLifecycleInterceptorExceptionHandler(pe, tasklifecycleInteceptor, tasklifecycleInteceptors);
-
-                        throw new ProcessDistributeTransactionException(operator, obtainProcessInstanceId(engineTaskInstanceId), engineTaskInstanceId,
-                                ProcessDistributeTransactionException.EXCEPTION_TRIGGER_ACTION.COMPLETE_TASK_INSTANCE, pe);
+                        throw new ProcessException(pe).setEngineTaskInstanceId(engineTaskInstanceId).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.POST_COMPLETE).setOperator(operator);
                     }
                 }
             }
@@ -562,11 +546,10 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             // Handle task initialize event
             try {
                 handleTaskInit(taskList, obtainProcessInstanceId(engineTaskInstanceId), engineTaskInstanceId, taskExecutionContext);
-            } catch (Exception e) {
+            } catch (ProcessException pe) {
                 // Call work-flow operations exception handler -- Do it In handleTaskInit method.
 //				workflowOperationsExceptionHandlerInvoke(e, tasklifecycleInteceptor);
-                throw new ProcessDistributeTransactionException(operator, obtainProcessInstanceId(engineTaskInstanceId), engineTaskInstanceId,
-                        ProcessDistributeTransactionException.EXCEPTION_TRIGGER_ACTION.INIT_TASK_INSTANCE, e);
+                throw pe.setOperator(operator);
             }
 
             // Call after complete operation
@@ -578,19 +561,16 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                     } catch (Exception e) {
                         // Call work-flow operations exception handler
                         taskLifecycleInterceptorExceptionHandler(e, tasklifecycleInteceptor, tasklifecycleInteceptors);
-                        throw new ProcessDistributeTransactionException(operator, obtainProcessInstanceId(engineTaskInstanceId), engineTaskInstanceId,
-                                ProcessDistributeTransactionException.EXCEPTION_TRIGGER_ACTION.AFTER_COMPLETE, e);
+                        throw new ProcessException(e).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.AFTER_COMPLETE).setEngineTaskInstanceId(engineTaskInstanceId).setOperator(operator);
                     }
                 }
             }
 
         } catch (ActivitiException e) {
-            throw new ProcessException("Fail to complete task[" + engineTaskInstanceId + "].", e);
-        } catch (ProcessDistributeTransactionException pdte) {
-            logger.severe("Occurred distribute transaction exception. we try to rollback it." + pdte);
-
+            throw new ProcessException("Fail to complete task[" + engineTaskInstanceId + "].", e).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.ENGINE_OPERATION).setEngineTaskInstanceId(engineTaskInstanceId).setOperator(operator);
+        } catch (ProcessException pdte) {
             // Call exception handle procedure
-            handleProcessDistributeTransactionException(pdte);
+            handleProcessException(pdte);
         } finally {
             // Move to outer
             // Release resource
@@ -608,7 +588,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             return;
         }
 
-        logger.info("Call task lifecycle inteceptor's exception handle method." + ObjectUtils.getDisplayString(tasklifecycleInteceptors) + " for murderer:" + exceptionMurderer);
+        logger.log(Level.INFO, "Call task lifecycle inteceptor''s exception handle method.{0} for murderer:{1}", new Object[]{ObjectUtils.getDisplayString(tasklifecycleInteceptors), exceptionMurderer});
         for (TaskLifecycleInteceptor tli : tasklifecycleInteceptors) {
             try {
                 tli.onExceptionOccurred(e, exceptionMurderer);
@@ -619,12 +599,15 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     }
 
-    protected void handleProcessDistributeTransactionException(ProcessDistributeTransactionException pdte) {
+    protected void handleProcessException(ProcessException pdte) {
 
-        logger.severe("Distribute transaction exception occurred!!! \n"
-                + "ProcessInstanceId[" + pdte.getProcessInstanceId() + "],"
-                + "TaskInstanceId[" + ObjectUtils.nullSafeToString(pdte.getTaskInstanceId()) + "],"
-                + "Trigger Event[" + pdte.getEta().name() + "].");
+        logger.log(Level.SEVERE, "Process exception occurred!!! \n" + "ProcessInstanceId[{0}"
+                + "]," + "TaskInstanceId[{1}" + "],"
+                + "Process Phase[{2}" + "]," + "Task Phase[{3}].",
+                new Object[]{ObjectUtils.getDisplayString(pdte.getEngineProcessInstanceId()),
+                    ObjectUtils.nullSafeToString(pdte.getEngineTaskInstanceId()),
+                    pdte.getProcessInterceptorPhase().name(),
+                    pdte.getTaskLifecycleInterceptorPhase().name()});
 
         if (getDistributeTransactionMessage() == null) {
             logger.warning("No configured distributeTransactionMessage, do not send message.");
@@ -635,14 +618,15 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                     InetAddress localHostInfo = InetAddress.getLocalHost();
                     model.put("hostInfo", localHostInfo.getHostName() + " " + localHostInfo.getHostAddress());
                 } catch (Exception e) {
-                    model.put("hostInfo", "未知");
+                    logger.log(Level.FINEST, "Can not get local host information.", e);
+                    model.put("hostInfo", "Unknown");
                 }
-                model.put("processInstanceId", pdte.getProcessInstanceId());
-                model.put("taskInstanceId", ObjectUtils.nullSafeToString(pdte.getTaskInstanceId()));
-                model.put("workflowOperation", pdte.getEta().toString());
+                model.put("processInstanceId", pdte.getEngineProcessInstanceId());
+                model.put("taskInstanceId", ObjectUtils.nullSafeToString(pdte.getEngineTaskInstanceId()));
+                model.put("workflowOperation", pdte.getTaskLifecycleInterceptorPhase().name());
                 model.put("operator", pdte.getOperator());
-                if (pdte.getTaskInstanceId() != null) {
-                    model.put("boId", obtainBusinessObjectId(pdte.getTaskInstanceId()));
+                if (pdte.getEngineTaskInstanceId() != null) {
+                    model.put("boId", obtainBusinessObjectId(pdte.getEngineTaskInstanceId()));
                 } else {
                     model.put("boId", "null");
                 }
@@ -656,11 +640,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                         org.springframework.util.StringUtils.hasText(getDistributeTransactionMailTemplate())
                         ? getDistributeTransactionMailTemplate() : "distributeTransactionMailTemplate.ftl", model);
             } catch (Exception e) {
-                logger.warning("Exception occurred when try to send email." + e);
+                logger.log(Level.WARNING, "Exception occurred when try to send email.{0}", e);
             }
         }
 
-        throw new ProcessException("Sorry, distributed transaction exception occurred and have notice related developer.", pdte);
+        throw pdte;
     }
 
     private void injectProcessStatus(ActivitiTaskExecutionContext taskExecutionContext, List<Task> acr) {
@@ -674,7 +658,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     }
 
-    protected void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) {
+    protected void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) throws ProcessException {
 
         // Means process will end
         ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
@@ -686,19 +670,10 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
         // Task life cycle initialize method processing
         for (Task response : acr) {
-//			// Sub-process end, we log it
-//			if (response.isProcessFinish()) {
-//				if (hasParentProcess(engineProcessInstanceId))
-//					logger.info("Sub-process has end. ProcessInstance:[" + engineProcessInstanceId + "].");
-//				else
-//					throw new IllegalArgumentException("Main process has end, but not handle by code above[publishProcessEndEvent].");
-//				continue;
-//			}
-
             TaskLifecycleInteceptor[] newTasklifecycleInteceptors = (TaskLifecycleInteceptor[]) obtainTaskLifecycleInterceptors(response.getId());
             ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), null, null);
             taskExecutionContext.setActivityContentResponse(response);
-            logger.fine("Call generated-task's interceptor#init " + ObjectUtils.getDisplayString(response));
+            logger.log(Level.FINE, "Call generated-task''s interceptor#init {0}", ObjectUtils.getDisplayString(response));
             for (TaskLifecycleInteceptor newTaskLifecycleInteceptor : newTasklifecycleInteceptors) {
                 try {
                     // Invoke interceptor's initial method
@@ -706,7 +681,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 } catch (Exception e) {
                     // Call work-flow operations exception handler
                     taskLifecycleInterceptorExceptionHandler(e, newTaskLifecycleInteceptor, newTasklifecycleInteceptors);
-                    throw new ProcessException(e);
+                    throw new ProcessException(e).setEngineTaskInstanceId(response.getId());
                 }
             }
         }

@@ -1,5 +1,14 @@
-/**
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baidu.rigel.service.workflow.api.finder;
 
@@ -14,18 +23,18 @@ import com.baidu.rigel.service.workflow.api.exception.TaskUnExecutableException;
 public interface RoleTagRelationalManFinder {
 
 	/**
-	 * 通过这个KEY值可以得到上下文中的DTO，由特定Finder组件实现相关类放入
+	 * Obtain thread-binding DTO.
 	 * @see ThreadLocalResourceHolder#getProperty(Object)
 	 */
 	String FINDER_EXTRA_DTO_HOLDER_KEY = RoleTagRelationalManFinder.class.getName() + ".FINDER_EXTRA_DTO_KEY";
 	
 	/**
-	 * 根据传入的Role Tag找到对应的人。
-	 * @param roleTag 角色的标识
-	 * @param engineProcessId 引擎流程ID
-	 * @param engineTaskId 引擎任务ID
-	 * @param processInstanceId 流程实例ID
-	 * @return 找到的人。<code>NULL</code> if not found.
+	 * Task executor finder.
+	 * @param roleTag role tag
+	 * @param engineProcessId engine process instance ID
+	 * @param engineTaskId engine task ID
+	 * @param processInstanceId local process engine ID
+	 * @return Founded executor <code>NULL</code> if not found.
 	 * @throws IllegalArgumentException if parameter given is empty.
 	 * @throws TaskUnExecutableException if internal error occurred
 	 * @see org.springframework.util.StringUtils#hasText(String)

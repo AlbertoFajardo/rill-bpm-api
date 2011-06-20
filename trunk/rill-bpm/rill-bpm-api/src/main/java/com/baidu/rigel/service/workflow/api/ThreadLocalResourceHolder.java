@@ -1,3 +1,15 @@
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.baidu.rigel.service.workflow.api;
 
 import java.util.HashMap;
@@ -6,7 +18,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.util.ObjectUtils;
-
+/**
+ * Thread-local resource holder class, for pass data on the thead.
+ * @author mengran
+ */
 public abstract class ThreadLocalResourceHolder {
 
     private static final Logger log = Logger.getLogger(ThreadLocalResourceHolder.class.getName());
@@ -40,7 +55,7 @@ public abstract class ThreadLocalResourceHolder {
 
         Map<Object, Object> queryMap = getThreadMap();
 
-        log.fine("Retrieve Object [" + queryMap.get(key) + "] from thread [" + Thread.currentThread().getName() + "] using key[" + key + "].");
+        log.log(Level.FINE, "Retrieve Object [{0}] from thread [{1}] using key[{2}].", new Object[]{queryMap.get(key), Thread.currentThread().getName(), key});
         return queryMap.get(key);
     }
 
@@ -56,14 +71,14 @@ public abstract class ThreadLocalResourceHolder {
         }
 
         if (getProperty(key) != null) {
-            log.log(Level.WARNING, "Already bind [" + key + "] to thread [" + Thread.currentThread().getName() + "], old value:" + getProperty(key) + ", new value:" + (target == null ? "null" : target));
+            log.log(Level.WARNING, "Already bind [{0}] to thread [{1}], old value:{2}, new value:{3}", new Object[]{key, Thread.currentThread().getName(), getProperty(key), target == null ? "null" : target});
         }
 
         Map<Object, Object> propertiesMap = getThreadMap();
         //Set value
         propertiesMap.put(key, target);
 
-        log.fine("Bound Object [" + target + "] to thread [" + Thread.currentThread().getName() + "]");
+        log.log(Level.FINE, "Bound Object [{0}] to thread [{1}]", new Object[]{target, Thread.currentThread().getName()});
     }
 
     /**
@@ -79,12 +94,12 @@ public abstract class ThreadLocalResourceHolder {
         //Get Current Thread Map
         Map<Object, Object> propertiesMap = getThreadMap();
         if (!propertiesMap.containsKey(key)) {
-            log.fine("Removed value [" + key + "] from thread [" + Thread.currentThread().getName() + "]");
+            log.log(Level.FINE, "Removed value [{0}] from thread [{1}]", new Object[]{key, Thread.currentThread().getName()});
         }
 
         propertiesMap.remove(key);
 
-        log.fine("Removed value [" + key + "] from thread [" + Thread.currentThread().getName() + "]");
+        log.log(Level.FINE, "Removed value [{0}] from thread [{1}]", new Object[]{key, Thread.currentThread().getName()});
     }
 
     public static String printAll() {
