@@ -1,8 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
@@ -10,6 +17,7 @@ import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.BeansException;
@@ -89,10 +97,9 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
             Assert.notNull(currentTask, "Can not find current task from execution context");
             expression = currentTask.getName() + "Service." + currentTask.getName() + "Complete(" + UNKNOWN + ")";
 
-            logger.finest("Can not find task service invoke expression from task extend attrs, " +
-                    "and we build one follow JavaEE6's [Configuration With Exception] pattern : " + expression);
+            logger.log(Level.FINEST,"Can not find task service invoke expression from task extend attrs, " + "and we build one follow JavaEE6''s [Configuration With Exception] pattern : {0}", expression);
         }
-        logger.fine("Using task service invoke expression: " + expression);
+        logger.log(Level.FINE, "Using task service invoke expression: {0}", expression);
 
         // Prepare invoke informations
         String[] beforeLeftBracket = expression.substring(0, expression.indexOf("(")).split("\\.");
@@ -115,9 +122,9 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
             Method method = ReflectionUtils.findMethod(clazz, methodName);
             // Not empty array or not null
             if ((isArray(t) && !ObjectUtils.isEmpty((Object[]) t)) || t != null) {
-                logger.warning("Invoke expression: " + expression + ", and is not need any parameter.");
+                logger.log(Level.WARNING, "Invoke expression: {0}, and is not need any parameter.", expression);
             }
-            logger.fine("Reflect method: " + method + " on service bean: " + serviceBean + " for expression:" + expression);
+            logger.log(Level.FINE, "Reflect method: {0} on service bean: {1} for expression:{2}", new Object[]{method, serviceBean, expression});
             ReflectionUtils.makeAccessible(method);
             return ReflectionUtils.invokeMethod(method, serviceBean);
         } else {
@@ -145,7 +152,7 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
             
             Method method = ReflectionUtils.findMethod(clazz, methodName, parameterClasses);
             ReflectionUtils.makeAccessible(method);
-            logger.fine("Reflect method: " + method + " on service bean: " + serviceBean + " params: " + ObjectUtils.getDisplayString(parameterObject) + " for expression:" + expression);
+            logger.log(Level.FINE, "Reflect method: {0} on service bean: {1} params: {2} for expression:{3}", new Object[]{method, serviceBean, ObjectUtils.getDisplayString(parameterObject), expression});
             return ReflectionUtils.invokeMethod(method, serviceBean, parameterObject);
         }
 

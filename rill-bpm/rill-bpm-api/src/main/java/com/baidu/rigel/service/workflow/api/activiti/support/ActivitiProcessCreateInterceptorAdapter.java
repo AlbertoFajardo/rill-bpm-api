@@ -1,12 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
 import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.activiti.engine.runtime.ProcessInstance;
 
@@ -24,10 +33,6 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
         if (!(modelInfo instanceof String)) {
             throw new ProcessException("modelInfo must a String.");
         }
-
-//        if (!(processStarterInfo instanceof String)) {
-//            throw new ProcessException("processStarterInfo must a String.");
-//        }
     }
 
     public final Object preOperation(Object modelInfo, Object processStarterInfo, Long businessObjectId, Map<String, Object> startParams) throws ProcessException {
@@ -36,7 +41,7 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
         checkParam(modelInfo, processStarterInfo);
 
         try {
-            logger.fine("Execute process create interceptor#preOperation [" + this + "].");
+            logger.log(Level.FINE, "Execute process create interceptor#preOperation [{0}].", this);
             return doPreOperation((String) modelInfo, processStarterInfo, businessObjectId, startParams);
         } catch (Exception e) {
             throw new ProcessException(e);
@@ -51,7 +56,7 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
         }
 
         try {
-            logger.fine("Execute process create interceptor#postOperation [" + this + "].");
+            logger.log(Level.FINE, "Execute process create interceptor#postOperation [{0}].", this);
             doPostOperation((ProcessInstance) engineProcessInstance, businessObjectId, processStarterInfo);
         } catch (Exception e) {
             throw new ProcessException(e);

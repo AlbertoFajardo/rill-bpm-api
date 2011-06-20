@@ -1,3 +1,15 @@
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.baidu.rigel.service.workflow.api.activiti;
 
 import java.lang.reflect.Array;
@@ -64,19 +76,10 @@ import org.activiti.engine.impl.db.DbSqlSession;
 import org.springframework.util.CollectionUtils;
 
 /**
- * 公司名：百度 <br>
- * 系统名：Rigel直销系统<br>
- * 子系统名: <br>
- * 模块名：HT-SUPPORT <br>
- * 文件名：ActivitiAccessor.java<br>
- * 功能说明: GWFP工作流操作基类。<br>
- * <p>
- * 	提供一些常用的支持方法。包括工作流基本信息缓存、Activiti中扩展属性取得、任务生命周期组件转化（ID->Bean）<br>
- * 	公布事件等常用方法。
+ * Common funciton provider for activiti implementation such as cache, interceptor getter from model.
+ * 
  * @author mengran
- * @version 1.0.0
- * @date 2010-5-14下午04:08:05
- **/
+ */
 public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, ApplicationEventPublisherAware {
 
     public static final String TASK_LIFECYCLE_INTERCEPTOR = "task_lifecycle_interceptor";
@@ -84,10 +87,10 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     public static final String TASK_FORM_KEY = "url";
     public static final String TASK_ROLE_TAG = "task_role_tag";
     public static final String TASK_SERVICE_INVOKE_EXPRESSION = "taskServiceInvokeExpression";
-    // Activiti5中流程编辑器中任务定义ID有重命名的限制(目前为自动生成)。
+    // Business specify task define ID
     public static final String TASK_DEFINE_ID = "__task_define_id__";
     /** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(ActivitiAccessor.class.getName());
+    protected static final Logger logger = Logger.getLogger(ActivitiAccessor.class.getName());
 
     private Map<String, String[]> taskInstanceInfoCache = new HashMap<String, String[]>();
     private BeanFactory beanFactory;
@@ -366,20 +369,20 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             // Retrieve process engine from it's holder
             this.setProcessEngine(ProcessEngines.getProcessEngine(this.getProcessEngineConfiguration().getProcessEngineName()));
             if (getProcessEngine() != null) {
-                logger.info("Retrive process engine from it's holder." + getProcessEngine());
+                logger.log(Level.INFO, "Retrive process engine from it''s holder.{0}", getProcessEngine());
             } else {
                 // Build process engine
                 this.setProcessEngine(getProcessEngineConfiguration().buildProcessEngine());
-                logger.info("Build process engine from it's configuration." + getProcessEngine());
+                logger.log(Level.INFO, "Build process engine from it''s configuration.{0}", getProcessEngine());
             }
         } else {
-            logger.info("Retrieve process engine from inject property." + getProcessEngine());
+            logger.log(Level.INFO, "Retrieve process engine from inject property.{0}", getProcessEngine());
         }
 
         if (this.getProcessEngineConfiguration() == null) {
             Assert.notNull(this.getProcessEngine(), "Properties 'processEngine' is required.");
             this.setProcessEngineConfiguration(((ProcessEngineImpl) getProcessEngine()).getProcessEngineConfiguration());
-            logger.info("Retrieve process configuration from processEngine." + getProcessEngine());
+            logger.log(Level.INFO, "Retrieve process configuration from processEngine.{0}", getProcessEngine());
         }
 
         List<BpmnParseListener> postParseListeners = ((ProcessEngineConfigurationImpl) getProcessEngineConfiguration()).getPostParseListeners();
@@ -387,7 +390,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             for (BpmnParseListener listener : postParseListeners) {
                 if (listener.getClass().isAssignableFrom(RetrieveNextTasksHelper.class)) {
                     serializeVarPermission = ((RetrieveNextTasksHelper) listener).isSerializeVarPermission();
-                    logger.info("serialize variable permission flag is " + serializeVarPermission);
+                    logger.log(Level.INFO, "serialize variable permission flag is {0}", serializeVarPermission);
                 }
             }
         }
@@ -417,7 +420,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         if (!(getBeanFactory() instanceof ApplicationEventPublisher)) {
             // Means aware method have not been call.
             // FIXME: Adapt spring v2.0 implemetation, we use new SimpleApplicationEventMulticaster() but not new SimpleApplicationEventMulticaster(BeanFactory)
-            logger.info("Adapt external environment[Not ApplicationContext]." + getBeanFactory());
+            logger.log(Level.INFO, "Adapt external environment[Not ApplicationContext].{0}", getBeanFactory());
             this.applicationEventPublisher = new ApplicationEventPublisherAdapter(new SimpleApplicationEventMulticaster());
         }
 
@@ -455,7 +458,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 
         public <T> T doOperation(Command<T> command) {
 
-            logger.info("Run extra command[" + command + "].");
+            logger.log(Level.INFO, "Run extra command[{0}].", command);
             return getCommandExecutor().execute(command);
         }
     }
@@ -470,7 +473,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             String[] listenerNames = ((ListableBeanFactory) getBeanFactory()).getBeanNamesForType(ApplicationListener.class);
             if (listenerNames != null && listenerNames.length > 0) {
                 for (String listenerName : listenerNames) {
-                    logger.info("Add application listener named [" + listenerName + "].");
+                    logger.log(Level.INFO, "Add application listener named [{0}].", listenerName);
                     aemc.addApplicationListener((ApplicationListener) getBeanFactory().getBean(listenerName));
                 }
             }
@@ -507,10 +510,10 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             }
         }
         if (cacheHit == null) {
-            logger.fine("Can not hit external cache of task instance id:" + taskInstanceId + ", cache info:" + cacheInfo + ", and try to get cache info from native cache.");
+            logger.log(Level.FINE, "Can not hit external cache of task instance id:{0}, cache info:{1}, and try to get cache info from native cache.", new Object[]{taskInstanceId, cacheInfo});
             cacheHit = peerJVMCache(taskInstanceId, cacheInfo);
         } else {
-            logger.fine("Hit external cache of task instance id:" + taskInstanceId + ", cache info:" + cacheInfo);
+            logger.log(Level.FINE, "Hit external cache of task instance id:{0}, cache info:{1}", new Object[]{taskInstanceId, cacheInfo});
         }
 
         return cacheHit;
@@ -521,7 +524,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         // FIXME: Using concurrent package class to prevent thread-safe
         if (taskInstanceInfoCache.get(taskInstanceId) != null) {
             String cacheHit = taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
-            logger.fine("Hit cache of task instance id[" + taskInstanceId + "], return " + cacheHit + " as " + cacheInfo.name());
+            logger.log(Level.FINE, "Hit cache of task instance id[{0}], return {1} as {2}", new Object[]{taskInstanceId, cacheHit, cacheInfo.name()});
             return cacheHit;
         }
 
@@ -537,7 +540,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             // FIXME: Using concurrent package class to prevent thread-safe
             if (taskInstanceInfoCache.get(taskInstanceId) != null) {
                 String cacheHit = taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
-                logger.fine("Hit cache of task instance id[" + taskInstanceId + "], return " + cacheHit + " as " + cacheInfo.name());
+                logger.log(Level.FINE, "Hit cache of task instance id[{0}], return {1} as {2}", new Object[]{taskInstanceId, cacheHit, cacheInfo.name()});
                 return cacheHit;
             }
 
@@ -590,7 +593,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 
             // Put into cache
             taskInstanceInfoCache.put(taskInstanceId, taskRelatedInfo);
-            logger.fine("Cache informations of task instance id[" + taskInstanceId + "]." + ObjectUtils.getDisplayString(taskRelatedInfo));
+            logger.log(Level.FINE, "Cache informations of task instance id[{0}].{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskRelatedInfo)});
         }
 
         return taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
@@ -646,15 +649,15 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             Map<String, String> extendAttrsMap = new HashMap<String, String>();
             // Retrieve from TLITOI holder
             String tli = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TLI);
-            logger.finest("Retrieve from TLI holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(tli));
+            logger.log(Level.FINEST, "Retrieve from TLI holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(tli)});
             String toi = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TOI);
-            logger.finest("Retrieve from TOI holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(toi));
+            logger.log(Level.FINEST, "Retrieve from TOI holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(toi)});
             String formKey = obtainCacheInfos(taskInstanceId, TaskInformations.FORM_KEY);
-            logger.finest("Retrieve from formKey holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(formKey));
+            logger.log(Level.FINEST, "Retrieve from formKey holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(formKey)});
             String taskRoleTag = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
-            logger.finest("Retrieve from taskRoleTag holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(taskRoleTag));
+            logger.log(Level.FINEST, "Retrieve from taskRoleTag holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskRoleTag)});
             String taskServiceInvoikeExpression = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION);
-            logger.finest("Retrieve from taskServiceInvoikeExpression holder--Task[" + taskInstanceId + "] :" + ObjectUtils.getDisplayString(taskServiceInvoikeExpression));
+            logger.log(Level.FINEST, "Retrieve from taskServiceInvoikeExpression holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskServiceInvoikeExpression)});
 
             if (StringUtils.hasLength(tli)) {
                 extendAttrsMap.put(TASK_LIFECYCLE_INTERCEPTOR, tli);
@@ -685,7 +688,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 //            }
 
             forReturn.putAll(extendAttrsMap);
-            logger.fine("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description/TLITOI holder result:" + ObjectUtils.getDisplayString(forReturn));
+            logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] description/TLITOI holder result:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(forReturn)});
             return forReturn;
 
         } catch (ActivitiException e) {
@@ -705,7 +708,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         Set<String> valueSet = new LinkedHashSet<String>();
         for (Entry<String, String> entry : adArray.entrySet()) {
             if (extendsAttributeKey.equals(entry.getKey())) {
-                logger.finest("Match entry for key[" + extendsAttributeKey + "], value[" + entry.getValue() + "].");
+                logger.log(Level.FINEST, "Match entry for key[{0}], value[{1}].", new Object[]{extendsAttributeKey, entry.getValue()});
                 String[] interceptorData = StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(entry.getValue()));
                 if (interceptorData != null && interceptorData.length > 0) {
                     valueSet.addAll(Arrays.asList(interceptorData));
@@ -713,7 +716,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             }
         }
 
-        logger.fine("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] extension attribute key[" + extendsAttributeKey + "]:" + ObjectUtils.getDisplayString(valueSet));
+        logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] extension attribute key[{1}]:{2}", new Object[]{taskInstanceId, extendsAttributeKey, ObjectUtils.getDisplayString(valueSet)});
         return valueSet.toArray(new String[valueSet.size()]);
     }
 
@@ -728,7 +731,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         LinkedHashSet<T> beanList = new LinkedHashSet<T>(beanName.length);
         for (String name : beanName) {
             Assert.isTrue(this.beanFactory.containsBean(name), "Bean name[" + name + "] may not be registed in Spring bean factory.");
-            logger.finest("Find bean named[" + name + "] and add it for return.");
+            logger.log(Level.FINEST, "Find bean named[{0}] and add it for return.", name);
             beanList.add((T) this.beanFactory.getBean(name));
         }
 
@@ -739,7 +742,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             i++;
         }
 
-        logger.fine("Convert bean names[" + ObjectUtils.getDisplayString(beanName) + "] to beans " + ObjectUtils.getDisplayString(array));
+        logger.log(Level.FINE, "Convert bean names[{0}] to beans {1}", new Object[]{ObjectUtils.getDisplayString(beanName), ObjectUtils.getDisplayString(array)});
         return array;
     }
 
@@ -752,11 +755,11 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         taskExtendAttributes = convertNameToBean(TaskLifecycleInteceptor.class, perTaskInterceptors);
 
         if (this.commonTaskLifecycleInterceptor != null && !this.commonTaskLifecycleInterceptor.isEmpty()) {
-            logger.finest("Combin common task-lifecycle-interceptor[" + ObjectUtils.getDisplayString(this.commonTaskLifecycleInterceptor) + "].");
+            logger.log(Level.FINEST, "Combin common task-lifecycle-interceptor[{0}].", ObjectUtils.getDisplayString(this.commonTaskLifecycleInterceptor));
             taskExtendAttributes = (TaskLifecycleInteceptor[]) ArrayUtils.addAll(
                     commonTaskLifecycleInterceptor.toArray(new TaskLifecycleInteceptor[commonTaskLifecycleInterceptor.size()]), taskExtendAttributes);
         }
-        logger.fine("Return task[" + taskInstanceId + "] task-lifecycle-interceptor:" + ObjectUtils.getDisplayString(taskExtendAttributes));
+        logger.log(Level.FINE, "Return task[{0}] task-lifecycle-interceptor:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskExtendAttributes)});
         return taskExtendAttributes;
     }
 
@@ -769,12 +772,12 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         taskExtendAttributes = (TaskOperationInteceptor[]) convertNameToBean(TaskOperationInteceptor.class, perTaskInterceptors);
 
         if (this.commonTaskOperationInterceptor != null && !this.commonTaskOperationInterceptor.isEmpty()) {
-            logger.finest("Combin common task-operation-interceptor[" + ObjectUtils.getDisplayString(this.commonTaskOperationInterceptor) + "].");
+            logger.log(Level.FINEST, "Combin common task-operation-interceptor[{0}].", ObjectUtils.getDisplayString(this.commonTaskOperationInterceptor));
             taskExtendAttributes = (TaskOperationInteceptor[]) ArrayUtils.addAll(
                     commonTaskOperationInterceptor.toArray(new TaskOperationInteceptor[commonTaskOperationInterceptor.size()]), taskExtendAttributes);
         }
 
-        logger.fine("Return task[" + taskInstanceId + "] task-operation-interceptor:" + ObjectUtils.getDisplayString(taskExtendAttributes));
+        logger.log(Level.FINE, "Return task[{0}] task-operation-interceptor:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskExtendAttributes)});
         return taskExtendAttributes;
     }
 
@@ -795,25 +798,21 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             try {
                 rootProcessId = parentProcessId;
                 ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().subProcessInstanceId(parentProcessId).singleResult();
-                logger.finest("Found parent process instance [" + ObjectUtils.getDisplayString(pi) + "] of [" + parentProcessId);
+                logger.log(Level.FINEST, "Found parent process instance [{0}] of [{1}", new Object[]{ObjectUtils.getDisplayString(pi), parentProcessId});
                 parentProcessId = pi == null ? null : pi.getProcessInstanceId();
             } catch (ActivitiException e) {
                 throw new ProcessException("Can not found local process instance when try to handle sub-process.", e);
             }
         }
 
-        logger.fine("Return root process ID[" + rootProcessId + "] of " + processInstanceId);
+        logger.log(Level.FINE, "Return root process ID[{0}] of {1}", new Object[]{rootProcessId, processInstanceId});
         return rootProcessId;
     }
 
     protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) {
 
-        logger.info("Process instance[" + processInstanceId + "] end. Trigger task[" + triggerTaskInstanceId + "]");
+        logger.log(Level.INFO, "Process instance[{0}] end. Trigger task[{1}]", new Object[]{processInstanceId, triggerTaskInstanceId});
         this.applicationEventPublisher.publishEvent(new ProcessInstanceEndEvent(processInstanceId,
                 triggerTaskInstanceId, hasParentProcess(processInstanceId), triggerTaskExecutionContext));
     }
-//	protected final String[] obtainTaskExecuteActions(String taskInstanceId) {
-//
-//		return obtainCommaSplitSpecifyValues(taskInstanceId, COMPLETE_TASK_EXECUTE_ACTION);
-//	}
 }

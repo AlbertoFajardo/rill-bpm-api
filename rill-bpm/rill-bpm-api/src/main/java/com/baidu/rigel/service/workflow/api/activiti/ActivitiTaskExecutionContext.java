@@ -1,3 +1,15 @@
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.baidu.rigel.service.workflow.api.activiti;
 
 import java.util.HashMap;
@@ -6,16 +18,9 @@ import java.util.Map;
 import org.activiti.engine.task.Task;
 
 /**
- * 公司名：百度 <br>
- * 系统名：Rigel直销系统<br>
- * 子系统名: <br>
- * 模块名：HT-SUPPORT <br>
- * 文件名：ActivitiTaskExecutionContext.java<br>
- * 功能说明: Activiti任务执行上下文。它将贯穿于整个任务生命周期组件的执行过程中，它存有任务相关的信息<br>
+ * Task execution context.
  * @author mengran
- * @version 1.0.0
- * @date 2010-5-14下午04:08:05
- **/
+ */
 public class ActivitiTaskExecutionContext {
 
     private String taskInstanceId;
