@@ -99,6 +99,103 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources-java</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>sources-java</finalName>
+                            <forceCreation>true</forceCreation>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>sources-resources</finalName>
+                            <forceCreation>true</forceCreation>
+                            <includes>
+                                <include>**/*.xml</include>
+                                <include>**/*.png</include>
+                                <include>**/*.ftl</include>
+                                <include>**/*.activiti</include>
+                                <include>**/*.properties</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.vm</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-test-sources-java</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar-no-fork</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>test-sources-java</finalName>
+                            <forceCreation>true</forceCreation>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-test-sources-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar-no-fork</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>test-sources-resources</finalName>
+                            <forceCreation>true</forceCreation>
+                            <includes>
+                                <include>**/*.xml</include>
+                                <include>**/*.png</include>
+                                <include>**/*.ftl</include>
+                                <include>**/*.activiti</include>
+                                <include>**/*.properties</include>
+                                <include>**/*.sql</include>
+                                <include>**/*.vm</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
         </plugins>
     </build>
 </project>
