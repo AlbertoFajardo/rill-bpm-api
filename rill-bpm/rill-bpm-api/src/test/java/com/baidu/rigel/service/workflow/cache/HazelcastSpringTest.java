@@ -44,5 +44,17 @@ public class HazelcastSpringTest extends AbstractJUnit4SpringContextTests {
         
         Assert.assertNotNull(hz1Instance);
         Assert.assertNotNull(hz2Instance);
+        
+        // Put operations
+        hz1Instance.getMap("hz1LRUMap").put("1", new Integer(1));
+        hz1Instance.getMap("hz1LRUMap").put("2", new Integer(2));
+        hz2Instance.getMap("hz2LRUMap").put("a", "a");
+        hz2Instance.getMap("hz2LRUMap").put("b", "b");
+        
+        // Cache Assert
+        Assert.assertTrue(hz1Instance.getMap("hz1LRUMap").get("1").equals(new Integer(1)));
+        Assert.assertTrue(hz1Instance.getMap("hz1LRUMap").get("a").equals("a"));
+        Assert.assertTrue(hz2Instance.getMap("hz2LRUMap").get("2").equals(new Integer(2)));
+        Assert.assertTrue(hz2Instance.getMap("hz2LRUMap").get("b").equals("b"));
     }
 }
