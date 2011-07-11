@@ -8,8 +8,8 @@
        http://www.hazelcast.com/schema/config http://www.hazelcast.com/schema/config/hazelcast-spring.xsd"
        default-autowire="byName">
 
-       <hz:hazelcast id="hz1Instance">
-           <hz:config>
+    <hz:hazelcast id="hz1Instance">
+        <hz:config>
                <!--
                <hz:group name="dev" password="password" />
                <hz:network port="5701" port-auto-increment="true">
@@ -21,16 +21,17 @@
                    </hz:join>
                </hz:network>
                -->
-               <!-- TaskInformations -->
-               <hz:map name="hz1LRUMap">
-                   <hz:near-cache time-to-live-seconds="0" max-idle-seconds="60"
+            <hz:queue name="hz1Queue" max-size-per-jvm="3" />
+            
+            <hz:map name="hz1LRUMap">
+                <hz:near-cache time-to-live-seconds="0" max-idle-seconds="60"
                    eviction-policy="LRU" max-size="3" invalidate-on-change="true" />
-               </hz:map>
-           </hz:config>
-       </hz:hazelcast>
+            </hz:map>
+        </hz:config>
+    </hz:hazelcast>
        
-       <hz:hazelcast id="hz2Instance">
-           <hz:config>
+    <hz:hazelcast id="hz2Instance">
+        <hz:config>
                <!--
                <hz:group name="dev" password="password" />
                <hz:network port="5701" port-auto-increment="true">
@@ -42,11 +43,10 @@
                    </hz:join>
                </hz:network>
                -->
-               <!-- TaskInformations -->
-               <hz:map name="hz2LRUMap">
-                   <hz:near-cache time-to-live-seconds="0" max-idle-seconds="60"
+            <hz:map name="hz2LRUMap">
+                <hz:near-cache time-to-live-seconds="0" max-idle-seconds="60"
                    eviction-policy="LRU" max-size="3" invalidate-on-change="true" />
-               </hz:map>
-           </hz:config>
-       </hz:hazelcast>
+            </hz:map>
+        </hz:config>
+    </hz:hazelcast>
 </beans>
