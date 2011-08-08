@@ -21,7 +21,7 @@
                    </hz:join>
                </hz:network>
                -->
-            <hz:queue name="hz1Queue" max-size-per-jvm="3" />
+            <hz:queue name="hzQueue" max-size-per-jvm="3" />
             
             <hz:map name="hz1LRUMap">
                 <hz:near-cache time-to-live-seconds="0" max-idle-seconds="60"
@@ -43,6 +43,8 @@
                    </hz:join>
                </hz:network>
                -->
+            <hz:queue name="hzQueue" max-size-per-jvm="3" />
+            
             <hz:map name="hz2LRUMap">
                 <hz:near-cache time-to-live-seconds="0" max-idle-seconds="60"
                    eviction-policy="LRU" max-size="3" invalidate-on-change="true" />
