@@ -106,16 +106,16 @@ public class HazelcastSpringTest extends AbstractJUnit4SpringContextTests {
         Assert.assertTrue(hz1Instance.getMap("hz2LRUMap").get("b").equals("b"));
         
         // Queue test ----------------------------------------------------------
-        BlockingQueue<String> hz1Queue = hz1Instance.getQueue("hz1Queue");
+        BlockingQueue<String> hzQueueFrom1 = hz1Instance.getQueue("hzQueue");
         try {
-            hz1Queue.put("hz1Queue-1");
+            hzQueueFrom1.put("hz1Queue-1");
         } catch (InterruptedException ex) {
             logger.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
-        BlockingQueue<String> hz2Queue = hz2Instance.getQueue("hz1Queue");
+        BlockingQueue<String> hzQueueFrom2 = hz2Instance.getQueue("hzQueue");
         try {
-            hz2Queue.put("hz1Queue-2");
+            hzQueueFrom2.put("hz1Queue-2");
         } catch (InterruptedException ex) {
             logger.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
@@ -123,9 +123,10 @@ public class HazelcastSpringTest extends AbstractJUnit4SpringContextTests {
         
         // Assert queue
         try {
-            Assert.assertEquals("hz1Queue-1", hz1Queue.take());
-            Assert.assertEquals("hz1Queue-2", hz1Queue.take());
-            Assert.assertEquals(true, hz1Queue.isEmpty());
+            Assert.assertEquals("hz1Queue-1", hzQueueFrom2.take());
+            Assert.assertEquals("hz1Queue-2", hzQueueFrom1.take());
+            Assert.assertEquals(true, hzQueueFrom1.isEmpty());
+            Assert.assertEquals(true, hzQueueFrom2.isEmpty());
         } catch (InterruptedException ex) {
             logger.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
