@@ -22,7 +22,7 @@ import com.baidu.rigel.service.workflow.api.exception.ProcessException;
  */
 public interface ProcessCreateInteceptor {
 
-    Object preOperation(Object modelInfo, Object processStarterInfo, Long businessObjectId, Map<String, Object> startParams) throws ProcessException;
+    Object preOperation(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException;
 
-    void postOperation(Object engineProcessInstance, Long businessObjectId, Object processStarterInfo) throws ProcessException;
+    void postOperation(Object engineProcessInstance, String businessObjectId, Object processStarterInfo) throws ProcessException;
 }

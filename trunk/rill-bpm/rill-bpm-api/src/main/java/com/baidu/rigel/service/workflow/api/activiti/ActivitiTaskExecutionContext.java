@@ -235,7 +235,7 @@ public class ActivitiTaskExecutionContext {
         StringBuilder sb = new StringBuilder();
         sb.append("Task execution context[");
         // Append variable
-        sb.append("\n--taskInstanceId:" + taskInstanceId);
+        sb.append("\n--taskInstanceId:").append(taskInstanceId);
         sb.append("]");
 
         return sb.toString();
