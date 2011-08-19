@@ -71,7 +71,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     // --------------------------------------- Implementation --------------------------//
     public Object createProcessInstance(Object modelInfo,
-            Object processStarterInfo, Long businessObjectId,
+            Object processStarterInfo, String businessObjectId,
             Map<String, Object> startParams) throws ProcessException {
 
         // Ensure business object not null
@@ -707,16 +707,16 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     /* (non-Javadoc)
      * @see com.baidu.rigel.sp.platform.workflow.api.WorkflowOperations#reAssignActivityPerformer(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public void reassignActivityPerformer(String engineProcessInstanceId, String engineTaskInstanceId,
-            String srcPerformer, String newPerformer) throws ProcessException {
+    public void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId,
+            String oldExecuter, String newExecuter) throws ProcessException {
 
         Assert.notNull(engineProcessInstanceId, "processId is null");
         Assert.notNull(engineTaskInstanceId, "taskId is null");
-        Assert.notNull(srcPerformer, "src performer is null");
-        Assert.notNull(newPerformer, "new performer is null");
+        Assert.notNull(oldExecuter, "oldExecuter is null");
+        Assert.notNull(newExecuter, "newExecuter is null");
         try {
-            logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation[reassignActivityPerformer].");
-            throw new ActivitiException("Unsupported operation[reassignActivityPerformer].");
+            logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation[reassignTaskExecuter].");
+            throw new ActivitiException("Unsupported operation[reassignTaskExecuter].");
         } catch (ActivitiException e) {
             throw new ProcessException(e);
         }

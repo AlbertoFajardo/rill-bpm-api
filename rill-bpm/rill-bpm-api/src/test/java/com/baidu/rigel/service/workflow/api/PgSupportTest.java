@@ -42,7 +42,7 @@ import org.springframework.util.ObjectUtils;
  */
 public class PgSupportTest extends PluggableActivitiTestCase {
 
-    private static Logger log = Logger.getLogger(PgSupportTest.class.getName());
+    private static final Logger log = Logger.getLogger(PgSupportTest.class.getName());
     private static volatile String panguDeployId = null;
     private WorkflowOperations workflowAccessor;
 
@@ -211,13 +211,13 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         long perTaskStart = -1;
         Integer orderId = new Random().nextInt();
         String processDefinitionKey = "pg-support";
-        log.fine("Start process by key" + processDefinitionKey + "], and business key[" + orderId + "]");
+        log.log(Level.FINE, "Start process by key{0}], and business key[{1}]", new Object[]{processDefinitionKey, orderId});
 
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
             // Start process by KEY
-            this.getWorkflowAccessor().createProcessInstance(processDefinitionKey, "Rill Meng", orderId.longValue(), null);
+            this.getWorkflowAccessor().createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
@@ -237,7 +237,7 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         Task yixianAuditTask = null;
         Task xiugaishoukuanTask = null;
         for (Task t : taskList) {
-            log.info(t.getName() + " " + "一线经理审核.equals(t.getName())" + ("一线经理审核".equals(t.getName())));
+            log.log(Level.INFO,"{0}" + " " + "\u4e00\u7ebf\u7ecf\u7406\u5ba1\u6838.equals(t.getName()){1}", new Object[]{t.getName(), "一线经理审核".equals(t.getName())});
             if ("一线经理审核".equals(t.getName())) {
                 yixianAuditTask = t;
             } else {
@@ -271,7 +271,7 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         assertEquals(tliMethodList.get(1), StatefulDummyTLIStatusHolder.TLI_METHOD.pre);
         assertEquals(tliMethodList.get(2), StatefulDummyTLIStatusHolder.TLI_METHOD.post);
         assertEquals(tliMethodList.get(3), StatefulDummyTLIStatusHolder.TLI_METHOD.after);
-        log.info("Stateful dummy TLI status holder:" + ObjectUtils.getDisplayString(StatefulDummyTLIStatusHolder.getStatusHolder()));
+        log.log(Level.INFO, "Stateful dummy TLI status holder:{0}", ObjectUtils.getDisplayString(StatefulDummyTLIStatusHolder.getStatusHolder()));
 
         // Check the variables scope
         log.fine("Check the variables scope, taskService.complete() variables will store in process instances scope.");

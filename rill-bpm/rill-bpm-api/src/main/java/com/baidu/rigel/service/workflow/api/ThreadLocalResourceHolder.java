@@ -12,6 +12,7 @@
  */
 package com.baidu.rigel.service.workflow.api;
 
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -71,7 +72,8 @@ public abstract class ThreadLocalResourceHolder {
         }
 
         if (getProperty(key) != null) {
-            log.log(Level.WARNING, "Already bind [{0}] to thread [{1}], old value:{2}, new value:{3}", new Object[]{key, Thread.currentThread().getName(), getProperty(key), target == null ? "null" : target});
+            log.log(Level.SEVERE, "Already bind [{0}] to thread [{1}], old value:{2}, new value:{3}", new Object[]{key, Thread.currentThread().getName(), getProperty(key), target == null ? "null" : target});
+            throw new ProcessException("Already bind [" + key + "] to thread [" + Thread.currentThread().getName() + "], old value:{" + getProperty(key) + "}, new value:{" + target == null ? "null" : target + "}");
         }
 
         Map<Object, Object> propertiesMap = getThreadMap();

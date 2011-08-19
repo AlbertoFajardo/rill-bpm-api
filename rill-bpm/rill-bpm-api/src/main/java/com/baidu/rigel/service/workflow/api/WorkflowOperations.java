@@ -42,7 +42,7 @@ public interface WorkflowOperations {
      * @return Process instance object of engine-below
      * @throws ProcessException Exception occurred during creation
      */
-    Object createProcessInstance(Object modelInfo, Object processStarterInfo, Long businessObjectId, Map<String, Object> startParams) throws ProcessException;
+    Object createProcessInstance(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException;
 
     /**
      * Terminal process instance
@@ -126,20 +126,20 @@ public interface WorkflowOperations {
     void abortTaskInstance(String engineTaskInstanceId) throws ProcessException;
 
     /**
-     * Obtain task executor role
+     * Obtain task executer role
      * @param engineTaskInstanceId engine task instance ID
-     * @return task executor role
+     * @return task executer role
      * @throws ProcessException Exception occurred during creation
      */
     String obtainTaskRole(String engineTaskInstanceId) throws ProcessException;
 
     /**
-     * Reassign activity performer
+     * Reassign task executer
      * @param engineProcessInstanceId engine process instance ID
      * @param engineTaskInstanceId engine task instance ID
-     * @param srcPerformer original performer
-     * @param newPerformer new performer
+     * @param oldExecuter original executer
+     * @param newExecuter new executer
      */
-    void reassignActivityPerformer(String engineProcessInstanceId, String engineTaskInstanceId, String srcPerformer, String newPerformer) throws ProcessException;
+    void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId, String oldExecuter, String newExecuter) throws ProcessException;
 
 }

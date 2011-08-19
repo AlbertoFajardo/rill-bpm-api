@@ -73,12 +73,12 @@ public class GetTaskNameByDefineIdTest extends PluggableActivitiTestCase {
 
         Integer orderId = new Random().nextInt();
         String processDefinitionKey = "pg-support";
-        log.fine("Start process by key" + processDefinitionKey + "], and business key[" + orderId + "]");
+        log.log(Level.FINE, "Start process by key{0}], and business key[{1}]", new Object[]{processDefinitionKey, orderId});
 
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.longValue(), null);
+            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }

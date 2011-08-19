@@ -178,7 +178,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
     static final class MyWorkflowAccessor implements WorkflowOperations {
 
-        public Object createProcessInstance(Object modelInfo, Object processStarterInfo, Long businessObjectId, Map<String, Object> startParams) throws ProcessException {
+        public Object createProcessInstance(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -248,7 +248,7 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void reassignActivityPerformer(String engineProcessInstanceId, String engineTaskInstanceId, String srcPerformer, String newPerformer) throws ProcessException {
+        public void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId, String srcPerformer, String newPerformer) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
         

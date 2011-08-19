@@ -7,7 +7,6 @@ package com.baidu.rigel.service.workflow.api.bpmndiagram;
 
 import com.baidu.rigel.service.workflow.api.ContinuousPerformanceTests;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
 import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
 import java.io.File;
 import java.io.IOException;
@@ -94,7 +93,7 @@ public class Draw2DSimpleVariableDiagramTest extends PluggableActivitiTestCase {
         String processDefinitionKey = "pg-support-simplevariable";
 
         // Start process by KEY
-        workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.longValue(), null);
+        workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
 
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(orderId.toString(), processDefinitionKey).singleResult();
 

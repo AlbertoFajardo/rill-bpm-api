@@ -92,7 +92,7 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.longValue(), null);
+            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }

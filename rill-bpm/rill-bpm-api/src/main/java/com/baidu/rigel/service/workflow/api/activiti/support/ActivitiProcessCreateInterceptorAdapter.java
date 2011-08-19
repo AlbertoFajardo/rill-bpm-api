@@ -35,7 +35,7 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
         }
     }
 
-    public final Object preOperation(Object modelInfo, Object processStarterInfo, Long businessObjectId, Map<String, Object> startParams) throws ProcessException {
+    public final Object preOperation(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
 
         // Check context parameter
         checkParam(modelInfo, processStarterInfo);
@@ -48,7 +48,7 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
         }
     }
 
-    public final void postOperation(Object engineProcessInstance, Long businessObjectId, Object processStarterInfo) throws ProcessException {
+    public final void postOperation(Object engineProcessInstance, String businessObjectId, Object processStarterInfo) throws ProcessException {
 
         // Check context parameter
         if (!(engineProcessInstance instanceof ProcessInstance)) {
@@ -63,12 +63,12 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
         }
     }
 
-    protected String doPreOperation(String modelInfo, Object processStarterInfo, Long businessObjectId, Map<String, Object> startParams) {
+    protected String doPreOperation(String modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) {
 
         return modelInfo;
     }
 
-    protected void doPostOperation(ProcessInstance engineProcessInstance, Long businessObjectId, Object processStarterInfo) {
+    protected void doPostOperation(ProcessInstance engineProcessInstance, String businessObjectId, Object processStarterInfo) {
 
         // Do nothing
     }
