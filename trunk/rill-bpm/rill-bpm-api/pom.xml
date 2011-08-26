@@ -55,6 +55,10 @@
                                     <directory>D:\\RillDev\\01EclipseDev\\workspace\\activiti.pangu2\\src\\main\\resources\\diagrams</directory>
                                     <filtering>true</filtering>
                                 </resource>
+                                <resource>
+                                    <directory>E:\\01EclipseDev\\workspace\\activiti.pangu2\\src\\main\\resources\\diagrams</directory>
+                                    <filtering>true</filtering>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>

@@ -12,6 +12,8 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Logger;
 import org.activiti.engine.ActivitiException;
@@ -24,27 +26,27 @@ import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.springframework.util.Assert;
 
 /**
- * Specify Activiti listener for adapt t-com's workflow task-lifecycle-interceptor(TLI)/task-operation-interceptor(TOI).
+ * Specify Activiti listener for adapt t-com's workflow task-lifecycle-interceptor(TLI)/task-operation-interceptor(TOI) and other informations.
  * 
  * @author mengran
  * @see ActivitiAccessor#TASK_LIFECYCLE_INTERCEPTOR
  * @see ActivitiAccessor#TASK_OPERATION_INTERCEPTOR
  * @see #TASK_SERVICE_INVOKE_EXPRESSION
  */
-public final class TLITOIClassDelegateAdapter extends ClassDelegate {
+public final class ClassDelegateAdapter extends ClassDelegate {
 
-    private static final Logger logger = Logger.getLogger(TLITOIClassDelegateAdapter.class.getName());
+    private static final Logger logger = Logger.getLogger(ClassDelegateAdapter.class.getName());
 
     private static final String TASK_SERVICE_INVOKE_EXPRESSION = ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION;
     
-    private String taskLifycycleInterceptors;
-    private String taskOperationInterceptors;
-    private String taskServiceInvokeExpression;
+    private Collection<String> taskLifycycleInterceptors = new LinkedHashSet(1);
+    private Collection<String> taskOperationInterceptors = new LinkedHashSet(1);
+    private Collection<String> taskServiceInvokeExpression = new LinkedHashSet(1);
 
-    public TLITOIClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
+    public ClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
         super(className, fieldDeclarations);
 
-        Assert.notEmpty(fieldDeclarations, "Please inject fields for task-lifecycle-interceptor/task-operation-interceptor.");
+//        Assert.notEmpty(fieldDeclarations, "Please inject fields for task-lifecycle-interceptor/task-operation-interceptor.");
         for (FieldDeclaration fd : fieldDeclarations) {
 
             String value = null;
@@ -55,13 +57,13 @@ public final class TLITOIClassDelegateAdapter extends ClassDelegate {
                         "] not equals" + Expression.class.getName());
             }
             if (ActivitiAccessor.TASK_LIFECYCLE_INTERCEPTOR.equals(fd.getName().trim())) {
-                taskLifycycleInterceptors = value;
+                taskLifycycleInterceptors.add(value);
             }
             if (ActivitiAccessor.TASK_OPERATION_INTERCEPTOR.equals(fd.getName().trim())) {
-                taskOperationInterceptors = value;
+                taskOperationInterceptors.add(value);
             }
             if (TASK_SERVICE_INVOKE_EXPRESSION.equals(fd.getName().trim())) {
-                taskServiceInvokeExpression = value;
+                taskServiceInvokeExpression.add(value);
             }
         }
 
@@ -92,17 +94,17 @@ public final class TLITOIClassDelegateAdapter extends ClassDelegate {
         logger.fine("Do nothing when TLIClassDelegateAdapter as a activity behavior.");
     }
 
-    public final String obtainTaskLifycycleInterceptors() {
+    public final Collection<String> obtainTaskLifycycleInterceptors() {
 
         return taskLifycycleInterceptors;
     }
 
-    public final String obtainTaskOperationInterceptors() {
+    public final Collection<String> obtainTaskOperationInterceptors() {
 
         return taskOperationInterceptors;
     }
 
-    public String getTaskServiceInvokeExpression() {
+    public Collection<String> getTaskServiceInvokeExpression() {
         return taskServiceInvokeExpression;
     }
 
