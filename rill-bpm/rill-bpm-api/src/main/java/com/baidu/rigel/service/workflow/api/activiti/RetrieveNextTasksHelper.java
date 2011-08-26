@@ -246,7 +246,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
         TaskDefinition td = uab.getTaskDefinition();
 
         // Adapt Activiti listener mechanism and TLI/TOI mechanism
-        List<TaskListener> tlitoiClassDelegateAdapters = new ArrayList<TaskListener>();
+        List<TaskListener> classDelegateAdapters = new ArrayList<TaskListener>();
         if (td.getTaskListeners() != null && td.getTaskListeners().size() > 0) {
             for (List<TaskListener> value : td.getTaskListeners().values()) {
                 if (value != null && !value.isEmpty()) {
@@ -256,15 +256,15 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
                                 Field classNameField = ReflectUtil.getField("className", tl);
                                 classNameField.setAccessible(true);
                                 if (classNameField == null &&
-                                        !TLITOIClassDelegateAdapter.class.getName().equals(classNameField.get(tl).toString())) {
+                                        !ClassDelegateAdapter.class.getName().equals(classNameField.get(tl).toString())) {
                                     throw new ActivitiException("Can not reflect protected field [className]/value not equals " +
-                                            TLITOIClassDelegateAdapter.class.getName() + " on " + tl);
+                                            ClassDelegateAdapter.class.getName() + " on " + tl);
                                 }
                                 Field fieldDeclarations = ReflectUtil.getField("fieldDeclarations", tl);
                                 fieldDeclarations.setAccessible(true);
-                                TLITOIClassDelegateAdapter adapter = new TLITOIClassDelegateAdapter(TLITOIClassDelegateAdapter.class.getName(),
+                                ClassDelegateAdapter adapter = new ClassDelegateAdapter(ClassDelegateAdapter.class.getName(),
                                         (List<FieldDeclaration>) fieldDeclarations.get(tl));
-                                tlitoiClassDelegateAdapters.add(adapter);
+                                classDelegateAdapters.add(adapter);
                             } catch (IllegalArgumentException ex) {
                                 logger.log(Level.SEVERE, null, ex);
                             } catch (IllegalAccessException ex) {
@@ -281,7 +281,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
         }
         // Clear modeled task listeners and add our listeners
         td.getTaskListeners().clear();
-        for (TaskListener listener : tlitoiClassDelegateAdapters) {
+        for (TaskListener listener : classDelegateAdapters) {
             td.addTaskListener(TaskListener.EVENTNAME_CREATE, listener);
         }
         td.addTaskListener(TaskListener.EVENTNAME_CREATE, TaskEventListener.CREATE_LISTENER);
