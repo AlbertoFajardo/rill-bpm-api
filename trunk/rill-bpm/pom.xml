@@ -13,7 +13,7 @@
     </modules>
     <properties>
         <spring.framework.version>3.0.3.RELEASE</spring.framework.version>
-        <activiti.engine.version>5.4</activiti.engine.version>
+        <activiti.engine.version>5.7</activiti.engine.version>
     </properties>
 
     <dependencies>
