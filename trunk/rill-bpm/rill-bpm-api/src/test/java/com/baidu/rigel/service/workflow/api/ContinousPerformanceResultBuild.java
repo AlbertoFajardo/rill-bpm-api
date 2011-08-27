@@ -50,7 +50,7 @@ public class ContinousPerformanceResultBuild implements Command<Object> {
         PreparedStatement pst = null;
         try {
             ProcessInstanceQueryImpl pq = new ProcessInstanceQueryImpl(commandContext);
-            long cnt = commandContext.getRuntimeSession().findProcessInstanceCountByQueryCriteria(pq);
+            long cnt = commandContext.getExecutionManager().findProcessInstanceCountByQueryCriteria(pq);
             pst = c.prepareStatement("insert into TB_CP(processInstanceCnt, costTime, perTaskCostTimeMax, " +
                     "perTaskCostTimeMin, perTaskCostTimeAvg) values(?,?,?,?,?)");
             pst.setLong(1, cnt);

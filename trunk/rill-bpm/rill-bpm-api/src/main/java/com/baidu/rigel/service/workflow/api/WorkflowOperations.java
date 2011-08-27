@@ -35,14 +35,13 @@ public interface WorkflowOperations {
 
     /**
      * Start a process instance.
-     * @param modelInfo Process definition informations
-     * @param processStarterInfo Process starter informations
+     * @param processDefinitionKey Process definition informations
+     * @param processStarter Process starter informations
      * @param businessObjectId Business object ID <code>NOT NULL</code>
      * @param startParams Start parameters for calculate transition if need
-     * @return Process instance object of engine-below
      * @throws ProcessException Exception occurred during creation
      */
-    Object createProcessInstance(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException;
+    void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException;
 
     /**
      * Terminal process instance
@@ -117,6 +116,7 @@ public interface WorkflowOperations {
     Set<String> getProcessInstanceVariableNames(String engineProcessInstanceId);
 
     /**
+     * @deprecated by MENGRAN at 2011-08-27
      * Abort task instance.
      * <p>
      *  Please refer engine-spec API Document for details.<br>

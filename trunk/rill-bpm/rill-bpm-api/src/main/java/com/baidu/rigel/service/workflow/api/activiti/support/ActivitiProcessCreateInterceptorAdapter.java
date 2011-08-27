@@ -17,7 +17,9 @@ import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Activiti engine process create interceptor adapter.
@@ -27,48 +29,56 @@ public abstract class ActivitiProcessCreateInterceptorAdapter implements Process
 
     /** Logger available to subclasses */
     protected final static Logger logger = Logger.getLogger(ActivitiProcessCreateInterceptorAdapter.class.getName());
+    
+    private RuntimeService runtimeService;
 
-    private void checkParam(Object modelInfo, Object processStarterInfo) {
+    public void setRuntimeService(RuntimeService runtimeService) {
+        this.runtimeService = runtimeService;
+    }
 
-        if (!(modelInfo instanceof String)) {
+    private void checkParam(String processDefinitionKey, String processStarter) {
+
+        if (StringUtils.isEmpty(processDefinitionKey)) {
             throw new ProcessException("modelInfo must a String.");
         }
     }
 
-    public final Object preOperation(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
+    public final void preOperation(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
 
         // Check context parameter
-        checkParam(modelInfo, processStarterInfo);
+        checkParam(processDefinitionKey, processStarter);
 
         try {
             logger.log(Level.FINE, "Execute process create interceptor#preOperation [{0}].", this);
-            return doPreOperation((String) modelInfo, processStarterInfo, businessObjectId, startParams);
+            doPreOperation(processDefinitionKey, processStarter, businessObjectId, startParams);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
     }
 
-    public final void postOperation(Object engineProcessInstance, String businessObjectId, Object processStarterInfo) throws ProcessException {
+    public final void postOperation(String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException {
 
         // Check context parameter
-        if (!(engineProcessInstance instanceof ProcessInstance)) {
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
+        if (!(processInstance instanceof ProcessInstance)) {
             throw new ProcessException("processInstance must a " + ProcessInstance.class.getName() + ".");
         }
 
         try {
             logger.log(Level.FINE, "Execute process create interceptor#postOperation [{0}].", this);
-            doPostOperation((ProcessInstance) engineProcessInstance, businessObjectId, processStarterInfo);
+            // FIXME: Need proxy it for prevent call some method.
+            doPostOperation(processInstance, businessObjectId, processStarter);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
     }
 
-    protected String doPreOperation(String modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) {
+    protected String doPreOperation(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) {
 
-        return modelInfo;
+        return processDefinitionKey;
     }
 
-    protected void doPostOperation(ProcessInstance engineProcessInstance, String businessObjectId, Object processStarterInfo) {
+    protected void doPostOperation(ProcessInstance engineProcessInstance, String businessObjectId, String processStarter) {
 
         // Do nothing
     }
