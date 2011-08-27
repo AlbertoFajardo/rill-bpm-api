@@ -10,7 +10,7 @@ import java.util.Collection;
  *
  * @author mengran
  */
-public interface TLITOIGenerator<T> {
+public interface TLIGenerator<T> {
     
     Collection<T> generate(String[] source);
     

@@ -33,7 +33,6 @@ import org.activiti.engine.impl.ServiceImpl;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.task.TaskDefinition;
-import org.activiti.engine.impl.task.TaskEntity;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.BeanUtils;
@@ -56,8 +55,7 @@ import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
 import com.baidu.rigel.service.workflow.api.ProcessInstanceEndEvent;
 import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
 import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
-import com.baidu.rigel.service.workflow.api.TLITOIGenerator;
-import com.baidu.rigel.service.workflow.api.TaskOperationInteceptor;
+import com.baidu.rigel.service.workflow.api.TLIGenerator;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.common.mail.TemplateMailSender;
 import java.lang.reflect.ParameterizedType;
@@ -71,6 +69,7 @@ import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.db.DbSqlSession;
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -81,7 +80,6 @@ import org.springframework.util.CollectionUtils;
 public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, ApplicationEventPublisherAware {
 
     public static final String TASK_LIFECYCLE_INTERCEPTOR = "task_lifecycle_interceptor";
-    public static final String TASK_OPERATION_INTERCEPTOR = "task_operation_interceptor";
     public static final String TASK_FORM_KEY = "url";
     public static final String TASK_ROLE_TAG = "task_role_tag";
     public static final String TASK_SERVICE_INVOKE_EXPRESSION = "taskServiceInvokeExpression";
@@ -108,7 +106,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     private IdentityService identityService;
     private FormService formService;
     private List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor;
-    private List<TaskOperationInteceptor> commonTaskOperationInterceptor;
     private List<ProcessCreateInteceptor> processCreateInteceptor;
     private List<ProcessOperationInteceptor> processOperationInteceptors;
     private TemplateMailSender templateMailSender;
@@ -305,21 +302,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         this.commonTaskLifecycleInterceptor = commonTaskLifecycleInterceptor;
     }
 
-    /**
-     * @return the commonTaskOperationInterceptor
-     */
-    public List<TaskOperationInteceptor> getCommonTaskOperationInterceptor() {
-        return commonTaskOperationInterceptor;
-    }
-
-    /**
-     * @param commonTaskOperationInterceptor the commonTaskOperationInterceptor to set
-     */
-    public void setCommonTaskOperationInterceptor(
-            List<TaskOperationInteceptor> commonTaskOperationInterceptor) {
-        this.commonTaskOperationInterceptor = commonTaskOperationInterceptor;
-    }
-
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 
         this.beanFactory = beanFactory;
@@ -488,7 +470,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
      * @param taskInstanceId task instance's ID
      * @return cache information specify by enum given
      */
-    protected String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo) {
+    private String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo) {
 
         Assert.hasText(taskInstanceId, "taskInstanceId pass in must not empty");
         Assert.notNull(cacheInfo, "taskInformations must not null");
@@ -558,7 +540,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
                                 for (TaskListener tl : value) {
                                     if (ClassDelegateAdapter.class.isInstance(tl)) {
                                         tdDefines.add(StringUtils.collectionToDelimitedString(((ClassDelegateAdapter) tl).obtainTaskLifycycleInterceptors(), TASK_LIFECYCLE_INTERCEPTOR_DELIM));
-                                        tdDefines.add(StringUtils.collectionToDelimitedString(((ClassDelegateAdapter) tl).obtainTaskOperationInterceptors(), TASK_LIFECYCLE_INTERCEPTOR_DELIM));
                                         tdDefines.add(StringUtils.collectionToDelimitedString(((ClassDelegateAdapter) tl).getTaskServiceInvokeExpression(), TASK_LIFECYCLE_INTERCEPTOR_DELIM));
                                     }
                                 }
@@ -575,13 +556,14 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 
             // Task extend-attributes
             taskRelatedInfo[4] = tdDefines.size() > 1 ? tdDefines.get(1) : null;
-            taskRelatedInfo[5] = tdDefines.size() > 2 ? tdDefines.get(2) : null;
+            /* Task operation intercepor place holder */
+            taskRelatedInfo[5] = null;
 
             TaskFormData formData = getFormService().getTaskFormData(taskInstanceId);
             taskRelatedInfo[6] = formData.getFormKey();
 
             // Task service invoke expression
-            taskRelatedInfo[7] = tdDefines.size() > 3 ? tdDefines.get(3) : null;
+            taskRelatedInfo[7] = tdDefines.size() > 2 ? tdDefines.get(2) : null;
 
             // Put into cache
             taskInstanceInfoCache.put(taskInstanceId, taskRelatedInfo);
@@ -642,8 +624,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             // Retrieve from TLITOI holder
             String tli = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TLI);
             logger.log(Level.FINEST, "Retrieve from TLI holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(tli)});
-            String toi = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TOI);
-            logger.log(Level.FINEST, "Retrieve from TOI holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(toi)});
             String formKey = obtainCacheInfos(taskInstanceId, TaskInformations.FORM_KEY);
             logger.log(Level.FINEST, "Retrieve from formKey holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(formKey)});
             String taskRoleTag = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
@@ -653,9 +633,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
                         
             if (StringUtils.hasLength(tli)) {
                 extendAttrsMap.put(TASK_LIFECYCLE_INTERCEPTOR, tli);
-            }
-            if (StringUtils.hasLength(toi)) {
-                extendAttrsMap.put(TASK_OPERATION_INTERCEPTOR, toi);
             }
             if (StringUtils.hasLength(formKey)) {
                 extendAttrsMap.put(TASK_FORM_KEY, formKey.trim());
@@ -712,17 +689,13 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         return valueSet.toArray(new String[valueSet.size()]);
     }
     
-    private final TLITOIGenerator<TaskLifecycleInteceptor> DEFAULT_SPRING_TLI_GENERATOR = new SpringBeanTLIGenerator();
-    private final TLITOIGenerator<TaskOperationInteceptor> DEFAULT_SPRING_TOI_GENERATOR = new SpringBeanTOIGenerator();
+    private final TLIGenerator<TaskLifecycleInteceptor> DEFAULT_SPRING_TLI_GENERATOR = new SpringBeanTLIGenerator();
     
     private class SpringBeanTLIGenerator extends SpringBeanGenerator<TaskLifecycleInteceptor> {
         
     }
-    private class SpringBeanTOIGenerator extends SpringBeanGenerator<TaskOperationInteceptor> {
-        
-    }
     
-    private abstract class SpringBeanGenerator<T> implements TLITOIGenerator<T> {
+    private abstract class SpringBeanGenerator<T> implements TLIGenerator<T> {
 
         protected Class<T> actualClazz;
 
@@ -782,9 +755,9 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         }
         
         String[] perTaskInterceptorConfigs = obtainCommaSplitSpecifyValues(taskInstanceId, TASK_LIFECYCLE_INTERCEPTOR, TASK_LIFECYCLE_INTERCEPTOR_DELIM);
-        List<TLITOIGenerator> tempGeneratorList = new ArrayList<TLITOIGenerator>(1);
+        List<TLIGenerator> tempGeneratorList = new ArrayList<TLIGenerator>(1);
         tempGeneratorList.add(DEFAULT_SPRING_TLI_GENERATOR);
-        for (TLITOIGenerator generator : tempGeneratorList) {
+        for (TLIGenerator generator : tempGeneratorList) {
             if (generator.supportGeneratePattern(perTaskInterceptorConfigs)) {
                 taskLifecycleInterceptors.addAll(generator.generate(perTaskInterceptorConfigs));
             }
@@ -792,29 +765,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 
         logger.log(Level.FINE, "Return task[{0}] task-lifecycle-interceptor:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskLifecycleInterceptors)});
         return taskLifecycleInterceptors.toArray(new TaskLifecycleInteceptor[taskLifecycleInterceptors.size()]);
-    }
-    
-    protected final TaskOperationInteceptor[] obtainTaskOperationInterceptors(String taskInstanceId) {
-
-        Collection<TaskOperationInteceptor> taskLifecycleInterceptors = new LinkedHashSet();
-        
-        // Add commen TOI configuration
-        if (this.commonTaskOperationInterceptor != null && !this.commonTaskOperationInterceptor.isEmpty()) {
-            logger.log(Level.FINEST, "Combin common task-operation-interceptor[{0}].", ObjectUtils.getDisplayString(this.commonTaskOperationInterceptor));
-            taskLifecycleInterceptors.addAll(commonTaskOperationInterceptor);
-        }
-        
-        String[] perTaskInterceptorConfigs = obtainCommaSplitSpecifyValues(taskInstanceId, TASK_OPERATION_INTERCEPTOR, TASK_LIFECYCLE_INTERCEPTOR_DELIM);
-        List<TLITOIGenerator> tempGeneratorList = new ArrayList<TLITOIGenerator>(1);
-        tempGeneratorList.add(DEFAULT_SPRING_TOI_GENERATOR);
-        for (TLITOIGenerator generator : tempGeneratorList) {
-            if (generator.supportGeneratePattern(perTaskInterceptorConfigs)) {
-                taskLifecycleInterceptors.addAll(generator.generate(perTaskInterceptorConfigs));
-            }
-        }
-        
-        logger.log(Level.FINE, "Return task[{0}] task-operation-interceptor:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskLifecycleInterceptors)});
-        return taskLifecycleInterceptors.toArray(new TaskOperationInteceptor[taskLifecycleInterceptors.size()]);
     }
 
     protected final boolean hasParentProcess(String processInstanceId) {

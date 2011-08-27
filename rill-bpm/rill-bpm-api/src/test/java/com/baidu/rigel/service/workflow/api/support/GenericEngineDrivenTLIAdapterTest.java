@@ -178,30 +178,6 @@ public class GenericEngineDrivenTLIAdapterTest {
 
     static final class MyWorkflowAccessor implements WorkflowOperations {
 
-        public Object createProcessInstance(Object modelInfo, Object processStarterInfo, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void terminalProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void suspendProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void resumeProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public void batchCompleteTaskIntances(LinkedHashMap<String, Map<String, Object>> batchDTO, String opeartor) throws ProcessException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
         public Map<String, String> getTaskInstanceExtendAttrs(String engineTaskInstanceId) {
 
             if (engineTaskInstanceId == null) {
@@ -232,6 +208,30 @@ public class GenericEngineDrivenTLIAdapterTest {
             }
         }
 
+        public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void terminalProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void suspendProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void resumeProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void batchCompleteTaskIntances(LinkedHashMap<String, Map<String, Object>> batchDTO, String opeartor) throws ProcessException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
         public String getTaskNameByDefineId(String processDefinitionKey, String taskDefineId) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -248,10 +248,10 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId, String srcPerformer, String newPerformer) throws ProcessException {
+        public void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId, String oldExecuter, String newExecuter) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-        
+
     }
 
     // TODO add test methods here.

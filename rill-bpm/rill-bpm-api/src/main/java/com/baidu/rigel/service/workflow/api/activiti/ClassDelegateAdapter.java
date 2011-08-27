@@ -26,11 +26,10 @@ import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.springframework.util.Assert;
 
 /**
- * Specify Activiti listener for adapt t-com's workflow task-lifecycle-interceptor(TLI)/task-operation-interceptor(TOI) and other informations.
+ * Specify Activiti listener for adapt t-com's workflow task-lifecycle-interceptor(TLI) and other informations.
  * 
  * @author mengran
  * @see ActivitiAccessor#TASK_LIFECYCLE_INTERCEPTOR
- * @see ActivitiAccessor#TASK_OPERATION_INTERCEPTOR
  * @see #TASK_SERVICE_INVOKE_EXPRESSION
  */
 public final class ClassDelegateAdapter extends ClassDelegate {
@@ -40,7 +39,6 @@ public final class ClassDelegateAdapter extends ClassDelegate {
     private static final String TASK_SERVICE_INVOKE_EXPRESSION = ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION;
     
     private Collection<String> taskLifycycleInterceptors = new LinkedHashSet(1);
-    private Collection<String> taskOperationInterceptors = new LinkedHashSet(1);
     private Collection<String> taskServiceInvokeExpression = new LinkedHashSet(1);
 
     public ClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
@@ -59,18 +57,12 @@ public final class ClassDelegateAdapter extends ClassDelegate {
             if (ActivitiAccessor.TASK_LIFECYCLE_INTERCEPTOR.equals(fd.getName().trim())) {
                 taskLifycycleInterceptors.add(value);
             }
-            if (ActivitiAccessor.TASK_OPERATION_INTERCEPTOR.equals(fd.getName().trim())) {
-                taskOperationInterceptors.add(value);
-            }
             if (TASK_SERVICE_INVOKE_EXPRESSION.equals(fd.getName().trim())) {
                 taskServiceInvokeExpression.add(value);
             }
         }
 
         Assert.notNull(taskLifycycleInterceptors, "Please inject fields for task-lifecycle-interceptor.");
-        if (taskOperationInterceptors == null) {
-            logger.fine("Not found injected field for task-operation-interceptor.");
-        }
         if (taskServiceInvokeExpression == null) {
             logger.fine("Not found injected field for taskServiceInvokeExpression.");
         }
@@ -97,11 +89,6 @@ public final class ClassDelegateAdapter extends ClassDelegate {
     public final Collection<String> obtainTaskLifycycleInterceptors() {
 
         return taskLifycycleInterceptors;
-    }
-
-    public final Collection<String> obtainTaskOperationInterceptors() {
-
-        return taskOperationInterceptors;
     }
 
     public Collection<String> getTaskServiceInvokeExpression() {

@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
-import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
 import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.Ellipse;
 import org.eclipse.draw2d.geometry.Point;

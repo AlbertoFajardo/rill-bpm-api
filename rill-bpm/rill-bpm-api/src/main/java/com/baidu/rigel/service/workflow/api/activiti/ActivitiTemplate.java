@@ -46,17 +46,18 @@ import java.util.UUID;
 import java.util.logging.Level;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.juel.IdentifierNode;
 import org.activiti.engine.impl.juel.Tree;
 import org.activiti.engine.impl.juel.TreeStore;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
-import org.activiti.engine.impl.repository.ProcessDefinitionEntity;
-import org.activiti.engine.impl.runtime.ExecutionEntity;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -70,8 +71,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     private static final String THREAD_RESOURCE_SCOPE = ActivitiTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
 
     // --------------------------------------- Implementation --------------------------//
-    public Object createProcessInstance(Object modelInfo,
-            Object processStarterInfo, String businessObjectId,
+    public void createProcessInstance(String processDefinitionKey,
+            String processStarter, String businessObjectId,
             Map<String, Object> startParams) throws ProcessException {
 
         // Ensure business object not null
@@ -80,12 +81,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         }
 
         UUID uuid = obtainAccessUUID();
-        String cpRequest = (modelInfo instanceof String) ? modelInfo.toString() : null;
         // Call previous operation
         if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
             for (ProcessCreateInteceptor pci : getProcessCreateInteceptor()) {
                 try {
-                    cpRequest = (String) pci.preOperation(modelInfo, processStarterInfo, businessObjectId, startParams);
+                    pci.preOperation(processDefinitionKey, processStarter, businessObjectId, startParams);
                 } catch (ProcessException pe) {
                     // Release thread-local resource
                     releaseThreadLocalResource(uuid);
@@ -95,11 +95,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 }
             }
         }
-        if (cpRequest == null) {
+        if (processDefinitionKey == null) {
             // Release thread-local resource
             releaseThreadLocalResource(uuid);
             throw new ProcessException("Fail to create process, because processDefinitionKey is null. "
-                    + "And you can set it though [modelInfo] parameter simply, or using " + ProcessCreateInteceptor.class.getName()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE).setBoId(businessObjectId.toString());
+                    + "And you can set it " + ProcessCreateInteceptor.class.getName()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE).setBoId(businessObjectId.toString());
         }
 
         // Call engine service to create a process
@@ -108,7 +108,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             // Do create process instance of work flow engine
             UUID taskRetrieveUUID = UUID.randomUUID();
             RetrieveNextTasksHelper.pushTaskScope(taskRetrieveUUID.toString());
-            response = getRuntimeService().startProcessInstanceByKey(cpRequest, businessObjectId.toString(), startParams);
+            response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, startParams);
             List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
 
             // Call post operation
@@ -121,7 +121,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 for (ProcessCreateInteceptor pci : reverseList) {
                     // Do post operation
                     try {
-                        pci.postOperation(response, businessObjectId, processStarterInfo);
+                        pci.postOperation(response.getProcessInstanceId(), businessObjectId, processStarter);
                     } catch (ProcessException pe) {
                         throw pe.setBoId(response.getBusinessKey()).setEngineProcessInstanceId(response.getProcessInstanceId()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE);
                     }
@@ -149,7 +149,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             releaseThreadLocalResource(uuid);
         }
 
-        return response;
+//        return response;
     }
 
     private void releaseThreadLocalResource(UUID uuid) {
@@ -188,7 +188,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
             public String execute(CommandContext commandContext) {
 
-                ProcessDefinitionEntity pd = commandContext.getRepositorySession().findDeployedLatestProcessDefinitionByKey(processDefinitionKey);
+                ProcessDefinitionEntity pd = Context.getProcessEngineConfiguration().getDeploymentCache().findDeployedLatestProcessDefinitionByKey(processDefinitionKey);
                 Assert.notNull(pd, "Can not find process defintion by key[" + processDefinitionKey + "].");
                 for (String key : pd.getTaskDefinitions().keySet()) {
                     if (key.equals(taskDefineId)) {
@@ -207,11 +207,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         return runExtraCommand(new Command<Set<String>>() {
 
             public Set<String> execute(CommandContext commandContext) {
-                ExecutionEntity ee = commandContext.getRuntimeSession().findExecutionById(engineProcessInstanceId);
+                ExecutionEntity ee = commandContext.getExecutionManager().findExecutionById(engineProcessInstanceId);
                 if (!(ee != null && ee.isProcessInstance())) {
                     throw new ProcessException("Can not get process instance by given [" + engineProcessInstanceId + "], or it's not a Activiti ProcessInstance.");
                 }
-                ProcessDefinitionEntity pd = commandContext.getRepositorySession().findDeployedProcessDefinitionById(ee.getProcessDefinitionId());
+                ProcessDefinitionEntity pd = Context.getProcessEngineConfiguration().getDeploymentCache().findDeployedProcessDefinitionById(ee.getProcessDefinitionId());
                 Assert.notNull(pd, "Can not find process defintion by id[" + ee.getProcessDefinitionId() + "].");
                 Set<String> processAllVariables = new LinkedHashSet<String>();
                 List<ActivityImpl> listActivities = ((ScopeImpl) pd).getActivities();
