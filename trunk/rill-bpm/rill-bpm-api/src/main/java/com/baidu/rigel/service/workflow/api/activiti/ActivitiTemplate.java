@@ -12,13 +12,9 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,12 +34,12 @@ import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+import javax.jws.WebService;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
@@ -59,25 +55,37 @@ import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.util.ReflectUtil;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
  * Activiti implementation of {@link WorkflowOperations}.
  * @author mengran
  */
+@WebService(endpointInterface="com.baidu.rigel.service.workflow.api.WorkflowOperations")
 public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperations {
 
     private static final String THREAD_RESOURCE_SCOPE = ActivitiTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
 
     // --------------------------------------- Implementation --------------------------//
-    public void createProcessInstance(String processDefinitionKey,
-            String processStarter, String businessObjectId,
-            Map<String, Object> startParams) throws ProcessException {
-
+    public void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
+        
+        String processDefinitionKey = createProcessInstanceDto.getProcessDefinitionKey();
+        String processStarter = createProcessInstanceDto.getProcessStarter();
+        String businessObjectId = createProcessInstanceDto.getBusinessObjectId();
+        Map<String, String> startParams = createProcessInstanceDto.getStartParams();
+        
         // Ensure business object not null
         if (businessObjectId == null) {
             throw new ProcessException("Parameter[businessObjectId] is null.").setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE);
+        }
+        
+        Map<String, Object> passToEngine = new HashMap<String, Object>();
+        if (startParams != null) {
+            for (Entry<String, String> entry : startParams.entrySet()) {
+                passToEngine.put(entry.getKey(), entry.getValue());
+            }
+        } else {
+            passToEngine = null;
         }
 
         UUID uuid = obtainAccessUUID();
@@ -85,7 +93,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
             for (ProcessCreateInteceptor pci : getProcessCreateInteceptor()) {
                 try {
-                    pci.preOperation(processDefinitionKey, processStarter, businessObjectId, startParams);
+                    pci.preOperation(processDefinitionKey, processStarter, businessObjectId, passToEngine);
                 } catch (ProcessException pe) {
                     // Release thread-local resource
                     releaseThreadLocalResource(uuid);
@@ -108,7 +116,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             // Do create process instance of work flow engine
             UUID taskRetrieveUUID = UUID.randomUUID();
             RetrieveNextTasksHelper.pushTaskScope(taskRetrieveUUID.toString());
-            response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, startParams);
+            
+            response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
             List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
 
             // Call post operation
@@ -207,6 +216,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         return runExtraCommand(new Command<Set<String>>() {
 
             public Set<String> execute(CommandContext commandContext) {
+                // FIXME: sub-process case? call-activity case?
                 ExecutionEntity ee = commandContext.getExecutionManager().findExecutionById(engineProcessInstanceId);
                 if (!(ee != null && ee.isProcessInstance())) {
                     throw new ProcessException("Can not get process instance by given [" + engineProcessInstanceId + "], or it's not a Activiti ProcessInstance.");
@@ -215,7 +225,23 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 Assert.notNull(pd, "Can not find process defintion by id[" + ee.getProcessDefinitionId() + "].");
                 Set<String> processAllVariables = new LinkedHashSet<String>();
                 List<ActivityImpl> listActivities = ((ScopeImpl) pd).getActivities();
+                
+                // Deep-first traversale
+                deepFirstTraversal(processAllVariables, listActivities);
+                
+                logger.log(Level.FINE, "Found process variables:{0}, process instance id:{1}", new Object[]{ObjectUtils.getDisplayString(processAllVariables), engineProcessInstanceId});
+                return processAllVariables;
+            }
+            
+            private void deepFirstTraversal(Set<String> processAllVariables, List<ActivityImpl> listActivities) {
+                
                 for (ActivityImpl ai : listActivities) {
+                    
+                    if (ai.isScope()) {
+                        // Means sub-process or call-activity
+                        deepFirstTraversal(processAllVariables, ai.getActivities());
+                    }
+                    
                     List<PvmTransition> outTransitions = ai.getOutgoingTransitions();
                     if (outTransitions == null || outTransitions.isEmpty()) {
                         continue;
@@ -249,8 +275,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                         }
                     }
                 }
-                logger.log(Level.FINE, "Found process variables:{0}, process instance id:{1}", new Object[]{ObjectUtils.getDisplayString(processAllVariables), engineProcessInstanceId});
-                return processAllVariables;
             }
         });
 
@@ -396,17 +420,15 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     // -------------------------------- Task related API ---------------------------------- //
-    public void batchCompleteTaskIntances(
-            LinkedHashMap<String, Map<String, Object>> batchDTO,
-            String opeartor) throws ProcessException {
+    public void batchCompleteTaskIntances(List<CompleteTaskInstanceDto> batchDTO) throws ProcessException {
 
         Assert.notEmpty(batchDTO);
 
         logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
-        for (Entry<String, Map<String, Object>> entry : batchDTO.entrySet()) {
+        for (CompleteTaskInstanceDto element : batchDTO) {
 
             // Delegate to single-task operation
-            this.doCompleteTaskInstance(entry.getKey(), opeartor, entry.getValue());
+            this.doCompleteTaskInstance(element.getEngineTaskInstanceId(), element.getOperator(), element.getWorkflowParams());
         }
 
     }
@@ -441,13 +463,12 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         return taskExecutionContext;
     }
 
-    public void completeTaskInstance(String engineTaskInstanceId,
-            String operator, Map<String, Object> workflowParams) throws ProcessException {
+    public void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
 
         UUID uuid = obtainAccessUUID();
         try {
             // Delegate this operation
-            doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParams);
+            doCompleteTaskInstance(completeTaskInstanceDto.getEngineTaskInstanceId(), completeTaskInstanceDto.getOperator(), completeTaskInstanceDto.getWorkflowParams());
         } finally {
             // Release resource
             releaseThreadLocalResource(uuid);
@@ -456,12 +477,21 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     protected void doCompleteTaskInstance(String engineTaskInstanceId,
-            String operator, Map<String, Object> workflowParams) throws ProcessException {
+            String operator, Map<String, String> workflowParams) throws ProcessException {
 
         logger.log(Level.INFO, "Complete task instance. Params:{0}", ObjectUtils.getDisplayString(workflowParams));
-
+        
+        Map<String, Object> passToEngine = new HashMap<String, Object>();
+        if (workflowParams != null) {
+            for (Entry<String, String> entry : workflowParams.entrySet()) {
+                passToEngine.put(entry.getKey(), entry.getValue());
+            }
+        } else {
+            passToEngine = null;
+        }
+            
         // Build task execution context
-        ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, workflowParams);
+        ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, passToEngine);
 
         // Do operation at previous Web Service calling for distribute transaction
         TaskLifecycleInteceptor[] tasklifecycleInteceptors = obtainTaskLifecycleInterceptors(engineTaskInstanceId);
@@ -482,30 +512,15 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             }
         }
         // Merge work flow parameters
-        if (workflowParams == null) {
-            workflowParams = new HashMap<String, Object>();
+        if (passToEngine == null) {
+            passToEngine = new HashMap<String, Object>();
         }
-        workflowParams.putAll(workflowParamsDynamic);
-
-        // If disallow Seriable varialble, filter all non-primitive or wrapper variable
-        // FIXME: Remove all non-primitive variables, but it's maybe include service task expression.
-        if (!isSerializeVarPermission()) {
-            // Filter all non-primitive or wrapper variable before access work-flow
-            Set<String> nonPri = new HashSet<String>();
-            for (Entry<String, Object> entry : workflowParams.entrySet()) {
-                if (!ClassUtils.isPrimitiveOrWrapper(entry.getValue().getClass())) {
-                    logger.log(Level.FINEST, "Find not primitive or it''s wrapper object[key={0}], we will discard it for performance.", entry.getKey());
-                    nonPri.add(entry.getKey());
-                }
-            }
-            for (String nonPrimitive : nonPri) {
-                workflowParams.remove(nonPrimitive);
-            }
-        }
+        passToEngine.putAll(workflowParamsDynamic);
+        
         // Filter engine-driven DTO is nessesary
-        workflowParams.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
+        passToEngine.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
 
-        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(workflowParams)});
+        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(passToEngine)});
 
         // Access engine
         try {
@@ -515,7 +530,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             RetrieveNextTasksHelper.pushTaskScope(uuid.toString());
             // Add by MENGRAN at 2011-06-10
             getTaskService().claim(engineTaskInstanceId, operator);
-            getTaskService().complete(engineTaskInstanceId, workflowParams);
+            getTaskService().complete(engineTaskInstanceId, passToEngine);
             taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
             long endCompleteTime = System.currentTimeMillis();
             logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
@@ -599,52 +614,17 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     }
 
-    protected void handleProcessException(ProcessException pdte) {
+    protected void handleProcessException(ProcessException pe) {
 
         logger.log(Level.SEVERE, "Process exception occurred!!! \n" + "ProcessInstanceId[{0}"
                 + "]," + "TaskInstanceId[{1}" + "],"
                 + "Process Phase[{2}" + "]," + "Task Phase[{3}].",
-                new Object[]{ObjectUtils.getDisplayString(pdte.getEngineProcessInstanceId()),
-                    ObjectUtils.nullSafeToString(pdte.getEngineTaskInstanceId()),
-                    pdte.getProcessInterceptorPhase().name(),
-                    pdte.getTaskLifecycleInterceptorPhase().name()});
+                new Object[]{ObjectUtils.getDisplayString(pe.getEngineProcessInstanceId()),
+                    ObjectUtils.nullSafeToString(pe.getEngineTaskInstanceId()),
+                    pe.getProcessInterceptorPhase().name(),
+                    pe.getTaskLifecycleInterceptorPhase().name()});
 
-        if (getDistributeTransactionMessage() == null) {
-            logger.warning("No configured distributeTransactionMessage, do not send message.");
-        } else {
-            Map<String, Object> model = new HashMap<String, Object>();
-            try {
-                try {
-                    InetAddress localHostInfo = InetAddress.getLocalHost();
-                    model.put("hostInfo", localHostInfo.getHostName() + " " + localHostInfo.getHostAddress());
-                } catch (Exception e) {
-                    logger.log(Level.FINEST, "Can not get local host information.", e);
-                    model.put("hostInfo", "Unknown");
-                }
-                model.put("processInstanceId", pdte.getEngineProcessInstanceId());
-                model.put("taskInstanceId", ObjectUtils.nullSafeToString(pdte.getEngineTaskInstanceId()));
-                model.put("workflowOperation", pdte.getTaskLifecycleInterceptorPhase().name());
-                model.put("operator", pdte.getOperator());
-                if (pdte.getEngineTaskInstanceId() != null) {
-                    model.put("boId", obtainBusinessObjectId(pdte.getEngineTaskInstanceId()));
-                } else {
-                    model.put("boId", "null");
-                }
-                StringWriter sw = new StringWriter(50 * 1000);
-                PrintWriter pw = new PrintWriter(sw);
-                pdte.printStackTrace(pw);
-                model.put("exception", sw.toString());
-                sw = null;
-                pw = null;
-                getTemplateMailSender().sendMimeMeesage(getDistributeTransactionMessage(),
-                        org.springframework.util.StringUtils.hasText(getDistributeTransactionMailTemplate())
-                        ? getDistributeTransactionMailTemplate() : "distributeTransactionMailTemplate.ftl", model);
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "Exception occurred when try to send email.{0}", e);
-            }
-        }
-
-        throw pdte;
+        throw pe;
     }
 
     private void injectProcessStatus(ActivitiTaskExecutionContext taskExecutionContext, List<Task> acr) {
@@ -722,7 +702,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         }
     }
 
-    public Map<String, String> getTaskInstanceExtendAttrs(String engineTaskInstanceId) {
+    public HashMap<String, String> getTaskInstanceExtendAttrs(String engineTaskInstanceId) {
 
         return getExtendAttrs(engineTaskInstanceId);
     }

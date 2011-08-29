@@ -64,5 +64,14 @@ public class JuelTest {
         }
         Assert.assertEquals(expectIdentifireNodeSet, identifireNodeSet);
     }
+    
+    @Test
+    public void testSplit() {
+        
+        String splitTarget = "abc_def";
+        Assert.assertTrue(splitTarget.split("_").length == 2);
+        splitTarget = "abc";
+        Assert.assertTrue(splitTarget.split("_").length == 1);
+    }
 
 }

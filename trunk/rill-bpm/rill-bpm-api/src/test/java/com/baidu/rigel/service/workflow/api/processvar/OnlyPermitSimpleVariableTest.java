@@ -97,7 +97,8 @@ public class OnlyPermitSimpleVariableTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            workflowAccessor.createProcessInstance(createProcessInstanceDto);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }
@@ -119,13 +120,13 @@ public class OnlyPermitSimpleVariableTest extends PluggableActivitiTestCase {
 
         // Pass and need usertask2
         log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-        Map<String, Object> workflowParams = new HashMap<String, Object>();
-        workflowParams.put("need_userTask2", 1);
-        workflowParams.put("object", new Object());
+        Map<String, String> workflowParams = new HashMap<String, String>();
+        workflowParams.put("need_userTask2", "1");
         log.fine("Complete task and set variables");
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-            workflowAccessor.completeTaskInstance(userTask1.getId(), "junit", workflowParams);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(userTask1.getId(), "junit", workflowParams);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
         }

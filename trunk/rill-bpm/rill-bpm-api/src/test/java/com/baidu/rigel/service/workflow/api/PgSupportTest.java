@@ -15,9 +15,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.activiti.engine.test.Deployment;
-import com.baidu.rigel.service.workflow.api.processvar.OrderAudit;
-import com.baidu.rigel.service.workflow.api.processvar.ReceiptInfo;
-import com.baidu.rigel.service.workflow.api.servicetask.RestartFinanceProcessServiceTask;
+import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
+import com.baidu.rigel.service.workflow.api.processvar.DummyReceiptInfo;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -217,7 +216,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
             // Start process by KEY
-            this.getWorkflowAccessor().createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            workflowAccessor.createProcessInstance(createProcessInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
@@ -237,7 +237,7 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         Task yixianAuditTask = null;
         Task xiugaishoukuanTask = null;
         for (Task t : taskList) {
-            log.log(Level.INFO,"{0}" + " " + "\u4e00\u7ebf\u7ecf\u7406\u5ba1\u6838.equals(t.getName()){1}", new Object[]{t.getName(), "一线经理审核".equals(t.getName())});
+            log.log(Level.INFO,"{0}" + " " + "一线经理审核.equals(t.getName()){1}", new Object[]{t.getName(), "一线经理审核".equals(t.getName())});
             if ("一线经理审核".equals(t.getName())) {
                 yixianAuditTask = t;
             } else {
@@ -251,15 +251,16 @@ public class PgSupportTest extends PluggableActivitiTestCase {
 
         // Pass and not need high level re-audit
         log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-        Map<String, Object> workflowParams = new HashMap<String, Object>();
-        OrderAudit orderAudit = new OrderAudit();
-        workflowParams.put("orderAudit", orderAudit);
-        workflowParams.put("need_highlevel_audit", 0);
+        Map<String, String> workflowParams = new HashMap<String, String>();
+        DummyOrderAudit orderAudit = new DummyOrderAudit();
+        workflowParams.put("orderAudit", WorkflowOperations.XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+        workflowParams.put("need_highlevel_audit", "0");
         log.fine("Complete task and set variables");
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(khfabManagerTask.getId(), "junit", workflowParams);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(khfabManagerTask.getId(), "junit", workflowParams);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -292,7 +293,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(preAudit.getId(), "junit", workflowParams);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(preAudit.getId(), "junit", workflowParams);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -308,14 +310,15 @@ public class PgSupportTest extends PluggableActivitiTestCase {
             }
         }
         assertNotNull(sendContract);
-        Map<String, Object> workflowParams1 = new HashMap<String, Object>();
-        ReceiptInfo receiptInfo = new ReceiptInfo();
-        receiptInfo.setReceiptType(ReceiptInfo.POST_INVOICE);
-        workflowParams1.put("receiptInfo", receiptInfo);
+        Map<String, String> workflowParams1 = new HashMap<String, String>();
+        DummyReceiptInfo receiptInfo = new DummyReceiptInfo();
+        receiptInfo.setReceiptType(DummyReceiptInfo.POST_INVOICE);
+        workflowParams1.put("receiptInfo", WorkflowOperations.XStreamSerializeHelper.serializeXml("receiptInfo", receiptInfo));
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(sendContract.getId(), "junit", workflowParams1);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(sendContract.getId(), "junit", workflowParams1);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -343,7 +346,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(returnContract.getId(), "junit", null);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(returnContract.getId(), "junit", null);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -356,7 +360,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(xiugaishoukuanTask.getId(), "junit", null);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(xiugaishoukuanTask.getId(), "junit", null);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -365,13 +370,12 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         assertNotNull(managerAuditShoukuan);
 
         log.fine("Set service task expression resovler into process variables");
-        Map<String, Object> workflowParams2 = new HashMap<String, Object>();
-        RestartFinanceProcessServiceTask restartReceiptProcess = new RestartFinanceProcessServiceTask();
-        workflowParams2.put("restartReceiptProcess", restartReceiptProcess);
+        Map<String, String> workflowParams2 = new HashMap<String, String>();
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(managerAuditShoukuan.getId(), "junit", workflowParams2);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(managerAuditShoukuan.getId(), "junit", workflowParams2);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -383,7 +387,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(makeOutInvoice.getId(), "junit", null);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(makeOutInvoice.getId(), "junit", null);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -396,7 +401,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(completeFinanceInfo1.getId(), "junit", null);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(completeFinanceInfo1.getId(), "junit", null);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
@@ -416,7 +422,8 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             long perTaskStart = System.currentTimeMillis();
-            getWorkflowAccessor().completeTaskInstance(receiveMoney.getId(), "junit", null);
+            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(receiveMoney.getId(), "junit", null);
+            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
             perTaskTimeCostList.add(System.currentTimeMillis() - perTaskStart);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());

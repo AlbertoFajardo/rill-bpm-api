@@ -7,7 +7,7 @@ package com.baidu.rigel.service.workflow.api.support;
 
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
-import com.baidu.rigel.service.workflow.api.processvar.ReceiptInfo;
+import com.baidu.rigel.service.workflow.api.processvar.DummyReceiptInfo;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -51,7 +51,7 @@ public class EngineDrivenTLIAdapterTest {
 
         ReceiptInfoEngineDrivenTLIAdapter adapter = new ReceiptInfoEngineDrivenTLIAdapter();
         ActivitiTaskExecutionContext taskContext = new ActivitiTaskExecutionContext();
-        taskContext.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new ReceiptInfo());
+        taskContext.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new DummyReceiptInfo());
         adapter.preComplete(taskContext);
 
         Assert.assertNotNull(taskContext.getWorkflowParams().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));

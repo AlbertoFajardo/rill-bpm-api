@@ -35,9 +35,6 @@
         <!-- Rill extension -->
         <property name="postParseListeners">
             <bean class="com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper">
-                <property name="serializeVarPermission">
-                    <value>false</value>
-                </property>
                 <property name="transitionTakeEventListener">
                     <list>
                         <ref bean="rigelWfTransitionTraceListener" />

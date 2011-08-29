@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
@@ -43,7 +44,7 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
     }
 
     @Override
-    public void onTransitionTake(final String processInstanceId, final TransitionImpl transition) {
+    public void onTransitionTake(DelegateExecution execution, final String processInstanceId, final TransitionImpl transition) {
 
         // Do insert
         ReflectUtil.invoke(beanFactory.getBean("workflowAccessor", ActivitiTemplate.class), "runExtraCommand",
