@@ -11,7 +11,7 @@ import java.io.Serializable;
  *
  * @author mengran
  */
-public class ReceiptInfo implements Serializable {
+public class DummyReceiptInfo implements Serializable {
 
     public static final Integer PRE_INVOICE = 0;
     public static final Integer POST_INVOICE = 2;

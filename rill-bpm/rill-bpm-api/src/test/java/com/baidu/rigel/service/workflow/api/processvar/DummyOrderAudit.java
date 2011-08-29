@@ -11,7 +11,7 @@ import java.io.Serializable;
  *
  * @author mengran
  */
-public class OrderAudit implements Serializable {
+public class DummyOrderAudit implements Serializable {
 
     public static final Integer AGREE = 0;
     public static final Integer REJECT = 1;
@@ -20,6 +20,15 @@ public class OrderAudit implements Serializable {
      * Set default action is AGREE
      */
     private Integer auditAction = AGREE;
+    private String auditorName;
+
+    public String getAuditorName() {
+        return auditorName;
+    }
+
+    public void setAuditorName(String auditorName) {
+        this.auditorName = auditorName;
+    }
 
     public Integer getAuditAction() {
         return auditAction;

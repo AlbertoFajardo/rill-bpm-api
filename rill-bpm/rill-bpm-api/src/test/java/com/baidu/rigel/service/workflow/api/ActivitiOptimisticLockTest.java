@@ -5,7 +5,7 @@
 
 package com.baidu.rigel.service.workflow.api;
 
-import com.baidu.rigel.service.workflow.api.processvar.OrderAudit;
+import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -92,7 +92,8 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            workflowAccessor.createProcessInstance(createProcessInstanceDto);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }
@@ -125,10 +126,10 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
 
         // Pass and not need high level re-audit
         log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-        final Map<String, Object> workflowParams = new HashMap<String, Object>();
-        OrderAudit orderAudit = new OrderAudit();
-        workflowParams.put("orderAudit", orderAudit);
-        workflowParams.put("need_highlevel_audit", 0);
+        final Map<String, String> workflowParams = new HashMap<String, String>();
+        DummyOrderAudit orderAudit = new DummyOrderAudit();
+        workflowParams.put("orderAudit", WorkflowOperations.XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+        workflowParams.put("need_highlevel_audit", "0");
         log.fine("Complete task and set variables");
 
         // We complete this task in concurrent mode
@@ -138,7 +139,8 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
                 boolean successComplete = true;
                 try {
                     log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-                    workflowAccessor.completeTaskInstance(khfabManagerTask.getId(), "junit", workflowParams);
+                    WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(khfabManagerTask.getId(), "junit", workflowParams);
+                    workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
                 } catch (Throwable t) {
                     successComplete = false;
                     log.info(t.getMessage());
@@ -155,16 +157,16 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
         // Only one result is true
         try {
             if (executeResult1.get()) {
-                assertEquals(new Boolean(false), executeResult2.get());
-                assertEquals(new Boolean(false), executeResult3.get());
+                assertEquals(false, executeResult2.get().booleanValue());
+                assertEquals(false, executeResult3.get().booleanValue());
                 log.info("executeResult1 complete task.");
             } else if (executeResult2.get()) {
-                assertEquals(new Boolean(false), executeResult1.get());
-                assertEquals(new Boolean(false), executeResult3.get());
+                assertEquals(false, executeResult1.get().booleanValue());
+                assertEquals(false, executeResult3.get().booleanValue());
                 log.info("executeResult2 complete task.");
             } else if (executeResult3.get()) {
-                assertEquals(new Boolean(false), executeResult2.get());
-                assertEquals(new Boolean(false), executeResult1.get());
+                assertEquals(false, executeResult2.get().booleanValue());
+                assertEquals(false, executeResult1.get().booleanValue());
                 log.info("executeResult3 complete task.");
             } else {
                 assertEquals("Not thread complete task?", true, false);

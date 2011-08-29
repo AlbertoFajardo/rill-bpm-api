@@ -21,7 +21,7 @@
       <exclusiveGateway id="subprocess3exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="subprocess3flow24" name="" sourceRef="subprocess3usertask9" targetRef="subprocess3exclusivegateway2"></sequenceFlow>
       <sequenceFlow id="subprocess3flow25" name="驳回" sourceRef="subprocess3exclusivegateway2" targetRef="subprocess3exclusivegateway3">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
       </sequenceFlow>
       <exclusiveGateway id="subprocess3exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="subprocess3flow27" name="" sourceRef="subprocess3exclusivegateway4" targetRef="subprocess3endevent6"></sequenceFlow>
@@ -33,7 +33,7 @@
       <exclusiveGateway id="subprocess3exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="subprocess3flow30" name="" sourceRef="subprocess3usertask10" targetRef="subprocess3exclusivegateway5"></sequenceFlow>
       <sequenceFlow id="subprocess3flow31" name="驳回" sourceRef="subprocess3exclusivegateway5" targetRef="subprocess3exclusivegateway3">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="subprocess3flow32" name="" sourceRef="subprocess3exclusivegateway5" targetRef="subprocess3exclusivegateway4"></sequenceFlow>
       <userTask id="subprocess3usertask11" name="总监审核" activiti:candidateGroups="ht_support_khfzb_director"></userTask>
@@ -42,7 +42,7 @@
       </sequenceFlow>
       <sequenceFlow id="subprocess3flow34" name="" sourceRef="subprocess3usertask11" targetRef="subprocess3exclusivegateway4"></sequenceFlow>
       <sequenceFlow id="subprocess3flow35" name="驳回" sourceRef="subprocess3usertask11" targetRef="subprocess3exclusivegateway3">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
       </sequenceFlow>
       <userTask id="subprocess3usertask12" name="修改订单" activiti:candidateGroups="ht_support_khfz_staff"></userTask>
       <sequenceFlow id="subprocess3flow38" name="" sourceRef="subprocess3exclusivegateway3" targetRef="subprocess3usertask12"></sequenceFlow>
@@ -65,7 +65,7 @@
       <userTask id="subprocess4usertask15" name="经理审核订单收款类型" activiti:candidateGroups="ht_support_khfzb_manager"></userTask>
       <sequenceFlow id="subprocess4flow47" name="" sourceRef="subprocess4usertask14" targetRef="subprocess4usertask15"></sequenceFlow>
       <sequenceFlow id="subprocess4flow48" name="驳回" sourceRef="subprocess4usertask15" targetRef="subprocess4usertask14">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
       </sequenceFlow>
       <exclusiveGateway id="subprocess4exclusivegateway9" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="subprocess4flow49" name="" sourceRef="subprocess4usertask15" targetRef="subprocess4exclusivegateway9"></sequenceFlow>
@@ -76,7 +76,7 @@
       </sequenceFlow>
       <exclusiveGateway id="subprocess4exclusivegateway10" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="subprocess4flow52" name="驳回" sourceRef="subprocess4usertask16" targetRef="subprocess4usertask14">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="subprocess4flow53" name="" sourceRef="subprocess4usertask16" targetRef="subprocess4exclusivegateway10"></sequenceFlow>
       <sequenceFlow id="subprocess4flow54" name="" sourceRef="subprocess4exclusivegateway10" targetRef="subprocess4endevent7"></sequenceFlow>
@@ -84,7 +84,7 @@
     <sequenceFlow id="flow44" name="" sourceRef="parallelgateway1" targetRef="subprocess4"></sequenceFlow>
     <userTask id="usertask17" name="预审核驳回修改" activiti:candidateGroups="ht_support_assistanter_and_helper"></userTask>
     <sequenceFlow id="flow55" name="驳回" sourceRef="usertask13" targetRef="usertask17">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow56" name="" sourceRef="usertask17" targetRef="exclusivegateway11"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway"></exclusiveGateway>
@@ -96,7 +96,7 @@
     <sequenceFlow id="flow59" name="" sourceRef="usertask13" targetRef="usertask18"></sequenceFlow>
     <userTask id="usertask19" name="修改合同信息" activiti:candidateGroups="ht_support_assistanter_and_helper"></userTask>
     <sequenceFlow id="flow60" name="驳回" sourceRef="usertask18" targetRef="usertask19">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow61" name="" sourceRef="usertask19" targetRef="exclusivegateway12"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway12" name="Exclusive Gateway"></exclusiveGateway>
@@ -114,19 +114,17 @@
       <userTask id="subprocess6usertask23" name="开收款证明" activiti:candidateGroups="ht_support_fgscwb_stiffmanager"></userTask>
       <userTask id="subprocess6usertask24" name="完善财务信息" activiti:candidateGroups="ht_support_assistanter_and_helper"></userTask>
       <sequenceFlow id="subprocess6flow73" name="提前开发票" sourceRef="subprocess6exclusivegateway15" targetRef="subprocess6usertask22">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${receiptInfo.receiptType==0}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__receiptInfo_receiptType==0}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="subprocess6flow74" name="提前开收款证明" sourceRef="subprocess6exclusivegateway15" targetRef="subprocess6usertask23">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${receiptInfo.receiptType==1}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__receiptInfo_receiptType==1}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="subprocess6flow75" name="" sourceRef="subprocess6exclusivegateway15" targetRef="subprocess6usertask24"></sequenceFlow>
       <exclusiveGateway id="subprocess6exclusivegateway16" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="subprocess6flow76" name="" sourceRef="subprocess6usertask22" targetRef="subprocess6exclusivegateway16"></sequenceFlow>
       <sequenceFlow id="subprocess6flow77" name="" sourceRef="subprocess6exclusivegateway16" targetRef="subprocess6usertask24"></sequenceFlow>
       <endEvent id="subprocess6endevent10" name="End"></endEvent>
-      <sequenceFlow id="subprocess6flow78" name="" sourceRef="subprocess6usertask24" targetRef="subprocess6servicetask3"></sequenceFlow>
-      <serviceTask id="subprocess6servicetask3" name="回收资源" activiti:expression="#{restartReceiptProcess.recycle(execution)}"></serviceTask>
-      <sequenceFlow id="subprocess6flow92" name="" sourceRef="subprocess6servicetask3" targetRef="subprocess6endevent10"></sequenceFlow>
+      <sequenceFlow id="subprocess6flow95" name="" sourceRef="subprocess6usertask24" targetRef="subprocess6endevent10"></sequenceFlow>
     </subProcess>
     <sequenceFlow id="flow66" name="" sourceRef="parallelgateway2" targetRef="exclusivegateway17"></sequenceFlow>
     <userTask id="usertask21" name="确认合同返还" activiti:candidateGroups="ht_support_fgsywzc_constract_supporter"></userTask>
@@ -135,25 +133,31 @@
     <sequenceFlow id="flow70" name="" sourceRef="usertask21" targetRef="exclusivegateway14"></sequenceFlow>
     <endEvent id="endevent9" name="End"></endEvent>
     <sequenceFlow id="flow71" name="非正常返还" sourceRef="exclusivegateway14" targetRef="endevent9">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderAudit.auditAction==1}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
     </sequenceFlow>
     <parallelGateway id="parallelgateway4" name="Parallel Gateway"></parallelGateway>
     <sequenceFlow id="flow79" name="" sourceRef="exclusivegateway14" targetRef="parallelgateway4"></sequenceFlow>
     <sequenceFlow id="flow81" name="" sourceRef="parallelgateway4" targetRef="endevent3"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway17" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow82" name="" sourceRef="exclusivegateway17" targetRef="subprocess6"></sequenceFlow>
-    <sequenceFlow id="flow83" name="重新进入票据处理环节" sourceRef="subprocess4" targetRef="servicetask1"></sequenceFlow>
-    <serviceTask id="servicetask1" name="重新发起票据流程" activiti:expression="#{restartReceiptProcess.restart(execution)}"></serviceTask>
-    <sequenceFlow id="flow84" name="" sourceRef="servicetask1" targetRef="exclusivegateway17"></sequenceFlow>
     <userTask id="usertask25" name="财务收款" activiti:candidateGroups="ht_support_fgscwb_confirmmoney"></userTask>
     <sequenceFlow id="flow86" name="" sourceRef="subprocess6" targetRef="exclusivegateway18"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway18" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow88" name="" sourceRef="exclusivegateway18" targetRef="usertask25">
+    <sequenceFlow id="flow88" name="去收款" sourceRef="exclusivegateway18" targetRef="usertask25">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${restartFinanceProcess!=1}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent11" name="End"></endEvent>
-    <sequenceFlow id="flow89" name="等待重新进入财务流程" sourceRef="exclusivegateway18" targetRef="endevent11"></sequenceFlow>
+    <sequenceFlow id="flow89" name="等待重新进入财务流程" sourceRef="exclusivegateway18" targetRef="endevent11">
+      <extensionElements>
+        <activiti:executionListener event="take" class="com.baidu.rigel.service.workflow.api.transition.AfterFinanceListener"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
     <sequenceFlow id="flow93" name="" sourceRef="usertask25" targetRef="parallelgateway4"></sequenceFlow>
+    <sequenceFlow id="flow94" name="AfterModReceiptType" sourceRef="subprocess4" targetRef="exclusivegateway17">
+      <extensionElements>
+        <activiti:executionListener event="take" class="com.baidu.rigel.service.workflow.api.transition.AfterModFinanceReceiveTypeListener"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_pg-support">
     <bpmndi:BPMNPlane bpmnElement="pg-support" id="BPMNPlane_pg-support">
@@ -379,9 +383,6 @@
       <bpmndi:BPMNShape bpmnElement="subprocess6endevent10" id="BPMNShape_endevent10">
         <omgdc:Bounds height="55" width="55" x="2070" y="249"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="subprocess6servicetask3" id="BPMNShape_servicetask3">
-        <omgdc:Bounds height="55" width="105" x="1966" y="330"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="subprocess6flow72" id="BPMNEdge_flow72">
         <omgdi:waypoint x="55" y="127"></omgdi:waypoint>
         <omgdi:waypoint x="80" y="127"></omgdi:waypoint>
@@ -406,12 +407,8 @@
         <omgdi:waypoint x="460" y="73"></omgdi:waypoint>
         <omgdi:waypoint x="200" y="253"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="subprocess6flow78" id="BPMNEdge_flow78">
+      <bpmndi:BPMNEdge bpmnElement="subprocess6flow95" id="BPMNEdge_flow95">
         <omgdi:waypoint x="305" y="253"></omgdi:waypoint>
-        <omgdi:waypoint x="326" y="334"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="subprocess6flow92" id="BPMNEdge_flow92">
-        <omgdi:waypoint x="431" y="334"></omgdi:waypoint>
         <omgdi:waypoint x="430" y="253"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape bpmnElement="usertask21" id="BPMNShape_usertask21">
@@ -428,9 +425,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway17" id="BPMNShape_exclusivegateway17">
         <omgdc:Bounds height="60" width="60" x="1498" y="179"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
-        <omgdc:Bounds height="55" width="105" x="1170" y="182"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask25" id="BPMNShape_usertask25">
         <omgdc:Bounds height="55" width="105" x="2306" y="181"></omgdc:Bounds>
@@ -527,14 +521,6 @@
         <omgdi:waypoint x="1558" y="209"></omgdi:waypoint>
         <omgdi:waypoint x="1640" y="209"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow83" id="BPMNEdge_flow83">
-        <omgdi:waypoint x="1111" y="208"></omgdi:waypoint>
-        <omgdi:waypoint x="1170" y="209"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow84" id="BPMNEdge_flow84">
-        <omgdi:waypoint x="1275" y="209"></omgdi:waypoint>
-        <omgdi:waypoint x="1528" y="239"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow86" id="BPMNEdge_flow86">
         <omgdi:waypoint x="2131" y="209"></omgdi:waypoint>
         <omgdi:waypoint x="2190" y="208"></omgdi:waypoint>
@@ -550,6 +536,10 @@
       <bpmndi:BPMNEdge bpmnElement="flow93" id="BPMNEdge_flow93">
         <omgdi:waypoint x="2411" y="208"></omgdi:waypoint>
         <omgdi:waypoint x="2358" y="834"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow94" id="BPMNEdge_flow94">
+        <omgdi:waypoint x="1111" y="208"></omgdi:waypoint>
+        <omgdi:waypoint x="1528" y="179"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

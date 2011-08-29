@@ -78,7 +78,8 @@ public class GetTaskNameByDefineIdTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
+            workflowAccessor.createProcessInstance(createProcessInstanceDto);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }

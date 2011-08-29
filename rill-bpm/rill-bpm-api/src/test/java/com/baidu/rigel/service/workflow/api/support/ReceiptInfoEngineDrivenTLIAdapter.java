@@ -7,17 +7,17 @@ package com.baidu.rigel.service.workflow.api.support;
 
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.activiti.support.EngineDrivenTLIAdapter;
-import com.baidu.rigel.service.workflow.api.processvar.ReceiptInfo;
+import com.baidu.rigel.service.workflow.api.processvar.DummyReceiptInfo;
 import org.springframework.util.Assert;
 
 /**
  *
  * @author mengran
  */
-public class ReceiptInfoEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<ReceiptInfo> {
+public class ReceiptInfoEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<DummyReceiptInfo> {
 
     @Override
-    protected Object doEngineDriven(ReceiptInfo t, ActivitiTaskExecutionContext taskExecutionContext) {
+    protected Object doEngineDriven(DummyReceiptInfo t, ActivitiTaskExecutionContext taskExecutionContext) {
         
         Assert.notNull(t);
         // Do service logic

@@ -31,7 +31,6 @@ import org.activiti.engine.delegate.ExecutionListener;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.activiti.engine.impl.bpmn.helper.ClassDelegate;
-import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
@@ -44,7 +43,6 @@ import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.xml.Element;
 import org.activiti.engine.impl.variable.VariableDeclaration;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Retrieve generated-task and put it on thread.
@@ -128,15 +126,6 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
     private static final String TASK_GATHER = TaskEventListener.class.getName() + ".TASK_TRIGGER";
     private static final Logger logger = Logger.getLogger(RetrieveNextTasksHelper.class.getName());
     private static final Integer EXPERIENCE_TASK_COUNT = 3;
-    private boolean serializeVarPermission = true;
-
-    public void setSerializeVarPermission(boolean serializeVarPermission) {
-        this.serializeVarPermission = serializeVarPermission;
-    }
-
-    public boolean isSerializeVarPermission() {
-        return serializeVarPermission;
-    }
 
     private static class TaskEventListener implements TaskListener {
 
@@ -292,17 +281,6 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
 
     public void parseSequenceFlow(Element sequenceFlowElement, ScopeImpl scopeElement, TransitionImpl transition) {
 
-        // Disallow serialize process variable(not default)
-        if (!serializeVarPermission) {
-            logger.fine("Detect serialize variagble.");
-            String expression = (String) transition.getProperty(BpmnParse.PROPERTYNAME_CONDITION_TEXT);
-            if (StringUtils.hasLength(expression) && StringUtils.split(expression, ".") != null) {
-                throw new ActivitiException("Disallow serialize variable[" + expression + "].");
-            }
-        } else {
-            logger.log(Level.WARNING ,"Allow serialize variable, we strongly suggest that control it's size for performance.");
-        }
-
         // Add transition [take] event listener
         if (!CollectionUtils.isEmpty(getTransitionTakeEventListener())) {
             for (TransitionTakeEventListener ttel : getTransitionTakeEventListener()) {
@@ -331,11 +309,11 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
             if (InterpretableExecution.class.isAssignableFrom(execution.getClass())) {
 
                 InterpretableExecution interpretableExecution = (InterpretableExecution) execution;
-                onTransitionTake(interpretableExecution.getProcessInstanceId() , interpretableExecution.getTransition());
+                onTransitionTake(execution, interpretableExecution.getProcessInstanceId() , interpretableExecution.getTransition());
             }
         }
 
-        public abstract void onTransitionTake(String processInstanceId, TransitionImpl transition);
+        public abstract void onTransitionTake(DelegateExecution execution, String processInstanceId, TransitionImpl transition);
 
     }
 }

@@ -46,7 +46,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -57,7 +56,6 @@ import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
 import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.TLIGenerator;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
-import com.baidu.rigel.service.workflow.common.mail.TemplateMailSender;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,11 +64,8 @@ import org.activiti.engine.FormService;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.ProcessEngineImpl;
-import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
-import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Common funciton provider for activiti implementation such as cache, interceptor getter from model.
@@ -108,13 +103,9 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     private List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor;
     private List<ProcessCreateInteceptor> processCreateInteceptor;
     private List<ProcessOperationInteceptor> processOperationInteceptors;
-    private TemplateMailSender templateMailSender;
-    private SimpleMailMessage distributeTransactionMessage;
-    private String distributeTransactionMailTemplate;
     private ActivitiExtraService extraService;
     private ProcessEngine processEngine;
     private ProcessEngineConfiguration processEngineConfiguration;
-    private boolean serializeVarPermission = true;
     private boolean rigelWfInitialize = false;
 
     public boolean isRigelWfInitialize() {
@@ -123,10 +114,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 
     public void setRigelWfInitialize(boolean rigelWfInitialize) {
         this.rigelWfInitialize = rigelWfInitialize;
-    }
-
-    public boolean isSerializeVarPermission() {
-        return serializeVarPermission;
     }
 
     public FormService getFormService() {
@@ -196,50 +183,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
      */
     public final void setRuntimeService(RuntimeService runtimeService) {
         this.runtimeService = runtimeService;
-    }
-
-    /**
-     * @return the distributeTransactionMailTemplate
-     */
-    public final String getDistributeTransactionMailTemplate() {
-        return distributeTransactionMailTemplate;
-    }
-
-    /**
-     * @param distributeTransactionMailTemplate the distributeTransactionMailTemplate to set
-     */
-    public final void setDistributeTransactionMailTemplate(
-            String distributeTransactionMailTemplate) {
-        this.distributeTransactionMailTemplate = distributeTransactionMailTemplate;
-    }
-
-    /**
-     * @return the distributeTransactionMessage
-     */
-    public final SimpleMailMessage getDistributeTransactionMessage() {
-        return distributeTransactionMessage;
-    }
-
-    /**
-     * @param distributeTransactionMessage the distributeTransactionMessage to set
-     */
-    public final void setDistributeTransactionMessage(
-            SimpleMailMessage distributeTransactionMessage) {
-        this.distributeTransactionMessage = distributeTransactionMessage;
-    }
-
-    /**
-     * @return the templateMailSender
-     */
-    public final TemplateMailSender getTemplateMailSender() {
-        return templateMailSender;
-    }
-
-    /**
-     * @param templateMailSender the templateMailSender to set
-     */
-    public final void setTemplateMailSender(TemplateMailSender templateMailSender) {
-        this.templateMailSender = templateMailSender;
     }
 
     /**
@@ -363,16 +306,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             Assert.notNull(this.getProcessEngine(), "Properties 'processEngine' is required.");
             this.setProcessEngineConfiguration(((ProcessEngineImpl) getProcessEngine()).getProcessEngineConfiguration());
             logger.log(Level.INFO, "Retrieve process configuration from processEngine.{0}", getProcessEngine());
-        }
-
-        List<BpmnParseListener> postParseListeners = ((ProcessEngineConfigurationImpl) getProcessEngineConfiguration()).getPostParseListeners();
-        if (!CollectionUtils.isEmpty(postParseListeners)) {
-            for (BpmnParseListener listener : postParseListeners) {
-                if (listener.getClass().isAssignableFrom(RetrieveNextTasksHelper.class)) {
-                    serializeVarPermission = ((RetrieveNextTasksHelper) listener).isSerializeVarPermission();
-                    logger.log(Level.INFO, "serialize variable permission flag is {0}", serializeVarPermission);
-                }
-            }
         }
 
         // Retrieve service from engine if not inject with property
@@ -614,7 +547,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         return obtainCacheInfos(taskInstanceId, TaskInformations.BUSINESS_OBJECT_ID);
     }
 
-    protected Map<String, String> getExtendAttrs(String taskInstanceId) {
+    protected HashMap<String, String> getExtendAttrs(String taskInstanceId) {
 
         try {
 //            Task task = getTaskService().createTaskQuery().taskId(taskInstanceId).singleResult();
@@ -651,7 +584,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
 //            logger.finest("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description:" + document);
 //
 //            String[] arrayString = StringUtils.tokenizeToStringArray(document, "\r\n");
-            Map<String, String> forReturn = new HashMap<String, String>();
+            HashMap<String, String> forReturn = new HashMap<String, String>();
 //            for (String element : arrayString) {
 //                forReturn.put(StringUtils.split(element, ":")[0], StringUtils.split(element, ":")[1]);
 //            }

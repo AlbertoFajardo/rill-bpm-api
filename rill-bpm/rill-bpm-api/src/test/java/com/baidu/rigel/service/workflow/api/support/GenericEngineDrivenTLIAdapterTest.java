@@ -12,7 +12,7 @@ import com.baidu.rigel.service.workflow.api.activiti.support.GenericEngineDriven
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.Assert;
@@ -178,37 +178,37 @@ public class GenericEngineDrivenTLIAdapterTest {
 
     static final class MyWorkflowAccessor implements WorkflowOperations {
 
-        public Map<String, String> getTaskInstanceExtendAttrs(String engineTaskInstanceId) {
+        public HashMap<String, String> getTaskInstanceExtendAttrs(String engineTaskInstanceId) {
 
             if (engineTaskInstanceId == null) {
-            Map<String, String> extendAttrs = new HashMap<String, String>();
+            HashMap<String, String> extendAttrs = new HashMap<String, String>();
                 extendAttrs.put(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION, "serviceA.serviceA()");
 
                 return extendAttrs;
             } else if (engineTaskInstanceId.equals("primitive")) {
-                Map<String, String> extendAttrs = new HashMap<String, String>();
+                HashMap<String, String> extendAttrs = new HashMap<String, String>();
                 extendAttrs.put(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION, "serviceA.serviceA(" + int.class.getName() + ", " + String.class.getName() + ")");
 
                 return extendAttrs;
             } else if (engineTaskInstanceId.equals("primitiveOrWrapper")) {
-                Map<String, String> extendAttrs = new HashMap<String, String>();
+                HashMap<String, String> extendAttrs = new HashMap<String, String>();
                 extendAttrs.put(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION, "serviceA.serviceA(" + int.class.getName() + ", " + String.class.getName() + ", " + Integer.class.getName() + ")");
 
                 return extendAttrs;
             } else if (engineTaskInstanceId.equals("compsite")) {
-                Map<String, String> extendAttrs = new HashMap<String, String>();
+                HashMap<String, String> extendAttrs = new HashMap<String, String>();
                 extendAttrs.put(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION, "serviceA.serviceA(" + int.class.getName() + ", " + String.class.getName() + ", " + MyDTO.class.getName() + ")");
 
                 return extendAttrs;
             } else {
-                Map<String, String> extendAttrs = new HashMap<String, String>();
+                HashMap<String, String> extendAttrs = new HashMap<String, String>();
                 extendAttrs.put(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION, "serviceA.serviceA(" + MyDTO.class.getName() + ")");
 
                 return extendAttrs;
             }
         }
 
-        public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
+        public void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -224,11 +224,11 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException {
+        public void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void batchCompleteTaskIntances(LinkedHashMap<String, Map<String, Object>> batchDTO, String opeartor) throws ProcessException {
+        public void batchCompleteTaskIntances(List<CompleteTaskInstanceDto> batchDTO) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -251,6 +251,8 @@ public class GenericEngineDrivenTLIAdapterTest {
         public void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId, String oldExecuter, String newExecuter) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
+
+        
 
     }
 
