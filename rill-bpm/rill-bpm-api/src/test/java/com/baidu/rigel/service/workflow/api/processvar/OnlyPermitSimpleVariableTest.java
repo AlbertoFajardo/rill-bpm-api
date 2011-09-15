@@ -29,7 +29,7 @@ import org.activiti.engine.task.TaskQuery;
 import org.activiti.engine.test.Deployment;
 
 /**
- *
+ * <b>Work-flow API have changed by MENGRAN at 2011-08-** for [String] is only permited.</b>
  * @author mengran
  */
 public class OnlyPermitSimpleVariableTest extends PluggableActivitiTestCase {
@@ -97,8 +97,7 @@ public class OnlyPermitSimpleVariableTest extends PluggableActivitiTestCase {
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
-            workflowAccessor.createProcessInstance(createProcessInstanceDto);
+            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }
@@ -125,8 +124,7 @@ public class OnlyPermitSimpleVariableTest extends PluggableActivitiTestCase {
         log.fine("Complete task and set variables");
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-            WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(userTask1.getId(), "junit", workflowParams);
-            workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
+            workflowAccessor.completeTaskInstance(userTask1.getId(), "junit", workflowParams);
         } finally {
             log.exiting("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
         }

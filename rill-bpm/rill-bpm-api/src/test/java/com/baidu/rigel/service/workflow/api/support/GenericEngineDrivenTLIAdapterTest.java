@@ -12,7 +12,6 @@ import com.baidu.rigel.service.workflow.api.activiti.support.GenericEngineDriven
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.Assert;
@@ -208,7 +207,7 @@ public class GenericEngineDrivenTLIAdapterTest {
             }
         }
 
-        public void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
+        public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -224,11 +223,11 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
+        public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void batchCompleteTaskIntances(List<CompleteTaskInstanceDto> batchDTO) throws ProcessException {
+        public void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 

@@ -93,8 +93,7 @@ public class Draw2DSimpleVariableDiagramTest extends PluggableActivitiTestCase {
         String processDefinitionKey = "pg-support-simplevariable";
 
         // Start process by KEY
-        WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
-        workflowAccessor.createProcessInstance(createProcessInstanceDto);
+        workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
 
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(orderId.toString(), processDefinitionKey).singleResult();
 
@@ -112,8 +111,7 @@ public class Draw2DSimpleVariableDiagramTest extends PluggableActivitiTestCase {
         // Pass and need usertask2
         Map<String, String> workflowParams = new HashMap<String, String>();
         workflowParams.put("need_userTask2", "1");
-        WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(userTask1.getId(), "junit", workflowParams);
-        workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
+        workflowAccessor.completeTaskInstance(userTask1.getId(), "junit", workflowParams);
 
         taskList = taskQuery.list();
         assertEquals(1, taskQuery.count());

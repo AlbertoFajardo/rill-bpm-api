@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Metro/2.1 (branches/2.1-6728; 2011-02-03T14:14:58+0000) JAXWS-RI/2.2.3 JAXWS/2.2. --><xs:schema xmlns:tns="http://activiti.api.ws.workflow.service.rigel.baidu.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://activiti.api.ws.workflow.service.rigel.baidu.com/">
+
+<xs:element name="completeTaskInstance" type="tns:completeTaskInstance" />
+
+<xs:element name="completeTaskInstanceDto" type="tns:completeTaskInstanceDto" />
+
+<xs:element name="completeTaskInstanceResponse" type="tns:completeTaskInstanceResponse" />
+
+<xs:element name="createProcessInstance" type="tns:createProcessInstance" />
+
+<xs:element name="createProcessInstanceDto" type="tns:createProcessInstanceDto" />
+
+<xs:element name="createProcessInstanceResponse" type="tns:createProcessInstanceResponse" />
+
+<xs:complexType name="createProcessInstance">
+<xs:sequence>
+<xs:element name="arg0" type="tns:createProcessInstanceDto" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createProcessInstanceDto">
+<xs:sequence>
+<xs:element name="businessObjectId" type="xs:string" minOccurs="0" />
+<xs:element name="processDefinitionKey" type="xs:string" minOccurs="0" />
+<xs:element name="processStarter" type="xs:string" minOccurs="0" />
+<xs:element name="startParams" type="tns:mapElementsArray" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="mapElements">
+<xs:sequence>
+<xs:element name="key" type="xs:string" minOccurs="0" />
+<xs:element name="value" type="xs:string" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createProcessInstanceResponse">
+<xs:sequence />
+</xs:complexType>
+
+<xs:complexType name="completeTaskInstance">
+<xs:sequence>
+<xs:element name="arg0" type="tns:completeTaskInstanceDto" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="completeTaskInstanceDto">
+<xs:sequence>
+<xs:element name="engineTaskInstanceId" type="xs:string" minOccurs="0" />
+<xs:element name="operator" type="xs:string" minOccurs="0" />
+<xs:element name="workflowParams" type="tns:mapElementsArray" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="completeTaskInstanceResponse">
+<xs:sequence />
+</xs:complexType>
+
+<xs:complexType name="mapElementsArray" final="#all">
+<xs:sequence>
+<xs:element name="item" type="tns:mapElements" minOccurs="0" maxOccurs="unbounded" nillable="true" />
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>rill-bpm</artifactId>
+        <groupId>org.rill</groupId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+    <groupId>org.rill</groupId>
+    <artifactId>rill-bpm-ws</artifactId>
+    <name>rill - bpm - ws</name>
+    
+    <dependencies>
+        <dependency>
+            <artifactId>rill-bpm-api</artifactId>
+            <groupId>org.rill</groupId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <artifactId>activiti-spring</artifactId>
+            <groupId>org.activiti</groupId>
+            <version>${activiti.engine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.metro</groupId>
+            <artifactId>webservices-rt</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <artifactId>rill-bpm-api</artifactId>
+            <groupId>org.rill</groupId>
+            <type>test-jar</type>
+            <version>${version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <profiles>
+        <profile>
+            <id>jaxws</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>jaxws-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>wsgen</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <sei>com.baidu.rigel.service.workflow.ws.api.activiti.RemoteActivitiTemplate</sei>
+                            <genWsdl>true</genWsdl>
+                            <keep>true</keep>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.rill</groupId>
+                                <artifactId>rill-bpm-api</artifactId>
+                                <version>${version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+  
+</project>

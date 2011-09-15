@@ -2676,7 +2676,7 @@
     <flowElements xsi:type="bpmn2:EndEvent" id="endevent6" name="End" incoming="flow27"/>
     <flowElements xsi:type="bpmn2:UserTask" id="usertask9" name="&#x4e00;&#x7ebf;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow39" outgoing="flow24" candidateGroups="/7" formKey="/pg-support/managerAudit.action">
       <documentation text=""/>
-      <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.TLITOIClassDelegateAdapter" event="create">
+      <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ClassDelegateAdapter" event="create">
         <fieldExtensions fieldname="task_lifecycle_interceptor" expression="dummyTLI"/>
       </activitiListeners>
     </flowElements>
