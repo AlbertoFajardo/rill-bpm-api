@@ -12,7 +12,6 @@ import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +31,7 @@ public class XpathVarConvertTLITest {
         ActivitiXpathVarConvertTaskLifecycleInterceptor tli = new ActivitiXpathVarConvertTaskLifecycleInterceptor();
         class XpathWorkflowAccessor implements WorkflowOperations {
 
-            public void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
+            public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
@@ -48,11 +47,11 @@ public class XpathVarConvertTLITest {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
+            public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public void batchCompleteTaskIntances(List<CompleteTaskInstanceDto> batchDTO) throws ProcessException {
+            public void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 

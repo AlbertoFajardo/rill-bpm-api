@@ -244,7 +244,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
                             try {
                                 Field classNameField = ReflectUtil.getField("className", tl);
                                 classNameField.setAccessible(true);
-                                if (classNameField == null &&
+                                if (classNameField == null ||
                                         !ClassDelegateAdapter.class.getName().equals(classNameField.get(tl).toString())) {
                                     throw new ActivitiException("Can not reflect protected field [className]/value not equals " +
                                             ClassDelegateAdapter.class.getName() + " on " + tl);

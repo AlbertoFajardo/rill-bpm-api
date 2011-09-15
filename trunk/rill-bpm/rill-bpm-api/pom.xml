@@ -219,23 +219,6 @@
                 </executions>
             </plugin>
             
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsgen</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sei>com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate</sei>
-                    <genWsdl>true</genWsdl>
-                    <keep>true</keep>
-                </configuration>
-            </plugin>
-            
         </plugins>
     </build>
 </project>

@@ -87,13 +87,12 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
 
         Integer orderId = new Random().nextInt();
         String processDefinitionKey = "pg-support";
-        log.fine("Start process by key" + processDefinitionKey + "], and business key[" + orderId + "]");
+        log.log(Level.FINE, "Start process by key{0}], and business key[{1}]", new Object[]{processDefinitionKey, orderId});
 
         try {
             log.entering("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
             // Start process by KEY
-            WorkflowOperations.CreateProcessInstanceDto createProcessInstanceDto = new WorkflowOperations.CreateProcessInstanceDto(processDefinitionKey, "Rill Meng", orderId.toString(), null);
-            workflowAccessor.createProcessInstance(createProcessInstanceDto);
+            workflowAccessor.createProcessInstance(processDefinitionKey, "Rill Meng", orderId.toString(), null);
         } finally {
             log.exiting("PgSupportTest", "createProcessInstance", ThreadLocalResourceHolder.printAll());
         }
@@ -139,8 +138,7 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
                 boolean successComplete = true;
                 try {
                     log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-                    WorkflowOperations.CompleteTaskInstanceDto completeTaskInstanceDto = new WorkflowOperations.CompleteTaskInstanceDto(khfabManagerTask.getId(), "junit", workflowParams);
-                    workflowAccessor.completeTaskInstance(completeTaskInstanceDto);
+                    workflowAccessor.completeTaskInstance(khfabManagerTask.getId(), "junit", workflowParams);
                 } catch (Throwable t) {
                     successComplete = false;
                     log.info(t.getMessage());

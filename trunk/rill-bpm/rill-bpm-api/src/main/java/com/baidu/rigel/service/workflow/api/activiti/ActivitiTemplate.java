@@ -39,7 +39,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
-import javax.jws.WebService;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
@@ -61,18 +60,12 @@ import org.springframework.util.StringUtils;
  * Activiti implementation of {@link WorkflowOperations}.
  * @author mengran
  */
-@WebService(endpointInterface="com.baidu.rigel.service.workflow.api.WorkflowOperations")
 public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperations {
 
     private static final String THREAD_RESOURCE_SCOPE = ActivitiTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
 
     // --------------------------------------- Implementation --------------------------//
-    public void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
-        
-        String processDefinitionKey = createProcessInstanceDto.getProcessDefinitionKey();
-        String processStarter = createProcessInstanceDto.getProcessStarter();
-        String businessObjectId = createProcessInstanceDto.getBusinessObjectId();
-        Map<String, String> startParams = createProcessInstanceDto.getStartParams();
+    public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
         
         // Ensure business object not null
         if (businessObjectId == null) {
@@ -420,15 +413,15 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     // -------------------------------- Task related API ---------------------------------- //
-    public void batchCompleteTaskIntances(List<CompleteTaskInstanceDto> batchDTO) throws ProcessException {
+    public void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
 
         Assert.notEmpty(batchDTO);
 
         logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
-        for (CompleteTaskInstanceDto element : batchDTO) {
+        for (Entry<String, Map<String, String>> element : batchDTO.entrySet()) {
 
             // Delegate to single-task operation
-            this.doCompleteTaskInstance(element.getEngineTaskInstanceId(), element.getOperator(), element.getWorkflowParams());
+            this.doCompleteTaskInstance(element.getKey(), operator, element.getValue());
         }
 
     }
@@ -463,12 +456,12 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         return taskExecutionContext;
     }
 
-    public void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
+    public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
 
         UUID uuid = obtainAccessUUID();
         try {
             // Delegate this operation
-            doCompleteTaskInstance(completeTaskInstanceDto.getEngineTaskInstanceId(), completeTaskInstanceDto.getOperator(), completeTaskInstanceDto.getWorkflowParams());
+            doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParams);
         } finally {
             // Release resource
             releaseThreadLocalResource(uuid);
