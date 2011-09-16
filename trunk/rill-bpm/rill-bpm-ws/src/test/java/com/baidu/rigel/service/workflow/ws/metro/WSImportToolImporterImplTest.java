@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
 /**
- * Coding on eclipse platform
+ * Coding on eclipse platform. Commit successfully, Great~~
  *
  * @author mengran
  */
