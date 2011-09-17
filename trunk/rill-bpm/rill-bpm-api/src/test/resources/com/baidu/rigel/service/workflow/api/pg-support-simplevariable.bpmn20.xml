@@ -25,23 +25,23 @@
         <omgdc:Bounds height="55" width="105" x="306" y="130"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
-        <omgdc:Bounds height="55" width="105" x="470" y="130"></omgdc:Bounds>
+        <omgdc:Bounds height="55" width="105" x="40" y="130"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
-        <omgdi:waypoint x="386" y="55"></omgdi:waypoint>
-        <omgdi:waypoint x="306" y="157"></omgdi:waypoint>
+        <omgdi:waypoint x="358" y="83"></omgdi:waypoint>
+        <omgdi:waypoint x="358" y="130"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
-        <omgdi:waypoint x="411" y="157"></omgdi:waypoint>
-        <omgdi:waypoint x="331" y="287"></omgdi:waypoint>
+        <omgdi:waypoint x="358" y="185"></omgdi:waypoint>
+        <omgdi:waypoint x="358" y="260"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
-        <omgdi:waypoint x="411" y="157"></omgdi:waypoint>
-        <omgdi:waypoint x="470" y="157"></omgdi:waypoint>
+        <omgdi:waypoint x="306" y="157"></omgdi:waypoint>
+        <omgdi:waypoint x="145" y="157"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="575" y="157"></omgdi:waypoint>
-        <omgdi:waypoint x="331" y="287"></omgdi:waypoint>
+        <omgdi:waypoint x="92" y="185"></omgdi:waypoint>
+        <omgdi:waypoint x="358" y="260"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

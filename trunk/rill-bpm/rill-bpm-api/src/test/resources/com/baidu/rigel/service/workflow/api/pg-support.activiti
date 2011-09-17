@@ -3,8 +3,8 @@
   <pi:Diagram visible="true" gridUnit="10" diagramTypeId="BPMNdiagram" name="pg-support" snapToGrid="true" showGuides="true" pictogramLinks="/0/@children.0/@link /0/@children.0/@children.0/@link /0/@children.1/@link /0/@children.1/@children.0/@link /0/@children.2/@link /0/@children.2/@children.0/@link /0/@children.2/@children.1/@link /0/@children.2/@children.1/@children.0/@link /0/@children.2/@children.2/@link /0/@children.2/@children.2/@children.0/@link /0/@children.2/@children.3/@link /0/@children.2/@children.3/@children.0/@link /0/@connections.0/@link /0/@children.2/@children.4/@link /0/@children.2/@children.5/@link /0/@connections.1/@link /0/@connections.2/@link /0/@children.2/@children.6/@link /0/@connections.3/@link /0/@connections.4/@link /0/@children.2/@children.7/@link /0/@children.2/@children.7/@children.0/@link /0/@connections.5/@link /0/@children.2/@children.8/@link /0/@connections.6/@link /0/@connections.7/@link /0/@connections.8/@link /0/@children.2/@children.9/@link /0/@children.2/@children.9/@children.0/@link /0/@connections.9/@link /0/@connections.10/@link /0/@connections.11/@link /0/@connections.12/@link /0/@children.2/@children.10/@link /0/@children.2/@children.10/@children.0/@link /0/@connections.13/@link /0/@children.2/@children.11/@link /0/@connections.14/@link /0/@connections.15/@link /0/@children.3/@link /0/@children.3/@children.0/@link /0/@connections.16/@link /0/@children.4/@link /0/@connections.17/@link /0/@children.5/@link /0/@children.5/@children.0/@link /0/@connections.18/@link /0/@children.5/@children.1/@link /0/@children.5/@children.1/@children.0/@link /0/@children.5/@children.2/@link /0/@children.5/@children.2/@children.0/@link /0/@children.5/@children.3/@link /0/@children.5/@children.3/@children.0/@link /0/@children.5/@children.4/@link /0/@connections.19/@link /0/@connections.20/@link /0/@children.5/@children.5/@link /0/@children.5/@children.5/@children.0/@link /0/@connections.21/@link /0/@connections.22/@link /0/@children.5/@children.6/@link /0/@connections.23/@link /0/@connections.24/@link /0/@children.5/@children.7/@link /0/@children.5/@children.7/@children.0/@link /0/@connections.25/@link /0/@children.5/@children.8/@link /0/@connections.26/@link /0/@connections.27/@link /0/@connections.28/@link /0/@children.6/@link /0/@children.6/@children.0/@link /0/@connections.29/@link /0/@connections.30/@link /0/@children.7/@link /0/@connections.31/@link /0/@connections.32/@link /0/@children.8/@link /0/@children.8/@children.0/@link /0/@connections.33/@link /0/@children.9/@link /0/@children.9/@children.0/@link /0/@connections.34/@link /0/@connections.35/@link /0/@children.10/@link /0/@connections.36/@link /0/@connections.37/@link /0/@children.11/@link /0/@connections.38/@link /0/@children.12/@link /0/@children.12/@children.0/@link /0/@connections.39/@link /0/@connections.40/@link /0/@connections.41/@link /0/@children.13/@link /0/@children.13/@children.0/@link /0/@connections.42/@link /0/@children.14/@link /0/@connections.43/@link /0/@children.15/@link /0/@children.15/@children.0/@link /0/@connections.44/@link /0/@children.12/@children.1/@link /0/@children.12/@children.1/@children.0/@link /0/@children.12/@children.2/@link /0/@connections.45/@link /0/@children.12/@children.3/@link /0/@children.12/@children.3/@children.0/@link /0/@children.12/@children.4/@link /0/@children.12/@children.4/@children.0/@link /0/@children.12/@children.5/@link /0/@children.12/@children.5/@children.0/@link /0/@connections.46/@link /0/@connections.47/@link /0/@connections.48/@link /0/@children.12/@children.6/@link /0/@connections.49/@link /0/@connections.50/@link /0/@children.12/@children.7/@link /0/@children.12/@children.7/@children.0/@link /0/@children.16/@link /0/@connections.51/@link /0/@connections.52/@link /0/@children.17/@link /0/@connections.53/@link /0/@children.18/@link /0/@children.18/@children.0/@link /0/@connections.54/@link /0/@children.19/@link /0/@connections.55/@link /0/@children.20/@link /0/@children.20/@children.0/@link /0/@connections.56/@link /0/@connections.57/@link /0/@connections.58/@link /0/@connections.59/@link">
     <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.1" foreground="/0/@colors.0" width="1000" height="1000"/>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="90" y="380">
-        <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="40" y="378">
+        <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
       </graphicsAlgorithm>
       <link businessObjects="startevent3"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.12"/>
@@ -12,28 +12,24 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.1" horizontalAlignment="ALIGNMENT_CENTER" value="Start">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.1" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="Start"/>
         <link businessObjects="startevent3"/>
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="2520" y="837">
-        <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="2520" y="837">
+        <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
       </graphicsAlgorithm>
       <link businessObjects="endevent3"/>
       <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.52"/>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.3" horizontalAlignment="ALIGNMENT_CENTER" value="End">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.3" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="End"/>
         <link businessObjects="endevent3"/>
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="731" height="379" x="380" y="416">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="731" height="379" style="/0/@styles.7" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="731" height="379" x="380" y="416">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="731" height="379" style="/0/@styles.7" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="subprocess3"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.16" incomingConnections="/0/@connections.17 /0/@connections.37 /0/@connections.32"/>
@@ -41,14 +37,12 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="205" height="20" style="/0/@styles.16" horizontalAlignment="ALIGNMENT_CENTER" value="&#x7ba1;&#x7406;&#x5c42;&#x5ba1;&#x6838;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="205" height="20" style="/0/@styles.16" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x7ba1;&#x7406;&#x5c42;&#x5ba1;&#x6838;"/>
         <link businessObjects="subprocess3"/>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" y="58">
-          <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+        <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" y="58">
+          <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
         </graphicsAlgorithm>
         <link businessObjects="startevent6"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.0"/>
@@ -56,28 +50,24 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.19" horizontalAlignment="ALIGNMENT_CENTER" value="Start">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.19" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="Start"/>
           <link businessObjects="startevent6"/>
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="656" y="244">
-          <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+        <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="656" y="244">
+          <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
         </graphicsAlgorithm>
         <link businessObjects="endevent6"/>
         <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.3"/>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.20" horizontalAlignment="ALIGNMENT_CENTER" value="End">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.20" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="End"/>
           <link businessObjects="endevent6"/>
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="144" y="58">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="144" y="58">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask9"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.1" incomingConnections="/0/@connections.14"/>
@@ -85,9 +75,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.27" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4e00;&#x7ebf;&#x7ecf;&#x7406;&#x5ba1;&#x6838;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.27" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4e00;&#x7ebf;&#x7ecf;&#x7406;&#x5ba1;&#x6838;"/>
           <link businessObjects="usertask9"/>
         </children>
         <children visible="true">
@@ -95,8 +83,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="290" y="55">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="290" y="55">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -132,8 +120,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="194" y="295">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="194" y="295">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -169,8 +157,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="653" y="68">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="653" y="68">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -206,8 +194,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="350" y="166">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="350" y="166">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask10"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.6" incomingConnections="/0/@connections.5"/>
@@ -215,9 +203,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.36" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9ad8;&#x7ea7;&#x7ecf;&#x7406;&#x5ba1;&#x6838;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.36" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9ad8;&#x7ea7;&#x7ecf;&#x7406;&#x5ba1;&#x6838;"/>
           <link businessObjects="usertask10"/>
         </children>
         <children visible="true">
@@ -225,8 +211,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="536" y="68">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="536" y="68">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -262,8 +248,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="514" y="166">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="514" y="166">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask11"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.10 /0/@connections.11" incomingConnections="/0/@connections.9"/>
@@ -271,9 +257,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.41" horizontalAlignment="ALIGNMENT_CENTER" value="&#x603b;&#x76d1;&#x5ba1;&#x6838;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.41" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x603b;&#x76d1;&#x5ba1;&#x6838;"/>
           <link businessObjects="usertask11"/>
         </children>
         <children visible="true">
@@ -281,8 +265,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="48" y="298">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="48" y="298">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask12"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.15" incomingConnections="/0/@connections.13"/>
@@ -290,9 +274,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.47" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x8ba2;&#x5355;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.47" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x8ba2;&#x5355;"/>
           <link businessObjects="usertask12"/>
         </children>
         <children visible="true">
@@ -300,8 +282,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="70" y="55">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="70" y="55">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -338,8 +320,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="1170" y="578">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1170" y="578">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="usertask13"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.29 /0/@connections.33" incomingConnections="/0/@connections.16 /0/@connections.31"/>
@@ -347,9 +329,7 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.51" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9884;&#x5ba1;&#x6838;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.51" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9884;&#x5ba1;&#x6838;"/>
         <link businessObjects="usertask13"/>
       </children>
       <children visible="true">
@@ -357,8 +337,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="266" y="377">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="266" y="377">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -394,8 +374,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="731" height="379" x="380" y="19">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="731" height="379" style="/0/@styles.7" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="731" height="379" x="380" y="19">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="731" height="379" style="/0/@styles.7" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="subprocess4"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.58" incomingConnections="/0/@connections.18"/>
@@ -403,14 +383,12 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="205" height="20" style="/0/@styles.55" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="205" height="20" style="/0/@styles.55" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;"/>
         <link businessObjects="subprocess4"/>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="20" y="73">
-          <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+        <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="20" y="73">
+          <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
         </graphicsAlgorithm>
         <link businessObjects="startevent7"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.19"/>
@@ -418,28 +396,24 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.57" horizontalAlignment="ALIGNMENT_CENTER" value="Start">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.57" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="Start"/>
           <link businessObjects="startevent7"/>
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="630" y="166">
-          <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+        <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="630" y="166">
+          <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
         </graphicsAlgorithm>
         <link businessObjects="endevent7"/>
         <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.24 /0/@connections.28"/>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.58" horizontalAlignment="ALIGNMENT_CENTER" value="End">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.58" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="End"/>
           <link businessObjects="endevent7"/>
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="220" y="73">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="220" y="73">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask14"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.21" incomingConnections="/0/@connections.20 /0/@connections.22 /0/@connections.26"/>
@@ -447,9 +421,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.59" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.59" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;"/>
           <link businessObjects="usertask14"/>
         </children>
         <children visible="true">
@@ -457,8 +429,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="120" y="70">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="120" y="70">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -494,8 +466,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="370" y="73">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="370" y="73">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask15"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.22 /0/@connections.23" incomingConnections="/0/@connections.21"/>
@@ -503,9 +475,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.62" horizontalAlignment="ALIGNMENT_CENTER" value="&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.62" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;"/>
           <link businessObjects="usertask15"/>
         </children>
         <children visible="true">
@@ -513,8 +483,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="520" y="70">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="520" y="70">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -550,8 +520,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="370" y="166">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="370" y="166">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask16"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.26 /0/@connections.27" incomingConnections="/0/@connections.25"/>
@@ -559,9 +529,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.67" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9ad8;&#x7ea7;&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.67" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9ad8;&#x7ea7;&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;"/>
           <link businessObjects="usertask16"/>
         </children>
         <children visible="true">
@@ -569,8 +537,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="520" y="163">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="520" y="163">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -607,8 +575,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="1344" y="435">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1344" y="435">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="usertask17"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.30" incomingConnections="/0/@connections.29"/>
@@ -616,9 +584,7 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.72" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9884;&#x5ba1;&#x6838;&#x9a73;&#x56de;&#x4fee;&#x6539;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.72" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x9884;&#x5ba1;&#x6838;&#x9a73;&#x56de;&#x4fee;&#x6539;"/>
         <link businessObjects="usertask17"/>
       </children>
       <children visible="true">
@@ -626,8 +592,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="1188" y="432">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="1188" y="432">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -663,8 +629,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="1347" y="578">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1347" y="578">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="usertask18"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.34 /0/@connections.38" incomingConnections="/0/@connections.33 /0/@connections.36"/>
@@ -672,9 +638,7 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.77" horizontalAlignment="ALIGNMENT_CENTER" value="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x53d1;&#x653e;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.77" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x53d1;&#x653e;"/>
         <link businessObjects="usertask18"/>
       </children>
       <children visible="true">
@@ -682,8 +646,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="1344" y="723">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1344" y="723">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="usertask19"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.35" incomingConnections="/0/@connections.34"/>
@@ -691,9 +655,7 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.79" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x5408;&#x540c;&#x4fe1;&#x606f;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.79" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x4fee;&#x6539;&#x5408;&#x540c;&#x4fe1;&#x606f;"/>
         <link businessObjects="usertask19"/>
       </children>
       <children visible="true">
@@ -701,8 +663,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="1188" y="720">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="1188" y="720">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -738,8 +700,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="1498" y="572">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="1498" y="572">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -775,8 +737,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="491" height="372" x="1640" y="23">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="491" height="372" style="/0/@styles.7" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="491" height="372" x="1640" y="23">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="491" height="372" style="/0/@styles.7" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="subprocess6"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.54" incomingConnections="/0/@connections.53"/>
@@ -784,14 +746,12 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="205" height="20" style="/0/@styles.86" horizontalAlignment="ALIGNMENT_CENTER" value="&#x7968;&#x636e;&#x6b3e;&#x9879;&#x5904;&#x7406;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="205" height="20" style="/0/@styles.86" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x7968;&#x636e;&#x6b3e;&#x9879;&#x5904;&#x7406;"/>
         <link businessObjects="subprocess6"/>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" y="100">
-          <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+        <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" y="100">
+          <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
         </graphicsAlgorithm>
         <link businessObjects="startevent9"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.45"/>
@@ -799,15 +759,13 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.99" horizontalAlignment="ALIGNMENT_CENTER" value="Start">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.99" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="Start"/>
           <link businessObjects="startevent9"/>
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="80" y="97">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="80" y="97">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -843,8 +801,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="200" y="46">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="200" y="46">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask22"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.49" incomingConnections="/0/@connections.46"/>
@@ -852,9 +810,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.101" horizontalAlignment="ALIGNMENT_CENTER" value="&#x5f00;&#x53d1;&#x7968;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.101" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x5f00;&#x53d1;&#x7968;"/>
           <link businessObjects="usertask22"/>
         </children>
         <children visible="true">
@@ -862,8 +818,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="200" y="135">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="200" y="135">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask23"/>
         <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.47"/>
@@ -871,9 +827,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.102" horizontalAlignment="ALIGNMENT_CENTER" value="&#x5f00;&#x6536;&#x6b3e;&#x8bc1;&#x660e;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.102" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x5f00;&#x6536;&#x6b3e;&#x8bc1;&#x660e;"/>
           <link businessObjects="usertask23"/>
         </children>
         <children visible="true">
@@ -881,8 +835,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="200" y="226">
-          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+        <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="200" y="226">
+          <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
         </graphicsAlgorithm>
         <link businessObjects="usertask24"/>
         <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.59" incomingConnections="/0/@connections.48 /0/@connections.50"/>
@@ -890,9 +844,7 @@
           <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
         </anchors>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.103" horizontalAlignment="ALIGNMENT_CENTER" value="&#x5b8c;&#x5584;&#x8d22;&#x52a1;&#x4fe1;&#x606f;">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.103" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x5b8c;&#x5584;&#x8d22;&#x52a1;&#x4fe1;&#x606f;"/>
           <link businessObjects="usertask24"/>
         </children>
         <children visible="true">
@@ -900,8 +852,8 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="400" y="43">
-          <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="400" y="43">
+          <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
             <points y="30"/>
             <points x="30"/>
             <points x="60" y="30"/>
@@ -937,22 +889,20 @@
         </children>
       </children>
       <children xsi:type="pi:ContainerShape" visible="true" active="true">
-        <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="430" y="226">
-          <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+        <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="430" y="226">
+          <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
         </graphicsAlgorithm>
         <link businessObjects="endevent10"/>
         <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.59"/>
         <children visible="true">
-          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.109" horizontalAlignment="ALIGNMENT_CENTER" value="End">
-            <font name="Arial" size="8" bold="true"/>
-          </graphicsAlgorithm>
+          <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.109" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="End"/>
           <link businessObjects="endevent10"/>
         </children>
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="1476" y="840">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1476" y="840">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="usertask21"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.43" incomingConnections="/0/@connections.42"/>
@@ -960,9 +910,7 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.94" horizontalAlignment="ALIGNMENT_CENTER" value="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x8fd4;&#x8fd8;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.94" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x8fd4;&#x8fd8;"/>
         <link businessObjects="usertask21"/>
       </children>
       <children visible="true">
@@ -970,8 +918,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="1724" y="837">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="1724" y="837">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -1007,21 +955,19 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="1727" y="708">
-        <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="1727" y="708">
+        <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
       </graphicsAlgorithm>
       <link businessObjects="endevent9"/>
       <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.44"/>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.97" horizontalAlignment="ALIGNMENT_CENTER" value="End">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.97" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="End"/>
         <link businessObjects="endevent9"/>
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="2328" y="834">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="2328" y="834">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -1057,8 +1003,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="1498" y="179">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="1498" y="179">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -1094,8 +1040,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" filled="false" lineVisible="false" width="105" height="55" x="2306" y="181">
-        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="2306" y="181">
+        <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.0" cornerHeight="5" cornerWidth="5"/>
       </graphicsAlgorithm>
       <link businessObjects="usertask25"/>
       <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.57" incomingConnections="/0/@connections.55"/>
@@ -1103,9 +1049,7 @@
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="105" height="20" y="20" style="/0/@styles.120" horizontalAlignment="ALIGNMENT_CENTER" value="&#x8d22;&#x52a1;&#x6536;&#x6b3e;">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:MultiText" lineWidth="1" transparency="0.0" width="105" height="30" y="20" style="/0/@styles.120" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="&#x8d22;&#x52a1;&#x6536;&#x6b3e;"/>
         <link businessObjects="usertask25"/>
       </children>
       <children visible="true">
@@ -1113,8 +1057,8 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" filled="false" lineVisible="false" width="60" height="60" x="2190" y="178">
-        <graphicsAlgorithmChildren xsi:type="al:Polygon" width="60" height="60" style="/0/@styles.0">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="60" height="60" x="2190" y="178">
+        <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="60" height="60" style="/0/@styles.0">
           <points y="30"/>
           <points x="30"/>
           <points x="60" y="30"/>
@@ -1150,15 +1094,13 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false" width="55" height="55" x="2193" y="340">
-        <graphicsAlgorithmChildren xsi:type="al:Ellipse" width="55" height="55" style="/0/@styles.0"/>
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="55" height="55" x="2193" y="340">
+        <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="1" transparency="0.0" width="55" height="55" style="/0/@styles.0"/>
       </graphicsAlgorithm>
       <link businessObjects="endevent11"/>
       <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.56"/>
       <children visible="true">
-        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.124" horizontalAlignment="ALIGNMENT_CENTER" value="End">
-          <font name="Arial" size="8" bold="true"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" width="55" height="55" style="/0/@styles.124" font="/0/@fonts.1" horizontalAlignment="ALIGNMENT_CENTER" value="End"/>
         <link businessObjects="endevent11"/>
       </children>
     </children>
@@ -1636,9 +1578,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow22"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.28" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.28" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1653,9 +1593,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow24"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.31" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.31" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1670,9 +1608,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow25"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.32" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.32" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1687,9 +1623,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow27"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.34" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.34" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1704,9 +1638,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow28"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.35" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.35" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1722,9 +1654,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow29"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.37" value="&#x9ad8;&#x9636;&#x518d;&#x5ba1;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.37" font="/0/@fonts.0" value="&#x9ad8;&#x9636;&#x518d;&#x5ba1;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1739,9 +1669,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow30"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.38" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.38" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1756,9 +1684,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow31"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.39" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.39" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1774,9 +1700,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow32"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.40" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.40" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1791,9 +1715,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow33"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.42" value="&#x9ad8;&#x9636;&#x518d;&#x5ba1;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.42" font="/0/@fonts.0" value="&#x9ad8;&#x9636;&#x518d;&#x5ba1;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1808,9 +1730,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow34"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.43" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.43" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1825,9 +1745,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow35"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.44" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.44" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1843,9 +1761,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow37"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.46" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.46" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1860,9 +1776,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow38"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.48" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.48" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1877,9 +1791,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow39"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.49" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.49" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1894,9 +1806,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow40"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.50" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.50" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1911,9 +1821,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow41"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.52" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.52" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1928,9 +1836,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow43"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.54" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.54" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1946,9 +1852,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow44"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.56" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.56" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1964,9 +1868,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow45"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.60" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.60" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1981,9 +1883,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow46"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.61" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.61" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -1998,9 +1898,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow47"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.63" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.63" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2015,9 +1913,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow48"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.64" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.64" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2033,9 +1929,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow49"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.65" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.65" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2050,9 +1944,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow50"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.66" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.66" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2068,9 +1960,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow51"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.68" value="&#x9ad8;&#x9636;&#x518d;&#x5ba1;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.68" font="/0/@fonts.0" value="&#x9ad8;&#x9636;&#x518d;&#x5ba1;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2085,9 +1975,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow52"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.69" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.69" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2102,9 +1990,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow53"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.70" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.70" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2119,9 +2005,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow54"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.71" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.71" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2136,9 +2020,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow55"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.73" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.73" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2153,9 +2035,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow56"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.74" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.74" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2170,9 +2050,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow57"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.75" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.75" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2187,9 +2065,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow58"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.76" value="&#x4fee;&#x6539;&#x9700;&#x518d;&#x5ba1;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.76" font="/0/@fonts.0" value="&#x4fee;&#x6539;&#x9700;&#x518d;&#x5ba1;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2204,9 +2080,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow59"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.78" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.78" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2221,9 +2095,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow60"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.80" value="&#x9a73;&#x56de;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.80" font="/0/@fonts.0" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2238,9 +2110,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow61"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.81" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.81" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2255,9 +2125,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow62"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.82" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.82" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2272,9 +2140,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow63"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.83" value="&#x4fee;&#x6539;&#x9700;&#x518d;&#x5ba1;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.83" font="/0/@fonts.0" value="&#x4fee;&#x6539;&#x9700;&#x518d;&#x5ba1;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2289,9 +2155,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow64"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.84" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.84" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2306,9 +2170,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow66"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.88" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.88" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2323,9 +2185,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.91" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.91" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2340,9 +2200,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.93" value="&#x5408;&#x540c;&#x672a;&#x5f52;&#x6863;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.93" font="/0/@fonts.0" value="&#x5408;&#x540c;&#x672a;&#x5f52;&#x6863;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2357,9 +2215,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow69"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.95" value="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x8fd4;&#x8fd8;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.95" font="/0/@fonts.0" value="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x8fd4;&#x8fd8;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2374,9 +2230,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow70"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.96" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.96" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2391,9 +2245,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow71"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.98" value="&#x975e;&#x6b63;&#x5e38;&#x8fd4;&#x8fd8;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.98" font="/0/@fonts.0" value="&#x975e;&#x6b63;&#x5e38;&#x8fd4;&#x8fd8;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2408,9 +2260,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow72"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.100" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.100" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2425,9 +2275,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow73"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.104" value="&#x63d0;&#x524d;&#x5f00;&#x53d1;&#x7968;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.104" font="/0/@fonts.0" value="&#x63d0;&#x524d;&#x5f00;&#x53d1;&#x7968;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2442,9 +2290,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow74"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="-5" y="-15" style="/0/@styles.105" value="&#x63d0;&#x524d;&#x5f00;&#x6536;&#x6b3e;&#x8bc1;&#x660e;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="-5" y="-15" style="/0/@styles.105" font="/0/@fonts.0" value="&#x63d0;&#x524d;&#x5f00;&#x6536;&#x6b3e;&#x8bc1;&#x660e;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2459,9 +2305,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow75"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.106" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.106" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2476,9 +2320,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow76"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.107" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.107" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2493,9 +2335,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow77"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.108" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.108" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2510,9 +2350,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow79"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.111" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.111" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2527,9 +2365,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow81"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.113" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.113" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2544,9 +2380,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow82"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.114" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.114" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2561,9 +2395,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow86"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.121" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.121" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2578,9 +2410,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow88"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.123" value="&#x53bb;&#x6536;&#x6b3e;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.123" font="/0/@fonts.0" value="&#x53bb;&#x6536;&#x6b3e;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2595,9 +2425,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow89"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="-10" y="-9" style="/0/@styles.125" value="&#x7b49;&#x5f85;&#x91cd;&#x65b0;&#x8fdb;&#x5165;&#x8d22;&#x52a1;&#x6d41;&#x7a0b;">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="-10" y="-9" style="/0/@styles.125" font="/0/@fonts.0" value="&#x7b49;&#x5f85;&#x91cd;&#x65b0;&#x8fdb;&#x5165;&#x8d22;&#x52a1;&#x6d41;&#x7a0b;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2612,9 +2440,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow93"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.130" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.130" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2629,9 +2455,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow94"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.131" value="AfterModReceiptType">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.131" font="/0/@fonts.0" value="AfterModReceiptType"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2646,9 +2470,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.4" filled="false"/>
       <link businessObjects="flow95"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.132" value="">
-          <font name="Arial" size="8"/>
-        </graphicsAlgorithm>
+        <graphicsAlgorithm xsi:type="al:Text" x="10" style="/0/@styles.132" font="/0/@fonts.0" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" style="/0/@styles.5">
@@ -2664,6 +2486,8 @@
     <colors red="25" green="25" blue="112"/>
     <colors red="51" green="51" blue="153"/>
     <colors/>
+    <fonts name="Arial" size="8"/>
+    <fonts name="Arial" size="8" bold="true"/>
   </pi:Diagram>
   <bpmn2:Process id="pg-support" name="&#x76d8;&#x53e4;">
     <documentation id="documentation_process" text="&#x76d8;&#x53e4;&#x652f;&#x6301;&#x6d41;&#x7a0b;"/>

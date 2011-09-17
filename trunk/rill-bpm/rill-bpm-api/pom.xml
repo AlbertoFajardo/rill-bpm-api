@@ -4,7 +4,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>rill - bpm - api</name>
-    <groupId>org.rill</groupId>
     <artifactId>rill-bpm-api</artifactId>
     <packaging>jar</packaging>
     
@@ -14,6 +13,9 @@
         <relativePath>../</relativePath>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    <properties>
+        <activiti.bpmn20.path>${basedir}../../../rill-bpm-bpmn/src/main/resources/diagrams</activiti.bpmn20.path>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -63,11 +65,7 @@
                             <outputDirectory>${basedir}/src/test/resources/com/baidu/rigel/service/workflow/api</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>D:\\RillDev\\01EclipseDev\\workspace\\activiti.pangu2\\src\\main\\resources\\diagrams</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                                <resource>
-                                    <directory>E:\\01EclipseDev\\workspace\\activiti.pangu2\\src\\main\\resources\\diagrams</directory>
+                                    <directory>${activiti.bpmn20.path}</directory>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>

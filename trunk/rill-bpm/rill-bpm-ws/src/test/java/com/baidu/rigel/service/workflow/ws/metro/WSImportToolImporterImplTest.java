@@ -4,6 +4,8 @@
  */
 package com.baidu.rigel.service.workflow.ws.metro;
 
+import java.io.IOException;
+
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,11 +45,11 @@ public class WSImportToolImporterImplTest {
     // @Test
     // public void hello() {}
     @Test
-    public void doImport() {
+    public void doImport() throws IOException {
         
         WSImportToolImporterImpl importer = new WSImportToolImporterImpl();
         ClassPathResource cpr = new ClassPathResource("BPMWebService.wsdl");
-        importer.importFrom(cpr.getPath());
+        importer.importFrom(cpr.getURL().toExternalForm());
         Assert.assertTrue(importer.getServices().size() == 1);
         Assert.assertTrue(importer.getServices().iterator().next().getName().equals("RemoteActivitiTemplateService"));
     }
