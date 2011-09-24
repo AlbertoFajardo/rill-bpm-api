@@ -1,4 +1,4 @@
-#summary Build your develop environment.
+#summary Building your development environment.
 
 = Required software =
 
