@@ -12,6 +12,7 @@ import java.util.Enumeration;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
@@ -26,7 +27,7 @@ import org.activiti.engine.test.Deployment;
  */
 public class GetTaskNameByDefineIdTest extends PluggableActivitiTestCase {
 
-    private static final Logger log = Logger.getLogger(GetTaskNameByDefineIdTest.class.getName());
+    private final Logger log = Logger.getLogger(getClass().getName());
         /* (non-Javadoc)
      * @see org.activiti.engine.impl.test.PluggableActivitiTestCase#initializeProcessEngine()
      */

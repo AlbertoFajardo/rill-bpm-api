@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Logger;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.DelegateTask;
@@ -34,7 +35,7 @@ import org.springframework.util.Assert;
  */
 public final class ClassDelegateAdapter extends ClassDelegate {
 
-    private static final Logger logger = Logger.getLogger(ClassDelegateAdapter.class.getName());
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private static final String TASK_SERVICE_INVOKE_EXPRESSION = ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION;
     

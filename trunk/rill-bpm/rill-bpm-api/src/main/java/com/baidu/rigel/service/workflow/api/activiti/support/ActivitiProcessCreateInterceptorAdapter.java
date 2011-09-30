@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 public abstract class ActivitiProcessCreateInterceptorAdapter implements ProcessCreateInteceptor {
 
     /** Logger available to subclasses */
-    protected final static Logger logger = Logger.getLogger(ActivitiProcessCreateInterceptorAdapter.class.getName());
+    protected final Logger logger = Logger.getLogger(getClass().getName());
     
     private RuntimeService runtimeService;
 

@@ -49,8 +49,13 @@ public class StaticProtectedVarAccessTest {
             Field field = ProcessEngines.class.getDeclaredField("isInitialized");
             field.setAccessible(true);
             try {
-                field.setBoolean(ProcessEngines.class, true);
-                Assert.assertTrue(field.getBoolean(ProcessEngines.class));
+            	synchronized (ProcessEngines.class) {
+					boolean originalValue = field.getBoolean(ProcessEngines.class);
+					field.setBoolean(ProcessEngines.class, !originalValue);
+	                Assert.assertEquals(!originalValue, field.getBoolean(ProcessEngines.class));
+	                // Set back to original value
+	                field.setBoolean(ProcessEngines.class, originalValue);
+				}
             } catch (IllegalArgumentException ex) {
                 Logger.getLogger(StaticProtectedVarAccessTest.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IllegalAccessException ex) {

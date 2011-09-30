@@ -28,7 +28,7 @@ public abstract class ActivitiProcessOperationInteceptorAdapter implements
         ProcessOperationInteceptor {
 
     /** Logger available to subclasses */
-    protected final static Logger logger = Logger.getLogger(ActivitiProcessOperationInteceptorAdapter.class.getName());
+    protected final Logger logger = Logger.getLogger(getClass().getName());
 
     public abstract WorkflowOperations.PROCESS_OPERATION_TYPE handleOpeationType();
 
