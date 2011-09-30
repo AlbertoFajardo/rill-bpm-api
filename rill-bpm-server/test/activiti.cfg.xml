@@ -8,10 +8,10 @@
 
   <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
   
-    <property name="jdbcUrl" value="jdbc:h2:tcp://localhost/activiti" />
-    <property name="jdbcDriver" value="org.h2.Driver" />
-    <property name="jdbcUsername" value="sa" />
-    <property name="jdbcPassword" value="" />
+    <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/rilldb?useUnicode=true&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;noAccessToProcedureBodies=true" />
+    <property name="jdbcDriver" value="com.mysql.jdbc.Driver" />
+    <property name="jdbcUsername" value="activiti" />
+    <property name="jdbcPassword" value="activiti" />
     <property name="jdbcMaxActiveConnections" value="2" />
     <property name="jdbcMaxIdleConnections" value="2" />
     
