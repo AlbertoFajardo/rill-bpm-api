@@ -36,7 +36,7 @@ import org.activiti.engine.test.Deployment;
  */
 public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
 
-    private static final Logger log = Logger.getLogger(ActivitiOptimisticLockTest.class.getName());
+    private final Logger log = Logger.getLogger(getClass().getName());
     
     public ActivitiOptimisticLockTest() {
     }

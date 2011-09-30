@@ -12,8 +12,6 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.bpmndiagram;
 
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
-import com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
@@ -30,6 +29,9 @@ import org.activiti.engine.impl.util.ReflectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
+import com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
 
 /**
  * Record taked transition into [RIGEL_WF_TRANSITION_TAKE_TRACE] table.
@@ -48,11 +50,12 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
 
         // Do insert
         ReflectUtil.invoke(beanFactory.getBean("workflowAccessor", ActivitiTemplate.class), "runExtraCommand",
-                new Object[] {new Command<Object>(){
+                new Object[] {new Command<Void>(){
 
-            public Object execute(CommandContext commandContext) {
+            public Void execute(CommandContext commandContext) {
 
                 Connection c = commandContext.getDbSqlSession().getSqlSession().getConnection();
+                
                 PreparedStatement pst = null;
                 try {
                     pst = c.prepareStatement("insert into RIGEL_WF_TRANSITION_TAKE_TRACE(TRANSITION_ID_, TRANSITION_NAME_, PROC_INST_ID_) values(?,?,?)");
@@ -71,14 +74,15 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
                             Logger.getLogger(RigelWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-
-                    return null;
                 }
+                
+                return null;
             }
         }});
     }
 
-    public List<String> getTakedTransitions(final String processInstanceId) {
+    @SuppressWarnings("unchecked")
+	public List<String> getTakedTransitions(final String processInstanceId) {
 
         // Do Search
         return (List<String>) ReflectUtil.invoke(beanFactory.getBean("workflowAccessor", ActivitiTemplate.class), "runExtraCommand",
@@ -113,9 +117,9 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
                             Logger.getLogger(RigelWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-
-                    return takedTransitions;
                 }
+                
+                return takedTransitions;
             }
         }});
     }

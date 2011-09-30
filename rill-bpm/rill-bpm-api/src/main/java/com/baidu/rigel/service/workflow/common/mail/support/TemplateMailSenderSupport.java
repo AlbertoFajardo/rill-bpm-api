@@ -17,12 +17,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -33,7 +32,7 @@ import com.baidu.rigel.service.workflow.common.mail.TemplateMailSender;
 public class TemplateMailSenderSupport {
 
 	public static final String DEFAULT_ENCODE = "UTF-8";
-	protected static final Log logger = LogFactory.getLog(TemplateMailSenderSupport.class);
+	protected final Logger logger = Logger.getLogger(getClass().getName());
 	
 	private JavaMailSender mailSender;
 	private TaskExecutor taskExecutor;

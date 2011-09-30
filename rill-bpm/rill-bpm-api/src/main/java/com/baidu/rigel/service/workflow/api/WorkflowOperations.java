@@ -140,16 +140,6 @@ public interface WorkflowOperations {
     Set<String> getProcessInstanceVariableNames(String engineProcessInstanceId);
 
     /**
-     * @deprecated by MENGRAN at 2011-08-27
-     * Abort task instance.
-     * <p>
-     *  Please refer engine-spec API Document for details.<br>
-     * @param engineTaskInstanceId
-     * @throws ProcessException Exception occurred during creation
-     */
-    void abortTaskInstance(String engineTaskInstanceId) throws ProcessException;
-
-    /**
      * Obtain task executer role
      * @param engineTaskInstanceId engine task instance ID
      * @return task executer role

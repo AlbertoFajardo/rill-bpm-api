@@ -19,6 +19,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.FatalBeanException;
@@ -62,9 +63,7 @@ public class FreeMarkerTemplateMailSender extends TemplateMailSenderSupport impl
 			// generate using model
 			return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 		} catch (Exception e) {
-			if (logger.isErrorEnabled()) {
-				logger.error(e.getMessage(), e.getCause());
-			}
+			logger.log(Level.SEVERE, "Fail to process mail template.", e);
 			throw new RuntimeException(e);
 		}
 	}

@@ -90,7 +90,7 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     }
     
     /** Logger available to subclasses */
-    protected static final Logger logger = Logger.getLogger(ActivitiAccessor.class.getName());
+    protected final Logger logger = Logger.getLogger(getClass().getName());
 
     private Map<String, String[]> taskInstanceInfoCache = new HashMap<String, String[]>();
     private BeanFactory beanFactory;

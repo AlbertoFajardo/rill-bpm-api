@@ -19,6 +19,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
             <artifactId>spring-test</artifactId>
             <groupId>org.springframework</groupId>
             <version>${spring.framework.version}</version>

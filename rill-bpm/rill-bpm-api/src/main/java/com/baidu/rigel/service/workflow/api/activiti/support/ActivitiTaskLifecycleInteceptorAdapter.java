@@ -26,7 +26,7 @@ public class ActivitiTaskLifecycleInteceptorAdapter implements
         TaskLifecycleInteceptor {
 
     /** Logger available to subclasses */
-    protected final static Logger logger = Logger.getLogger(ActivitiTaskLifecycleInteceptorAdapter.class.getName());
+    protected final Logger logger = Logger.getLogger(getClass().getName());
 
     private void checkTaskExecutionContext(Object taskContext) {
 
