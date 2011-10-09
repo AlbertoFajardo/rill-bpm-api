@@ -12,6 +12,7 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.bpmndiagram;
 
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,8 @@ import org.activiti.engine.impl.pvm.ReadOnlyProcessDefinition;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.springframework.aop.SpringProxy;
+import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -36,7 +39,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ProcessMonitorChartInfoHelper {
 
-    private ActivitiTemplate workflowAccessor;
+    private WorkflowOperations workflowAccessor;
     private RigelWfTransitionTraceListener rigelWfTransitionTraceListener;
 
     public RigelWfTransitionTraceListener getRigelWfTransitionTraceListener() {
@@ -47,15 +50,16 @@ public class ProcessMonitorChartInfoHelper {
         this.rigelWfTransitionTraceListener = rigelWfTransitionTraceListener;
     }
 
-    public ActivitiTemplate getWorkflowAccessor() {
-        return workflowAccessor;
-    }
+    public final WorkflowOperations getWorkflowAccessor() {
+		return workflowAccessor;
+	}
 
-    public void setWorkflowAccessor(ActivitiTemplate workflowAccessor) {
-        this.workflowAccessor = workflowAccessor;
-    }
+	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
+		this.workflowAccessor = workflowAccessor;
+	}
 
-    public static class ChartInfo {
+
+	public static class ChartInfo {
 
         private byte[] diagramBytes;
         private Map<String, List<Integer>> taskDefinitionKeyPosition = new HashMap<String, List<Integer>>();
@@ -93,11 +97,24 @@ public class ProcessMonitorChartInfoHelper {
         // Delegate this operation
         return getMonitorChartInfo(processInstanceId, takedTransitions);
     }
+    
+    private ActivitiTemplate convertToActivitiTemplate(WorkflowOperations workflowAccessor) {
+    	
+    	if (workflowAccessor instanceof SpringProxy) {
+    		try {
+				return (ActivitiTemplate) ((Advised) workflowAccessor).getTargetSource().getTarget();
+			} catch (Exception e) {
+				throw new IllegalArgumentException(e);
+			}
+    	} else {
+    		return (ActivitiTemplate) workflowAccessor;
+    	}
+    }
 
     public ChartInfo getMonitorChartInfo(String processInstanceId, List<String> takedTransitions) {
 
         // Process is end?
-        ProcessInstance processInstance = workflowAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        ProcessInstance processInstance = convertToActivitiTemplate(workflowAccessor).getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         if (processInstance == null) return null;
 
         ReadOnlyProcessDefinition processDefinition = (ReadOnlyProcessDefinition) ReflectUtil.invoke(workflowAccessor, "runExtraCommand",
@@ -105,7 +122,7 @@ public class ProcessMonitorChartInfoHelper {
         Assert.notNull(processDefinition, "Can not found process definition[" + processInstance.getProcessInstanceId() + "]");
 
         List<String> taskDefinitionKeyList = new ArrayList<String>();
-        List<Task> taskList = workflowAccessor.getTaskService().createTaskQuery().processInstanceId(processInstanceId).list();
+        List<Task> taskList = convertToActivitiTemplate(workflowAccessor).getTaskService().createTaskQuery().processInstanceId(processInstanceId).list();
         if (!CollectionUtils.isEmpty(taskList)) {
             for (Task task : taskList) {
                 taskDefinitionKeyList.add(task.getTaskDefinitionKey());
