@@ -15,9 +15,22 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JUNIT4.7"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ACTIVITI5.7"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/GLASSFISHJTS"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/METRO2.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ACTIVITI5.7">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/rill-bpm-ws"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/EMBEDDEDGF3.1">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/rill-bpm-api"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/VELOCITY1.6.3">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

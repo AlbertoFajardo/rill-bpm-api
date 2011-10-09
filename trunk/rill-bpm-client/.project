@@ -3,6 +3,8 @@
 	<name>rill-bpm-client</name>
 	<comment></comment>
 	<projects>
+		<project>rill-bpm-ws</project>
+		<project>rill-bpm-api</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
