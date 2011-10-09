@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <endpoints version="2.0" xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime">
   <endpoint implementation="com.baidu.rigel.service.workflow.ws.api.activiti.RemoteActivitiTemplate" name="BPMWebService" url-pattern="/BPMWebService"/>
+  
+  <!-- v1.0 -->
+  <endpoint wsdl="WEB-INF/wsdls/wsc10/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationPortTypeRPCPortImpl" name="RegistrationPortTypeRPC" url-pattern="/RegistrationPortTypeRPC"/>
+  <endpoint wsdl="WEB-INF/wsdls/wsat10/wsat.wsdl" implementation="com.sun.xml.ws.tx.at.v10.endpoint.CoordinatorPortTypePortImpl" name="CoordinatorPortType" url-pattern="/CoordinatorPortType"/>
+  <endpoint wsdl="WEB-INF/wsdls/wsat10/wsat.wsdl" implementation="com.sun.xml.ws.tx.at.v10.endpoint.ParticipantPortTypePortImpl" name="ParticipantPortType" url-pattern="/ParticipantPortType"/>
+  <endpoint wsdl="WEB-INF/wsdls/wsc10/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationRequesterPortTypePortImpl" name="RegistrationRequesterPortType" url-pattern="/RegistrationRequesterPortType"/>
+  
+  <!-- v1.1
+  <endpoint wsdl="WEB-INF/wsdls/wsc11/wstx-wscoor-1.1-wsdl-200702.wsdl" implementation="com.sun.xml.ws.tx.coord.v11.endpoint.RegistrationPortImpl" name="RegistrationPortTypeRPC11" url-pattern="/RegistrationPortTypeRPC11"/>
+  <endpoint wsdl="WEB-INF/wsdls/wsat11/wstx-wsat-1.1-wsdl-200702.wsdl" implementation="com.sun.xml.ws.tx.at.v11.endpoint.CoordinatorPortImpl" name="CoordinatorPortType11" url-pattern="/CoordinatorPortType11"/>
+  <endpoint wsdl="WEB-INF/wsdls/wsat11/wstx-wsat-1.1-wsdl-200702.wsdl" implementation="com.sun.xml.ws.tx.at.v11.endpoint.ParticipantPortImpl" name="ParticipantPortType11" url-pattern="/ParticipantPortType11"/>
+  <endpoint wsdl="WEB-INF/wsdls/wsc11/wstx-wscoor-1.1-wsdl-200702.wsdl" implementation="com.sun.xml.ws.tx.coord.v11.endpoint.RegistrationRequesterPortImpl" name="RegistrationRequesterPortType11" url-pattern="/RegistrationRequesterPortType11"/>
+   -->
+   
 </endpoints>
