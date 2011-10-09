@@ -41,35 +41,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CreateProcessInstance }
-     * 
-     */
-    public CreateProcessInstance createCreateProcessInstance() {
-        return new CreateProcessInstance();
-    }
-
-    /**
      * Create an instance of {@link CompleteTaskInstanceResponse }
      * 
      */
     public CompleteTaskInstanceResponse createCompleteTaskInstanceResponse() {
         return new CompleteTaskInstanceResponse();
-    }
-
-    /**
-     * Create an instance of {@link CompleteTaskInstance }
-     * 
-     */
-    public CompleteTaskInstance createCompleteTaskInstance() {
-        return new CompleteTaskInstance();
-    }
-
-    /**
-     * Create an instance of {@link CreateProcessInstanceResponse }
-     * 
-     */
-    public CreateProcessInstanceResponse createCreateProcessInstanceResponse() {
-        return new CreateProcessInstanceResponse();
     }
 
     /**
@@ -89,14 +65,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetEngineProcessInstanceIdByBOId }
-     * 
-     */
-    public GetEngineProcessInstanceIdByBOId createGetEngineProcessInstanceIdByBOId() {
-        return new GetEngineProcessInstanceIdByBOId();
-    }
-
-    /**
      * Create an instance of {@link CompleteTaskInstanceDto }
      * 
      */
@@ -105,11 +73,43 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link CreateProcessInstance }
+     * 
+     */
+    public CreateProcessInstance createCreateProcessInstance() {
+        return new CreateProcessInstance();
+    }
+
+    /**
+     * Create an instance of {@link GetEngineProcessInstanceIdByBOId }
+     * 
+     */
+    public GetEngineProcessInstanceIdByBOId createGetEngineProcessInstanceIdByBOId() {
+        return new GetEngineProcessInstanceIdByBOId();
+    }
+
+    /**
      * Create an instance of {@link MapElementsArray }
      * 
      */
     public MapElementsArray createMapElementsArray() {
         return new MapElementsArray();
+    }
+
+    /**
+     * Create an instance of {@link CreateProcessInstanceResponse }
+     * 
+     */
+    public CreateProcessInstanceResponse createCreateProcessInstanceResponse() {
+        return new CreateProcessInstanceResponse();
+    }
+
+    /**
+     * Create an instance of {@link CompleteTaskInstance }
+     * 
+     */
+    public CompleteTaskInstance createCompleteTaskInstance() {
+        return new CompleteTaskInstance();
     }
 
     /**

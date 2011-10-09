@@ -5,47 +5,52 @@
 package com.baidu.rigel.service.workflow.ws.client;
 
 import java.util.Random;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.rill.bpm.ws.metro.hello.service.HelloService;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 /**
- * Access pg-support process by WS
+ * Access pg-support process by WS.
+ * <p>
+ * 	NO NOT RUN THIS TESTCASE IN MULTIPLE-THREAD, IT'S NOT THREAD-SAFE.
+ * 
  * @author mengran
  */
-public class PgSupportSimpleVariableTest {
+@ContextConfiguration(value={"classpath:/conf/applicationContext-*.xml"})
+public class PgSupportSimpleVariableTest extends AbstractTransactionalJUnit4SpringContextTests {
     
-    public PgSupportSimpleVariableTest() {
-    }
+	private HelloService helloService;
+	
+    public final HelloService getHelloService() {
+		return helloService;
+	}
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
+	public final void setHelloService(HelloService helloService) {
+		this.helloService = helloService;
+	}
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+	public PgSupportSimpleVariableTest() {
     }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
+	
+	protected static String preBusinessObjectId;
+
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
     // @Test
     // public void hello() {}
     @Test
-    public void testPgSupport() {
+//    @Rollback(value=false)
+    public void rollBackWSAT() {
         
         String businessObjectId = "pg-support-simplevariable-" + new Random().nextInt();
         String processDefinitionKey = "pg-support-simplevariable";
+        // Back to static variable
+        preBusinessObjectId = businessObjectId;
+        
         RemoteActivitiTemplateService workflowAccessor = new RemoteActivitiTemplateService();
         
         // Fill DTO
@@ -69,9 +74,29 @@ public class PgSupportSimpleVariableTest {
         try {
         	String engineProcessInstanceId = workflowAccessor.getRemoteActivitiTemplatePort().getEngineProcessInstanceIdByBOId(processDefinitionKey, businessObjectId);
         	System.out.println("Engine process instanceId:" + engineProcessInstanceId);
+        	getHelloService().sayHello("engineProcessInstanceId:" + engineProcessInstanceId);
         } catch (Exception e) {
         	Assert.fail(e.getMessage());
         }
         
+    }
+    
+    @Test
+    public void verifyWSAT() {
+    	
+    	// Use static variable
+    	String businessObjectId = preBusinessObjectId;
+        String processDefinitionKey = "pg-support-simplevariable";
+        
+        RemoteActivitiTemplateService workflowAccessor = new RemoteActivitiTemplateService();
+        
+    	// Get process instance ID
+        try {
+        	String engineProcessInstanceId = workflowAccessor.getRemoteActivitiTemplatePort().getEngineProcessInstanceIdByBOId(processDefinitionKey, businessObjectId);
+        	System.out.println("Engine process instanceId:" + engineProcessInstanceId);
+        	Assert.assertNull("WSAT-Rollback feature is not effected.", engineProcessInstanceId);
+        } catch (Exception e) {
+        	Assert.fail(e.getMessage());
+        }
     }
 }

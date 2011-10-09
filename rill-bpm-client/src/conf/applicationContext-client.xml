@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+">
+
+	<import
+		resource="classpath:/org/rill/bpm/ws/metro/hello/applicationContext-hello.xml" />
+	<!-- ##Embedded GF configuration## start -->
+	<bean id="embeddedGlassfish"
+		class="com.baidu.rigel.service.workflow.ws.metro.EmbeddedGlassfishLifecycle"
+		init-method="start" destroy-method="stop">
+		<property name="properties">
+			<props>
+				<!-- Specify embedded install root DIR, so will not create new temple 
+					DIR for every start-time <prop key="com.sun.aas.instanceRoot">some DIR</prop> -->
+				<!-- Specify embedded install root DIR <prop key="glassfish.embedded.tmpdir">some 
+					DIR</prop> -->
+				<!-- Specify auto delete embedded install root DIR -->
+				<prop key="org.glassfish.embeddable.autoDelete">false</prop>
+			</props>
+		</property>
+		<property name="initCommand">
+			<map>
+				<entry key="create-jdbc-connection-pool">
+					<list>
+						<value>--datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource
+						</value>
+						<value>--restype=javax.sql.XADataSource</value>
+						<value>--property=portNumber=3306:password=activiti:user=activiti:serverName=localhost:databaseName=rilldb
+						</value>
+						<value>rilldb_pool</value>
+					</list>
+				</entry>
+				<!-- <entry key="ping-connection-pool"> <list> <value>rilldb_pool</value> 
+					</list> </entry> -->
+				<entry key="create-jdbc-resource">
+					<list>
+						<value>--connectionpoolid=rilldb_pool</value>
+						<value>jdbc/rilldb</value>
+					</list>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<tx:annotation-driven />
+
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean"
+		depends-on="embeddedGlassfish">
+		<property name="jndiName">
+			<value>jdbc/rilldb</value>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.transaction.jta.JtaTransactionManager">
+	</bean>
+	<!-- ##Embedded GF configuration## end -->
+
+</beans>
