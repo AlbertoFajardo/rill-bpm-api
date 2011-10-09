@@ -8,6 +8,9 @@ import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.ws.api.RemoteWorkflowOperations;
+import com.sun.xml.ws.api.tx.at.Transactional;
+import com.sun.xml.ws.api.tx.at.Transactional.Version;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +27,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Web Service API for work flow.
+ * <p>
+ * 	Use @com.sun.xml.ws.api.tx.at.Transactional to mark some WS method is under WS-AT specification.
  * @author mengran
  */
 @WebService
@@ -45,6 +50,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
         return workflowAccessor;
     }
     
+    @Transactional(version=Version.WSAT10)
     public void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
         
         // Delegate this operations
@@ -52,7 +58,8 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
                 createProcessInstanceDto.getProcessStarter(), createProcessInstanceDto.getBusinessObjectId(), 
                 createProcessInstanceDto.getStartParams());
     }
-
+    
+    @Transactional(version=Version.WSAT10)
     public void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
         
         // Delegate this operations
@@ -121,6 +128,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Transactional(version=Version.WSAT10, enabled=false)
     public String getEngineProcessInstanceIdByBOId(String processDefinitionKey, String boId) {
         
         // Unique instance exists 

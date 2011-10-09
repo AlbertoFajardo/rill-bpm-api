@@ -173,7 +173,7 @@ public interface RemoteWorkflowOperations extends WorkflowOperations {
      * Get engine process instance ID by BO id.
      * @param processDefinitionKey process definition KEY
      * @param boId Business Object Id
-     * @return Process Instance Id in engine
+     * @return Process Instance Id in engine, NULL if not found.
      * @throws IllegalArgumentException when parameter given is empty.
      * @see org.springframework.util.StringUtils#hasText(java.lang.String) 
      */
