@@ -96,6 +96,12 @@ public class WSImportToolImporterImpl implements XMLImporter {
         }
     }
 
+    public void importFrom(String url, String namespace) {
+    	
+    	this.namespace = namespace == null ? "" : namespace + ":";
+    	this.importFrom(url);
+    }
+    
     public void importFrom(String url) {
         this.wsServices.clear();
         this.wsOperations.clear();
