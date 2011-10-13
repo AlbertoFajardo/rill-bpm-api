@@ -21,7 +21,11 @@ import javax.jws.WebService;
 import javax.servlet.ServletContext;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.springframework.aop.SpringProxy;
+import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -132,8 +136,23 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
     public String getEngineProcessInstanceIdByBOId(String processDefinitionKey, String boId) {
         
         // Unique instance exists 
-        ProcessInstance processInstance = ((ActivitiAccessor) getWorkflowAccessor()).getRuntimeService()
-                .createProcessInstanceQuery().processInstanceBusinessKey(boId, processDefinitionKey)
+    	RuntimeService runtimeService = null;
+    	if (getWorkflowAccessor() instanceof SpringProxy) {
+    		Object targetSource;
+			try {
+				targetSource = ((Advised) getWorkflowAccessor()).getTargetSource().getTarget();
+				while (targetSource instanceof SpringProxy) {
+	    			targetSource = ((Advised) targetSource).getTargetSource().getTarget();
+	    		}
+			} catch (Exception e) {
+				throw new ProcessException(e);
+			}
+    		
+    		runtimeService = ((ActivitiAccessor) (targetSource)).getRuntimeService();
+    	} else {
+    		runtimeService = ((ActivitiAccessor) getWorkflowAccessor()).getRuntimeService();
+    	}
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(boId, processDefinitionKey)
                 .singleResult();
         
         return processInstance == null ? null : processInstance.getProcessInstanceId();
