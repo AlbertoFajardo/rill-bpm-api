@@ -290,14 +290,8 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
             Assert.notNull(this.getProcessEngineConfiguration(), "Properties 'ProcessEngineConfiguration' is required.");
 
             // Retrieve process engine from it's holder
-            this.setProcessEngine(ProcessEngines.getProcessEngine(this.getProcessEngineConfiguration().getProcessEngineName()));
-            if (getProcessEngine() != null) {
-                logger.log(Level.INFO, "Retrive process engine from it''s holder.{0}", getProcessEngine());
-            } else {
-                // Build process engine
-                this.setProcessEngine(getProcessEngineConfiguration().buildProcessEngine());
-                logger.log(Level.INFO, "Build process engine from it''s configuration.{0}", getProcessEngine());
-            }
+            this.setProcessEngine(getProcessEngineConfiguration().buildProcessEngine());
+            logger.log(Level.INFO, "Build process engine from it''s configuration.{0}", getProcessEngine());
         } else {
             logger.log(Level.INFO, "Retrieve process engine from inject property.{0}", getProcessEngine());
         }
