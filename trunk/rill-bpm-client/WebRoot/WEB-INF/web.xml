@@ -15,6 +15,11 @@
         <param-value>rill-bpm-server</param-value>
     </context-param>
      -->
+    <context-param>
+        <description>Http Port</description>
+        <param-name>HTTP_PORT</param-name>
+        <param-value>7070</param-value>
+    </context-param>
     <listener>
         <description>WSAT Context Loader</description>
         <listener-class>com.baidu.rigel.service.workflow.ws.WSATContextListener</listener-class>
