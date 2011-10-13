@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -41,14 +41,28 @@
 
 -->
 
-<xsd:schema attributeFormDefault="unqualified"
-    elementFormDefault="qualified"
-    targetNamespace="http://schemas.xmlsoap.org/ws/2004/10/wscoor"
-    version="1.0"
-    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
-    xmlns:wscoor="http://schemas.xmlsoap.org/ws/2004/10/wscoor" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:schema
+        targetNamespace="http://schemas.xmlsoap.org/ws/2004/10/wscoor"
+        xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
+        xmlns:wscoor="http://schemas.xmlsoap.org/ws/2004/10/wscoor"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        jaxb:version="2.0"
+        version="1.0">
+    <xsd:annotation>
+        <xsd:appinfo>
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.sun.xml.ws.tx.webservice.member.coord"/>
+            </jaxb:schemaBindings>
+        </xsd:appinfo>
+    </xsd:annotation>
+
     <xsd:import
-        namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing" schemaLocation="addressing.xsd"/>
+            namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing"
+            schemaLocation="addressing.xsd"/>
+
     <xsd:element name="Expires">
         <xsd:complexType>
             <xsd:simpleContent>
@@ -69,7 +83,7 @@
                     </xsd:simpleContent>
                 </xsd:complexType>
             </xsd:element>
-            <xsd:element minOccurs="0" ref="wscoor:Expires"/>
+            <xsd:element ref="wscoor:Expires" minOccurs="0"/>
             <xsd:element name="CoordinationType" type="xsd:anyURI"/>
             <xsd:element name="RegistrationService" type="wsa:EndpointReferenceType"/>
         </xsd:sequence>
@@ -80,8 +94,7 @@
             <xsd:complexContent>
                 <xsd:extension base="wscoor:CoordinationContextType">
                     <xsd:sequence>
-                        <xsd:any maxOccurs="unbounded" minOccurs="0"
-                            namespace="##other" processContents="lax"/>
+                        <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                     </xsd:sequence>
                 </xsd:extension>
             </xsd:complexContent>
@@ -89,22 +102,20 @@
     </xsd:element>
     <xsd:complexType name="CreateCoordinationContextType">
         <xsd:sequence>
-            <xsd:element minOccurs="0" ref="wscoor:Expires"/>
-            <xsd:element minOccurs="0" name="CurrentContext">
+            <xsd:element ref="wscoor:Expires" minOccurs="0"/>
+            <xsd:element name="CurrentContext" minOccurs="0">
                 <xsd:complexType>
                     <xsd:complexContent>
                         <xsd:extension base="wscoor:CoordinationContextType">
                             <xsd:sequence>
-                                <xsd:any maxOccurs="unbounded"
-                                    minOccurs="0" namespace="##other" processContents="lax"/>
+                                <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                             </xsd:sequence>
                         </xsd:extension>
                     </xsd:complexContent>
                 </xsd:complexType>
             </xsd:element>
             <xsd:element name="CoordinationType" type="xsd:anyURI"/>
-            <xsd:any maxOccurs="unbounded" minOccurs="0"
-                namespace="##any" processContents="lax"/>
+            <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:anyAttribute namespace="##other" processContents="lax"/>
     </xsd:complexType>
@@ -112,8 +123,7 @@
     <xsd:complexType name="CreateCoordinationContextResponseType">
         <xsd:sequence>
             <xsd:element ref="wscoor:CoordinationContext"/>
-            <xsd:any maxOccurs="unbounded" minOccurs="0"
-                namespace="##other" processContents="lax"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:anyAttribute namespace="##other" processContents="lax"/>
     </xsd:complexType>
@@ -122,8 +132,7 @@
         <xsd:sequence>
             <xsd:element name="ProtocolIdentifier" type="xsd:anyURI"/>
             <xsd:element name="ParticipantProtocolService" type="wsa:EndpointReferenceType"/>
-            <xsd:any maxOccurs="unbounded" minOccurs="0"
-                namespace="##any" processContents="lax"/>
+            <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:anyAttribute namespace="##other" processContents="lax"/>
     </xsd:complexType>
@@ -131,8 +140,7 @@
     <xsd:complexType name="RegisterResponseType">
         <xsd:sequence>
             <xsd:element name="CoordinatorProtocolService" type="wsa:EndpointReferenceType"/>
-            <xsd:any maxOccurs="unbounded" minOccurs="0"
-                namespace="##any" processContents="lax"/>
+            <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:anyAttribute namespace="##other" processContents="lax"/>
     </xsd:complexType>

@@ -49,6 +49,8 @@ public class HelloDaoImpl extends JdbcDaoSupport implements HelloDao {
 	public void createHello(String name) {
 		
 		Assert.isTrue(StringUtils.hasText(name), "Who say hello? Empty is not permitted.");
+		Assert.isTrue(!name.toLowerCase().contains("rollback"), "Yes sir, we rollback it.");
+		
 		final String nameAfterTrim = StringUtils.trimWhitespace(name);
 		
 		int cnt = getJdbcTemplate().execute(new PreparedStatementCreator() {

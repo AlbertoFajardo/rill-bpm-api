@@ -14,7 +14,8 @@
     
     <!-- ##Hello Service configuration## start  -->
     <bean id="helloDao" class="org.rill.bpm.ws.metro.hello.dao.impl.HelloDaoImpl"></bean>
-    <bean id="helloService" class="org.rill.bpm.ws.metro.hello.service.impl.HelloServiceImpl"></bean>
+    <bean id="localDBHelloService" class="org.rill.bpm.ws.metro.hello.service.impl.HelloServiceImpl"></bean>
+    <bean id="helloService" class="org.rill.bpm.ws.metro.hello.service.impl.BPMDelegateHelloServiceImpl"></bean>
     <!-- ##Hello Service configuration## end  -->
   
 </beans>

@@ -11,8 +11,10 @@
 "
 	default-autowire="byName">
 
-	<import
-		resource="classpath:/org/rill/bpm/ws/metro/hello/applicationContext-hello.xml" />
+	<!-- ##Hello Service configuration## start  -->
+    <bean id="helloDao" class="org.rill.bpm.ws.metro.hello.dao.impl.HelloDaoImpl"></bean>
+    <bean id="helloService" class="org.rill.bpm.ws.metro.hello.service.impl.HelloServiceImpl"></bean>
+    <!-- ##Hello Service configuration## end  -->
 
 	<tx:annotation-driven />
 	<bean id="transactionManager"

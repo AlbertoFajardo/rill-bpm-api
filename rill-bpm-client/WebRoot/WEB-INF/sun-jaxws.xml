@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <endpoints version="2.0" xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime">
-  <endpoint implementation="com.baidu.rigel.service.workflow.ws.api.activiti.RemoteActivitiTemplate" name="BPMWebService" url-pattern="/BPMWebService"/>
-  
   <!-- v1.0 -->
-  <endpoint wsdl="WEB-INF/wsdls/wsc10/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationPortTypeRPCPortImpl" name="RegistrationPortTypeRPC" url-pattern="/RegistrationPortTypeRPC"/>
-  <endpoint wsdl="WEB-INF/wsdls/wsat10/wsat.wsdl" implementation="com.sun.xml.ws.tx.at.v10.endpoint.CoordinatorPortTypePortImpl" name="CoordinatorPortType" url-pattern="/CoordinatorPortType"/>
-  <endpoint wsdl="WEB-INF/wsdls/wsat10/wsat.wsdl" implementation="com.sun.xml.ws.tx.at.v10.endpoint.ParticipantPortTypePortImpl" name="ParticipantPortType" url-pattern="/ParticipantPortType"/>
-  <endpoint wsdl="WEB-INF/wsdls/wsc10/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationRequesterPortTypePortImpl" name="RegistrationRequesterPortType" url-pattern="/RegistrationRequesterPortType"/>
+  <endpoint service="{http://schemas.xmlsoap.org/ws/2004/10/wscoor}Coordinator" wsdl="WEB-INF/wsdl/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationPortTypeRPCPortImpl" port="{http://schemas.xmlsoap.org/ws/2004/10/wscoor}Registration" name="Registration" url-pattern="/RegistrationPortTypeRPC"/>
+  <endpoint service="{http://schemas.xmlsoap.org/ws/2004/10/wscoor}Coordinator" wsdl="WEB-INF/wsdl/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationRequesterPortTypePortImpl" port="{http://schemas.xmlsoap.org/ws/2004/10/wscoor}RegistrationRequester" name="RegistrationRequester" url-pattern="/RegistrationRequesterPortType"/>
+  <endpoint service="{http://schemas.xmlsoap.org/ws/2004/10/wsat}WSATCoordinator" wsdl="WEB-INF/wsdl/wsat.wsdl" implementation="com.sun.xml.ws.tx.at.v10.endpoint.CoordinatorPortTypePortImpl" port="{http://schemas.xmlsoap.org/ws/2004/10/wsat}Coordinator" name="Coordinator" url-pattern="/CoordinatorPortType"/>
+  <endpoint service="{http://schemas.xmlsoap.org/ws/2004/10/wsat}WSATCoordinator" wsdl="WEB-INF/wsdl/wsat.wsdl" implementation="com.sun.xml.ws.tx.at.v10.endpoint.ParticipantPortTypePortImpl" port="{http://schemas.xmlsoap.org/ws/2004/10/wsat}Participant" name="Participant" url-pattern="/ParticipantPortType"/>
   
   <!-- v1.1
   <endpoint wsdl="WEB-INF/wsdls/wsc11/wstx-wscoor-1.1-wsdl-200702.wsdl" implementation="com.sun.xml.ws.tx.coord.v11.endpoint.RegistrationPortImpl" name="RegistrationPortTypeRPC11" url-pattern="/RegistrationPortTypeRPC11"/>
