@@ -5,6 +5,30 @@
 package com.baidu.rigel.service.workflow.ws.metro;
 
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.WebServiceException;
+
+import org.activiti.engine.impl.bpmn.data.StructureDefinition;
+import org.activiti.engine.impl.bpmn.parser.BpmnParse;
+import org.activiti.engine.impl.bpmn.parser.XMLImporter;
+import org.activiti.engine.impl.util.xml.Element;
+import org.activiti.engine.impl.webservice.WSOperation;
+import org.activiti.engine.impl.webservice.WSService;
+import org.xml.sax.SAXException;
+
 import com.sun.xml.ws.api.server.ContainerResolver;
 import com.sun.xml.ws.api.wsdl.parser.WSDLParserExtension;
 import com.sun.xml.ws.model.wsdl.WSDLBoundOperationImpl;
@@ -14,28 +38,6 @@ import com.sun.xml.ws.model.wsdl.WSDLServiceImpl;
 import com.sun.xml.ws.util.ServiceFinder;
 import com.sun.xml.ws.util.xml.XmlUtil;
 import com.sun.xml.ws.wsdl.parser.RuntimeWSDLParser;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ServiceConfigurationError;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.ws.WebServiceException;
-import org.activiti.engine.impl.bpmn.data.StructureDefinition;
-import org.activiti.engine.impl.bpmn.parser.BpmnParse;
-import org.activiti.engine.impl.bpmn.parser.XMLImporter;
-import org.activiti.engine.impl.util.xml.Element;
-import org.activiti.engine.impl.webservice.WSOperation;
-import org.activiti.engine.impl.webservice.WSService;
-import org.xml.sax.SAXException;
 
 /**
  * Use wsimport tools for XML importer implementation.
@@ -90,8 +92,6 @@ public class WSImportToolImporterImpl implements XMLImporter {
         } catch (XMLStreamException e) {
             throw new WebServiceException(e);
         } catch (SAXException e) {
-            throw new WebServiceException(e);
-        } catch (ServiceConfigurationError e) {
             throw new WebServiceException(e);
         }
     }
