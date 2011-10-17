@@ -12,26 +12,35 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.FormService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
-import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.delegate.TaskListener;
+import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.ServiceImpl;
+import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -53,19 +62,9 @@ import org.springframework.util.StringUtils;
 import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
 import com.baidu.rigel.service.workflow.api.ProcessInstanceEndEvent;
 import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
-import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.TLIGenerator;
+import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.logging.Level;
-import org.activiti.engine.FormService;
-import org.activiti.engine.delegate.TaskListener;
-import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.impl.ProcessEngineImpl;
-import org.activiti.engine.impl.db.DbSqlSession;
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 
 /**
  * Common funciton provider for activiti implementation such as cache, interceptor getter from model.
