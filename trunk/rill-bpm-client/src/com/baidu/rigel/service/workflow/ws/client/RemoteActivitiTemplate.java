@@ -26,22 +26,28 @@ public interface RemoteActivitiTemplate {
     /**
      * 
      * @param arg0
+     * @return
+     *     returns com.baidu.rigel.service.workflow.ws.client.RemoteWorkflowResponse
      */
     @WebMethod
+    @WebResult(targetNamespace = "")
     @RequestWrapper(localName = "createProcessInstance", targetNamespace = "http://activiti.api.ws.workflow.service.rigel.baidu.com/", className = "com.baidu.rigel.service.workflow.ws.client.CreateProcessInstance")
     @ResponseWrapper(localName = "createProcessInstanceResponse", targetNamespace = "http://activiti.api.ws.workflow.service.rigel.baidu.com/", className = "com.baidu.rigel.service.workflow.ws.client.CreateProcessInstanceResponse")
-    public void createProcessInstance(
+    public RemoteWorkflowResponse createProcessInstance(
         @WebParam(name = "arg0", targetNamespace = "")
         CreateProcessInstanceDto arg0);
 
     /**
      * 
      * @param arg0
+     * @return
+     *     returns com.baidu.rigel.service.workflow.ws.client.RemoteWorkflowResponse
      */
     @WebMethod
+    @WebResult(targetNamespace = "")
     @RequestWrapper(localName = "completeTaskInstance", targetNamespace = "http://activiti.api.ws.workflow.service.rigel.baidu.com/", className = "com.baidu.rigel.service.workflow.ws.client.CompleteTaskInstance")
     @ResponseWrapper(localName = "completeTaskInstanceResponse", targetNamespace = "http://activiti.api.ws.workflow.service.rigel.baidu.com/", className = "com.baidu.rigel.service.workflow.ws.client.CompleteTaskInstanceResponse")
-    public void completeTaskInstance(
+    public RemoteWorkflowResponse completeTaskInstance(
         @WebParam(name = "arg0", targetNamespace = "")
         CompleteTaskInstanceDto arg0);
 

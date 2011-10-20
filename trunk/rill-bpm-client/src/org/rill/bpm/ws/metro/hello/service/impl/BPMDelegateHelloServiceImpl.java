@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.rill.bpm.ws.metro.hello.service.HelloService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.baidu.rigel.service.workflow.ws.client.CreateProcessInstanceDto;
 import com.baidu.rigel.service.workflow.ws.client.MapElements;
 import com.baidu.rigel.service.workflow.ws.client.MapElementsArray;
 import com.baidu.rigel.service.workflow.ws.client.RemoteActivitiTemplateService;
+import com.baidu.rigel.service.workflow.ws.client.RemoteWorkflowResponse;
 
 public class BPMDelegateHelloServiceImpl implements HelloService {
 
@@ -46,14 +48,17 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
         mea.getItem().add(me);
         
         // Start a process instance
-        workflowAccessor.getRemoteActivitiTemplatePort().createProcessInstance(dto);
+        RemoteWorkflowResponse response = workflowAccessor.getRemoteActivitiTemplatePort().createProcessInstance(dto);
         
         // Get process instance ID
     	String engineProcessInstanceId = workflowAccessor.getRemoteActivitiTemplatePort().getEngineProcessInstanceIdByBOId(PROCESS_DEFINITION_KEY, businessObjectId);
-    	System.out.println("Engine process instanceId:" + engineProcessInstanceId);
+    	Assert.isTrue(engineProcessInstanceId == null, "Activiti has commited? WS-AT does not work.");
+    	Assert.isTrue(response.getBusinessObjectId().equals(businessObjectId));
+    	Assert.isTrue(response.getProcessDefinitionKey().equals(PROCESS_DEFINITION_KEY));
+    	Assert.isTrue(response.getEngineTaskInstanceIds().size() == 1);
 		
 		// Finally do local logic
-		getLocalDBHelloService().sayHello(name);
+		getLocalDBHelloService().sayHello(name + " " + response.getEngineProcessInstanceId());
 	}
 
 	@Override
