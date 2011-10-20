@@ -4,20 +4,22 @@
  */
 package com.baidu.rigel.service.workflow.ws.api;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
+
 /**
  * Remote access work-flow API.
  * @author mengran
  */
-public interface RemoteWorkflowOperations extends WorkflowOperations {
+public interface RemoteWorkflowOperations {
 
     // ------------------------- Operation API -------------------------------//
     class MapElements {
@@ -55,6 +57,60 @@ public interface RemoteWorkflowOperations extends WorkflowOperations {
             }
             return r;
         }
+    }
+    
+    @XmlRootElement
+    class RemoteWorkflowResponse {
+    	
+    	String engineProcessInstanceId;
+    	String businessObjectId;
+    	String processDefinitionKey;
+    	
+    	List<String> engineTaskInstanceIds;
+    	private RemoteWorkflowResponse() {
+    	} //Required by JAXB
+
+		public RemoteWorkflowResponse(String engineProcessInstanceId,
+				String businessObjectId, String processDefinitionKey,
+				List<String> engineTaskInstanceIds) {
+			super();
+			this.engineProcessInstanceId = engineProcessInstanceId;
+			this.businessObjectId = businessObjectId;
+			this.processDefinitionKey = processDefinitionKey;
+			this.engineTaskInstanceIds = engineTaskInstanceIds;
+		}
+
+		public final String getEngineProcessInstanceId() {
+			return engineProcessInstanceId;
+		}
+
+		public final void setEngineProcessInstanceId(String engineProcessInstanceId) {
+			this.engineProcessInstanceId = engineProcessInstanceId;
+		}
+
+		public final String getBusinessObjectId() {
+			return businessObjectId;
+		}
+
+		public final void setBusinessObjectId(String businessObjectId) {
+			this.businessObjectId = businessObjectId;
+		}
+
+		public final String getProcessDefinitionKey() {
+			return processDefinitionKey;
+		}
+
+		public final void setProcessDefinitionKey(String processDefinitionKey) {
+			this.processDefinitionKey = processDefinitionKey;
+		}
+
+		public final List<String> getEngineTaskInstanceIds() {
+			return engineTaskInstanceIds;
+		}
+
+		public final void setEngineTaskInstanceIds(List<String> engineTaskInstanceIds) {
+			this.engineTaskInstanceIds = engineTaskInstanceIds;
+		}
     }
 
     @XmlRootElement
@@ -115,7 +171,7 @@ public interface RemoteWorkflowOperations extends WorkflowOperations {
      * @param createProcessInstanceDto DTO for process creation.
      * @throws ProcessException Exception occurred when process creation.
      */
-    void createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException;
+    RemoteWorkflowResponse createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException;
 
     @XmlRootElement
     class CompleteTaskInstanceDto {
@@ -165,7 +221,7 @@ public interface RemoteWorkflowOperations extends WorkflowOperations {
      * @param completeTaskInstanceDto DTO for task completion.
      * @throws ProcessException Exception occurred when task completion.
      */
-    void completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException;
+    RemoteWorkflowResponse completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException;
     
     // ------------------------- Query API -----------------------------------//
     

@@ -1,6 +1,10 @@
 package com.baidu.rigel.service.workflow.ws;
 
 import java.io.File;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +26,7 @@ public class WSATContextListener implements ServletContextListener {
 	protected final Logger logger = Logger.getLogger(this.getClass().getName());
 	
 	public static final String WSAT_CONTEXT_ROOT = "WSAT_CONTEXT_ROOT";
+	public static final String WSAT_HTTP_PORT = "HTTP_PORT";
 	
 	public void contextInitialized(final ServletContextEvent sce) {
 
@@ -67,10 +72,46 @@ public class WSATContextListener implements ServletContextListener {
         };
         
         WSATRuntimeConfig.initializer()
-        		.httpPort(sce.getServletContext().getInitParameter("HTTP_PORT") == null ? "8080" : sce.getServletContext().getInitParameter("HTTP_PORT"))
+        		.httpPort(sce.getServletContext().getInitParameter("HTTP_PORT") == null ? "8080" : sce.getServletContext().getInitParameter(WSAT_HTTP_PORT))
                 .txLogLocation(txlogLocationProvider)
+                .hostName(pickHost())
                 .done();
 	}
+	
+	private String pickHost() throws RuntimeException {
+        String currentAddress = null;
+        try {
+            final String localAddress = System.getProperty("hazelcast.local.localAddress");
+            if (localAddress != null) {
+                currentAddress = InetAddress.getByName(localAddress.trim()).getHostAddress();
+            }
+            if (currentAddress == null) {
+	            final Enumeration<NetworkInterface> enums = NetworkInterface.getNetworkInterfaces();
+	            interfaces:
+	            while (enums.hasMoreElements()) {
+	                final NetworkInterface ni = enums.nextElement();
+	                final Enumeration<InetAddress> e = ni.getInetAddresses();
+	                while (e.hasMoreElements()) {
+	                    final InetAddress inetAddress = e.nextElement();
+	                    if (inetAddress instanceof Inet4Address) {
+	                        if (!inetAddress.isLoopbackAddress()) {
+	                            currentAddress = inetAddress.getHostAddress();
+	                            break interfaces;
+	                        }
+	                    }
+	                }
+	            }
+            }
+            if (currentAddress == null) {
+                currentAddress = "127.0.0.1";
+            }
+            final InetAddress inetAddress = InetAddress.getByName(currentAddress);
+            return inetAddress.getHostAddress();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
 
 	public void contextDestroyed(ServletContextEvent sce) {
 		
