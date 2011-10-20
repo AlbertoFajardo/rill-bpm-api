@@ -29,6 +29,7 @@ public class ObjectFactory {
     private final static QName _CreateProcessInstanceResponse_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "createProcessInstanceResponse");
     private final static QName _CompleteTaskInstanceDto_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "completeTaskInstanceDto");
     private final static QName _GetEngineProcessInstanceIdByBOIdResponse_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "getEngineProcessInstanceIdByBOIdResponse");
+    private final static QName _RemoteWorkflowResponse_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "remoteWorkflowResponse");
     private final static QName _CompleteTaskInstanceResponse_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "completeTaskInstanceResponse");
     private final static QName _CreateProcessInstance_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "createProcessInstance");
     private final static QName _CreateProcessInstanceDto_QNAME = new QName("http://activiti.api.ws.workflow.service.rigel.baidu.com/", "createProcessInstanceDto");
@@ -41,19 +42,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CompleteTaskInstanceResponse }
+     * Create an instance of {@link RemoteWorkflowResponse }
      * 
      */
-    public CompleteTaskInstanceResponse createCompleteTaskInstanceResponse() {
-        return new CompleteTaskInstanceResponse();
-    }
-
-    /**
-     * Create an instance of {@link MapElements }
-     * 
-     */
-    public MapElements createMapElements() {
-        return new MapElements();
+    public RemoteWorkflowResponse createRemoteWorkflowResponse() {
+        return new RemoteWorkflowResponse();
     }
 
     /**
@@ -62,6 +55,14 @@ public class ObjectFactory {
      */
     public CreateProcessInstanceDto createCreateProcessInstanceDto() {
         return new CreateProcessInstanceDto();
+    }
+
+    /**
+     * Create an instance of {@link CompleteTaskInstance }
+     * 
+     */
+    public CompleteTaskInstance createCompleteTaskInstance() {
+        return new CompleteTaskInstance();
     }
 
     /**
@@ -81,19 +82,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetEngineProcessInstanceIdByBOId }
+     * Create an instance of {@link GetEngineProcessInstanceIdByBOIdResponse }
      * 
      */
-    public GetEngineProcessInstanceIdByBOId createGetEngineProcessInstanceIdByBOId() {
-        return new GetEngineProcessInstanceIdByBOId();
-    }
-
-    /**
-     * Create an instance of {@link MapElementsArray }
-     * 
-     */
-    public MapElementsArray createMapElementsArray() {
-        return new MapElementsArray();
+    public GetEngineProcessInstanceIdByBOIdResponse createGetEngineProcessInstanceIdByBOIdResponse() {
+        return new GetEngineProcessInstanceIdByBOIdResponse();
     }
 
     /**
@@ -105,19 +98,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CompleteTaskInstance }
+     * Create an instance of {@link MapElements }
      * 
      */
-    public CompleteTaskInstance createCompleteTaskInstance() {
-        return new CompleteTaskInstance();
+    public MapElements createMapElements() {
+        return new MapElements();
     }
 
     /**
-     * Create an instance of {@link GetEngineProcessInstanceIdByBOIdResponse }
+     * Create an instance of {@link CompleteTaskInstanceResponse }
      * 
      */
-    public GetEngineProcessInstanceIdByBOIdResponse createGetEngineProcessInstanceIdByBOIdResponse() {
-        return new GetEngineProcessInstanceIdByBOIdResponse();
+    public CompleteTaskInstanceResponse createCompleteTaskInstanceResponse() {
+        return new CompleteTaskInstanceResponse();
+    }
+
+    /**
+     * Create an instance of {@link MapElementsArray }
+     * 
+     */
+    public MapElementsArray createMapElementsArray() {
+        return new MapElementsArray();
+    }
+
+    /**
+     * Create an instance of {@link GetEngineProcessInstanceIdByBOId }
+     * 
+     */
+    public GetEngineProcessInstanceIdByBOId createGetEngineProcessInstanceIdByBOId() {
+        return new GetEngineProcessInstanceIdByBOId();
     }
 
     /**
@@ -163,6 +172,15 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://activiti.api.ws.workflow.service.rigel.baidu.com/", name = "getEngineProcessInstanceIdByBOIdResponse")
     public JAXBElement<GetEngineProcessInstanceIdByBOIdResponse> createGetEngineProcessInstanceIdByBOIdResponse(GetEngineProcessInstanceIdByBOIdResponse value) {
         return new JAXBElement<GetEngineProcessInstanceIdByBOIdResponse>(_GetEngineProcessInstanceIdByBOIdResponse_QNAME, GetEngineProcessInstanceIdByBOIdResponse.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link RemoteWorkflowResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://activiti.api.ws.workflow.service.rigel.baidu.com/", name = "remoteWorkflowResponse")
+    public JAXBElement<RemoteWorkflowResponse> createRemoteWorkflowResponse(RemoteWorkflowResponse value) {
+        return new JAXBElement<RemoteWorkflowResponse>(_RemoteWorkflowResponse_QNAME, RemoteWorkflowResponse.class, null, value);
     }
 
     /**
