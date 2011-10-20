@@ -5,16 +5,14 @@
 
 package com.baidu.rigel.service.workflow.api.support;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
-import com.baidu.rigel.service.workflow.api.activiti.support.GenericEngineDrivenTLIAdapter;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -25,6 +23,12 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
+import com.baidu.rigel.service.workflow.api.activiti.support.GenericEngineDrivenTLIAdapter;
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
  *
@@ -207,7 +211,7 @@ public class GenericEngineDrivenTLIAdapterTest {
             }
         }
 
-        public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
+        public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -223,11 +227,11 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
+        public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
+        public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 

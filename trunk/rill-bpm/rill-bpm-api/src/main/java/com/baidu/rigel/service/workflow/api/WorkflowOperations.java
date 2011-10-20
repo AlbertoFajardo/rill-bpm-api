@@ -12,13 +12,15 @@
  */
 package com.baidu.rigel.service.workflow.api;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.springframework.util.Assert;
 
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.thoughtworks.xstream.XStream;
-import java.util.HashMap;
-import java.util.Set;
-import org.springframework.util.Assert;
 
 /**
  * Workflow operations abstraction, it define all interface of actual engine.
@@ -63,8 +65,9 @@ public interface WorkflowOperations {
      * @param businessObjectId Business object ID <code>NOT NULL</code>
      * @param startParams Start parameters for calculate transition if need
      * @throws ProcessException Exception occurred during creation
+     * @return engine task IDs
      */
-    void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException;
+    List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException;
 
     /**
      * Terminal process instance
@@ -107,15 +110,17 @@ public interface WorkflowOperations {
      * @param engineTaskInstanceId engine task instance ID
      * @param operator operator
      * @param workflowParams Operation parameter for calculate transition if need
+     * @return engine task IDs
      */
-    void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException;
+    List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException;
 
     /**
      * Batch complete task instances
      * @param batchDTO DTO<EngineTaskInstanceID, WorkflowParams>
      * @param opeartor Operator
+     * @return engine task IDs. Key is completion task instance ID
      */
-    void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException;
+    Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException;
 
     /**
      * Obtain task instance extend attribute

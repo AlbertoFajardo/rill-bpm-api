@@ -15,6 +15,7 @@ package com.baidu.rigel.service.workflow.api.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,7 +66,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     private static final String THREAD_RESOURCE_SCOPE = ActivitiTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
 
     // --------------------------------------- Implementation --------------------------//
-    public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
+    public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
         
         // Ensure business object not null
         if (businessObjectId == null) {
@@ -105,13 +106,14 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
         // Call engine service to create a process
         ProcessInstance response = null;
+        List<String> taskIds = null;
         try {
             // Do create process instance of work flow engine
             UUID taskRetrieveUUID = UUID.randomUUID();
             RetrieveNextTasksHelper.pushTaskScope(taskRetrieveUUID.toString());
             
             response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
-            List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
+            taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
 
             // Call post operation
             if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
@@ -151,7 +153,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             releaseThreadLocalResource(uuid);
         }
 
-//        return response;
+        return taskIds;
     }
 
     private void releaseThreadLocalResource(UUID uuid) {
@@ -413,16 +415,19 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     // -------------------------------- Task related API ---------------------------------- //
-    public void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
+    public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
 
         Assert.notEmpty(batchDTO);
+        Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
 
         logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
         for (Entry<String, Map<String, String>> element : batchDTO.entrySet()) {
 
             // Delegate to single-task operation
-            this.doCompleteTaskInstance(element.getKey(), operator, element.getValue());
+        	returnTasks.put(element.getKey(), this.doCompleteTaskInstance(element.getKey(), operator, element.getValue()));
         }
+        
+        return returnTasks;
 
     }
 
@@ -456,12 +461,14 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         return taskExecutionContext;
     }
 
-    public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
+    public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
 
+    	Assert.notNull(engineTaskInstanceId);
+    	
         UUID uuid = obtainAccessUUID();
         try {
             // Delegate this operation
-            doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParams);
+            return doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParams);
         } finally {
             // Release resource
             releaseThreadLocalResource(uuid);
@@ -469,7 +476,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     }
 
-    protected void doCompleteTaskInstance(String engineTaskInstanceId,
+    protected List<String> doCompleteTaskInstance(String engineTaskInstanceId,
             String operator, Map<String, String> workflowParams) throws ProcessException {
 
         logger.log(Level.INFO, "Complete task instance. Params:{0}", ObjectUtils.getDisplayString(workflowParams));
@@ -516,8 +523,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(passToEngine)});
 
         // Access engine
+        List<String> taskIds = null;
         try {
-            List<String> taskIds = null;
             long startCompleteTime = System.currentTimeMillis();
             UUID uuid = UUID.randomUUID();
             RetrieveNextTasksHelper.pushTaskScope(uuid.toString());
@@ -584,7 +591,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             // Release resource
             // releaseThreadLocalResource();
         }
-
+        
+        return taskIds;
     }
 
     protected void taskLifecycleInterceptorExceptionHandler(Exception e, TaskLifecycleInteceptor exceptionMurderer,

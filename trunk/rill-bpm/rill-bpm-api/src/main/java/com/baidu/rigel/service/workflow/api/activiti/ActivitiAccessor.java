@@ -105,15 +105,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     private ActivitiExtraService extraService;
     private ProcessEngine processEngine;
     private ProcessEngineConfiguration processEngineConfiguration;
-    private boolean rigelWfInitialize = false;
-
-    public boolean isRigelWfInitialize() {
-        return rigelWfInitialize;
-    }
-
-    public void setRigelWfInitialize(boolean rigelWfInitialize) {
-        this.rigelWfInitialize = rigelWfInitialize;
-    }
 
     public FormService getFormService() {
         return formService;
@@ -325,34 +316,32 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         // Generate application context as event publisher
         if (!(getBeanFactory() instanceof ApplicationEventPublisher)) {
             // Means aware method have not been call.
-            // FIXME: Adapt spring v2.0 implemetation, we use new SimpleApplicationEventMulticaster() but not new SimpleApplicationEventMulticaster(BeanFactory)
+            // FIXME: Adapt spring v2.0 implementation, we use new SimpleApplicationEventMulticaster() but not new SimpleApplicationEventMulticaster(BeanFactory)
             logger.log(Level.INFO, "Adapt external environment[Not ApplicationContext].{0}", getBeanFactory());
             this.applicationEventPublisher = new ApplicationEventPublisherAdapter(new SimpleApplicationEventMulticaster());
         }
 
-        // RIGEL_WF_* data-base initialize
-        if (!rigelWfInitialize) {
-            rigelWfInitialize = runExtraCommand(new Command<Boolean>() {
+        // RIGEL_WF_* DB initialize
+        runExtraCommand(new Command<Boolean>() {
 
-                public Boolean execute(CommandContext commandContext) {
+            public Boolean execute(CommandContext commandContext) {
 
-                    boolean tablePresent = commandContext.getDbSqlSession().isTablePresent("RIGEL_WF_TRANSITION_TAKE_TRACE");
-                    if (tablePresent) {
-                        return true;
-                    }
-
-                    // Do create
-                    String resourceName = getResourceForDbOperation(commandContext.getDbSqlSession(), "create", "create", "wf");
-                    commandContext.getDbSqlSession().executeSchemaResource("create", "wf", resourceName, false);
+                boolean tablePresent = commandContext.getDbSqlSession().isTablePresent("RIGEL_WF_TRANSITION_TAKE_TRACE");
+                if (tablePresent) {
                     return true;
                 }
 
-                String getResourceForDbOperation(DbSqlSession dbSqlSession, String directory, String operation, String component) {
-                    String databaseType = dbSqlSession.getDbSqlSessionFactory().getDatabaseType();
-                    return "com/baidu/rigel/service/workflow/db/" + directory + "/rigel." + databaseType + "." + operation + "." + component + ".sql";
-                }
-            });
-        }
+                // Do create
+                String resourceName = getResourceForDbOperation(commandContext.getDbSqlSession(), "create", "create", "wf");
+                commandContext.getDbSqlSession().executeSchemaResource("create", "wf", resourceName, false);
+                return true;
+            }
+
+            String getResourceForDbOperation(DbSqlSession dbSqlSession, String directory, String operation, String component) {
+                String databaseType = dbSqlSession.getDbSqlSessionFactory().getDatabaseType();
+                return "com/baidu/rigel/service/workflow/db/" + directory + "/rigel." + databaseType + "." + operation + "." + component + ".sql";
+            }
+        });
     }
 
     private class ActivitiExtraService extends ServiceImpl {

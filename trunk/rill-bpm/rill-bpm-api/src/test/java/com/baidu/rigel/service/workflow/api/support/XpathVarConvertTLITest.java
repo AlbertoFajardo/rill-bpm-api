@@ -4,19 +4,22 @@
  */
 package com.baidu.rigel.service.workflow.api.support;
 
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations.XStreamSerializeHelper;
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.activiti.support.ActivitiXpathVarConvertTaskLifecycleInterceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  *
@@ -31,7 +34,7 @@ public class XpathVarConvertTLITest {
         ActivitiXpathVarConvertTaskLifecycleInterceptor tli = new ActivitiXpathVarConvertTaskLifecycleInterceptor();
         class XpathWorkflowAccessor implements WorkflowOperations {
 
-            public void createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
+            public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
@@ -47,11 +50,11 @@ public class XpathVarConvertTLITest {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public void completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
+            public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public void batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
+            public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
