@@ -12,18 +12,11 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
@@ -45,62 +38,30 @@ import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
-import com.baidu.rigel.service.workflow.api.ProcessInstanceEndEvent;
 import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
-import com.baidu.rigel.service.workflow.api.TLIGenerator;
-import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
+import com.baidu.rigel.service.workflow.api.WorkflowTemplate;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
- * Common funciton provider for activiti implementation such as cache, interceptor getter from model.
+ * Activiti engine access helper class
  * 
  * @author mengran
  */
-public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, ApplicationEventPublisherAware {
-
-    public static final String TASK_LIFECYCLE_INTERCEPTOR = "task_lifecycle_interceptor";
-    public static final String TASK_FORM_KEY = "url";
-    public static final String TASK_ROLE_TAG = "task_role_tag";
-    public static final String TASK_SERVICE_INVOKE_EXPRESSION = "taskServiceInvokeExpression";
-    
-    public static final String TASK_LIFECYCLE_INTERCEPTOR_DELIM = " ";
-    
-    // Business specify task define ID
-    public static final String TASK_DEFINE_ID = "__task_define_id__";
-    
-    enum TaskInformations {
-
-        PROCESS_INSTANCE_ID, TASK_TAG, TASK_ROLE_TAG, BUSINESS_OBJECT_ID, CLASSDELEGATE_ADAPTER_TLI, CLASSDELEGATE_ADAPTER_TOI, FORM_KEY, TASK_SERVICE_INVOKE_EXPRESSION
-    }
-    
-    /** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+public abstract class ActivitiAccessor extends WorkflowTemplate implements InitializingBean, BeanFactoryAware, ApplicationEventPublisherAware {
 
     private Map<String, String[]> taskInstanceInfoCache = new HashMap<String, String[]>();
-    private BeanFactory beanFactory;
-    private ApplicationEventPublisher applicationEventPublisher;
     private RuntimeService runtimeService;
     private TaskService taskService;
     private RepositoryService repositoryService;
     private IdentityService identityService;
     private FormService formService;
-    private List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor;
-    private List<ProcessCreateInteceptor> processCreateInteceptor;
     private List<ProcessOperationInteceptor> processOperationInteceptors;
     private ActivitiExtraService extraService;
     private ProcessEngine processEngine;
@@ -176,21 +137,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     }
 
     /**
-     * @return the processCreateInteceptor
-     */
-    public List<ProcessCreateInteceptor> getProcessCreateInteceptor() {
-        return processCreateInteceptor;
-    }
-
-    /**
-     * @param processCreateInteceptor the processCreateInteceptor to set
-     */
-    public void setProcessCreateInteceptor(
-            List<ProcessCreateInteceptor> processCreateInteceptor) {
-        this.processCreateInteceptor = processCreateInteceptor;
-    }
-
-    /**
      * @return the processOperationInteceptors
      */
     public List<ProcessOperationInteceptor> getProcessOperationInteceptors() {
@@ -214,48 +160,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     }
 
     /**
-     * @return the beanFactory
-     */
-    public BeanFactory getBeanFactory() {
-        return beanFactory;
-    }
-
-    /**
-     * @return the commonTaskLifecycleInterceptor
-     */
-    public List<TaskLifecycleInteceptor> getCommonTaskLifecycleInterceptor() {
-        return commonTaskLifecycleInterceptor;
-    }
-
-    /**
-     * @param commonTaskLifecycleInterceptor the commonTaskLifecycleInterceptor to set
-     */
-    public void setCommonTaskLifecycleInterceptor(
-            List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor) {
-        this.commonTaskLifecycleInterceptor = commonTaskLifecycleInterceptor;
-    }
-
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-
-        this.beanFactory = beanFactory;
-    }
-
-    /**
-     * @param applicationEventPublisher the applicationEventPublisher to set
-     */
-    public void setApplicationEventPublisher(
-            ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
-
-    /**
-     * @return the applicationEventPublisher
-     */
-    public ApplicationEventPublisher getApplicationEventPublisher() {
-        return applicationEventPublisher;
-    }
-
-    /**
      * Package access allowed.
      * @return Activiti extra service for run Command
      */
@@ -275,7 +179,10 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
     }
 
     public void afterPropertiesSet() throws Exception {
-
+    	
+    	// Do super's logic first.
+    	super.afterPropertiesSet();
+    	
         if (this.getProcessEngine() == null) {
             Assert.notNull(this.getProcessEngineConfiguration(), "Properties 'ProcessEngineConfiguration' is required.");
 
@@ -313,14 +220,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         this.extraService = new ActivitiExtraService();
         BeanUtils.copyProperties(this.getRuntimeService(), this.extraService);
 
-        // Generate application context as event publisher
-        if (!(getBeanFactory() instanceof ApplicationEventPublisher)) {
-            // Means aware method have not been call.
-            // FIXME: Adapt spring v2.0 implementation, we use new SimpleApplicationEventMulticaster() but not new SimpleApplicationEventMulticaster(BeanFactory)
-            logger.log(Level.INFO, "Adapt external environment[Not ApplicationContext].{0}", getBeanFactory());
-            this.applicationEventPublisher = new ApplicationEventPublisherAdapter(new SimpleApplicationEventMulticaster());
-        }
-
         // RIGEL_WF_* DB initialize
         runExtraCommand(new Command<Boolean>() {
 
@@ -353,29 +252,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         }
     }
 
-    private class ApplicationEventPublisherAdapter implements ApplicationEventPublisher {
-
-        private SimpleApplicationEventMulticaster saemc;
-
-        public ApplicationEventPublisherAdapter(SimpleApplicationEventMulticaster aemc) {
-            this.saemc = aemc;
-//            this.saemc.setBeanFactory(getBeanFactory());
-            String[] listenerNames = ((ListableBeanFactory) getBeanFactory()).getBeanNamesForType(ApplicationListener.class);
-            if (listenerNames != null && listenerNames.length > 0) {
-                for (String listenerName : listenerNames) {
-                    logger.log(Level.INFO, "Add application listener named [{0}].", listenerName);
-                    aemc.addApplicationListener((ApplicationListener) getBeanFactory().getBean(listenerName));
-                }
-            }
-        }
-
-        public void publishEvent(ApplicationEvent event) {
-
-            // Delegate operatoin
-            this.saemc.multicastEvent(event);
-        }
-    }
-
     /**
      * Obtain cache informations from cache. Cache data will fill in every node in cluster.
      *
@@ -385,26 +261,14 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
      * @param taskInstanceId task instance's ID
      * @return cache information specify by enum given
      */
-    private String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo) {
+    protected String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo) {
 
         Assert.hasText(taskInstanceId, "taskInstanceId pass in must not empty");
         Assert.notNull(cacheInfo, "taskInformations must not null");
 
         String cacheHit = null;
-//        // For work fine, we first find from external cache.
-//        if (getExternalWorkflowCache() != null) {
-//            try {
-//                cacheHit = getExternalWorkflowCache().getTaskInfos(taskInstanceId, cacheInfo);
-//            } catch(Throwable t) {
-//                logger.log(Level.WARNING, "External cache provider:" + getExternalWorkflowCache().getClass().getName() + " throw a exception.", t);
-//            }
-//        }
-        if (cacheHit == null) {
-            logger.log(Level.FINE, "Can not hit external cache of task instance id:{0}, cache info:{1}, and try to get cache info from native cache.", new Object[]{taskInstanceId, cacheInfo});
-            cacheHit = peerJVMCache(taskInstanceId, cacheInfo);
-        } else {
-            logger.log(Level.FINE, "Hit external cache of task instance id:{0}, cache info:{1}", new Object[]{taskInstanceId, cacheInfo});
-        }
+        logger.log(Level.FINE, "Can not hit external cache of task instance id:{0}, cache info:{1}, and try to get cache info from native cache.", new Object[]{taskInstanceId, cacheInfo});
+        cacheHit = peerJVMCache(taskInstanceId, cacheInfo);
 
         return cacheHit;
     }
@@ -488,200 +352,6 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         return taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
     }
 
-    /**
-     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
-     * @param taskInstanceId 任务ID
-     * @return 流程ID
-     */
-    protected String obtainProcessInstanceId(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.PROCESS_INSTANCE_ID);
-    }
-
-    /**
-     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
-     * @param taskInstanceId 任务ID
-     * @return 流程ID
-     */
-    protected String obtainTaskTag(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.TASK_TAG);
-    }
-
-    /**
-     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
-     * @param taskInstanceId 任务ID
-     * @return 流程ID
-     */
-    protected String obtainTaskRoleTag(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
-    }
-
-    /**
-     * 子类可以扩展这个方法，因为有可能业务系统已经持久化了这个关系
-     * @param taskInstanceId 任务ID
-     * @return 业务对象ID
-     */
-    protected String obtainBusinessObjectId(String taskInstanceId) {
-
-        // FIXME: Business object may contain in GWFP engine, current version set it into otherInfos
-        return obtainCacheInfos(taskInstanceId, TaskInformations.BUSINESS_OBJECT_ID);
-    }
-
-    protected HashMap<String, String> getExtendAttrs(String taskInstanceId) {
-
-        try {
-//            Task task = getTaskService().createTaskQuery().taskId(taskInstanceId).singleResult();
-//            String document = task.getDescription();
-
-            Map<String, String> extendAttrsMap = new HashMap<String, String>();
-            // Retrieve from TLITOI holder
-            String tli = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TLI);
-            logger.log(Level.FINEST, "Retrieve from TLI holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(tli)});
-            String formKey = obtainCacheInfos(taskInstanceId, TaskInformations.FORM_KEY);
-            logger.log(Level.FINEST, "Retrieve from formKey holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(formKey)});
-            String taskRoleTag = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
-            logger.log(Level.FINEST, "Retrieve from taskRoleTag holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskRoleTag)});
-            String taskServiceInvoikeExpression = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION);
-            logger.log(Level.FINEST, "Retrieve from taskServiceInvoikeExpression holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskServiceInvoikeExpression)});
-                        
-            if (StringUtils.hasLength(tli)) {
-                extendAttrsMap.put(TASK_LIFECYCLE_INTERCEPTOR, tli);
-            }
-            if (StringUtils.hasLength(formKey)) {
-                extendAttrsMap.put(TASK_FORM_KEY, formKey.trim());
-            }
-            if (StringUtils.hasLength(taskRoleTag)) {
-                extendAttrsMap.put(TASK_ROLE_TAG, taskRoleTag.trim());
-            }
-            if (StringUtils.hasLength(taskServiceInvoikeExpression)) {
-                extendAttrsMap.put(TASK_SERVICE_INVOKE_EXPRESSION, taskServiceInvoikeExpression.trim());
-            }
-//            if (!StringUtils.hasText(document)) {
-//                logger.finest("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description is empty.");
-//                return extendAttrsMap.isEmpty() ? null : extendAttrsMap;
-//            }
-//
-//            logger.finest("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description:" + document);
-//
-//            String[] arrayString = StringUtils.tokenizeToStringArray(document, "\r\n");
-            HashMap<String, String> forReturn = new HashMap<String, String>();
-//            for (String element : arrayString) {
-//                forReturn.put(StringUtils.split(element, ":")[0], StringUtils.split(element, ":")[1]);
-//            }
-
-            forReturn.putAll(extendAttrsMap);
-            logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] description/TLITOI holder result:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(forReturn)});
-            return forReturn;
-
-        } catch (ActivitiException e) {
-            throw new ProcessException("Can not obtain task[" + taskInstanceId + "] extension attribute", e);
-        }
-
-    }
-
-    protected final String[] obtainCommaSplitSpecifyValues(String taskInstanceId, String extendsAttributeKey, String delim) {
-
-        Map<String, String> adArray = getExtendAttrs(taskInstanceId);
-        if (adArray == null || adArray.isEmpty()) {
-            logger.fine("Return empty array because extend attribute is empty.");
-            return new String[0];
-        }
-
-        Set<String> valueSet = new LinkedHashSet<String>();
-        for (Entry<String, String> entry : adArray.entrySet()) {
-            if (extendsAttributeKey.equals(entry.getKey())) {
-                logger.log(Level.FINEST, "Match entry for key[{0}], value[{1}].", new Object[]{extendsAttributeKey, entry.getValue()});
-                String[] interceptorData = StringUtils.delimitedListToStringArray(StringUtils.trimAllWhitespace(entry.getValue()), delim);
-                if (interceptorData != null && interceptorData.length > 0) {
-                    valueSet.addAll(Arrays.asList(interceptorData));
-                }
-            }
-        }
-
-        logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] extension attribute key[{1}]:{2}", new Object[]{taskInstanceId, extendsAttributeKey, ObjectUtils.getDisplayString(valueSet)});
-        return valueSet.toArray(new String[valueSet.size()]);
-    }
-    
-    private final TLIGenerator<TaskLifecycleInteceptor> DEFAULT_SPRING_TLI_GENERATOR = new SpringBeanTLIGenerator();
-    
-    private class SpringBeanTLIGenerator extends SpringBeanGenerator<TaskLifecycleInteceptor> {
-        
-    }
-    
-    private abstract class SpringBeanGenerator<T> implements TLIGenerator<T> {
-
-        protected Class<T> actualClazz;
-
-        public SpringBeanGenerator() {
-            actualClazz = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        }
-
-        public Collection<T> generate(String[] source) {
-
-            return convertNameToBean(actualClazz, source);
-        }
-
-        public boolean supportGeneratePattern(String[] source) {
-
-            boolean result = true;
-            try {
-                convertNameToBean(actualClazz, source);
-            } catch (Exception e) {
-                logger.log(Level.FINE, "{0}#supportGeneratePattern exception, ignore it.", SpringBeanGenerator.class.getName());
-                result = false;
-            }
-
-            return result;
-        }
-
-        @SuppressWarnings("unchecked")
-        private <T> Collection<T> convertNameToBean(Class<T> clazz, String[] beanName) {
-
-            if (ObjectUtils.isEmpty(beanName)) {
-                logger.fine("Return empty array because bean names is empty.");
-                return new ArrayList<T>(0);
-            }
-
-            LinkedHashSet<T> beanList = new LinkedHashSet<T>(beanName.length);
-            for (String name : beanName) {
-                String[] interceptorData = StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(name));
-                for (String interceptor: interceptorData) {
-                    Assert.isTrue(beanFactory.containsBean(interceptor), "Bean name[" + interceptor + "] may not be registed in Spring bean factory.");
-                    logger.log(Level.FINEST, "Find bean named[{0}] and add it for return.", interceptor);
-                    beanList.add((T) beanFactory.getBean(interceptor));
-                }
-            }
-
-            logger.log(Level.FINE, "Convert bean names[{0}] to beans {1}", new Object[]{ObjectUtils.getDisplayString(beanName), ObjectUtils.getDisplayString(beanList)});
-            return beanList;
-        }
-    }
-
-    protected final TaskLifecycleInteceptor[] obtainTaskLifecycleInterceptors(String taskInstanceId) {
-
-        Collection<TaskLifecycleInteceptor> taskLifecycleInterceptors = new LinkedHashSet();
-        
-        // Add commen TLI configuration
-        if (this.commonTaskLifecycleInterceptor != null && !this.commonTaskLifecycleInterceptor.isEmpty()) {
-            logger.log(Level.FINEST, "Combin common task-lifecycle-interceptor[{0}].", ObjectUtils.getDisplayString(this.commonTaskLifecycleInterceptor));
-            taskLifecycleInterceptors.addAll(commonTaskLifecycleInterceptor);
-        }
-        
-        String[] perTaskInterceptorConfigs = obtainCommaSplitSpecifyValues(taskInstanceId, TASK_LIFECYCLE_INTERCEPTOR, TASK_LIFECYCLE_INTERCEPTOR_DELIM);
-        List<TLIGenerator> tempGeneratorList = new ArrayList<TLIGenerator>(1);
-        tempGeneratorList.add(DEFAULT_SPRING_TLI_GENERATOR);
-        for (TLIGenerator generator : tempGeneratorList) {
-            if (generator.supportGeneratePattern(perTaskInterceptorConfigs)) {
-                taskLifecycleInterceptors.addAll(generator.generate(perTaskInterceptorConfigs));
-            }
-        }
-
-        logger.log(Level.FINE, "Return task[{0}] task-lifecycle-interceptor:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskLifecycleInterceptors)});
-        return taskLifecycleInterceptors.toArray(new TaskLifecycleInteceptor[taskLifecycleInterceptors.size()]);
-    }
-
     protected final boolean hasParentProcess(String processInstanceId) {
 
         // Delegate this operation
@@ -710,10 +380,4 @@ public class ActivitiAccessor implements InitializingBean, BeanFactoryAware, App
         return rootProcessId;
     }
 
-    protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) {
-
-        logger.log(Level.INFO, "Process instance[{0}] end. Trigger task[{1}]", new Object[]{processInstanceId, triggerTaskInstanceId});
-        this.applicationEventPublisher.publishEvent(new ProcessInstanceEndEvent(processInstanceId,
-                triggerTaskInstanceId, hasParentProcess(processInstanceId), triggerTaskExecutionContext));
-    }
 }

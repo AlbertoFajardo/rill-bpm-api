@@ -55,7 +55,25 @@
             </exclusions>
         </dependency>
     </dependencies>
+    <build>
+    	<plugins>
+    		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+    	</plugins>
+    </build>
     
+	<!-- 
     <profiles>
         <profile>
             <id>jaxws</id>
@@ -75,6 +93,8 @@
                             <sei>com.baidu.rigel.service.workflow.ws.api.activiti.RemoteActivitiTemplate</sei>
                             <genWsdl>true</genWsdl>
                             <keep>true</keep>
+                            <verbose>true</verbose>
+                            <sourceDestDir>${project.build.directory}/sources</sourceDestDir>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -88,5 +108,6 @@
             </build>
         </profile>
     </profiles>
+     -->
   
 </project>

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -22,7 +24,7 @@ import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 public interface RemoteWorkflowOperations {
 
     // ------------------------- Operation API -------------------------------//
-    class MapElements {
+	public class MapElements {
 
         @XmlElement
         public String key;
@@ -37,8 +39,9 @@ public interface RemoteWorkflowOperations {
             this.value = value;
         }
     }
-
-    class MapAdapter extends XmlAdapter<MapElements[], Map<String, String>> {
+    
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public class MapAdapter extends XmlAdapter<MapElements[], Map<String, String>> {
 
         public MapElements[] marshal(Map<String, String> arg0) throws Exception {
             MapElements[] mapElements = new MapElements[arg0.size()];
@@ -67,17 +70,28 @@ public interface RemoteWorkflowOperations {
     	String processDefinitionKey;
     	
     	List<String> engineTaskInstanceIds;
+    	boolean processInstanceEnd;
+    	
     	private RemoteWorkflowResponse() {
     	} //Required by JAXB
 
 		public RemoteWorkflowResponse(String engineProcessInstanceId,
 				String businessObjectId, String processDefinitionKey,
-				List<String> engineTaskInstanceIds) {
+				List<String> engineTaskInstanceIds, boolean processInstanceEnd) {
 			super();
 			this.engineProcessInstanceId = engineProcessInstanceId;
 			this.businessObjectId = businessObjectId;
 			this.processDefinitionKey = processDefinitionKey;
 			this.engineTaskInstanceIds = engineTaskInstanceIds;
+			this.processInstanceEnd = processInstanceEnd;
+		}
+
+		public final boolean isProcessInstanceEnd() {
+			return processInstanceEnd;
+		}
+
+		public final void setProcessInstanceEnd(boolean processInstanceEnd) {
+			this.processInstanceEnd = processInstanceEnd;
 		}
 
 		public final String getEngineProcessInstanceId() {
@@ -234,4 +248,12 @@ public interface RemoteWorkflowOperations {
      * @see org.springframework.util.StringUtils#hasText(java.lang.String) 
      */
     String getEngineProcessInstanceIdByBOId(String processDefinitionKey, String boId);
+    
+    /**
+     * Get task extend attributes from engine.
+     * @param engineTaskInstanceId engine task instance id
+     * @return task extend attributes
+     */
+    List<String[]> getTaskInstanceExtendAttrs(String engineTaskInstanceId);
+    
 }

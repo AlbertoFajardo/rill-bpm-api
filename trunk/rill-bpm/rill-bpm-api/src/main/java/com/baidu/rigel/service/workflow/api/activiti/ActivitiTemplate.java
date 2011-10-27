@@ -12,39 +12,24 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.activiti.engine.ActivitiException;
-import org.activiti.engine.impl.interceptor.CommandContext;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
-import org.apache.commons.lang.ArrayUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
-
-import com.baidu.rigel.service.workflow.api.ThreadLocalResourceHolder;
-import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
-import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
-import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+
+import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.juel.IdentifierNode;
 import org.activiti.engine.impl.juel.Tree;
 import org.activiti.engine.impl.juel.TreeStore;
@@ -55,7 +40,15 @@ import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.util.ReflectUtil;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+
+import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
  * Activiti implementation of {@link WorkflowOperations}.
@@ -63,128 +56,71 @@ import org.springframework.util.StringUtils;
  */
 public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperations {
 
-    private static final String THREAD_RESOURCE_SCOPE = ActivitiTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
-
     // --------------------------------------- Implementation --------------------------//
-    public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
-        
-        // Ensure business object not null
-        if (businessObjectId == null) {
-            throw new ProcessException("Parameter[businessObjectId] is null.").setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE);
-        }
-        
-        Map<String, Object> passToEngine = new HashMap<String, Object>();
-        if (startParams != null) {
-            for (Entry<String, String> entry : startParams.entrySet()) {
-                passToEngine.put(entry.getKey(), entry.getValue());
-            }
-        } else {
-            passToEngine = null;
+	@Override
+	protected WorkflowResponse doCreateProcessInstance(
+			String processDefinitionKey, String processStarter, String businessObjectId,
+			Map<String, Object> passToEngine) {
+		
+		try {
+			// Do create process instance of work flow engine
+	        UUID taskRetrieveUUID = UUID.randomUUID();
+	        RetrieveNextTasksHelper.pushTaskScope(taskRetrieveUUID.toString());
+	        
+	        ProcessInstance response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
+	        List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
+	        
+			return new WorkflowResponse(response.getProcessInstanceId(), businessObjectId, processDefinitionKey, taskIds);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+			throw new ProcessException(e);
+		}
+	}
+
+    private void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) throws ProcessException {
+
+        // Means process will end
+        ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
+        if (pi == null) {
+            // Publish process end event
+            publishProcessEndEvent(engineProcessInstanceId, triggerTaskInstanceId, triggerTaskExecutionContext);
+            return;
         }
 
-        UUID uuid = obtainAccessUUID();
-        // Call previous operation
-        if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
-            for (ProcessCreateInteceptor pci : getProcessCreateInteceptor()) {
+        // Task life cycle initialize method processing
+        for (Task response : acr) {
+            TaskLifecycleInteceptor[] newTasklifecycleInteceptors = (TaskLifecycleInteceptor[]) obtainTaskLifecycleInterceptors(response.getId());
+            ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), null, null);
+            taskExecutionContext.setActivityContentResponse(response);
+            logger.log(Level.FINE, "Call generated-task''s interceptor#init {0}", ObjectUtils.getDisplayString(response));
+            for (TaskLifecycleInteceptor newTaskLifecycleInteceptor : newTasklifecycleInteceptors) {
                 try {
-                    pci.preOperation(processDefinitionKey, processStarter, businessObjectId, passToEngine);
-                } catch (ProcessException pe) {
-                    // Release thread-local resource
-                    releaseThreadLocalResource(uuid);
-
-                    // Throw exception for terminal process creation
-                    throw pe.setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE).setBoId(businessObjectId.toString());
+                    // Invoke interceptor's initial method
+                    newTaskLifecycleInteceptor.init(taskExecutionContext);
+                } catch (Exception e) {
+                    // Call work-flow operations exception handler
+                    taskLifecycleInterceptorExceptionHandler(e, newTaskLifecycleInteceptor, newTasklifecycleInteceptors);
+                    throw new ProcessException(e).setEngineTaskInstanceId(response.getId());
                 }
             }
         }
-        if (processDefinitionKey == null) {
-            // Release thread-local resource
-            releaseThreadLocalResource(uuid);
-            throw new ProcessException("Fail to create process, because processDefinitionKey is null. "
-                    + "And you can set it " + ProcessCreateInteceptor.class.getName()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE).setBoId(businessObjectId.toString());
-        }
 
-        // Call engine service to create a process
-        ProcessInstance response = null;
-        List<String> taskIds = null;
-        try {
-            // Do create process instance of work flow engine
-            UUID taskRetrieveUUID = UUID.randomUUID();
-            RetrieveNextTasksHelper.pushTaskScope(taskRetrieveUUID.toString());
-            
-            response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
-            taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
-
-            // Call post operation
-            if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
-                // Reverse list
-                List<ProcessCreateInteceptor> reverseList = new ArrayList<ProcessCreateInteceptor>();
-                reverseList.addAll(getProcessCreateInteceptor());
-                Collections.reverse(reverseList);
-                logger.log(Level.FINE, "Process create interceptor after reverse {0}", ObjectUtils.getDisplayString(reverseList));
-                for (ProcessCreateInteceptor pci : reverseList) {
-                    // Do post operation
-                    try {
-                        pci.postOperation(response.getProcessInstanceId(), businessObjectId, processStarter);
-                    } catch (ProcessException pe) {
-                        throw pe.setBoId(response.getBusinessKey()).setEngineProcessInstanceId(response.getProcessInstanceId()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE);
-                    }
-                }
-            }
-
-            // Handle task initialize phase
-            try {
-                List<Task> taskList = new ArrayList<Task>(taskIds.size());
-                for (String taskId : taskIds) {
-                    taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
-                }
-                logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
-                handleTaskInit(taskList, response.getProcessInstanceId(), null, null);
-            } catch (ProcessException e) {
-                throw e.setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.INIT).setBoId(response.getBusinessKey()).setEngineProcessInstanceId(response.getProcessInstanceId());
-            }
-        } catch (ActivitiException e) {
-            throw new ProcessException("Fail to create process: " + e.getMessage(), e).setBoId(businessObjectId.toString()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.ENGINE_OPERATION);
-        } catch (ProcessException pdte) {
-            // Call exception handle procedure
-            handleProcessException(pdte);
-        } finally {
-            // Release resource
-            releaseThreadLocalResource(uuid);
-        }
-
-        return taskIds;
     }
-
-    private void releaseThreadLocalResource(UUID uuid) {
-
-        Assert.notNull(uuid);
-        UUID threadUUID = (UUID) ThreadLocalResourceHolder.getProperty(THREAD_RESOURCE_SCOPE);
-
-        // Compare UUID
-        if (uuid == threadUUID || uuid.equals(threadUUID)) {
-            logger.log(Level.INFO, "Clear thread-local resource. UUID given:{0}; thread UUID:{1}", new Object[]{uuid, threadUUID});
-            // Release resource.
-            ThreadLocalResourceHolder.getThreadMap().clear();
-        } else {
-            logger.log(Level.INFO, "Do not clear thread-local resource. UUID given:{0}; thread UUID:{1}", new Object[]{uuid, threadUUID});
+    
+	@Override
+	protected void handleTaskInit(List<String> taskIds,
+			String engineProcessInstanceId, String triggerTaskInstanceId,
+			Object triggerTaskExecutionContext) throws ProcessException {
+		
+		List<Task> taskList = new ArrayList<Task>(taskIds.size());
+        for (String taskId : taskIds) {
+            taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
         }
-    }
-
-    private UUID obtainAccessUUID() {
-
-        if (ThreadLocalResourceHolder.getProperty(THREAD_RESOURCE_SCOPE) == null) {
-            // Means scope start point
-            UUID uuid = UUID.randomUUID();
-            ThreadLocalResourceHolder.bindProperty(THREAD_RESOURCE_SCOPE, uuid);
-            logger.log(Level.FINE, "Start thread local resource scope. Cache UUID:{0}", uuid);
-            return uuid;
-        } else {
-            UUID newUUID = UUID.randomUUID();
-            logger.log(Level.FINE, "Nested workflow access, return new UUID{0}", newUUID);
-            return newUUID;
-        }
-    }
+        logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
+		
+        // Delegate this operation
+        this.handleTaskInit(taskList, engineProcessInstanceId, null, null);
+	}
 
     public String getTaskNameByDefineId(final String processDefinitionKey, final String taskDefineId) {
 
@@ -275,86 +211,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     }
 
-    /**
-     *
-     * Process operation call-back
-     */
-    private interface ProcessInstanceOperationCallBack {
-
-        /**
-         * @return Operation type
-         */
-        WorkflowOperations.PROCESS_OPERATION_TYPE operationType();
-
-        void doOperation(String engineProcessInstanceId,
-                String operator, String reason) throws ActivitiException;
-    }
-
-    /**
-     * Process operation template method.
-     * @param engineProcessInstanceId engine process instance ID
-     * @param operator operator
-     * @param reason Reason
-     * @param callback Call back
-     * @throws ProcessException Exception when execute operation
-     */
-    private void processInstanceOperationTemplate(String engineProcessInstanceId,
-            String operator, String reason, ProcessInstanceOperationCallBack callback) throws ProcessException {
-
-        UUID uuid = obtainAccessUUID();
-        // Call previous operation
-        if (getProcessOperationInteceptors() != null && !getProcessOperationInteceptors().isEmpty()) {
-            for (ProcessOperationInteceptor poi : getProcessOperationInteceptors()) {
-                try {
-                    // Throw NullPointerException if not implementation rightly
-                    if (poi.handleOpeationType().equals(callback.operationType())) {
-                        poi.preOperation(engineProcessInstanceId, operator, reason);
-                    }
-                } catch (ProcessException pe) {
-                    // Release resource
-                    releaseThreadLocalResource(uuid);
-                    throw new ProcessException("Fail to do " + callback.operationType().name()
-                            + " on process instance[" + engineProcessInstanceId + pe.getMessage(), pe).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_OPERATION).setOperator(operator);
-                }
-            }
-        }
-
-        // Access engine
-        try {
-            callback.doOperation(engineProcessInstanceId, operator, reason);
-
-            // Call post operation
-            if (getProcessOperationInteceptors() != null && !getProcessOperationInteceptors().isEmpty()) {
-                // Reverse list
-                List<ProcessOperationInteceptor> reverseList = new ArrayList<ProcessOperationInteceptor>();
-                reverseList.addAll(getProcessOperationInteceptors());
-                Collections.reverse(reverseList);
-                for (ProcessOperationInteceptor poi : reverseList) {
-                    // Throw NullPointerException if not implementation rightly
-                    if (poi.handleOpeationType().equals(callback.operationType())) {
-                        try {
-                            poi.postOperation(engineProcessInstanceId);
-                        } catch (ProcessException pe) {
-                            throw new ProcessException("Fail to do " + callback.operationType().name()
-                                    + " on process instance[" + engineProcessInstanceId + pe.getMessage(), pe).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_OPERATION).setOperator(operator);
-                        }
-
-                    }
-                }
-            }
-
-        } catch (ActivitiException e) {
-            throw new ProcessException("Fail to do " + callback.operationType().name() + " on process instance[" + engineProcessInstanceId + "].", e).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_OPERATION).setOperator(operator);
-        } catch (ProcessException pdte) {
-            // Call exception handle procedure
-            handleProcessException(pdte);
-        } finally {
-            // Release resource
-            releaseThreadLocalResource(uuid);
-        }
-
-    }
-
     public void resumeProcessInstance(String engineProcessInstanceId,
             String operator, String reason) throws ProcessException {
 
@@ -415,22 +271,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     // -------------------------------- Task related API ---------------------------------- //
-    public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
-
-        Assert.notEmpty(batchDTO);
-        Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
-
-        logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
-        for (Entry<String, Map<String, String>> element : batchDTO.entrySet()) {
-
-            // Delegate to single-task operation
-        	returnTasks.put(element.getKey(), this.doCompleteTaskInstance(element.getKey(), operator, element.getValue()));
-        }
-        
-        return returnTasks;
-
-    }
-
     protected ActivitiTaskExecutionContext buildTaskExecuteContext(String triggerTaskInstanceId, String engineTaskInstanceId,
             String operator, Map<String, Object> workflowParams) {
 
@@ -461,224 +301,62 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         return taskExecutionContext;
     }
 
-    public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
-
-    	Assert.notNull(engineTaskInstanceId);
-    	
-        UUID uuid = obtainAccessUUID();
-        try {
-            // Delegate this operation
-            return doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParams);
-        } finally {
-            // Release resource
-            releaseThreadLocalResource(uuid);
-        }
-
-    }
-
-    protected List<String> doCompleteTaskInstance(String engineTaskInstanceId,
-            String operator, Map<String, String> workflowParams) throws ProcessException {
-
-        logger.log(Level.INFO, "Complete task instance. Params:{0}", ObjectUtils.getDisplayString(workflowParams));
+	@Override
+	protected WorkflowResponse doCompleteTaskInstance(
+			final String engineTaskInstanceId, final String operator, final Map<String, Object> passToEngine) {
+		
+		try {
+	        return runExtraCommand(new Command<WorkflowResponse>() {
+	
+						@Override
+						public WorkflowResponse execute(
+								CommandContext commandContext) {
+	
+							String engineProcessInstanceId = obtainProcessInstanceId(engineTaskInstanceId);
+							ExecutionEntity ee = commandContext
+									.getExecutionManager().findExecutionById(
+											engineProcessInstanceId);
+							ProcessDefinitionEntity pde = commandContext
+									.getProcessDefinitionManager()
+									.findLatestProcessDefinitionById(
+											ee.getProcessDefinitionId());
+							String processDefinitionKey = pde.getKey();
+							long startCompleteTime = System.currentTimeMillis();
+					        UUID uuid = UUID.randomUUID();
+					        RetrieveNextTasksHelper.pushTaskScope(uuid.toString());
+					        // Add by MENGRAN at 2011-06-10
+					        getTaskService().claim(engineTaskInstanceId, operator);
+					        getTaskService().complete(engineTaskInstanceId, passToEngine);
+					        final List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
+					        long endCompleteTime = System.currentTimeMillis();
+					        logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
+					        
+							return new WorkflowResponse(
+									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),
+									processDefinitionKey, taskIds);
+						}
+	
+					});
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+			throw new ProcessException(e);
+		}
         
-        Map<String, Object> passToEngine = new HashMap<String, Object>();
-        if (workflowParams != null) {
-            for (Entry<String, String> entry : workflowParams.entrySet()) {
-                passToEngine.put(entry.getKey(), entry.getValue());
-            }
-        } else {
-            passToEngine = null;
-        }
-            
-        // Build task execution context
-        ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, passToEngine);
+	}
 
-        // Do operation at previous Web Service calling for distribute transaction
-        TaskLifecycleInteceptor[] tasklifecycleInteceptors = obtainTaskLifecycleInterceptors(engineTaskInstanceId);
-
-        // Dynamic work flow parameters holder
-        Map<String, Object> workflowParamsDynamic = new HashMap<String, Object>();
-        // Call previous operation
-        if (tasklifecycleInteceptors != null && tasklifecycleInteceptors.length != 0) {
-            for (TaskLifecycleInteceptor tasklifecycleInteceptor : tasklifecycleInteceptors) {
-                try {
-                    // Invoke interceptor's logic
-                    workflowParamsDynamic = tasklifecycleInteceptor.preComplete(taskExecutionContext);
-                } catch (ProcessException pe) {
-                    // Call work-flow operations exception handler
-                    taskLifecycleInterceptorExceptionHandler(pe, tasklifecycleInteceptor, tasklifecycleInteceptors);
-                    throw new ProcessException("Fail to complete task id:" + engineTaskInstanceId, pe).setEngineTaskInstanceId(engineTaskInstanceId).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.PRE_COMPLETE).setOperator(operator);
-                }
-            }
-        }
-        // Merge work flow parameters
-        if (passToEngine == null) {
-            passToEngine = new HashMap<String, Object>();
-        }
-        passToEngine.putAll(workflowParamsDynamic);
-        
-        // Filter engine-driven DTO is nessesary
-        passToEngine.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
-
-        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(passToEngine)});
-
-        // Access engine
-        List<String> taskIds = null;
-        try {
-            long startCompleteTime = System.currentTimeMillis();
-            UUID uuid = UUID.randomUUID();
-            RetrieveNextTasksHelper.pushTaskScope(uuid.toString());
-            // Add by MENGRAN at 2011-06-10
-            getTaskService().claim(engineTaskInstanceId, operator);
-            getTaskService().complete(engineTaskInstanceId, passToEngine);
-            taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
-            long endCompleteTime = System.currentTimeMillis();
-            logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
-            // Get new generated tasks
-            List<Task> taskList = new ArrayList<Task>(taskIds.size());
-            for (String taskId : taskIds) {
-                taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
-            }
-            // Analyze process status, and inject into context
-            injectProcessStatus(taskExecutionContext, taskList);
-
-            // Call post operation
-            if (tasklifecycleInteceptors != null && tasklifecycleInteceptors.length != 0) {
-                Object[] reverseArray = ArrayUtils.clone(tasklifecycleInteceptors);
-                ArrayUtils.reverse(reverseArray);
-                for (TaskLifecycleInteceptor tasklifecycleInteceptor : (TaskLifecycleInteceptor[]) reverseArray) {
-                    try {
-                        // Invoke interceptor's logic
-                        tasklifecycleInteceptor.postComplete(taskExecutionContext);
-                    } catch (Exception pe) {
-                        // Call work-flow operations exception handler
-                        taskLifecycleInterceptorExceptionHandler(pe, tasklifecycleInteceptor, tasklifecycleInteceptors);
-                        throw new ProcessException(pe).setEngineTaskInstanceId(engineTaskInstanceId).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.POST_COMPLETE).setOperator(operator);
-                    }
-                }
-            }
-
-            // Handle task initialize event
-            try {
-                handleTaskInit(taskList, obtainProcessInstanceId(engineTaskInstanceId), engineTaskInstanceId, taskExecutionContext);
-            } catch (ProcessException pe) {
-                // Call work-flow operations exception handler -- Do it In handleTaskInit method.
-//				workflowOperationsExceptionHandlerInvoke(e, tasklifecycleInteceptor);
-                throw pe.setOperator(operator);
-            }
-
-            // Call after complete operation
-            if (tasklifecycleInteceptors != null && tasklifecycleInteceptors.length != 0) {
-                for (TaskLifecycleInteceptor tasklifecycleInteceptor : tasklifecycleInteceptors) {
-                    try {
-                        // Invoke interceptor's logic
-                        tasklifecycleInteceptor.afterComplete(taskExecutionContext);
-                    } catch (Exception e) {
-                        // Call work-flow operations exception handler
-                        taskLifecycleInterceptorExceptionHandler(e, tasklifecycleInteceptor, tasklifecycleInteceptors);
-                        throw new ProcessException(e).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.AFTER_COMPLETE).setEngineTaskInstanceId(engineTaskInstanceId).setOperator(operator);
-                    }
-                }
-            }
-
-        } catch (ActivitiException e) {
-            throw new ProcessException("Fail to complete task[" + engineTaskInstanceId + "].", e).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.ENGINE_OPERATION).setEngineTaskInstanceId(engineTaskInstanceId).setOperator(operator);
-        } catch (ProcessException pdte) {
-            // Call exception handle procedure
-            handleProcessException(pdte);
-        } finally {
-            // Move to outer
-            // Release resource
-            // releaseThreadLocalResource();
-        }
-        
-        return taskIds;
-    }
-
-    protected void taskLifecycleInterceptorExceptionHandler(Exception e, TaskLifecycleInteceptor exceptionMurderer,
-            TaskLifecycleInteceptor[] tasklifecycleInteceptors) {
-
-        Assert.notNull(e);
-        if (tasklifecycleInteceptors == null || tasklifecycleInteceptors.length == 0) {
-            logger.severe("No task lifecycle interceptor, but who call this method for exception handler.");
-            return;
-        }
-
-        logger.log(Level.INFO, "Call task lifecycle inteceptor''s exception handle method.{0} for murderer:{1}", new Object[]{ObjectUtils.getDisplayString(tasklifecycleInteceptors), exceptionMurderer});
-        for (TaskLifecycleInteceptor tli : tasklifecycleInteceptors) {
-            try {
-                tli.onExceptionOccurred(e, exceptionMurderer);
-            } catch (Exception ex) {
-                logger.log(Level.WARNING, "WorkflowOperationsExceptionHandler#onCompleteTaskInstanceException not allow throws any exception.", ex);
-            }
-        }
-
-    }
-
-    protected void handleProcessException(ProcessException pe) {
-
-        logger.log(Level.SEVERE, "Process exception occurred!!! \n" + "ProcessInstanceId[{0}"
-                + "]," + "TaskInstanceId[{1}" + "],"
-                + "Process Phase[{2}" + "]," + "Task Phase[{3}].",
-                new Object[]{ObjectUtils.getDisplayString(pe.getEngineProcessInstanceId()),
-                    ObjectUtils.nullSafeToString(pe.getEngineTaskInstanceId()),
-                    pe.getProcessInterceptorPhase().name(),
-                    pe.getTaskLifecycleInterceptorPhase().name()});
-
-        throw pe;
-    }
-
-    private void injectProcessStatus(ActivitiTaskExecutionContext taskExecutionContext, List<Task> acr) {
-
-        // Means process will end
-        ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(taskExecutionContext.getProcessInstanceId()).singleResult();
+	@Override
+	protected void injectProcessStatus(Object taskExecutionContext,
+			List<String> taskList) {
+		
+		ActivitiTaskExecutionContext context = (ActivitiTaskExecutionContext) taskExecutionContext;
+		// Means process will end
+        ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(context.getProcessInstanceId()).singleResult();
         if (pi == null) {
             // Set process end flag
-            taskExecutionContext.setProcessFinished(true);
+        	context.setProcessFinished(true);
         }
-
-    }
-
-    protected void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) throws ProcessException {
-
-        // Means process will end
-        ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
-        if (pi == null) {
-            // Publish process end event
-            publishProcessEndEvent(engineProcessInstanceId, triggerTaskInstanceId, triggerTaskExecutionContext);
-            return;
-        }
-
-        // Task life cycle initialize method processing
-        for (Task response : acr) {
-            TaskLifecycleInteceptor[] newTasklifecycleInteceptors = (TaskLifecycleInteceptor[]) obtainTaskLifecycleInterceptors(response.getId());
-            ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), null, null);
-            taskExecutionContext.setActivityContentResponse(response);
-            logger.log(Level.FINE, "Call generated-task''s interceptor#init {0}", ObjectUtils.getDisplayString(response));
-            for (TaskLifecycleInteceptor newTaskLifecycleInteceptor : newTasklifecycleInteceptors) {
-                try {
-                    // Invoke interceptor's initial method
-                    newTaskLifecycleInteceptor.init(taskExecutionContext);
-                } catch (Exception e) {
-                    // Call work-flow operations exception handler
-                    taskLifecycleInterceptorExceptionHandler(e, newTaskLifecycleInteceptor, newTasklifecycleInteceptors);
-                    throw new ProcessException(e).setEngineTaskInstanceId(response.getId());
-                }
-            }
-        }
-
-    }
-
-    public void abortTaskInstance(String engineTaskInstanceId) throws ProcessException {
-
-        try {
-            // getBpmServiceClient().abortActivity(obtainProcessInstanceId(taskInstanceId), taskInstanceId);
-            logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation.");
-            throw new ActivitiException("Unsupported operation");
-        } catch (ActivitiException e) {
-            throw new ProcessException("Fail to abort task instance.", e);
-        }
-    }
+		
+	}
 
     public String obtainTaskRole(String engineTaskInstanceId) throws ProcessException {
 
@@ -707,4 +385,5 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
         return getExtendAttrs(engineTaskInstanceId);
     }
+
 }
