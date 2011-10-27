@@ -8,7 +8,7 @@
 	<property name="WS_CONTEXT" value="rill-bpm-server" />
 
 	<path id="classpath.libs">
-		<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.3">
+		<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
 			<include name="*.jar" />
 		</fileset>
 		<fileset dir="${M2_REPO}/com/sun/istack/istack-commons-tools/1.1">
