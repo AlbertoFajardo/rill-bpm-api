@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="engineProcessInstanceId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="engineTaskInstanceIds" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="processDefinitionKey" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="processInstanceEnd" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,7 +37,8 @@ import javax.xml.bind.annotation.XmlType;
     "businessObjectId",
     "engineProcessInstanceId",
     "engineTaskInstanceIds",
-    "processDefinitionKey"
+    "processDefinitionKey",
+    "processInstanceEnd"
 })
 public class RemoteWorkflowResponse {
 
@@ -45,6 +47,7 @@ public class RemoteWorkflowResponse {
     @XmlElement(nillable = true)
     protected List<String> engineTaskInstanceIds;
     protected String processDefinitionKey;
+    protected boolean processInstanceEnd;
 
     /**
      * Gets the value of the businessObjectId property.
@@ -145,6 +148,22 @@ public class RemoteWorkflowResponse {
      */
     public void setProcessDefinitionKey(String value) {
         this.processDefinitionKey = value;
+    }
+
+    /**
+     * Gets the value of the processInstanceEnd property.
+     * 
+     */
+    public boolean isProcessInstanceEnd() {
+        return processInstanceEnd;
+    }
+
+    /**
+     * Sets the value of the processInstanceEnd property.
+     * 
+     */
+    public void setProcessInstanceEnd(boolean value) {
+        this.processInstanceEnd = value;
     }
 
 }
