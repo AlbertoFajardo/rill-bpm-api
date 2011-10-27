@@ -11,7 +11,6 @@
         <module>rill-bpm-api</module>
     <module>rill-bpm-ws</module>
     <module>rill-bpm-web</module>
-    <module>rill-bpm-integration</module>
   </modules>
     <properties>
         <spring.framework.version>3.0.3.RELEASE</spring.framework.version>
@@ -87,8 +86,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.9</version>
-            <scope>test</scope>
+            <version>5.1.18</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

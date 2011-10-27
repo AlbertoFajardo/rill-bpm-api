@@ -4,7 +4,10 @@
  */
 package com.baidu.rigel.service.workflow.ws.api.activiti;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
@@ -34,111 +37,167 @@ import com.sun.xml.ws.api.tx.at.Transactional.Version;
 /**
  * Web Service API for work flow.
  * <p>
- * 	Use @com.sun.xml.ws.api.tx.at.Transactional to mark some WS method is under WS-AT specification.
+ * Use @com.sun.xml.ws.api.tx.at.Transactional to mark some WS method is under
+ * WS-AT specification.
+ * 
  * @author mengran
  */
 @WebService
 public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 
-    // Must use getter method!
-    private WorkflowOperations workflowAccessor;
-    private ActivitiAccessor activitiAccessor;
-    private AtomicBoolean needRetrieve = new AtomicBoolean(true);
-    
-    @Resource
-    private WebServiceContext context;
+	// Must use getter method!
+	private WorkflowOperations workflowAccessor;
+	private ActivitiAccessor activitiAccessor;
+	private AtomicBoolean needRetrieve = new AtomicBoolean(true);
 
-    private WorkflowOperations getWorkflowAccessor() {
-        if (needRetrieve.compareAndSet(true, false)) {
-             workflowAccessor = WebApplicationContextUtils.getRequiredWebApplicationContext(
-                (ServletContext) context.getMessageContext().get(MessageContext.SERVLET_CONTEXT)).getBean("workflowAccessor", WorkflowOperations.class);
-             
-             if (workflowAccessor instanceof SpringProxy) {
-         		Object targetSource;
-     			try {
-     				targetSource = ((Advised) workflowAccessor).getTargetSource().getTarget();
-     				while (targetSource instanceof SpringProxy) {
-     	    			targetSource = ((Advised) targetSource).getTargetSource().getTarget();
-     	    		}
-     			} catch (Exception e) {
-     				throw new ProcessException(e);
-     			}
-         		
-     			activitiAccessor = ((ActivitiAccessor) (targetSource));
-         	} else {
-         		activitiAccessor = ((ActivitiAccessor) workflowAccessor);
-         	}
-        }
-        
-        Assert.notNull(workflowAccessor);
-        return workflowAccessor;
-    }
-    
-    @Transactional(version=Version.WSAT10)
-    public RemoteWorkflowResponse createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException {
-        
-        // Delegate this operations
-        final List<String> tasks = getWorkflowAccessor().createProcessInstance(createProcessInstanceDto.getProcessDefinitionKey(), 
-                createProcessInstanceDto.getProcessStarter(), createProcessInstanceDto.getBusinessObjectId(), 
-                createProcessInstanceDto.getStartParams());
-        
-        String engineProcessInstanceId = activitiAccessor.runExtraCommand(new Command<String>() {
+	@Resource
+	private WebServiceContext context;
 
-			@Override
-			public String execute(CommandContext commandContext) {
-				
-				String taskId = tasks.size() > 0 ? tasks.get(0) : null;
-				if (taskId == null) {
-					return null;
-				} else {
-					return commandContext.getTaskManager().findTaskById(taskId).getProcessInstanceId();
+	private WorkflowOperations getWorkflowAccessor() {
+		if (needRetrieve.compareAndSet(true, false)) {
+			workflowAccessor = WebApplicationContextUtils
+					.getRequiredWebApplicationContext(
+							(ServletContext) context.getMessageContext().get(
+									MessageContext.SERVLET_CONTEXT)).getBean(
+							"workflowAccessor", WorkflowOperations.class);
+
+			if (workflowAccessor instanceof SpringProxy) {
+				Object targetSource;
+				try {
+					targetSource = ((Advised) workflowAccessor)
+							.getTargetSource().getTarget();
+					while (targetSource instanceof SpringProxy) {
+						targetSource = ((Advised) targetSource)
+								.getTargetSource().getTarget();
+					}
+				} catch (Exception e) {
+					throw new ProcessException(e);
 				}
-			}
-        	
-        });
-        
-        return new RemoteWorkflowResponse(engineProcessInstanceId, createProcessInstanceDto.getBusinessObjectId(), 
-        		createProcessInstanceDto.getProcessDefinitionKey(), tasks);
-    }
-    
-    @Transactional(version=Version.WSAT10)
-    public RemoteWorkflowResponse completeTaskInstance(final CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException {
-        
-        // Delegate this operations
-    	final List<String> tasks = getWorkflowAccessor().completeTaskInstance(completeTaskInstanceDto.getEngineTaskInstanceId(), 
-                completeTaskInstanceDto.getOperator(), completeTaskInstanceDto.getWorkflowParams());
-    	
-    	return activitiAccessor.runExtraCommand(new Command<RemoteWorkflowResponse>() {
 
-			@Override
-			public RemoteWorkflowResponse execute(CommandContext commandContext) {
-				
-				String engineProcessInstanceId = commandContext.getTaskManager().
-						findTaskById(completeTaskInstanceDto.getEngineTaskInstanceId()).getProcessInstanceId();
-				ExecutionEntity ee = commandContext.getExecutionManager().findExecutionById(engineProcessInstanceId);
-				ProcessDefinitionEntity pde = commandContext.getProcessDefinitionManager().
-						findLatestProcessDefinitionById(ee.getProcessDefinitionId());
-				return new RemoteWorkflowResponse(engineProcessInstanceId, ee.getBusinessKey(), 
-						pde.getKey(), tasks);
+				activitiAccessor = ((ActivitiAccessor) (targetSource));
+			} else {
+				activitiAccessor = ((ActivitiAccessor) workflowAccessor);
 			}
-        	
-        });
-    	
-    }
+		}
 
-    @Transactional(version=Version.WSAT10, enabled=false)
-    public String getEngineProcessInstanceIdByBOId(String processDefinitionKey, String boId) {
-        
-        // Unique instance exists 
-    	if (activitiAccessor == null) {
-    		getWorkflowAccessor();
-    	}
-    	RuntimeService runtimeService = activitiAccessor.getRuntimeService();
-    	
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(boId, processDefinitionKey)
-                .singleResult();
-        
-        return processInstance == null ? null : processInstance.getProcessInstanceId();
-    }
-    
+		Assert.notNull(workflowAccessor);
+		return workflowAccessor;
+	}
+
+	@Transactional(version = Version.WSAT10)
+	public RemoteWorkflowResponse createProcessInstance(
+			CreateProcessInstanceDto createProcessInstanceDto)
+			throws ProcessException {
+
+		// Delegate this operations
+		final List<String> tasks = getWorkflowAccessor().createProcessInstance(
+				createProcessInstanceDto.getProcessDefinitionKey(),
+				createProcessInstanceDto.getProcessStarter(),
+				createProcessInstanceDto.getBusinessObjectId(),
+				createProcessInstanceDto.getStartParams());
+
+		String engineProcessInstanceId = activitiAccessor
+				.runExtraCommand(new Command<String>() {
+
+					@Override
+					public String execute(CommandContext commandContext) {
+
+						String taskId = tasks.size() > 0 ? tasks.get(0) : null;
+						if (taskId == null) {
+							return null;
+						} else {
+							return commandContext.getTaskManager()
+									.findTaskById(taskId)
+									.getProcessInstanceId();
+						}
+					}
+
+				});
+
+		return new RemoteWorkflowResponse(engineProcessInstanceId,
+				createProcessInstanceDto.getBusinessObjectId(),
+				createProcessInstanceDto.getProcessDefinitionKey(), tasks, false);
+	}
+
+	@Transactional(version = Version.WSAT10)
+	public RemoteWorkflowResponse completeTaskInstance(
+			final CompleteTaskInstanceDto completeTaskInstanceDto)
+			throws ProcessException {
+
+		return activitiAccessor
+				.runExtraCommand(new Command<RemoteWorkflowResponse>() {
+
+					@Override
+					public RemoteWorkflowResponse execute(
+							CommandContext commandContext) {
+
+						String engineProcessInstanceId = commandContext
+								.getTaskManager()
+								.findTaskById(
+										completeTaskInstanceDto
+												.getEngineTaskInstanceId())
+								.getProcessInstanceId();
+						ExecutionEntity ee = commandContext
+								.getExecutionManager().findExecutionById(
+										engineProcessInstanceId);
+						String businessKey = ee.getBusinessKey();
+						ProcessDefinitionEntity pde = commandContext
+								.getProcessDefinitionManager()
+								.findLatestProcessDefinitionById(
+										ee.getProcessDefinitionId());
+						String processDefinitionKey = pde.getKey();
+						
+						// Delegate this operations
+						final List<String> tasks = getWorkflowAccessor().completeTaskInstance(
+								completeTaskInstanceDto.getEngineTaskInstanceId(),
+								completeTaskInstanceDto.getOperator(),
+								completeTaskInstanceDto.getWorkflowParams());
+						
+						ProcessInstance processInstance = activitiAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
+						return new RemoteWorkflowResponse(
+								engineProcessInstanceId, businessKey,
+								processDefinitionKey, tasks, processInstance == null);
+					}
+
+				});
+
+	}
+
+	@Transactional(version = Version.WSAT10, enabled = false)
+	public String getEngineProcessInstanceIdByBOId(String processDefinitionKey,
+			String boId) {
+
+		// Unique instance exists
+		if (activitiAccessor == null) {
+			getWorkflowAccessor();
+		}
+		RuntimeService runtimeService = activitiAccessor.getRuntimeService();
+
+		ProcessInstance processInstance = runtimeService
+				.createProcessInstanceQuery()
+				.processInstanceBusinessKey(boId, processDefinitionKey)
+				.singleResult();
+
+		return processInstance == null ? null : processInstance
+				.getProcessInstanceId();
+	}
+
+	@Override
+	@Transactional(version = Version.WSAT10, enabled = false)
+	public List<String[]> getTaskInstanceExtendAttrs(
+			String engineTaskInstanceId) {
+		
+		// Delegate this operation
+		Map<String, String> extendAttrMap = getWorkflowAccessor().getTaskInstanceExtendAttrs(engineTaskInstanceId);
+		if (extendAttrMap == null) {
+			return null;
+		}
+		List<String[]> forReturn = new ArrayList<String[]>(extendAttrMap.size());
+		for (Entry<String, String> entry : extendAttrMap.entrySet()) {
+			String[] keyValue = new String[] {entry.getKey(), entry.getValue()};
+			forReturn.add(keyValue);
+		}
+		return forReturn;
+	}
+
 }

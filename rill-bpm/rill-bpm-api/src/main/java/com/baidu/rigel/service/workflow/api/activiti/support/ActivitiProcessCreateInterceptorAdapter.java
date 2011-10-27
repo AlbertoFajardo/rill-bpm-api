@@ -12,72 +12,80 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
-import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
-import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.activiti.engine.RuntimeService;
+
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.apache.commons.lang.StringUtils;
+import org.springframework.aop.SpringProxy;
+import org.springframework.aop.framework.Advised;
+
+import com.baidu.rigel.service.workflow.api.ProcessCreateInteceptor;
+import com.baidu.rigel.service.workflow.api.ProcessCreateInterceptorAdapter;
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
  * Activiti engine process create interceptor adapter.
  * @author mengran
  */
-public abstract class ActivitiProcessCreateInterceptorAdapter implements ProcessCreateInteceptor {
-
-    /** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+public abstract class ActivitiProcessCreateInterceptorAdapter extends ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor {
     
-    private RuntimeService runtimeService;
+    private ActivitiAccessor activitiAccessor;
 
-    public void setRuntimeService(RuntimeService runtimeService) {
-        this.runtimeService = runtimeService;
-    }
+    public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
+		if (workflowAccessor instanceof SpringProxy) {
+			Object targetSource;
+			try {
+				targetSource = ((Advised) workflowAccessor)
+						.getTargetSource().getTarget();
+				while (targetSource instanceof SpringProxy) {
+					targetSource = ((Advised) targetSource)
+							.getTargetSource().getTarget();
+				}
+			} catch (Exception e) {
+				throw new ProcessException(e);
+			}
 
-    private void checkParam(String processDefinitionKey, String processStarter) {
+			activitiAccessor = ((ActivitiAccessor) (targetSource));
+		} else {
+			activitiAccessor = ((ActivitiAccessor) workflowAccessor);
+		}
+	}
 
-        if (StringUtils.isEmpty(processDefinitionKey)) {
-            throw new ProcessException("modelInfo must a String.");
-        }
-    }
+    protected void doPostOperation(String engineProcessInstanceId, String businessObjectId, String processStarter) {
 
-    public final void preOperation(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
-
-        // Check context parameter
-        checkParam(processDefinitionKey, processStarter);
-
-        try {
-            logger.log(Level.FINE, "Execute process create interceptor#preOperation [{0}].", this);
-            doPreOperation(processDefinitionKey, processStarter, businessObjectId, startParams);
-        } catch (Exception e) {
-            throw new ProcessException(e);
-        }
-    }
-
-    public final void postOperation(String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException {
-
-        // Check context parameter
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
+    	// Check context parameter
+        final ProcessInstance processInstance = activitiAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
         if (!(processInstance instanceof ProcessInstance)) {
             throw new ProcessException("processInstance must a " + ProcessInstance.class.getName() + ".");
         }
 
         try {
             logger.log(Level.FINE, "Execute process create interceptor#postOperation [{0}].", this);
+            activitiAccessor.runExtraCommand(new Command<Void>() {
+
+				@Override
+				public Void execute(CommandContext commandContext) {
+					
+					// Initialize process definition if need.
+					if (processInstance instanceof ExecutionEntity) {
+						((ExecutionEntity) processInstance).getProcessDefinition();
+					}
+					return null;
+				}
+            	
+            });
+            
             // FIXME: Need proxy it for prevent call some method.
             doPostOperation(processInstance, businessObjectId, processStarter);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
     }
-
-    protected String doPreOperation(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) {
-
-        return processDefinitionKey;
-    }
-
+    
     protected void doPostOperation(ProcessInstance engineProcessInstance, String businessObjectId, String processStarter) {
 
         // Do nothing
