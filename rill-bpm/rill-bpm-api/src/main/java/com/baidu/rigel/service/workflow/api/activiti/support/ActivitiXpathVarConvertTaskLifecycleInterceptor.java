@@ -12,8 +12,8 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 
 /**
  * <b>
- *  Using expression "abc==empty string" is unrecommended.
+ *  Using expression "abc==empty string" is un-recommended.
  * 
  * @author mengran
  */
@@ -72,7 +72,7 @@ public class ActivitiXpathVarConvertTaskLifecycleInterceptor extends ActivitiTas
     }
 
     @Override
-    protected void doPreComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doPreComplete(TaskExecutionContext taskExecutionContext) {
 
         // First get all process instance related variables
         Set<String> engineRelateDatanames = null;
@@ -88,8 +88,10 @@ public class ActivitiXpathVarConvertTaskLifecycleInterceptor extends ActivitiTas
                     if (!engineRelateDataname.startsWith(ENGINE_VARIABLE_DEFINITION_PREFIX)) {
                         // Default set work flow variables as false
                         if (!workflowParams.containsKey(engineRelateDataname)) {
-                            logger.log(Level.FINE, "Put 0 for variable name:{0} into workflowParams", engineRelateDataname);
-                            workflowParams.put(engineRelateDataname, "0");
+                        	// FIXME: Do not set unrelated variables to 0
+//                            logger.log(Level.FINE, "Put 0 for variable name:{0} into workflowParams", engineRelateDataname);
+//                            workflowParams.put(engineRelateDataname, "0");
+                        	logger.log(Level.FINE, "Ignore unrelated variables${0} and do not change it's value", engineRelateDataname);
                         }
                         continue;
                     }

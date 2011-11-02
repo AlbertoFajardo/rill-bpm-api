@@ -5,7 +5,7 @@
 
 package com.baidu.rigel.service.workflow.api.extendattr;
 
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.activiti.support.ActivitiTaskLifecycleInteceptorAdapter;
 
 /**
@@ -15,28 +15,28 @@ import com.baidu.rigel.service.workflow.api.activiti.support.ActivitiTaskLifecyc
 public class DummyTaskLifecycleInterceptor extends ActivitiTaskLifecycleInteceptorAdapter {
 
     @Override
-    protected void doAfterComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doAfterComplete(TaskExecutionContext taskExecutionContext) {
 
         StatefulDummyTLIStatusHolder.holdTLIMethodCallStatus(taskExecutionContext.getTaskInstanceId(),
                 StatefulDummyTLIStatusHolder.TLI_METHOD.after);
     }
 
     @Override
-    protected void doInit(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doInit(TaskExecutionContext taskExecutionContext) {
 
         StatefulDummyTLIStatusHolder.holdTLIMethodCallStatus(taskExecutionContext.getTaskInstanceId(),
                 StatefulDummyTLIStatusHolder.TLI_METHOD.init);
     }
 
     @Override
-    protected void doPostComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doPostComplete(TaskExecutionContext taskExecutionContext) {
 
         StatefulDummyTLIStatusHolder.holdTLIMethodCallStatus(taskExecutionContext.getTaskInstanceId(),
                 StatefulDummyTLIStatusHolder.TLI_METHOD.post);
     }
 
     @Override
-    protected void doPreComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doPreComplete(TaskExecutionContext taskExecutionContext) {
 
         StatefulDummyTLIStatusHolder.holdTLIMethodCallStatus(taskExecutionContext.getTaskInstanceId(),
                 StatefulDummyTLIStatusHolder.TLI_METHOD.pre);

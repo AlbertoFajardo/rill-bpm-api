@@ -12,8 +12,8 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import org.springframework.util.Assert;
 
 /**
@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 public abstract class EngineDrivenTLIAdapter<T> extends ActivitiTaskLifecycleInteceptorAdapter {
 
     @Override
-    protected final void doPreComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected final void doPreComplete(TaskExecutionContext taskExecutionContext) {
 
         T t = obtainTaskFormData(taskExecutionContext);
         Object returnObject = doEngineDriven(t, taskExecutionContext);
@@ -32,7 +32,7 @@ public abstract class EngineDrivenTLIAdapter<T> extends ActivitiTaskLifecycleInt
         }
     }
 
-    protected final T obtainTaskFormData(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected final T obtainTaskFormData(TaskExecutionContext taskExecutionContext) {
 
         Assert.notNull(taskExecutionContext);
 
@@ -41,6 +41,6 @@ public abstract class EngineDrivenTLIAdapter<T> extends ActivitiTaskLifecycleInt
         return t;
     }
 
-    protected abstract Object doEngineDriven(T t, ActivitiTaskExecutionContext taskExecutionContext);
+    protected abstract Object doEngineDriven(T t, TaskExecutionContext taskExecutionContext);
 
 }

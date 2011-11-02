@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -40,19 +41,17 @@ import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactoryAware, ApplicationEventPublisherAware, InitializingBean {
 
 	private static final String THREAD_RESOURCE_SCOPE = WorkflowTemplate.class.getName() + ".THREAD_RESOURCE_SCOPE";
-    public static final String TASK_LIFECYCLE_INTERCEPTOR = "task_lifecycle_interceptor";
-    public static final String TASK_FORM_KEY = "url";
-    public static final String TASK_ROLE_TAG = "task_role_tag";
+	public static final String TASK_ROLE_TAG = TaskInformations.TASK_ROLE_TAG.name();
+	public static final String TASK_DEFINE_ID = TaskInformations.TASK_TAG.name();
+	public static final String TASK_FORM_KEY = TaskInformations.FORM_KEY.name();
+	public static final String TASK_LIFECYCLE_INTERCEPTOR = "task_lifecycle_interceptor";
     public static final String TASK_SERVICE_INVOKE_EXPRESSION = "taskServiceInvokeExpression";
-    
-    public static final String TASK_LIFECYCLE_INTERCEPTOR_DELIM = " ";
-    
-    // Business specify task define ID
-    public static final String TASK_DEFINE_ID = "__task_define_id__";
+    public static final String TASK_LIFECYCLE_INTERCEPTOR_DELIM = ",";
     
     public enum TaskInformations {
 
-        PROCESS_INSTANCE_ID, TASK_TAG, TASK_ROLE_TAG, BUSINESS_OBJECT_ID, CLASSDELEGATE_ADAPTER_TLI, CLASSDELEGATE_ADAPTER_TOI, FORM_KEY, TASK_SERVICE_INVOKE_EXPRESSION
+        PROCESS_INSTANCE_ID, TASK_TAG, TASK_ROLE_TAG, BUSINESS_OBJECT_ID, CLASSDELEGATE_ADAPTER_TLI, 
+        CLASSDELEGATE_ADAPTER_TOI, FORM_KEY, TASK_SERVICE_INVOKE_EXPRESSION, EXTEND_ATTRIBUTES, TASK_DEFINE_NAME, ROOT_PROCESS_INSTANCE_ID
     }
 
 	
@@ -63,15 +62,29 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     	String processDefinitionKey;
     	
     	List<String> engineTaskInstanceIds;
+    	String rootEngineProcessInstanceId;
 
+    	protected WorkflowResponse() {
+    	}
+    	
 		public WorkflowResponse(String engineProcessInstanceId,
 				String businessObjectId, String processDefinitionKey,
-				List<String> engineTaskInstanceIds) {
+				List<String> engineTaskInstanceIds, String rootEngineProcessInstanceId) {
 			super();
 			this.engineProcessInstanceId = engineProcessInstanceId;
 			this.businessObjectId = businessObjectId;
 			this.processDefinitionKey = processDefinitionKey;
 			this.engineTaskInstanceIds = engineTaskInstanceIds;
+			this.rootEngineProcessInstanceId = rootEngineProcessInstanceId;
+		}
+
+		public final String getRootEngineProcessInstanceId() {
+			return rootEngineProcessInstanceId;
+		}
+
+		public final void setRootEngineProcessInstanceId(
+				String rootEngineProcessInstanceId) {
+			this.rootEngineProcessInstanceId = rootEngineProcessInstanceId;
 		}
 
 		public final String getEngineProcessInstanceId() {
@@ -191,7 +204,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 	}
 
 	protected abstract WorkflowResponse doCreateProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> workflowParams) throws ProcessException;
-	protected abstract void handleTaskInit(List<String> taskList, String engineProcessInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext) throws ProcessException;
+	protected abstract void handleTaskInit(List<String> taskList, String engineProcessInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext, boolean hasParentProcess) throws ProcessException;
 	
 	protected final UUID obtainAccessUUID() {
 
@@ -280,6 +293,16 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         // Call engine service to create a process
         WorkflowResponse response = null;
         try {
+        	if (passToEngine != null && !passToEngine.isEmpty()) {
+        		Map<String, Object> afterXSerialize = new HashMap<String, Object>();
+        		for (Entry<String, Object> entry : passToEngine.entrySet()) {
+        			if (!ClassUtils.isPrimitiveOrWrapper(entry.getValue().getClass())) { 
+        				afterXSerialize.put(entry.getKey(), XStreamSerializeHelper.serializeXml(entry.getKey(), entry.getValue()));
+        				logger.log(Level.FINE, "Serialize work flow parameter entry {0} that pass into engine", ObjectUtils.getDisplayString(entry));
+        			}
+                }
+        	}
+        	
             response = doCreateProcessInstance(processDefinitionKey, processStarter, businessObjectId, passToEngine);
 
             // Call post operation
@@ -292,7 +315,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
                 for (ProcessCreateInteceptor pci : reverseList) {
                     // Do post operation
                     try {
-                        pci.postOperation(response.getEngineProcessInstanceId(), businessObjectId, processStarter);
+                        pci.postOperation(processDefinitionKey, response.getEngineProcessInstanceId(), businessObjectId, processStarter);
                     } catch (ProcessException pe) {
                         throw pe.setBoId(response.getBusinessObjectId()).setEngineProcessInstanceId(response.getEngineProcessInstanceId()).setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE);
                     }
@@ -301,7 +324,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
             // Handle task initialize phase
             try {
-                handleTaskInit(response.getEngineTaskInstanceIds(), response.getEngineProcessInstanceId(), null, null);
+            	// Directly use create process instance API means root process
+                handleTaskInit(response.getEngineTaskInstanceIds(), response.getEngineProcessInstanceId(), null, null, false);
             } catch (ProcessException e) {
                 throw e.setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.INIT).setBoId(response.getBusinessObjectId()).setEngineProcessInstanceId(response.getEngineProcessInstanceId());
             }
@@ -395,9 +419,43 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     }
 	
+    protected TaskExecutionContext buildTaskExecuteContext(String triggerTaskInstanceId, String engineTaskInstanceId,
+            String operator, Map<String, Object> workflowParams) {
+
+        TaskExecutionContext taskExecutionContext = new TaskExecutionContext();
+
+        // Set properties
+        taskExecutionContext.setProcessInstanceId(obtainProcessInstanceId(engineTaskInstanceId));
+        taskExecutionContext.setTaskInstanceId(engineTaskInstanceId);
+//        taskExecutionContext.setCurrentTask(getTaskService().createTaskQuery().taskId(engineTaskInstanceId).singleResult());
+        taskExecutionContext.setTaskExtendAttributes(getExtendAttrs(engineTaskInstanceId));
+        taskExecutionContext.setWorkflowParams(workflowParams);
+        taskExecutionContext.setOperator(operator);
+        taskExecutionContext.setPreTaskInstanceId(triggerTaskInstanceId);
+        taskExecutionContext.setTaskDefineName(taskExecutionContext.getTaskExtendAttributes().get(TaskInformations.TASK_DEFINE_NAME.name()));
+        // Set BO ID
+        taskExecutionContext.setBusinessObjectId(obtainBusinessObjectId(engineTaskInstanceId));
+
+        // Set task related informations
+        taskExecutionContext.setTaskTag(obtainTaskTag(engineTaskInstanceId));
+        taskExecutionContext.setTaskRoleTag(obtainTaskRoleTag(engineTaskInstanceId));
+
+//        // Set sub process flag
+//        taskExecutionContext.setSubProcess(hasParentProcess(taskExecutionContext.getProcessInstanceId()));
+        taskExecutionContext.setRootProcessInstanceId(taskExecutionContext.getTaskExtendAttributes().get(TaskInformations.ROOT_PROCESS_INSTANCE_ID.name()));
+        
+//        // Set process instance end flag
+//        ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(taskExecutionContext.getProcessInstanceId()).singleResult();
+//        taskExecutionContext.setProcessFinished(pi == null);
+
+        if (taskExecutionContext.getWorkflowParams() == null) {
+            taskExecutionContext.setWorkflowParams(new HashMap<String, Object>());
+        }
+
+        return taskExecutionContext;
+    }
+    
 	protected abstract WorkflowResponse doCompleteTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> passToEngine) throws ProcessException;
-    protected abstract Object buildTaskExecuteContext(String triggerTaskInstanceId, String engineTaskInstanceId,
-            String operator, Map<String, Object> passToEngine);
     protected abstract void injectProcessStatus(Object taskExecutionContext, List<String> taskList);
 
     protected void taskLifecycleInterceptorExceptionHandler(Exception e, TaskLifecycleInteceptor exceptionMurderer,
@@ -480,7 +538,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         passToEngine.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
 
         logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(passToEngine)});
-
+                
         // Access engine
         WorkflowResponse response = null;
         try {
@@ -500,14 +558,16 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
                     } catch (Exception pe) {
                         // Call work-flow operations exception handler
                         taskLifecycleInterceptorExceptionHandler(pe, tasklifecycleInteceptor, tasklifecycleInteceptors);
-                        throw new ProcessException(pe).setEngineTaskInstanceId(engineTaskInstanceId).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.POST_COMPLETE).setOperator(operator);
+                        throw new ProcessException(pe).setEngineTaskInstanceId(engineTaskInstanceId)
+                        	.setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.POST_COMPLETE).setOperator(operator);
                     }
                 }
             }
 
             // Handle task initialize event
             try {
-                handleTaskInit(response.getEngineTaskInstanceIds(), obtainProcessInstanceId(engineTaskInstanceId), engineTaskInstanceId, taskExecutionContext);
+                handleTaskInit(response.getEngineTaskInstanceIds(), obtainProcessInstanceId(engineTaskInstanceId), 
+                		engineTaskInstanceId, taskExecutionContext, response.getEngineProcessInstanceId().equals(response.getRootEngineProcessInstanceId()));
             } catch (ProcessException pe) {
                 // Call work-flow operations exception handler -- Do it In handleTaskInit method.
 //				workflowOperationsExceptionHandlerInvoke(e, tasklifecycleInteceptor);
@@ -556,13 +616,11 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     }
     
-    protected abstract boolean hasParentProcess(String processInstanceId);
-    
-    protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext) {
+    protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext, boolean hasParentProcess) {
 
         logger.log(Level.INFO, "Process instance[{0}] end. Trigger task[{1}]", new Object[]{processInstanceId, triggerTaskInstanceId});
         this.applicationEventPublisher.publishEvent(new ProcessInstanceEndEvent(processInstanceId,
-                triggerTaskInstanceId, hasParentProcess(processInstanceId), triggerTaskExecutionContext));
+                triggerTaskInstanceId, hasParentProcess, triggerTaskExecutionContext));
     }
     
     protected final String[] obtainCommaSplitSpecifyValues(String taskInstanceId, String extendsAttributeKey, String delim) {
@@ -590,47 +648,24 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     
     protected abstract String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo);
     
-    protected HashMap<String, String> getExtendAttrs(String taskInstanceId) {
+    @SuppressWarnings("unchecked")
+	protected HashMap<String, String> getExtendAttrs(String taskInstanceId) {
 
         try {
             Map<String, String> extendAttrsMap = new HashMap<String, String>();
-            // Retrieve from TLITOI holder
-            String tli = obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TLI);
-            logger.log(Level.FINEST, "Retrieve from TLI holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(tli)});
-            String formKey = obtainCacheInfos(taskInstanceId, TaskInformations.FORM_KEY);
-            logger.log(Level.FINEST, "Retrieve from formKey holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(formKey)});
-            String taskRoleTag = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
-            logger.log(Level.FINEST, "Retrieve from taskRoleTag holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskRoleTag)});
-            String taskServiceInvoikeExpression = obtainCacheInfos(taskInstanceId, TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION);
-            logger.log(Level.FINEST, "Retrieve from taskServiceInvoikeExpression holder--Task[{0}] :{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskServiceInvoikeExpression)});
-                        
-            if (StringUtils.hasLength(tli)) {
-                extendAttrsMap.put(TASK_LIFECYCLE_INTERCEPTOR, tli);
-            }
-            if (StringUtils.hasLength(formKey)) {
-                extendAttrsMap.put(TASK_FORM_KEY, formKey.trim());
-            }
-            if (StringUtils.hasLength(taskRoleTag)) {
-                extendAttrsMap.put(TASK_ROLE_TAG, taskRoleTag.trim());
-            }
-            if (StringUtils.hasLength(taskServiceInvoikeExpression)) {
-                extendAttrsMap.put(TASK_SERVICE_INVOKE_EXPRESSION, taskServiceInvoikeExpression.trim());
-            }
             
             // Put cache informations into extend attributes map
-            extendAttrsMap.put(TaskInformations.PROCESS_INSTANCE_ID.name(), obtainCacheInfos(taskInstanceId, TaskInformations.PROCESS_INSTANCE_ID));
-            extendAttrsMap.put(TaskInformations.TASK_TAG.name(), obtainCacheInfos(taskInstanceId, TaskInformations.TASK_TAG));
-            extendAttrsMap.put(TaskInformations.TASK_ROLE_TAG.name(), obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG));
-            extendAttrsMap.put(TaskInformations.BUSINESS_OBJECT_ID.name(), obtainCacheInfos(taskInstanceId, TaskInformations.BUSINESS_OBJECT_ID));
-            extendAttrsMap.put(TaskInformations.CLASSDELEGATE_ADAPTER_TLI.name(), obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TLI));
-            extendAttrsMap.put(TaskInformations.CLASSDELEGATE_ADAPTER_TOI.name(), obtainCacheInfos(taskInstanceId, TaskInformations.CLASSDELEGATE_ADAPTER_TOI));
-            extendAttrsMap.put(TaskInformations.FORM_KEY.name(), obtainCacheInfos(taskInstanceId, TaskInformations.FORM_KEY));
-            extendAttrsMap.put(TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION.name(), obtainCacheInfos(taskInstanceId, TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION));
-
+            for (TaskInformations ti : TaskInformations.values()) {
+            	extendAttrsMap.put(ti.name(), obtainCacheInfos(taskInstanceId, ti));
+            }
+            String extendAttrs = extendAttrsMap.get(TaskInformations.EXTEND_ATTRIBUTES.name());
+            Map<String, String> deserializeMap = XStreamSerializeHelper.deserializeObject(extendAttrs, "extendAttrs", Map.class);
+            extendAttrsMap.putAll(deserializeMap);
+            
             HashMap<String, String> forReturn = new HashMap<String, String>();
 
             forReturn.putAll(extendAttrsMap);
-            logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] description/TLITOI holder result:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(forReturn)});
+            logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] description/Extend attributes holder result:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(forReturn)});
             return forReturn;
 
         } catch (Exception e) {
@@ -661,9 +696,9 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     
     protected final TaskLifecycleInteceptor[] obtainTaskLifecycleInterceptors(String taskInstanceId) {
 
-        Collection<TaskLifecycleInteceptor> taskLifecycleInterceptors = new LinkedHashSet();
+        Collection<TaskLifecycleInteceptor> taskLifecycleInterceptors = new LinkedHashSet<TaskLifecycleInteceptor>();
         
-        // Add commen TLI configuration
+        // Add common TLI configuration
         if (this.getCommonTaskLifecycleInterceptor() != null && !this.getCommonTaskLifecycleInterceptor().isEmpty()) {
             logger.log(Level.FINEST, "Combin common task-lifecycle-interceptor[{0}].", ObjectUtils.getDisplayString(this.getCommonTaskLifecycleInterceptor()));
             taskLifecycleInterceptors.addAll(getCommonTaskLifecycleInterceptor());
@@ -692,7 +727,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
         protected Class<T> actualClazz;
 
-        public SpringBeanGenerator() {
+        @SuppressWarnings("unchecked")
+		public SpringBeanGenerator() {
             actualClazz = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         }
 
@@ -715,7 +751,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         }
 
         @SuppressWarnings("unchecked")
-        private <T> Collection<T> convertNameToBean(Class<T> clazz, String[] beanName) {
+        private Collection<T> convertNameToBean(Class<T> clazz, String[] beanName) {
 
             if (ObjectUtils.isEmpty(beanName)) {
                 logger.fine("Return empty array because bean names is empty.");

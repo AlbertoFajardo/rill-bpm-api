@@ -33,13 +33,13 @@ public class ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor 
         }
     }
 
-    public final void postOperation(String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException {
+    public final void postOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException {
 
         try {
             logger.log(Level.FINE, "Execute process create interceptor#postOperation [{0}].", this);
             
             // FIXME: Need proxy it for prevent call some method.
-            doPostOperation(engineProcessInstanceId, businessObjectId, processStarter);
+            doPostOperation(processDefinitionKey, engineProcessInstanceId, businessObjectId, processStarter);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
@@ -50,7 +50,7 @@ public class ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor 
         return processDefinitionKey;
     }
 
-    protected void doPostOperation(String engineProcessInstanceId, String businessObjectId, String processStarter) {
+    protected void doPostOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) {
 
         // Do nothing
     }

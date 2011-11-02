@@ -46,6 +46,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
@@ -70,28 +71,28 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	        ProcessInstance response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
 	        List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
 	        
-			return new WorkflowResponse(response.getProcessInstanceId(), businessObjectId, processDefinitionKey, taskIds);
+			return new WorkflowResponse(response.getProcessInstanceId(), businessObjectId, processDefinitionKey, taskIds, obtainRootProcess(response.getProcessInstanceId(), true));
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 			throw new ProcessException(e);
 		}
 	}
 
-    private void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, ActivitiTaskExecutionContext triggerTaskExecutionContext) throws ProcessException {
+    private void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, TaskExecutionContext triggerTaskExecutionContext, boolean hasParentProcess) throws ProcessException {
 
         // Means process will end
         ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
         if (pi == null) {
             // Publish process end event
-            publishProcessEndEvent(engineProcessInstanceId, triggerTaskInstanceId, triggerTaskExecutionContext);
+            publishProcessEndEvent(engineProcessInstanceId, triggerTaskInstanceId, triggerTaskExecutionContext, hasParentProcess);
             return;
         }
 
         // Task life cycle initialize method processing
         for (Task response : acr) {
             TaskLifecycleInteceptor[] newTasklifecycleInteceptors = (TaskLifecycleInteceptor[]) obtainTaskLifecycleInterceptors(response.getId());
-            ActivitiTaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), null, null);
-            taskExecutionContext.setActivityContentResponse(response);
+            TaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), null, null);
+//            taskExecutionContext.setActivityContentResponse(response);
             logger.log(Level.FINE, "Call generated-task''s interceptor#init {0}", ObjectUtils.getDisplayString(response));
             for (TaskLifecycleInteceptor newTaskLifecycleInteceptor : newTasklifecycleInteceptors) {
                 try {
@@ -110,7 +111,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	@Override
 	protected void handleTaskInit(List<String> taskIds,
 			String engineProcessInstanceId, String triggerTaskInstanceId,
-			Object triggerTaskExecutionContext) throws ProcessException {
+			Object triggerTaskExecutionContext, boolean hasParentProcess) throws ProcessException {
 		
 		List<Task> taskList = new ArrayList<Task>(taskIds.size());
         for (String taskId : taskIds) {
@@ -119,7 +120,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
 		
         // Delegate this operation
-        this.handleTaskInit(taskList, engineProcessInstanceId, null, null);
+        this.handleTaskInit(taskList, engineProcessInstanceId, triggerTaskInstanceId, (TaskExecutionContext) triggerTaskExecutionContext, hasParentProcess);
 	}
 
     public String getTaskNameByDefineId(final String processDefinitionKey, final String taskDefineId) {
@@ -141,6 +142,16 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         });
 
     }
+    
+	@Override
+	public String getEngineProcessInstanceIdByBOId(String businessObjectId, String processDefinitionKey)
+			throws ProcessException {
+		
+		ProcessInstance pi = getRuntimeService().createProcessInstanceQuery()
+				.processInstanceBusinessKey(businessObjectId, processDefinitionKey).singleResult();
+		
+		return pi == null ? null : pi.getProcessInstanceId();
+	}
 
     public Set<String> getProcessInstanceVariableNames(final String engineProcessInstanceId) {
 
@@ -271,35 +282,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
     }
 
     // -------------------------------- Task related API ---------------------------------- //
-    protected ActivitiTaskExecutionContext buildTaskExecuteContext(String triggerTaskInstanceId, String engineTaskInstanceId,
-            String operator, Map<String, Object> workflowParams) {
-
-        ActivitiTaskExecutionContext taskExecutionContext = new ActivitiTaskExecutionContext();
-
-        // Set properties
-        taskExecutionContext.setProcessInstanceId(obtainProcessInstanceId(engineTaskInstanceId));
-        taskExecutionContext.setTaskInstanceId(engineTaskInstanceId);
-        taskExecutionContext.setCurrentTask(getTaskService().createTaskQuery().taskId(engineTaskInstanceId).singleResult());
-        taskExecutionContext.setTaskExtendAttributes(getExtendAttrs(engineTaskInstanceId));
-        taskExecutionContext.setWorkflowParams(workflowParams);
-        taskExecutionContext.setOperator(operator);
-        taskExecutionContext.setPreTaskInstanceId(triggerTaskInstanceId);
-        // Set BO ID
-        taskExecutionContext.setBusinessObjectId(obtainBusinessObjectId(engineTaskInstanceId));
-
-        // Set task related informations
-        taskExecutionContext.setTaskTag(obtainTaskTag(engineTaskInstanceId));
-        taskExecutionContext.setTaskRoleTag(obtainTaskRoleTag(engineTaskInstanceId));
-
-        // Set sub process flag
-        taskExecutionContext.setSubProcess(hasParentProcess(taskExecutionContext.getProcessInstanceId()));
-
-        if (taskExecutionContext.getWorkflowParams() == null) {
-            taskExecutionContext.setWorkflowParams(new HashMap<String, Object>());
-        }
-
-        return taskExecutionContext;
-    }
 
 	@Override
 	protected WorkflowResponse doCompleteTaskInstance(
@@ -324,6 +306,10 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 							long startCompleteTime = System.currentTimeMillis();
 					        UUID uuid = UUID.randomUUID();
 					        RetrieveNextTasksHelper.pushTaskScope(uuid.toString());
+					        
+					        // Cache root process instance before completion
+					        String rootProcessInstanceId = obtainRootProcess(engineProcessInstanceId, true);
+					        
 					        // Add by MENGRAN at 2011-06-10
 					        getTaskService().claim(engineTaskInstanceId, operator);
 					        getTaskService().complete(engineTaskInstanceId, passToEngine);
@@ -333,7 +319,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 					        
 							return new WorkflowResponse(
 									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),
-									processDefinitionKey, taskIds);
+									processDefinitionKey, taskIds, rootProcessInstanceId);
 						}
 	
 					});
@@ -348,7 +334,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	protected void injectProcessStatus(Object taskExecutionContext,
 			List<String> taskList) {
 		
-		ActivitiTaskExecutionContext context = (ActivitiTaskExecutionContext) taskExecutionContext;
+		TaskExecutionContext context = (TaskExecutionContext) taskExecutionContext;
 		// Means process will end
         ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(context.getProcessInstanceId()).singleResult();
         if (pi == null) {

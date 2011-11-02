@@ -48,6 +48,18 @@ public interface WorkflowOperations {
 
             return xstream.toXML(target);
         }
+        
+        @SuppressWarnings("unchecked")
+		public static <T> T deserializeObject(String xml, String rootElement, Class<T> clazz) {
+        	
+        	Assert.notNull(xml);
+        	Assert.notNull(clazz);
+        	XStream xstream = new XStream();
+        	xstream.alias(rootElement, clazz);
+        	Object fromXml = xstream.fromXML(xml);
+        	
+        	return (T) fromXml;
+        }
     }
     
     // ------------------------------------ Process related API ------------------------------------ //
@@ -92,6 +104,15 @@ public interface WorkflowOperations {
      * @param reason Reason for operation
      */
     void resumeProcessInstance(String engineProcessInstanceId, String operator, String reason) throws ProcessException;
+    
+    /** 
+     * Retrieve engine process instance ID by business object ID
+     * @param businessObjectId business object ID
+     * @param processDefinitionKey process definition key
+     * @return BO id related engine process instance ID
+     * @throws ProcessException Exception occurred during execution
+     */
+    String getEngineProcessInstanceIdByBOId(String businessObjectId, String processDefinitionKey) throws ProcessException;
     
     
     // ------------------------------------ Task related API ------------------------------------ //

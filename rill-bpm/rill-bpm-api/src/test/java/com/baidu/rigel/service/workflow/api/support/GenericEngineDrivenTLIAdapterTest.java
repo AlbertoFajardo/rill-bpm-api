@@ -24,9 +24,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.activiti.support.GenericEngineDrivenTLIAdapter;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
@@ -255,6 +255,13 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+		@Override
+		public String getEngineProcessInstanceIdByBOId(String businessObjectId,
+				String processDefinitionKey) throws ProcessException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
         
 
     }
@@ -271,7 +278,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         Map<String, Object> returnMap = adapter.preComplete(context);
         Assert.assertEquals("Hello serviceA.serviceA()", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
@@ -283,7 +290,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
         context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO().setPropertyA("Rill Meng"));
         Map<String, Object> returnMap = adapter.preComplete(context);
@@ -297,7 +304,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
 //        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO("Rill Meng"));
         try {
@@ -314,7 +321,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyProxyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
         context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO().setPropertyA("Rill Meng"));
         Map<String, Object> returnMap = adapter.preComplete(context);
@@ -328,7 +335,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyProxyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("primitive");
         context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3"});
         Map<String, Object> returnMap = adapter.preComplete(context);
@@ -342,7 +349,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyProxyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("primitiveOrWrapper");
         context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3", new Integer(4)});
         Map<String, Object> returnMap = adapter.preComplete(context);
@@ -356,7 +363,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setBeanFactory(new MyProxyBeanFactory());
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("compsite");
         context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3", new MyDTO().setPropertyA("Rill Meng")});
         Map<String, Object> returnMap = adapter.preComplete(context);

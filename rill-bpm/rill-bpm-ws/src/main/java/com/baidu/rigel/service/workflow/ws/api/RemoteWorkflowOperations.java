@@ -15,6 +15,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.springframework.util.Assert;
+
+import com.baidu.rigel.service.workflow.api.WorkflowTemplate.WorkflowResponse;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
@@ -31,7 +34,7 @@ public interface RemoteWorkflowOperations {
         @XmlElement
         public String value;
 
-        private MapElements() {
+        MapElements() {
         } //Required by JAXB
 
         public MapElements(String key, String value) {
@@ -63,27 +66,44 @@ public interface RemoteWorkflowOperations {
     }
     
     @XmlRootElement
-    class RemoteWorkflowResponse {
+    class RemoteWorkflowResponse extends WorkflowResponse {
     	
-    	String engineProcessInstanceId;
-    	String businessObjectId;
-    	String processDefinitionKey;
-    	
-    	List<String> engineTaskInstanceIds;
     	boolean processInstanceEnd;
+    	boolean hasParentProcessInstance;
     	
-    	private RemoteWorkflowResponse() {
+    	RemoteWorkflowResponse() {
     	} //Required by JAXB
 
+		public RemoteWorkflowResponse(WorkflowResponse workflowResponse, boolean processInstanceEnd) {
+			
+			this(workflowResponse.getEngineProcessInstanceId(), workflowResponse.getBusinessObjectId(), 
+					workflowResponse.getProcessDefinitionKey(), workflowResponse.getEngineTaskInstanceIds(), 
+					workflowResponse.getRootEngineProcessInstanceId(), processInstanceEnd);
+		}
+		
 		public RemoteWorkflowResponse(String engineProcessInstanceId,
 				String businessObjectId, String processDefinitionKey,
-				List<String> engineTaskInstanceIds, boolean processInstanceEnd) {
+				List<String> engineTaskInstanceIds, String rootEngineProcessInstanceId, boolean processInstanceEnd) {
+			
 			super();
-			this.engineProcessInstanceId = engineProcessInstanceId;
-			this.businessObjectId = businessObjectId;
-			this.processDefinitionKey = processDefinitionKey;
-			this.engineTaskInstanceIds = engineTaskInstanceIds;
+			Assert.notNull(rootEngineProcessInstanceId);
+			
+			this.setEngineProcessInstanceId(engineProcessInstanceId);
+			this.setEngineTaskInstanceIds(engineTaskInstanceIds);
+			this.setBusinessObjectId(businessObjectId);
+			this.setProcessDefinitionKey(processDefinitionKey);
+			this.setRootEngineProcessInstanceId(rootEngineProcessInstanceId);
+			this.setHasParentProcessInstance(!getEngineProcessInstanceId().equals(this.getRootEngineProcessInstanceId()));
+			
 			this.processInstanceEnd = processInstanceEnd;
+		}
+
+		public final boolean isHasParentProcessInstance() {
+			return hasParentProcessInstance;
+		}
+
+		public final void setHasParentProcessInstance(boolean hasParentProcessInstance) {
+			this.hasParentProcessInstance = hasParentProcessInstance;
 		}
 
 		public final boolean isProcessInstanceEnd() {
@@ -93,38 +113,7 @@ public interface RemoteWorkflowOperations {
 		public final void setProcessInstanceEnd(boolean processInstanceEnd) {
 			this.processInstanceEnd = processInstanceEnd;
 		}
-
-		public final String getEngineProcessInstanceId() {
-			return engineProcessInstanceId;
-		}
-
-		public final void setEngineProcessInstanceId(String engineProcessInstanceId) {
-			this.engineProcessInstanceId = engineProcessInstanceId;
-		}
-
-		public final String getBusinessObjectId() {
-			return businessObjectId;
-		}
-
-		public final void setBusinessObjectId(String businessObjectId) {
-			this.businessObjectId = businessObjectId;
-		}
-
-		public final String getProcessDefinitionKey() {
-			return processDefinitionKey;
-		}
-
-		public final void setProcessDefinitionKey(String processDefinitionKey) {
-			this.processDefinitionKey = processDefinitionKey;
-		}
-
-		public final List<String> getEngineTaskInstanceIds() {
-			return engineTaskInstanceIds;
-		}
-
-		public final void setEngineTaskInstanceIds(List<String> engineTaskInstanceIds) {
-			this.engineTaskInstanceIds = engineTaskInstanceIds;
-		}
+		
     }
 
     @XmlRootElement
@@ -187,6 +176,13 @@ public interface RemoteWorkflowOperations {
      */
     RemoteWorkflowResponse createProcessInstance(CreateProcessInstanceDto createProcessInstanceDto) throws ProcessException;
 
+    /**
+     * Delete process instance
+     * @param engineProcessInstanceId engine process instance ID
+     * @param reason delete reason
+     */
+    void deleteProcessInstance(String engineProcessInstanceId, String reason) throws ProcessException;
+    
     @XmlRootElement
     class CompleteTaskInstanceDto {
 
@@ -255,5 +251,12 @@ public interface RemoteWorkflowOperations {
      * @return task extend attributes
      */
     List<String[]> getTaskInstanceExtendAttrs(String engineTaskInstanceId);
+    
+    /**
+     * Obtain root process instance ID
+     * @param processInstanceId engine process instance id
+     * @return return self if process instance given is root
+     */
+    String getRootProcessInstanceId(String engineProcessInstanceId) throws ProcessException;
     
 }

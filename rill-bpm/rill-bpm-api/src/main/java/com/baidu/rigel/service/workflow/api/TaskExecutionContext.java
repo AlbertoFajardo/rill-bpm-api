@@ -10,55 +10,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.baidu.rigel.service.workflow.api.activiti;
+package com.baidu.rigel.service.workflow.api;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.activiti.engine.task.Task;
 
 /**
  * Task execution context.
  * @author mengran
  */
-public class ActivitiTaskExecutionContext {
+public class TaskExecutionContext {
 
     private String taskInstanceId;
     private String processInstanceId;
     private String businessObjectId;
     private Map<String, String> taskExtendAttributes;
-    private Task activityContentResponse;
+//    private Task activityContentResponse;
     private Map<String, Object> workflowParams = new HashMap<String, Object>();
     private String operator;
     private String preTaskInstanceId;
     private String taskTag;
     private String taskRoleTag;
     private boolean processFinished;
-    private boolean subProcess;
-    private Task currentTask;
+//    private boolean subProcess;
+//    private Task currentTask;
     private Map<String, Object> otherInfos = new HashMap<String, Object>();
+    private String taskDefineName;
+    private String rootProcessInstanceId;
 
-    public Task getCurrentTask() {
-        return currentTask;
-    }
+//    public Task getCurrentTask() {
+//        return currentTask;
+//    }
+//
+//    public void setCurrentTask(Task currentTask) {
+//        this.currentTask = currentTask;
+//    }
 
-    public void setCurrentTask(Task currentTask) {
-        this.currentTask = currentTask;
-    }
+//    /**
+//     * @return the subProcess
+//     */
+//    public boolean isSubProcess() {
+//        return subProcess;
+//    }
 
-    /**
-     * @return the subProcess
-     */
-    public boolean isSubProcess() {
-        return subProcess;
-    }
+    public final String getRootProcessInstanceId() {
+		return rootProcessInstanceId;
+	}
 
-    /**
-     * @param subProcess the subProcess to set
-     */
-    public void setSubProcess(boolean subProcess) {
-        this.subProcess = subProcess;
-    }
+	public final void setRootProcessInstanceId(String rootProcessInstanceId) {
+		this.rootProcessInstanceId = rootProcessInstanceId;
+	}
+
+	public final String getTaskDefineName() {
+		return taskDefineName;
+	}
+
+	public final void setTaskDefineName(String taskDefineName) {
+		this.taskDefineName = taskDefineName;
+	}
+
+//	/**
+//     * @param subProcess the subProcess to set
+//     */
+//    public void setSubProcess(boolean subProcess) {
+//        this.subProcess = subProcess;
+//    }
 
     /**
      * @return the processFinished
@@ -131,19 +147,19 @@ public class ActivitiTaskExecutionContext {
         this.taskExtendAttributes = taskExtendAttributes;
     }
 
-    /**
-     * @return the activityContentResponse
-     */
-    public final Task getActivityContentResponse() {
-        return activityContentResponse;
-    }
-
-    /**
-     * @param activityContentResponse the activityContentResponse to set
-     */
-    public final void setActivityContentResponse(Task activityContentResponse) {
-        this.activityContentResponse = activityContentResponse;
-    }
+//    /**
+//     * @return the activityContentResponse
+//     */
+//    public final Task getActivityContentResponse() {
+//        return activityContentResponse;
+//    }
+//
+//    /**
+//     * @param activityContentResponse the activityContentResponse to set
+//     */
+//    public final void setActivityContentResponse(Task activityContentResponse) {
+//        this.activityContentResponse = activityContentResponse;
+//    }
 
     /**
      * @return the workflowParams

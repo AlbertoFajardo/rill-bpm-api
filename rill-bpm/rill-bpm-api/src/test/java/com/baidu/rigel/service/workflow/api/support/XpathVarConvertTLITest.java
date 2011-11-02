@@ -14,9 +14,9 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations.XStreamSerializeHelper;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.activiti.support.ActivitiXpathVarConvertTaskLifecycleInterceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
@@ -90,6 +90,14 @@ public class XpathVarConvertTLITest {
             public void reassignTaskExecuter(String engineProcessInstanceId, String engineTaskInstanceId, String oldExecuter, String newExecuter) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
+
+			@Override
+			public String getEngineProcessInstanceIdByBOId(
+					String businessObjectId, String processDefinitionKey)
+					throws ProcessException {
+				// TODO Auto-generated method stub
+				return null;
+			}
             
         }
         
@@ -102,7 +110,7 @@ public class XpathVarConvertTLITest {
         orderAudit.setAuditorName("mengran");
         Assert.assertEquals(xml, StringUtils.deleteWhitespace(XStreamSerializeHelper.serializeXml("orderAudit", orderAudit)));
         // Do convert
-        ActivitiTaskExecutionContext context = new ActivitiTaskExecutionContext();
+        TaskExecutionContext context = new TaskExecutionContext();
         Map<String, Object> workflowParams = new HashMap<String, Object>();
         workflowParams.put("orderAudit", XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
         workflowParams.put("a", "contains");
@@ -115,6 +123,7 @@ public class XpathVarConvertTLITest {
         Assert.assertTrue(!workflowParams.containsKey("__b_"));
         Assert.assertTrue(!workflowParams.containsKey("__orderAudit_c"));
         Assert.assertTrue(workflowParams.get("__orderAudit_auditAction").equals("1"));
-        Assert.assertTrue(workflowParams.get("d").equals("0"));
+        // Change strategy
+        Assert.assertTrue(!"0".equals(workflowParams.get("d")));
     }
 }
