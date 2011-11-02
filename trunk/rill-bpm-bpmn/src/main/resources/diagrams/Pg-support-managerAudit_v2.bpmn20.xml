@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://pangu.baidu.com">
+  <process id="Pg-support-managerAudit_v2" name="Pg-support-managerAudit_v2">
+    <documentation>Pangu v2 process for managers audit.</documentation>
+    <userTask id="manageraudit" name="一线经理审核" default="flow40" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="manageraudit/frontManagerAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=2</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>12</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="seniormanageraudit" name="高级经理审核" default="flow41" activiti:candidateGroups="ht_support_khfzb_senior_manager" activiti:formKey="manageraudit/managerAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=5</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>14</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="directoraudit" name="总监审核" default="flow42" activiti:candidateGroups="ht_support_khfzb_director" activiti:formKey="manageraudit/managerAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=8</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>16</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="generalmanageraudit" name="总经理审核" default="flow43" activiti:candidateGroups="ht_support_khfzb_general_manager" activiti:formKey="manageraudit/managerAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=11</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>18</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="finance_manager_audit" name="财务部经理审核" default="flow44" activiti:candidateGroups="ht_support_fgscwb_manager" activiti:formKey="manageraudit/managerAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=44</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>34</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow28" name="高阶" sourceRef="directoraudit" targetRef="generalmanageraudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_highlevel_audit==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow30" name="高阶" sourceRef="generalmanageraudit" targetRef="finance_manager_audit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_highlevel_audit==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow31" name="高阶" sourceRef="seniormanageraudit" targetRef="directoraudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_highlevel_audit==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow32" name="高阶" sourceRef="manageraudit" targetRef="seniormanageraudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_highlevel_audit==true}]]></conditionExpression>
+    </sequenceFlow>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <sequenceFlow id="flow34" name="" sourceRef="startevent1" targetRef="manageraudit"></sequenceFlow>
+    <endEvent id="endevent4" name="End"></endEvent>
+    <sequenceFlow id="flow35" name="驳回" sourceRef="manageraudit" targetRef="endevent4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent5" name="End"></endEvent>
+    <sequenceFlow id="flow36" name="驳回" sourceRef="seniormanageraudit" targetRef="endevent5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent6" name="End"></endEvent>
+    <sequenceFlow id="flow37" name="驳回" sourceRef="directoraudit" targetRef="endevent6">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent7" name="End"></endEvent>
+    <sequenceFlow id="flow38" name="驳回" sourceRef="generalmanageraudit" targetRef="endevent7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent8" name="End"></endEvent>
+    <sequenceFlow id="flow39" name="驳回" sourceRef="finance_manager_audit" targetRef="endevent8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent9" name="End"></endEvent>
+    <sequenceFlow id="flow40" name="" sourceRef="manageraudit" targetRef="endevent9"></sequenceFlow>
+    <sequenceFlow id="flow41" name="" sourceRef="seniormanageraudit" targetRef="endevent9"></sequenceFlow>
+    <sequenceFlow id="flow42" name="" sourceRef="directoraudit" targetRef="endevent9"></sequenceFlow>
+    <sequenceFlow id="flow43" name="" sourceRef="generalmanageraudit" targetRef="endevent9"></sequenceFlow>
+    <sequenceFlow id="flow44" name="" sourceRef="finance_manager_audit" targetRef="endevent9"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-managerAudit_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-managerAudit_v2" id="BPMNPlane_Pg-support-managerAudit_v2">
+      <bpmndi:BPMNShape bpmnElement="manageraudit" id="BPMNShape_manageraudit">
+        <omgdc:Bounds height="55" width="105" x="174" y="142"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="seniormanageraudit" id="BPMNShape_seniormanageraudit">
+        <omgdc:Bounds height="55" width="105" x="420" y="142"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="directoraudit" id="BPMNShape_directoraudit">
+        <omgdc:Bounds height="55" width="105" x="650" y="142"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="generalmanageraudit" id="BPMNShape_generalmanageraudit">
+        <omgdc:Bounds height="55" width="105" x="650" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="finance_manager_audit" id="BPMNShape_finance_manager_audit">
+        <omgdc:Bounds height="55" width="105" x="420" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="60" y="152"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent4" id="BPMNShape_endevent4">
+        <omgdc:Bounds height="35" width="35" x="209" y="70"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent5" id="BPMNShape_endevent5">
+        <omgdc:Bounds height="35" width="35" x="455" y="70"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent6" id="BPMNShape_endevent6">
+        <omgdc:Bounds height="35" width="35" x="685" y="70"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent7" id="BPMNShape_endevent7">
+        <omgdc:Bounds height="35" width="35" x="685" y="410"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent8" id="BPMNShape_endevent8">
+        <omgdc:Bounds height="35" width="35" x="455" y="404"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent9" id="BPMNShape_endevent9">
+        <omgdc:Bounds height="35" width="35" x="455" y="236"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
+        <omgdi:waypoint x="702" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="702" y="317"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="650" y="344"></omgdi:waypoint>
+        <omgdi:waypoint x="525" y="344"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="525" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="650" y="169"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
+        <omgdi:waypoint x="279" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="420" y="169"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="95" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="174" y="169"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="279" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="226" y="105"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="525" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="472" y="105"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="755" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="702" y="105"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="702" y="372"></omgdi:waypoint>
+        <omgdi:waypoint x="702" y="410"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="472" y="372"></omgdi:waypoint>
+        <omgdi:waypoint x="472" y="404"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="226" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="455" y="253"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="472" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="472" y="236"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
+        <omgdi:waypoint x="702" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="490" y="253"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="650" y="344"></omgdi:waypoint>
+        <omgdi:waypoint x="472" y="271"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="525" y="344"></omgdi:waypoint>
+        <omgdi:waypoint x="472" y="271"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

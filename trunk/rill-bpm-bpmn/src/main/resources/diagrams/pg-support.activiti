@@ -2500,7 +2500,7 @@
     <flowElements xsi:type="bpmn2:EndEvent" id="endevent6" name="End" incoming="flow27"/>
     <flowElements xsi:type="bpmn2:UserTask" id="usertask9" name="&#x4e00;&#x7ebf;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow39" outgoing="flow24" candidateGroups="/7" formKey="/pg-support/managerAudit.action">
       <documentation text=""/>
-      <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ClassDelegateAdapter" event="create">
+      <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
         <fieldExtensions fieldname="task_lifecycle_interceptor" expression="dummyTLI"/>
       </activitiListeners>
     </flowElements>
@@ -2559,7 +2559,7 @@
   <bpmn2:SubProcess id="subprocess4" name="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow44" outgoing="flow94">
     <flowElements xsi:type="bpmn2:StartEvent" id="startevent7" name="Start" outgoing="flow45"/>
     <flowElements xsi:type="bpmn2:EndEvent" id="endevent7" name="End" incoming="flow50 flow54"/>
-    <flowElements xsi:type="bpmn2:UserTask" id="usertask14" name="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow46 flow48 flow52" outgoing="flow47" candidateGroups="/18" formKey="">
+    <flowElements xsi:type="bpmn2:UserTask" id="usertask14" name="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow46 flow48 flow52" outgoing="flow47" candidateGroups="/18" formKey="" dueDate="">
       <documentation text=""/>
     </flowElements>
     <flowElements xsi:type="bpmn2:ExclusiveGateway" id="exclusivegateway8" name="Exclusive Gateway" incoming="flow45" outgoing="flow46"/>

@@ -9,6 +9,11 @@
     <activiti-version>5.7</activiti-version>
   </properties>
   <dependencies>
+  	<dependency>
+      <groupId>org.rill</groupId>
+      <artifactId>rill-bpm-api</artifactId>
+      <version>${version}</version>
+    </dependency>
     <dependency>
       <groupId>org.activiti</groupId>
       <artifactId>activiti-engine</artifactId>
