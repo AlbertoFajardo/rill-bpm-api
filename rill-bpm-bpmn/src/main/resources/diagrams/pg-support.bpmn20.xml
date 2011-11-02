@@ -9,7 +9,7 @@
       <endEvent id="subprocess3endevent6" name="End"></endEvent>
       <userTask id="subprocess3usertask9" name="一线经理审核" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="/pg-support/managerAudit.action">
         <extensionElements>
-          <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ClassDelegateAdapter">
+          <activiti:taskListener event="create" class="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter">
             <activiti:field name="task_lifecycle_interceptor">
               <activiti:string>dummyTLI</activiti:string>
             </activiti:field>
