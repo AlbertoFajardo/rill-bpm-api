@@ -33,6 +33,7 @@ import org.activiti.engine.impl.ServiceImpl;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -43,7 +44,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
 import com.baidu.rigel.service.workflow.api.WorkflowTemplate;
@@ -303,9 +303,9 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
             String activityDefineId = null;
             activityDefineId = task.getTaskDefinitionKey();
             taskRelatedInfo[1] = activityDefineId;
-
+            
+            final Map<String, String> extendAttrs = new HashMap<String, String>();
             final List<String> tdDefines = new ArrayList<String>(4);
-            ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
             final TaskEntity taskEntity = (TaskEntity) task;
             this.extraService.doOperation(new Command<List<String>>() {
 
@@ -317,9 +317,15 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
                         for (List<TaskListener> value : td.getTaskListeners().values()) {
                             if (value != null && !value.isEmpty()) {
                                 for (TaskListener tl : value) {
-                                    if (ClassDelegateAdapter.class.isInstance(tl)) {
-                                        tdDefines.add(StringUtils.collectionToDelimitedString(((ClassDelegateAdapter) tl).obtainTaskLifycycleInterceptors(), TASK_LIFECYCLE_INTERCEPTOR_DELIM));
-                                        tdDefines.add(StringUtils.collectionToDelimitedString(((ClassDelegateAdapter) tl).getTaskServiceInvokeExpression(), TASK_LIFECYCLE_INTERCEPTOR_DELIM));
+                                    if (ExtendAttrsClassDelegateAdapter.class.isInstance(tl)) {
+                                    	// FIXME: Support single extend attributes holder temporarily
+                                    	String tlis = ((ExtendAttrsClassDelegateAdapter) tl).getExtendAttrs().get(TASK_LIFECYCLE_INTERCEPTOR);
+                                        tdDefines.add(tlis);
+                                        String taskServiceInvokeExpression = ((ExtendAttrsClassDelegateAdapter) tl).getExtendAttrs().get(TASK_SERVICE_INVOKE_EXPRESSION);
+                                        tdDefines.add(taskServiceInvokeExpression);
+                                        
+                                        // Put into extend attributes map
+                                        extendAttrs.putAll(((ExtendAttrsClassDelegateAdapter) tl).getExtendAttrs());
                                     }
                                 }
                             }
@@ -331,7 +337,11 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
             });
 
             taskRelatedInfo[2] = tdDefines.get(0);
-            taskRelatedInfo[3] = pi.getBusinessKey();
+            // Adapt call activity/sub-process/two combination case
+            String rootProcessInstanceId = obtainRootProcess(task.getProcessInstanceId(), true);
+            ProcessInstance rootPi = getRuntimeService().createProcessInstanceQuery().processInstanceId(rootProcessInstanceId).singleResult();
+            Assert.notNull(rootPi.getBusinessKey(), "Business key must not be null, so this means we need upgrade this code to fix it.");
+            taskRelatedInfo[3] = rootPi.getBusinessKey();
 
             // Task extend-attributes
             taskRelatedInfo[4] = tdDefines.size() > 1 ? tdDefines.get(1) : null;
@@ -343,6 +353,16 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
 
             // Task service invoke expression
             taskRelatedInfo[7] = tdDefines.size() > 2 ? tdDefines.get(2) : null;
+            
+            // Task extend attribute
+            String extendAttrsXml = XStreamSerializeHelper.serializeXml("extendAttrs", extendAttrs);
+            taskRelatedInfo[8] = extendAttrsXml;
+            
+            // Task define name
+            taskRelatedInfo[9] = taskEntity.getName();
+            
+            // Root process instance ID
+            taskRelatedInfo[10] = rootProcessInstanceId;
 
             // Put into cache
             taskInstanceInfoCache.put(taskInstanceId, taskRelatedInfo);
@@ -352,14 +372,29 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
         return taskInstanceInfoCache.get(taskInstanceId)[cacheInfo.ordinal()];
     }
 
-    protected final boolean hasParentProcess(String processInstanceId) {
-
-        // Delegate this operation
-        // != change to !equals by MENGRAN at 2011-01-05
-        return !obtainRootProcess(processInstanceId).equals(processInstanceId);
+    public final String obtainRootProcess(String processInstanceId, boolean includeCallActivity) {
+    	
+    	String rootProcessNotCrossCallActivity = findRootProcessNotCrossCallActivity(processInstanceId);
+        ExecutionEntity pi = (ExecutionEntity) getRuntimeService().createProcessInstanceQuery().processInstanceId(rootProcessNotCrossCallActivity).singleResult();
+        ExecutionEntity rootEE = pi;
+        while (rootEE.getSuperExecutionId() != null) {
+        	ExecutionEntity superEE = (ExecutionEntity) getRuntimeService().createExecutionQuery().executionId(pi.getSuperExecutionId()).singleResult();
+        	logger.log(Level.FINER, "Found super execution entity{0}, maybe this task is in callActivity scope.", new Object[]{superEE.getId()});
+        	rootEE = superEE;
+        	rootProcessNotCrossCallActivity = obtainRootProcess(superEE.getProcessInstanceId(), true);
+        }
+        logger.log(Level.FINE, "Return root execution entity{0}", new Object[]{rootEE.getId()});
+        
+        return rootProcessNotCrossCallActivity;
     }
-
-    protected final String obtainRootProcess(String processInstanceId) {
+    
+    public final String obtainRootProcess(String processInstanceId) {
+    	
+    	// Delegate this operation
+    	return obtainRootProcess(processInstanceId, false);
+    }
+    
+    private String findRootProcessNotCrossCallActivity(String processInstanceId) {
 
         Assert.hasText(processInstanceId);
 

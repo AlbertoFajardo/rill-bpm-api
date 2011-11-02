@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -229,15 +230,19 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
         return new ArrayList<String>(taskGather);
     }
 
-    public void parseUserTask(Element userTaskElement, ScopeImpl scope, ActivityImpl activity) {
+    @SuppressWarnings("unchecked")
+	public void parseUserTask(Element userTaskElement, ScopeImpl scope, ActivityImpl activity) {
 
         UserTaskActivityBehavior uab = (UserTaskActivityBehavior) activity.getActivityBehavior();
         TaskDefinition td = uab.getTaskDefinition();
 
-        // Adapt Activiti listener mechanism and TLI/TOI mechanism
+        // Adapt Activiti listener mechanism as use's self extend attributes holder
         List<TaskListener> classDelegateAdapters = new ArrayList<TaskListener>();
+        Map<String, List<TaskListener>> activitiInternalTaskListenerMap = new HashMap<String, List<TaskListener>>();
         if (td.getTaskListeners() != null && td.getTaskListeners().size() > 0) {
-            for (List<TaskListener> value : td.getTaskListeners().values()) {
+            for (Entry<String, List<TaskListener>> entry : td.getTaskListeners().entrySet()) {
+            	List<TaskListener> value = entry.getValue(); 
+            	List<TaskListener> activitiInternalTaskListener = new ArrayList<TaskListener>();
                 if (value != null && !value.isEmpty()) {
                     for (TaskListener tl : value) {
                         if (ClassDelegate.class.isInstance(tl)) {
@@ -245,13 +250,13 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
                                 Field classNameField = ReflectUtil.getField("className", tl);
                                 classNameField.setAccessible(true);
                                 if (classNameField == null ||
-                                        !ClassDelegateAdapter.class.getName().equals(classNameField.get(tl).toString())) {
+                                        !ExtendAttrsClassDelegateAdapter.class.getName().equals(classNameField.get(tl).toString())) {
                                     throw new ActivitiException("Can not reflect protected field [className]/value not equals " +
-                                            ClassDelegateAdapter.class.getName() + " on " + tl);
+                                            ExtendAttrsClassDelegateAdapter.class.getName() + " on " + tl);
                                 }
                                 Field fieldDeclarations = ReflectUtil.getField("fieldDeclarations", tl);
                                 fieldDeclarations.setAccessible(true);
-                                ClassDelegateAdapter adapter = new ClassDelegateAdapter(ClassDelegateAdapter.class.getName(),
+                                ExtendAttrsClassDelegateAdapter adapter = new ExtendAttrsClassDelegateAdapter(ExtendAttrsClassDelegateAdapter.class.getName(),
                                         (List<FieldDeclaration>) fieldDeclarations.get(tl));
                                 classDelegateAdapters.add(adapter);
                             } catch (IllegalArgumentException ex) {
@@ -259,13 +264,17 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
                             } catch (IllegalAccessException ex) {
                                 logger.log(Level.SEVERE, null, ex);
                             }
+                            
                         } else if (tl.getClass().getName().startsWith("org.activiti")) {
                             logger.log(Level.FINE ,"Ignore activiti engine's task listener.");
+                            activitiInternalTaskListener.add(tl);
                         } else {
                             throw new ActivitiException("We not allow use Activiti's task listener mechanism.");
                         }
                     }
                 }
+                // Put it for re-add
+                activitiInternalTaskListenerMap.put(entry.getKey(), activitiInternalTaskListener);
             }
         }
         // Clear modeled task listeners and add our listeners
@@ -275,7 +284,13 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
         }
         td.addTaskListener(TaskListener.EVENTNAME_CREATE, TaskEventListener.CREATE_LISTENER);
         td.addTaskListener(TaskListener.EVENTNAME_COMPLETE, TaskEventListener.COMPLETE_LISTENER);
-
+        
+        // Add activiti's internal task listener
+        for (Entry<String, List<TaskListener>> entry : activitiInternalTaskListenerMap.entrySet()) {
+        	for (TaskListener element : entry.getValue()) {
+        		td.addTaskListener(entry.getKey(), element);
+        	}
+        }
 
     }
 

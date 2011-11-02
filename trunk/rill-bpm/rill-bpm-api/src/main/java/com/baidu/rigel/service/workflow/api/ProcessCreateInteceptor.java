@@ -24,5 +24,5 @@ public interface ProcessCreateInteceptor {
 
     void preOperation(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException;
 
-    void postOperation(String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException;
+    void postOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException;
 }

@@ -12,9 +12,9 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
@@ -24,28 +24,22 @@ import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.bpmn.helper.ClassDelegate;
 import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
-import org.springframework.util.Assert;
 
 /**
- * Specify Activiti listener for adapt t-com's workflow task-lifecycle-interceptor(TLI) and other informations.
+ * Specify Activiti listener for user fill-in self's extend attributes.
  * 
  * @author mengran
  * @see ActivitiAccessor#TASK_LIFECYCLE_INTERCEPTOR
  * @see #TASK_SERVICE_INVOKE_EXPRESSION
  */
-public final class ClassDelegateAdapter extends ClassDelegate {
+public final class ExtendAttrsClassDelegateAdapter extends ClassDelegate {
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
-    private static final String TASK_SERVICE_INVOKE_EXPRESSION = ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION;
-    
-    private Collection<String> taskLifycycleInterceptors = new LinkedHashSet(1);
-    private Collection<String> taskServiceInvokeExpression = new LinkedHashSet(1);
-
-    public ClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
+    private Map<String, String> extendAttrs = new HashMap<String, String>();
+    public ExtendAttrsClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
         super(className, fieldDeclarations);
 
-//        Assert.notEmpty(fieldDeclarations, "Please inject fields for task-lifecycle-interceptor/task-operation-interceptor.");
         for (FieldDeclaration fd : fieldDeclarations) {
 
             String value = null;
@@ -55,18 +49,9 @@ public final class ClassDelegateAdapter extends ClassDelegate {
                 throw new ActivitiException("Field declarations type[" + fd.getType() +
                         "] not equals" + Expression.class.getName());
             }
-            if (ActivitiAccessor.TASK_LIFECYCLE_INTERCEPTOR.equals(fd.getName().trim())) {
-                taskLifycycleInterceptors.add(value);
-            }
-            if (TASK_SERVICE_INVOKE_EXPRESSION.equals(fd.getName().trim())) {
-                taskServiceInvokeExpression.add(value);
-            }
+            extendAttrs.put(fd.getName().trim(), value);
         }
 
-        Assert.notNull(taskLifycycleInterceptors, "Please inject fields for task-lifecycle-interceptor.");
-        if (taskServiceInvokeExpression == null) {
-            logger.fine("Not found injected field for taskServiceInvokeExpression.");
-        }
     }
 
     @Override
@@ -87,13 +72,9 @@ public final class ClassDelegateAdapter extends ClassDelegate {
         logger.fine("Do nothing when TLIClassDelegateAdapter as a activity behavior.");
     }
 
-    public final Collection<String> obtainTaskLifycycleInterceptors() {
+    public final Map<String, String> getExtendAttrs() {
 
-        return taskLifycycleInterceptors;
-    }
-
-    public Collection<String> getTaskServiceInvokeExpression() {
-        return taskServiceInvokeExpression;
+        return extendAttrs;
     }
 
 }

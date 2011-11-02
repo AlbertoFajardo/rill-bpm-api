@@ -12,14 +12,10 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
+
 import org.activiti.engine.impl.util.ReflectUtil;
-import org.activiti.engine.task.Task;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -28,6 +24,11 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
  * Common engine driven TLI adapter.
@@ -71,7 +72,7 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
         this.beanFactory = beanFactory;
     }
 
-    private String obtainTaskServiceInvokeExpression(ActivitiTaskExecutionContext taskExecutionContext) {
+    private String obtainTaskServiceInvokeExpression(TaskExecutionContext taskExecutionContext) {
 
         return getWorkflowAccessor().getTaskInstanceExtendAttrs(taskExecutionContext.getTaskInstanceId()).get(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION);
     }
@@ -82,7 +83,7 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
     }
 
     @Override
-    protected Object doEngineDriven(Object t, ActivitiTaskExecutionContext taskExecutionContext) {
+    protected Object doEngineDriven(Object t, TaskExecutionContext taskExecutionContext) {
         
         String expression = null;
         // Try to obtain from configuration.
@@ -93,9 +94,7 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
                 return null;
             }
             // Build follow JavaEE6's [Configuration With Exception].
-            Task currentTask = taskExecutionContext.getCurrentTask();
-            Assert.notNull(currentTask, "Can not find current task from execution context");
-            expression = currentTask.getName() + "Service." + currentTask.getName() + "Complete(" + UNKNOWN + ")";
+            expression = taskExecutionContext.getTaskDefineName() + "Service." + taskExecutionContext.getTaskDefineName() + "Complete(" + UNKNOWN + ")";
 
             logger.log(Level.FINEST,"Can not find task service invoke expression from task extend attrs, " + "and we build one follow JavaEE6''s [Configuration With Exception] pattern : {0}", expression);
         }

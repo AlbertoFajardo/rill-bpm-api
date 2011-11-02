@@ -15,10 +15,10 @@ package com.baidu.rigel.service.workflow.api.activiti.support;
 import java.util.Map;
 
 
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.api.exception.TaskInitialException;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTaskExecutionContext;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,8 +30,8 @@ public class ActivitiTaskLifecycleInteceptorAdapter implements
 
     private void checkTaskExecutionContext(Object taskContext) {
 
-        if (!(taskContext instanceof ActivitiTaskExecutionContext)) {
-            throw new TaskInitialException("Task execution context must instanceof " + ActivitiTaskExecutionContext.class.getName());
+        if (!(taskContext instanceof TaskExecutionContext)) {
+            throw new TaskInitialException("Task execution context must instanceof " + TaskExecutionContext.class.getName());
         }
     }
 
@@ -42,13 +42,13 @@ public class ActivitiTaskLifecycleInteceptorAdapter implements
 
         try {
             logger.log(Level.FINE, "Execute task lifecycle interceptor#init [{0}].", this);
-            doInit((ActivitiTaskExecutionContext) taskContext);
+            doInit((TaskExecutionContext) taskContext);
         } catch (Exception e) {
             throw new TaskInitialException("Fail to initialize task execution context:" + taskContext, e);
         }
     }
 
-    protected void doInit(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doInit(TaskExecutionContext taskExecutionContext) {
         // Do nothing
     }
 
@@ -59,14 +59,14 @@ public class ActivitiTaskLifecycleInteceptorAdapter implements
 
         try {
             logger.log(Level.FINE, "Execute task lifecycle interceptor#postComplete [{0}].", this);
-            doPostComplete((ActivitiTaskExecutionContext) taskContext);
+            doPostComplete((TaskExecutionContext) taskContext);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
 
     }
 
-    protected void doPostComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doPostComplete(TaskExecutionContext taskExecutionContext) {
         // Do nothing
     }
 
@@ -77,15 +77,15 @@ public class ActivitiTaskLifecycleInteceptorAdapter implements
 
         try {
             logger.log(Level.FINE, "Execute task lifecycle interceptor#preComplete [{0}].", this);
-            doPreComplete((ActivitiTaskExecutionContext) taskContext);
-            return ((ActivitiTaskExecutionContext) taskContext).getWorkflowParams();
+            doPreComplete((TaskExecutionContext) taskContext);
+            return ((TaskExecutionContext) taskContext).getWorkflowParams();
         } catch (Exception e) {
             throw new ProcessException(e);
         }
 
     }
 
-    protected void doPreComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doPreComplete(TaskExecutionContext taskExecutionContext) {
         // Do nothing
     }
 
@@ -96,14 +96,14 @@ public class ActivitiTaskLifecycleInteceptorAdapter implements
 
         try {
             logger.log(Level.FINE, "Execute task lifecycle interceptor#afterComplete [{0}].", this);
-            doAfterComplete((ActivitiTaskExecutionContext) taskContext);
+            doAfterComplete((TaskExecutionContext) taskContext);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
 
     }
 
-    protected void doAfterComplete(ActivitiTaskExecutionContext taskExecutionContext) {
+    protected void doAfterComplete(TaskExecutionContext taskExecutionContext) {
         // Do nothing
     }
 
