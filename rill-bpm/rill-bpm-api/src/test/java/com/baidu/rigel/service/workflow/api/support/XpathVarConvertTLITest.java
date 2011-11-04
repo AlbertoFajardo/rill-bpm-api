@@ -17,7 +17,6 @@ import org.junit.Test;
 import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations.XStreamSerializeHelper;
-import com.baidu.rigel.service.workflow.api.activiti.support.ActivitiXpathVarConvertTaskLifecycleInterceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 
@@ -31,10 +30,10 @@ public class XpathVarConvertTLITest {
     @Test
     public void xpathVarConvert() {
         
-        ActivitiXpathVarConvertTaskLifecycleInterceptor tli = new ActivitiXpathVarConvertTaskLifecycleInterceptor();
+        XpathVarConvertTaskLifecycleInterceptor tli = new XpathVarConvertTaskLifecycleInterceptor();
         class XpathWorkflowAccessor implements WorkflowOperations {
 
-            public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
+            public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
@@ -50,11 +49,11 @@ public class XpathVarConvertTLITest {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
+            public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
+            public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, Object>> batchDTO, String operator) throws ProcessException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
@@ -95,7 +94,12 @@ public class XpathVarConvertTLITest {
 			public String getEngineProcessInstanceIdByBOId(
 					String businessObjectId, String processDefinitionKey)
 					throws ProcessException {
-				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Set<String> getLastedVersionProcessDefinitionVariableNames(
+					String processDefinitionKey) {
 				return null;
 			}
             
@@ -112,7 +116,7 @@ public class XpathVarConvertTLITest {
         // Do convert
         TaskExecutionContext context = new TaskExecutionContext();
         Map<String, Object> workflowParams = new HashMap<String, Object>();
-        workflowParams.put("orderAudit", XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+        workflowParams.put("orderAudit", orderAudit);
         workflowParams.put("a", "contains");
         context.setWorkflowParams(workflowParams);
         tli.preComplete(context);

@@ -5,7 +5,6 @@
 
 package com.baidu.rigel.service.workflow.api;
 
-import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -21,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
@@ -29,6 +29,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.activiti.engine.test.Deployment;
+
+import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 
 /**
  *
@@ -125,9 +127,9 @@ public class ActivitiOptimisticLockTest extends PluggableActivitiTestCase {
 
         // Pass and not need high level re-audit
         log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-        final Map<String, String> workflowParams = new HashMap<String, String>();
+        final Map<String, Object> workflowParams = new HashMap<String, Object>();
         DummyOrderAudit orderAudit = new DummyOrderAudit();
-        workflowParams.put("orderAudit", WorkflowOperations.XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+        workflowParams.put("orderAudit", orderAudit);
         workflowParams.put("need_highlevel_audit", "0");
         log.fine("Complete task and set variables");
 

@@ -250,9 +250,9 @@ public class PgSupportTest extends PluggableActivitiTestCase {
 
         // Pass and not need high level re-audit
         log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
-        Map<String, String> workflowParams = new HashMap<String, String>();
+        Map<String, Object> workflowParams = new HashMap<String, Object>();
         DummyOrderAudit orderAudit = new DummyOrderAudit();
-        workflowParams.put("orderAudit", WorkflowOperations.XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+        workflowParams.put("orderAudit", orderAudit);
         workflowParams.put("need_highlevel_audit", "0");
         log.fine("Complete task and set variables");
         try {
@@ -307,10 +307,10 @@ public class PgSupportTest extends PluggableActivitiTestCase {
             }
         }
         assertNotNull(sendContract);
-        Map<String, String> workflowParams1 = new HashMap<String, String>();
+        Map<String, Object> workflowParams1 = new HashMap<String, Object>();
         DummyReceiptInfo receiptInfo = new DummyReceiptInfo();
         receiptInfo.setReceiptType(DummyReceiptInfo.POST_INVOICE);
-        workflowParams1.put("receiptInfo", WorkflowOperations.XStreamSerializeHelper.serializeXml("receiptInfo", receiptInfo));
+        workflowParams1.put("receiptInfo", receiptInfo);
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();
@@ -364,7 +364,7 @@ public class PgSupportTest extends PluggableActivitiTestCase {
         assertNotNull(managerAuditShoukuan);
 
         log.fine("Set service task expression resovler into process variables");
-        Map<String, String> workflowParams2 = new HashMap<String, String>();
+        Map<String, Object> workflowParams2 = new HashMap<String, Object>();
         try {
             log.entering("PgSupportTest", "completeTaskInstance", ThreadLocalResourceHolder.printAll());
             perTaskStart = System.currentTimeMillis();

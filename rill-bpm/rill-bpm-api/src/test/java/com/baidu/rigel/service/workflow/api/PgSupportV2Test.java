@@ -17,7 +17,6 @@ import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.test.Deployment;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations.XStreamSerializeHelper;
 import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 
 public class PgSupportV2Test extends PluggableActivitiTestCase {
@@ -139,10 +138,9 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 		}
 
 		// Complete manageraudit
-		Map<String, String> managerauditWorkflowParams = new HashMap<String, String>();
+		Map<String, Object> managerauditWorkflowParams = new HashMap<String, Object>();
 		managerauditWorkflowParams.put("need_highlevel_audit", "true");
-		managerauditWorkflowParams.put("orderAudit",
-				XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+		managerauditWorkflowParams.put("orderAudit", orderAudit);
 		List<String> managerauditResult = workflowAccessor
 				.completeTaskInstance(manageraudit, "manageraudit",
 						managerauditWorkflowParams);
@@ -159,12 +157,11 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 
 		// Complete directoraudit and change exists
 		// variables[need_highlevel_audit] values
-		Map<String, String> directorauditWorkflowParams = new HashMap<String, String>();
+		Map<String, Object> directorauditWorkflowParams = new HashMap<String, Object>();
 		directorauditWorkflowParams.put("need_highlevel_audit", "false");
 		// Set to reject
 		orderAudit.setAuditAction(DummyOrderAudit.REJECT);
-		directorauditWorkflowParams.put("orderAudit",
-				XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+		directorauditWorkflowParams.put("orderAudit", orderAudit);
 		List<String> directorauditResult = workflowAccessor
 				.completeTaskInstance(directoraudit, "directoraudit",
 						directorauditWorkflowParams);
@@ -177,10 +174,9 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 
 		// -------------------------------- re-enter Pg-support-managerAudit_v2
 		// Complete modorder
-		Map<String, String> modorderResultWorkflowParams = new HashMap<String, String>();
+		Map<String, Object> modorderResultWorkflowParams = new HashMap<String, Object>();
 		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
-		modorderResultWorkflowParams.put("orderAudit",
-				XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+		modorderResultWorkflowParams.put("orderAudit", orderAudit);
 		List<String> modorderResult = workflowAccessor.completeTaskInstance(
 				modorder, "modorder", modorderResultWorkflowParams);
 		assertEquals(1, modorderResult.size());
@@ -191,11 +187,10 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 		String manageraudit2 = modorderResult.get(0);
 		
 		// Complete manageraudit2
-		Map<String, String> manageraudit2flowParams = new HashMap<String, String>();
+		Map<String, Object> manageraudit2flowParams = new HashMap<String, Object>();
 		manageraudit2flowParams.put("need_highlevel_audit", "false");
 		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
-		manageraudit2flowParams.put("orderAudit",
-				XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+		manageraudit2flowParams.put("orderAudit", orderAudit);
 		List<String> manageraudit2Result = workflowAccessor.completeTaskInstance(
 				manageraudit2, "manageraudit2", manageraudit2flowParams);
 		assertEquals(1, manageraudit2Result.size());
@@ -218,10 +213,9 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 		String sendcontract = preauditResult.get(0);
 
 		// Complete sendcontract
-		Map<String, String> sendcontractflowParams = new HashMap<String, String>();
+		Map<String, Object> sendcontractflowParams = new HashMap<String, Object>();
 		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
-		sendcontractflowParams.put("orderAudit",
-				XStreamSerializeHelper.serializeXml("orderAudit", orderAudit));
+		sendcontractflowParams.put("orderAudit", orderAudit);
 		List<String> sendcontractResult = workflowAccessor
 				.completeTaskInstance(sendcontract, "sendcontract", sendcontractflowParams);
 		assertEquals(0, sendcontractResult.size());

@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.springframework.util.Assert;
 
@@ -30,7 +33,9 @@ import com.thoughtworks.xstream.XStream;
 public interface WorkflowOperations {
     
     public static final class XStreamSerializeHelper {
-
+    	
+    	private static final Pattern XMLPATTERN = Pattern.compile("<([A-Za-z0-9]+?)>([A-Za-z0-9.]*?)</");
+        
         public static String serializeXml(String rootElement, Object target) {
             Assert.notNull(target);
 
@@ -54,11 +59,26 @@ public interface WorkflowOperations {
         	
         	Assert.notNull(xml);
         	Assert.notNull(clazz);
+        	Assert.notNull(rootElement);
         	XStream xstream = new XStream();
         	xstream.alias(rootElement, clazz);
         	Object fromXml = xstream.fromXML(xml);
         	
         	return (T) fromXml;
+        }
+        
+        public static boolean isXStreamSerialized(Object xml) {
+        	
+        	Assert.notNull(xml);
+        	if (!(xml instanceof String)) return false;
+        	
+        	try {
+//        		XStreamSerializeHelper.XStreamSerializedXmlfactory.newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+//        		return true;
+        		return XMLPATTERN.matcher(xml.toString()).find();
+        	} catch (Exception e) {
+        		return false;
+        	}
         }
     }
     
@@ -79,7 +99,7 @@ public interface WorkflowOperations {
      * @throws ProcessException Exception occurred during creation
      * @return engine task IDs
      */
-    List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException;
+    List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException;
 
     /**
      * Terminal process instance
@@ -133,7 +153,7 @@ public interface WorkflowOperations {
      * @param workflowParams Operation parameter for calculate transition if need
      * @return engine task IDs
      */
-    List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException;
+    List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException;
 
     /**
      * Batch complete task instances
@@ -141,7 +161,7 @@ public interface WorkflowOperations {
      * @param opeartor Operator
      * @return engine task IDs. Key is completion task instance ID
      */
-    Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException;
+    Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, Object>> batchDTO, String operator) throws ProcessException;
 
     /**
      * Obtain task instance extend attribute
@@ -164,6 +184,13 @@ public interface WorkflowOperations {
      * @return process instance's variables
      */
     Set<String> getProcessInstanceVariableNames(String engineProcessInstanceId);
+    
+    /**
+     * Get process instance's variables
+     * @param engineProcessInstanceId process instance ID(NOT NULL)
+     * @return process instance's variables
+     */
+    Set<String> getLastedVersionProcessDefinitionVariableNames(String processDefinitionKey);
 
     /**
      * Obtain task executer role

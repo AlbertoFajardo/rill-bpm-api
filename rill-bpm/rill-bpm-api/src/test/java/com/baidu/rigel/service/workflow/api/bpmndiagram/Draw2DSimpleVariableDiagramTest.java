@@ -109,7 +109,7 @@ public class Draw2DSimpleVariableDiagramTest extends PluggableActivitiTestCase {
         Task userTask1 = taskList.get(0);
 
         // Pass and need usertask2
-        Map<String, String> workflowParams = new HashMap<String, String>();
+        Map<String, Object> workflowParams = new HashMap<String, Object>();
         workflowParams.put("need_userTask2", "1");
         workflowAccessor.completeTaskInstance(userTask1.getId(), "junit", workflowParams);
 

@@ -26,7 +26,7 @@
         <property name="processEngineConfiguration" ref="processEngineConfiguration" />
         <property name="commonTaskLifecycleInterceptor">
             <list>
-                <bean class="com.baidu.rigel.service.workflow.api.activiti.support.ActivitiXpathVarConvertTaskLifecycleInterceptor" />
+                <bean class="com.baidu.rigel.service.workflow.api.support.XpathVarConvertTaskLifecycleInterceptor" />
             </list>
         </property>
     </bean>

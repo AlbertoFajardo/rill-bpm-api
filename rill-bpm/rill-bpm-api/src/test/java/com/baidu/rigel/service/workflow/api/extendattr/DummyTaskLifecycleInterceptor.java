@@ -6,13 +6,13 @@
 package com.baidu.rigel.service.workflow.api.extendattr;
 
 import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
-import com.baidu.rigel.service.workflow.api.activiti.support.ActivitiTaskLifecycleInteceptorAdapter;
+import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptorAdapter;
 
 /**
  *
  * @author mengran
  */
-public class DummyTaskLifecycleInterceptor extends ActivitiTaskLifecycleInteceptorAdapter {
+public class DummyTaskLifecycleInterceptor extends TaskLifecycleInteceptorAdapter {
 
     @Override
     protected void doAfterComplete(TaskExecutionContext taskExecutionContext) {

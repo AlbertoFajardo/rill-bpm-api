@@ -13,6 +13,7 @@
 package com.baidu.rigel.service.workflow.api.activiti.support;
 
 import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
+import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptorAdapter;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import org.springframework.util.Assert;
 
@@ -20,7 +21,7 @@ import org.springframework.util.Assert;
  * Engine-driven design helper class.
  * @author mengran
  */
-public abstract class EngineDrivenTLIAdapter<T> extends ActivitiTaskLifecycleInteceptorAdapter {
+public abstract class EngineDrivenTLIAdapter<T> extends TaskLifecycleInteceptorAdapter {
 
     @Override
     protected final void doPreComplete(TaskExecutionContext taskExecutionContext) {
@@ -28,15 +29,16 @@ public abstract class EngineDrivenTLIAdapter<T> extends ActivitiTaskLifecycleInt
         T t = obtainTaskFormData(taskExecutionContext);
         Object returnObject = doEngineDriven(t, taskExecutionContext);
         if (returnObject != null) {
-            taskExecutionContext.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY, returnObject);
+            taskExecutionContext.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY, returnObject);
         }
     }
 
-    protected final T obtainTaskFormData(TaskExecutionContext taskExecutionContext) {
+    @SuppressWarnings("unchecked")
+	protected final T obtainTaskFormData(TaskExecutionContext taskExecutionContext) {
 
         Assert.notNull(taskExecutionContext);
 
-        T t = (T) taskExecutionContext.getWorkflowParams().get(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
+        T t = (T) taskExecutionContext.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
 
         return t;
     }

@@ -211,7 +211,7 @@ public class GenericEngineDrivenTLIAdapterTest {
             }
         }
 
-        public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, String> startParams) throws ProcessException {
+        public List<String> createProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -227,11 +227,11 @@ public class GenericEngineDrivenTLIAdapterTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
+        public List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
+        public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, Object>> batchDTO, String operator) throws ProcessException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -258,7 +258,12 @@ public class GenericEngineDrivenTLIAdapterTest {
 		@Override
 		public String getEngineProcessInstanceIdByBOId(String businessObjectId,
 				String processDefinitionKey) throws ProcessException {
-			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Set<String> getLastedVersionProcessDefinitionVariableNames(
+				String processDefinitionKey) {
 			return null;
 		}
 
@@ -266,7 +271,6 @@ public class GenericEngineDrivenTLIAdapterTest {
 
     }
 
-    // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
     // @Test
@@ -279,8 +283,8 @@ public class GenericEngineDrivenTLIAdapterTest {
         adapter.setWorkflowAccessor(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
-        Map<String, Object> returnMap = adapter.preComplete(context);
-        Assert.assertEquals("Hello serviceA.serviceA()", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        adapter.preComplete(context);
+        Assert.assertEquals("Hello serviceA.serviceA()", context.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
     
     @Test
@@ -292,9 +296,9 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
-        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO().setPropertyA("Rill Meng"));
-        Map<String, Object> returnMap = adapter.preComplete(context);
-        Assert.assertEquals("Hello serviceA.serviceA(myDto) with property: Rill Meng", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        context.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO().setPropertyA("Rill Meng"));
+        adapter.preComplete(context);
+        Assert.assertEquals("Hello serviceA.serviceA(myDto) with property: Rill Meng", context.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
 
     @Test
@@ -308,7 +312,7 @@ public class GenericEngineDrivenTLIAdapterTest {
         context.setTaskInstanceId("have parameter");
 //        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO("Rill Meng"));
         try {
-            Map<String, Object> returnMap = adapter.preComplete(context);
+            adapter.preComplete(context);
         } catch(Exception e) {
             Assert.assertTrue(e.getMessage().contains(", so we need a actual parameter."));
         }
@@ -323,9 +327,9 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
-        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO().setPropertyA("Rill Meng"));
-        Map<String, Object> returnMap = adapter.preComplete(context);
-        Assert.assertEquals("Hello serviceA.serviceA(myDto) with property: Rill Meng", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        context.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new MyDTO().setPropertyA("Rill Meng"));
+        adapter.preComplete(context);
+        Assert.assertEquals("Hello serviceA.serviceA(myDto) with property: Rill Meng", context.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
 
     @Test
@@ -337,9 +341,9 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("primitive");
-        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3"});
-        Map<String, Object> returnMap = adapter.preComplete(context);
-        Assert.assertEquals("Hello serviceA.serviceA(int, str) with property: 23", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        context.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3"});
+        adapter.preComplete(context);
+        Assert.assertEquals("Hello serviceA.serviceA(int, str) with property: 23", context.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
 
     @Test
@@ -351,9 +355,9 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("primitiveOrWrapper");
-        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3", new Integer(4)});
-        Map<String, Object> returnMap = adapter.preComplete(context);
-        Assert.assertEquals("Hello serviceA.serviceA(int, str, Integer) with property: 234", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        context.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3", new Integer(4)});
+        adapter.preComplete(context);
+        Assert.assertEquals("Hello serviceA.serviceA(int, str, Integer) with property: 234", context.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
 
     @Test
@@ -365,9 +369,9 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("compsite");
-        context.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3", new MyDTO().setPropertyA("Rill Meng")});
-        Map<String, Object> returnMap = adapter.preComplete(context);
-        Assert.assertEquals("Hello serviceA.serviceA(int, str, myDto) with property: 23Rill Meng", returnMap.get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        context.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new Object[] {2, "3", new MyDTO().setPropertyA("Rill Meng")});
+        adapter.preComplete(context);
+        Assert.assertEquals("Hello serviceA.serviceA(int, str, myDto) with property: 23Rill Meng", context.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
 
 }

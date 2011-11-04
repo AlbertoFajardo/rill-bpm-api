@@ -29,6 +29,25 @@ public class XStreamUtilsTest {
 		Assert.assertEquals("<extendAttrs>\n  <entry>\n    <string>auditAction</string>\n    <string>1</string>\n  </entry>\n  <entry>\n    <string>auditorName</string>\n    <string>mengran</string>\n  </entry>\n</extendAttrs>", extendAttrsXml);
 	}
 	
+	@Test
+	public void testPrimitiveOrWrapperSerialize() {
+		
+		Integer integer = new Integer(12);
+		String xml = XStreamSerializeHelper.serializeXml("serializeInteger", integer);
+		Assert.assertEquals("<int>12</int>", xml);
+		Assert.assertEquals(integer, XStreamSerializeHelper.deserializeObject(xml, "serializeInteger", integer.getClass()));
+		
+		
+		Long longlong = new Long(12);
+		xml = XStreamSerializeHelper.serializeXml("longlong", longlong);
+		Assert.assertEquals("<long>12</long>", xml);
+		
+		String string = "12";
+		xml = XStreamSerializeHelper.serializeXml("str", string);
+		Assert.assertEquals("<str>12</str>", xml);
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testDeseialize() {
@@ -46,6 +65,16 @@ public class XStreamUtilsTest {
 		Map<String, String> deserializeMap = XStreamSerializeHelper.deserializeObject(extendAttrsXml, "extendAttrs", Map.class);
 		
 		Assert.assertEquals(extendAttrs, deserializeMap);
+	}
+	
+	@Test
+	public void testIsXStreamSerialied() {
+		
+		String extendAttrsXml = "<extendAttrs>\n  <entry>\n    <string>auditAction</string>\n    <string>1</string>\n  </entry>\n  <entry>\n    <string>auditorName</string>\n    <string>mengran</string>\n  </entry>\n</extendAttrs>";
+		Assert.assertTrue(XStreamSerializeHelper.isXStreamSerialized(extendAttrsXml));
+		
+		String simpleType = "abc";
+		Assert.assertTrue(!XStreamSerializeHelper.isXStreamSerialized(simpleType));
 	}
 	
 }

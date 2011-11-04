@@ -27,7 +27,6 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -203,8 +202,16 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         }
 	}
 
+	/**
+	 * @param processDefinitionKey
+	 * @param processStarter
+	 * @param businessObjectId
+	 * @param workflowParams NOT NULL
+	 * @return
+	 * @throws ProcessException
+	 */
 	protected abstract WorkflowResponse doCreateProcessInstance(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> workflowParams) throws ProcessException;
-	protected abstract void handleTaskInit(List<String> taskList, String engineProcessInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext, boolean hasParentProcess) throws ProcessException;
+	protected abstract void handleTaskInit(List<String> taskList, String engineProcessInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext, boolean hasParentProcess, Map<String, Object> workflowParams, String operator) throws ProcessException;
 	
 	protected final UUID obtainAccessUUID() {
 
@@ -252,28 +259,22 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 	@Override
 	public final List<String> createProcessInstance(String processDefinitionKey,
 			String processStarter, String businessObjectId,
-			Map<String, String> startParams) throws ProcessException {
+			Map<String, Object> startParams) throws ProcessException {
 		
 		// Ensure business object not null
-        if (businessObjectId == null) {
+        if (!StringUtils.hasText(businessObjectId)) {
             throw new ProcessException("Parameter[businessObjectId] is null.").setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE);
         }
-        
-        Map<String, Object> passToEngine = new HashMap<String, Object>();
-        if (startParams != null) {
-            for (Entry<String, String> entry : startParams.entrySet()) {
-                passToEngine.put(entry.getKey(), entry.getValue());
-            }
-        } else {
-            passToEngine = null;
+        if (startParams == null) {
+        	startParams = new HashMap<String, Object>();
         }
-
+        
         UUID uuid = obtainAccessUUID();
         // Call previous operation
         if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
             for (ProcessCreateInteceptor pci : getProcessCreateInteceptor()) {
                 try {
-                    pci.preOperation(processDefinitionKey, processStarter, businessObjectId, passToEngine);
+                    pci.preOperation(processDefinitionKey, processStarter, businessObjectId, startParams);
                 } catch (ProcessException pe) {
                     // Release thread-local resource
                     releaseThreadLocalResource(uuid);
@@ -283,7 +284,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
                 }
             }
         }
-        if (processDefinitionKey == null) {
+        if (!StringUtils.hasText(processDefinitionKey)) {
             // Release thread-local resource
             releaseThreadLocalResource(uuid);
             throw new ProcessException("Fail to create process, because processDefinitionKey is null. "
@@ -293,17 +294,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         // Call engine service to create a process
         WorkflowResponse response = null;
         try {
-        	if (passToEngine != null && !passToEngine.isEmpty()) {
-        		Map<String, Object> afterXSerialize = new HashMap<String, Object>();
-        		for (Entry<String, Object> entry : passToEngine.entrySet()) {
-        			if (!ClassUtils.isPrimitiveOrWrapper(entry.getValue().getClass())) { 
-        				afterXSerialize.put(entry.getKey(), XStreamSerializeHelper.serializeXml(entry.getKey(), entry.getValue()));
-        				logger.log(Level.FINE, "Serialize work flow parameter entry {0} that pass into engine", ObjectUtils.getDisplayString(entry));
-        			}
-                }
-        	}
-        	
-            response = doCreateProcessInstance(processDefinitionKey, processStarter, businessObjectId, passToEngine);
+            response = doCreateProcessInstance(processDefinitionKey, processStarter, businessObjectId, startParams);
 
             // Call post operation
             if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
@@ -324,8 +315,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
             // Handle task initialize phase
             try {
-            	// Directly use create process instance API means root process
-                handleTaskInit(response.getEngineTaskInstanceIds(), response.getEngineProcessInstanceId(), null, null, false);
+                handleTaskInit(response.getEngineTaskInstanceIds(), response.getEngineProcessInstanceId(), 
+                		null, null, !response.getEngineProcessInstanceId().equals(response.getRootEngineProcessInstanceId()), startParams, processStarter);
             } catch (ProcessException e) {
                 throw e.setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.POST_CREATE).setTaskLifecycleInterceptorPhase(ProcessException.TASK_LIFECYCLE_PHASE.INIT).setBoId(response.getBusinessObjectId()).setEngineProcessInstanceId(response.getEngineProcessInstanceId());
             }
@@ -478,7 +469,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     }
     
-    public final List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, String> workflowParams) throws ProcessException {
+    public final List<String> completeTaskInstance(String engineTaskInstanceId, String operator, Map<String, Object> workflowParams) throws ProcessException {
 
     	Assert.notNull(engineTaskInstanceId);
     	
@@ -494,21 +485,12 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     }
 
     protected List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
-            String operator, Map<String, String> workflowParams) throws ProcessException {
+            String operator, Map<String, Object> workflowParams) throws ProcessException {
 
         logger.log(Level.INFO, "Complete task instance. Params:{0}", ObjectUtils.getDisplayString(workflowParams));
-        
-        Map<String, Object> passToEngine = new HashMap<String, Object>();
-        if (workflowParams != null) {
-            for (Entry<String, String> entry : workflowParams.entrySet()) {
-                passToEngine.put(entry.getKey(), entry.getValue());
-            }
-        } else {
-            passToEngine = null;
-        }
             
         // Build task execution context
-        Object taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, passToEngine);
+        Object taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, workflowParams);
 
         // Do operation at previous Web Service calling for distribute transaction
         TaskLifecycleInteceptor[] tasklifecycleInteceptors = obtainTaskLifecycleInterceptors(engineTaskInstanceId);
@@ -528,22 +510,17 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
                 }
             }
         }
-        // Merge work flow parameters
-        if (passToEngine == null) {
-            passToEngine = new HashMap<String, Object>();
-        }
-        passToEngine.putAll(workflowParamsDynamic);
         
         // Filter engine-driven DTO is nessecary
-        passToEngine.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
+        workflowParamsDynamic.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
 
-        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(passToEngine)});
+        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(workflowParamsDynamic)});
                 
         // Access engine
         WorkflowResponse response = null;
         try {
         	// Do engine complete task instance
-        	response = doCompleteTaskInstance(engineTaskInstanceId, operator, passToEngine);
+        	response = doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParamsDynamic);
             // Analyze process status, and inject into context
             injectProcessStatus(taskExecutionContext, response.getEngineTaskInstanceIds());
 
@@ -567,7 +544,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             // Handle task initialize event
             try {
                 handleTaskInit(response.getEngineTaskInstanceIds(), obtainProcessInstanceId(engineTaskInstanceId), 
-                		engineTaskInstanceId, taskExecutionContext, response.getEngineProcessInstanceId().equals(response.getRootEngineProcessInstanceId()));
+                		engineTaskInstanceId, taskExecutionContext, !response.getEngineProcessInstanceId().equals(response.getRootEngineProcessInstanceId()),
+                		workflowParamsDynamic, operator);
             } catch (ProcessException pe) {
                 // Call work-flow operations exception handler -- Do it In handleTaskInit method.
 //				workflowOperationsExceptionHandlerInvoke(e, tasklifecycleInteceptor);
@@ -600,13 +578,13 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         return response.getEngineTaskInstanceIds();
     }
 
-    public final Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, String>> batchDTO, String operator) throws ProcessException {
+    public final Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, Object>> batchDTO, String operator) throws ProcessException {
 
         Assert.notEmpty(batchDTO);
         Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
 
         logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
-        for (Entry<String, Map<String, String>> element : batchDTO.entrySet()) {
+        for (Entry<String, Map<String, Object>> element : batchDTO.entrySet()) {
 
             // Delegate to single-task operation
         	returnTasks.put(element.getKey(), this.handleCompleteTaskInstance(element.getKey(), operator, element.getValue()));
