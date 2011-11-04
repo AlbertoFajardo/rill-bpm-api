@@ -27,10 +27,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/rill-bpm-api"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/VELOCITY1.6.3">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/VELOCITY1.6.3"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
