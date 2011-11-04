@@ -55,7 +55,7 @@ public abstract class ActivitiProcessCreateInterceptorAdapter extends ProcessCre
 		}
 	}
 
-    protected void doPostOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) {
+    protected final void doPostOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) {
 
     	// Check context parameter
         final ProcessInstance processInstance = activitiAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();

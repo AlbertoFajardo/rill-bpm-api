@@ -5,15 +5,17 @@
 
 package com.baidu.rigel.service.workflow.api.support;
 
-import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.processvar.DummyReceiptInfo;
 import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.processvar.DummyReceiptInfo;
 
 /**
  *
@@ -40,7 +42,6 @@ public class EngineDrivenTLIAdapterTest {
     public void tearDown() {
     }
 
-    // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
     // @Test
@@ -51,9 +52,9 @@ public class EngineDrivenTLIAdapterTest {
 
         ReceiptInfoEngineDrivenTLIAdapter adapter = new ReceiptInfoEngineDrivenTLIAdapter();
         TaskExecutionContext taskContext = new TaskExecutionContext();
-        taskContext.getWorkflowParams().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new DummyReceiptInfo());
+        taskContext.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new DummyReceiptInfo());
         adapter.preComplete(taskContext);
 
-        Assert.assertNotNull(taskContext.getWorkflowParams().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
+        Assert.assertNotNull(taskContext.getOtherInfos().get(WorkflowOperations.ENGINE_DRIVEN_TASK_RETURN_DATA_KEY));
     }
 }

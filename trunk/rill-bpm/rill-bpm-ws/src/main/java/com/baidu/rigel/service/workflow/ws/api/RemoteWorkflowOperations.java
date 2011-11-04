@@ -259,4 +259,18 @@ public interface RemoteWorkflowOperations {
      */
     String getRootProcessInstanceId(String engineProcessInstanceId) throws ProcessException;
     
+    /**
+     * Get process insance's variable names
+     * @param engineProcessInstanceId engine process instance id
+     * @return process insance's variable names
+     */
+    String[] getProcessInstanceVariableNames(String engineProcessInstanceId);
+    
+    /**
+     * Get process instance's variables
+     * @param engineProcessInstanceId process instance ID(NOT NULL)
+     * @return process instance's variables
+     */
+    String[] getLastedVersionProcessDefinitionVariableNames(String processDefinitionKey);
+    
 }

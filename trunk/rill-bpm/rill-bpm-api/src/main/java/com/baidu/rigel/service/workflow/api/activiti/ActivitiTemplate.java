@@ -50,6 +50,7 @@ import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
 import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
+import com.baidu.rigel.service.workflow.api.support.XpathVarConvertTaskLifecycleInterceptor;
 
 /**
  * Activiti implementation of {@link WorkflowOperations}.
@@ -61,13 +62,19 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	@Override
 	protected WorkflowResponse doCreateProcessInstance(
 			String processDefinitionKey, String processStarter, String businessObjectId,
-			Map<String, Object> passToEngine) {
+			Map<String, Object> workflowParams) {
 		
 		try {
 			// Do create process instance of work flow engine
 	        UUID taskRetrieveUUID = UUID.randomUUID();
 	        RetrieveNextTasksHelper.pushTaskScope(taskRetrieveUUID.toString());
 	        
+	        // Convert and filter 
+	        Set<String> engineRelateDatanames = this.getLastedVersionProcessDefinitionVariableNames(processDefinitionKey);
+	        Map<String, Object> passToEngine = XpathVarConvertTaskLifecycleInterceptor.convertAndFilter(engineRelateDatanames, workflowParams);
+	        workflowParams.putAll(passToEngine);
+	        
+	        // Do engine operation
 	        ProcessInstance response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
 	        List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
 	        
@@ -78,20 +85,28 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 		}
 	}
 
-    private void handleTaskInit(List<Task> acr, String engineProcessInstanceId, String triggerTaskInstanceId, TaskExecutionContext triggerTaskExecutionContext, boolean hasParentProcess) throws ProcessException {
-
+	@Override
+	protected void handleTaskInit(List<String> taskListIds, String engineProcessInstanceId, String triggerTaskInstanceId, 
+			Object triggerTaskExecutionContext, boolean hasParentProcess, Map<String, Object> workflowParams, String operator) throws ProcessException {
+		
+		List<Task> taskList = new ArrayList<Task>(taskListIds.size());
+        for (String taskId : taskListIds) {
+            taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
+        }
+        logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
+		
         // Means process will end
         ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
         if (pi == null) {
             // Publish process end event
             publishProcessEndEvent(engineProcessInstanceId, triggerTaskInstanceId, triggerTaskExecutionContext, hasParentProcess);
-            return;
+//            return;
         }
 
         // Task life cycle initialize method processing
-        for (Task response : acr) {
+        for (Task response : taskList) {
             TaskLifecycleInteceptor[] newTasklifecycleInteceptors = (TaskLifecycleInteceptor[]) obtainTaskLifecycleInterceptors(response.getId());
-            TaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), null, null);
+            TaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), operator, workflowParams);
 //            taskExecutionContext.setActivityContentResponse(response);
             logger.log(Level.FINE, "Call generated-task''s interceptor#init {0}", ObjectUtils.getDisplayString(response));
             for (TaskLifecycleInteceptor newTaskLifecycleInteceptor : newTasklifecycleInteceptors) {
@@ -105,22 +120,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 }
             }
         }
-
-    }
-    
-	@Override
-	protected void handleTaskInit(List<String> taskIds,
-			String engineProcessInstanceId, String triggerTaskInstanceId,
-			Object triggerTaskExecutionContext, boolean hasParentProcess) throws ProcessException {
-		
-		List<Task> taskList = new ArrayList<Task>(taskIds.size());
-        for (String taskId : taskIds) {
-            taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
-        }
-        logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
-		
-        // Delegate this operation
-        this.handleTaskInit(taskList, engineProcessInstanceId, triggerTaskInstanceId, (TaskExecutionContext) triggerTaskExecutionContext, hasParentProcess);
+        
 	}
 
     public String getTaskNameByDefineId(final String processDefinitionKey, final String taskDefineId) {
@@ -153,25 +153,21 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 		return pi == null ? null : pi.getProcessInstanceId();
 	}
 
-    public Set<String> getProcessInstanceVariableNames(final String engineProcessInstanceId) {
+    private Set<String> getProcessInstanceVariableNames(final ProcessDefinitionEntity pd) {
 
+    	Assert.notNull(pd, "Process definition entity is null");
+    	
         return runExtraCommand(new Command<Set<String>>() {
 
             public Set<String> execute(CommandContext commandContext) {
-                // FIXME: sub-process case? call-activity case?
-                ExecutionEntity ee = commandContext.getExecutionManager().findExecutionById(engineProcessInstanceId);
-                if (!(ee != null && ee.isProcessInstance())) {
-                    throw new ProcessException("Can not get process instance by given [" + engineProcessInstanceId + "], or it's not a Activiti ProcessInstance.");
-                }
-                ProcessDefinitionEntity pd = Context.getProcessEngineConfiguration().getDeploymentCache().findDeployedProcessDefinitionById(ee.getProcessDefinitionId());
-                Assert.notNull(pd, "Can not find process defintion by id[" + ee.getProcessDefinitionId() + "].");
+                
                 Set<String> processAllVariables = new LinkedHashSet<String>();
                 List<ActivityImpl> listActivities = ((ScopeImpl) pd).getActivities();
                 
                 // Deep-first traversale
                 deepFirstTraversal(processAllVariables, listActivities);
                 
-                logger.log(Level.FINE, "Found process variables:{0}, process instance id:{1}", new Object[]{ObjectUtils.getDisplayString(processAllVariables), engineProcessInstanceId});
+                logger.log(Level.FINE, "Found process variables:{0}, process definition :{1}", new Object[]{ObjectUtils.getDisplayString(processAllVariables), pd});
                 return processAllVariables;
             }
             
@@ -218,6 +214,44 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                     }
                 }
             }
+        });
+
+    }
+    
+	@Override
+	public Set<String> getLastedVersionProcessDefinitionVariableNames(
+			final String processDefinitionKey) {
+		
+		return runExtraCommand(new Command<Set<String>>() {
+
+            public Set<String> execute(CommandContext commandContext) {
+            	ProcessDefinitionEntity pd = commandContext.getProcessDefinitionManager().findLatestProcessDefinitionByKey(processDefinitionKey);
+            	pd = Context.getProcessEngineConfiguration().getDeploymentCache().findDeployedProcessDefinitionById(pd.getId());
+                Assert.notNull(pd, "Can not find process defintion by key[" + processDefinitionKey + "].");
+               
+                return getProcessInstanceVariableNames(pd);
+            }
+            
+        });
+		
+	}
+	
+    public Set<String> getProcessInstanceVariableNames(final String engineProcessInstanceId) {
+
+        return runExtraCommand(new Command<Set<String>>() {
+
+            public Set<String> execute(CommandContext commandContext) {
+                // FIXME: sub-process case? call-activity case?
+                ExecutionEntity ee = commandContext.getExecutionManager().findExecutionById(engineProcessInstanceId);
+                if (!(ee != null && ee.isProcessInstance())) {
+                    throw new ProcessException("Can not get process instance by given [" + engineProcessInstanceId + "], or it's not a Activiti ProcessInstance.");
+                }
+                ProcessDefinitionEntity pd = Context.getProcessEngineConfiguration().getDeploymentCache().findDeployedProcessDefinitionById(ee.getProcessDefinitionId());
+                Assert.notNull(pd, "Can not find process defintion by id[" + ee.getProcessDefinitionId() + "].");
+               
+                return getProcessInstanceVariableNames(pd);
+            }
+            
         });
 
     }
@@ -285,9 +319,10 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
 	@Override
 	protected WorkflowResponse doCompleteTaskInstance(
-			final String engineTaskInstanceId, final String operator, final Map<String, Object> passToEngine) {
+			final String engineTaskInstanceId, final String operator, final Map<String, Object> workflowParams) {
 		
 		try {
+	        
 	        return runExtraCommand(new Command<WorkflowResponse>() {
 	
 						@Override
@@ -310,12 +345,18 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 					        // Cache root process instance before completion
 					        String rootProcessInstanceId = obtainRootProcess(engineProcessInstanceId, true);
 					        
-					        // Add by MENGRAN at 2011-06-10
+					        // Convert and filter 
+					        Set<String> engineRelateDatanames = ActivitiTemplate.this.getProcessInstanceVariableNames(engineProcessInstanceId);
+					        Map<String, Object> passToEngine = XpathVarConvertTaskLifecycleInterceptor.convertAndFilter(engineRelateDatanames, workflowParams);
+					        workflowParams.putAll(passToEngine);
+					        
 					        getTaskService().claim(engineTaskInstanceId, operator);
 					        getTaskService().complete(engineTaskInstanceId, passToEngine);
 					        final List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
 					        long endCompleteTime = System.currentTimeMillis();
 					        logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
+					        
+					        // FIXME: Record task complete informations, like work-flow parameters and return tasks.
 					        
 							return new WorkflowResponse(
 									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),

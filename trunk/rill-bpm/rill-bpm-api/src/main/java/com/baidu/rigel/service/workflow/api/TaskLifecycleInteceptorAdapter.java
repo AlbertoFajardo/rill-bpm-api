@@ -10,19 +10,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.baidu.rigel.service.workflow.api.activiti.support;
+package com.baidu.rigel.service.workflow.api;
 
 import java.util.Map;
 
 
-import com.baidu.rigel.service.workflow.api.TaskExecutionContext;
-import com.baidu.rigel.service.workflow.api.TaskLifecycleInteceptor;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import com.baidu.rigel.service.workflow.api.exception.TaskInitialException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ActivitiTaskLifecycleInteceptorAdapter implements
+public class TaskLifecycleInteceptorAdapter implements
         TaskLifecycleInteceptor {
 
     /** Logger available to subclasses */
