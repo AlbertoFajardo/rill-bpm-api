@@ -57,7 +57,7 @@ import com.baidu.rigel.service.workflow.api.support.XpathVarConvertTaskLifecycle
  * @author mengran
  */
 public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperations {
-
+	
     // --------------------------------------- Implementation --------------------------//
 	@Override
 	protected WorkflowResponse doCreateProcessInstance(
@@ -355,8 +355,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 					        final List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
 					        long endCompleteTime = System.currentTimeMillis();
 					        logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
-					        
-					        // FIXME: Record task complete informations, like work-flow parameters and return tasks.
 					        
 							return new WorkflowResponse(
 									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),

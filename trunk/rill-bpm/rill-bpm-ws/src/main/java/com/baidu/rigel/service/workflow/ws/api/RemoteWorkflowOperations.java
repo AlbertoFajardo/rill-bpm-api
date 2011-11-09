@@ -66,10 +66,12 @@ public interface RemoteWorkflowOperations {
     }
     
     @XmlRootElement
-    class RemoteWorkflowResponse extends WorkflowResponse {
+    public class RemoteWorkflowResponse extends WorkflowResponse {
     	
     	boolean processInstanceEnd;
     	boolean hasParentProcessInstance;
+    	
+    	boolean robustReturn;
     	
     	RemoteWorkflowResponse() {
     	} //Required by JAXB
@@ -112,6 +114,16 @@ public interface RemoteWorkflowOperations {
 
 		public final void setProcessInstanceEnd(boolean processInstanceEnd) {
 			this.processInstanceEnd = processInstanceEnd;
+		}
+
+		public final boolean isRobustReturn() {
+			return robustReturn;
+		}
+
+		// Adapt chain-coding style
+		public final RemoteWorkflowResponse setRobustReturn(boolean robustReturn) {
+			this.robustReturn = robustReturn;
+			return this;
 		}
 		
     }
