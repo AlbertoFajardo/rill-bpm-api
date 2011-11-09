@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
@@ -25,8 +26,6 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.springframework.aop.SpringProxy;
-import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -48,9 +47,12 @@ import com.sun.xml.ws.api.tx.at.Transactional.Version;
 @WebService
 public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 
+	/** Logger available to subclasses */
+    protected final Logger logger = Logger.getLogger(getClass().getName());
+    
 	// Must use getter method!
 	private WorkflowOperations workflowAccessor;
-	private ActivitiAccessor activitiAccessor;
+	private RobustActivitiTemplate activitiTemplate;
 	private AtomicBoolean needRetrieve = new AtomicBoolean(true);
 
 	@Resource
@@ -64,23 +66,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 									MessageContext.SERVLET_CONTEXT)).getBean(
 							"workflowAccessor", WorkflowOperations.class);
 
-			if (workflowAccessor instanceof SpringProxy) {
-				Object targetSource;
-				try {
-					targetSource = ((Advised) workflowAccessor)
-							.getTargetSource().getTarget();
-					while (targetSource instanceof SpringProxy) {
-						targetSource = ((Advised) targetSource)
-								.getTargetSource().getTarget();
-					}
-				} catch (Exception e) {
-					throw new ProcessException(e);
-				}
-
-				activitiAccessor = ((ActivitiAccessor) (targetSource));
-			} else {
-				activitiAccessor = ((ActivitiAccessor) workflowAccessor);
-			}
+			activitiTemplate = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, RobustActivitiTemplate.class);
 		}
 
 		Assert.notNull(workflowAccessor);
@@ -105,7 +91,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 				createProcessInstanceDto.getBusinessObjectId(),
 				passToEngine);
 
-		final String engineProcessInstanceId = activitiAccessor.getEngineProcessInstanceIdByBOId(
+		final String engineProcessInstanceId = activitiTemplate.getEngineProcessInstanceIdByBOId(
 				createProcessInstanceDto.getBusinessObjectId(), createProcessInstanceDto.getProcessDefinitionKey());
 
 		// Directly use create process instance API means root process
@@ -126,7 +112,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			}
 		}
 		
-		return activitiAccessor
+		return activitiTemplate
 				.runExtraCommand(new Command<RemoteWorkflowResponse>() {
 
 					@Override
@@ -136,12 +122,15 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 						TaskEntity taskEntity = commandContext
 								.getTaskManager()
 								.findTaskById(completeTaskInstanceDto.getEngineTaskInstanceId());
+						// Handle retrieve
 						if (taskEntity == null) {
-							throw new ProcessException("Can not find task instance by id " + completeTaskInstanceDto.getEngineTaskInstanceId() + ", maybe it has beed completed.");
+							logger.warning("Can not find task instance by id " + completeTaskInstanceDto.getEngineTaskInstanceId() + ", maybe it has beed completed.");
+							return activitiTemplate.handleTaskInstanceHasEnd(completeTaskInstanceDto.getEngineTaskInstanceId(), commandContext);
 						}
+						
 						String engineProcessInstanceId = taskEntity.getProcessInstanceId();
 						// Cache root process instance ID
-						String rootProcessInstanceId = activitiAccessor.obtainRootProcess(engineProcessInstanceId, true);
+						String rootProcessInstanceId = activitiTemplate.obtainRootProcess(engineProcessInstanceId, true);
 						ExecutionEntity ee = commandContext
 								.getExecutionManager().findExecutionById(
 										engineProcessInstanceId);
@@ -162,7 +151,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 								completeTaskInstanceDto.getOperator(),
 								passToEngine);
 						
-						ProcessInstance processInstance = activitiAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
+						ProcessInstance processInstance = activitiTemplate.getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
 						return new RemoteWorkflowResponse(
 								engineProcessInstanceId, businessKey,
 								processDefinitionKey, tasks, rootProcessInstanceId, processInstance == null);
@@ -178,10 +167,10 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			String reason) throws ProcessException {
 
 		// Unique instance exists
-		if (activitiAccessor == null) {
+		if (activitiTemplate == null) {
 			getWorkflowAccessor();
 		}
-		RuntimeService runtimeService = activitiAccessor.getRuntimeService();
+		RuntimeService runtimeService = activitiTemplate.getRuntimeService();
 		// Do delete operation
 		runtimeService.deleteProcessInstance(engineProcessInstanceId, reason);
 	}
@@ -193,10 +182,10 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			String boId) {
 
 		// Unique instance exists
-		if (activitiAccessor == null) {
+		if (activitiTemplate == null) {
 			getWorkflowAccessor();
 		}
-		RuntimeService runtimeService = activitiAccessor.getRuntimeService();
+		RuntimeService runtimeService = activitiTemplate.getRuntimeService();
 
 		ProcessInstance processInstance = runtimeService
 				.createProcessInstanceQuery()
@@ -230,12 +219,12 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 	public String getRootProcessInstanceId(String engineProcessInstanceId) throws ProcessException {
 		
 		// Unique instance exists
-		if (activitiAccessor == null) {
+		if (activitiTemplate == null) {
 			getWorkflowAccessor();
 		}
 		
 		try {
-			return activitiAccessor.obtainRootProcess(engineProcessInstanceId, true);
+			return activitiTemplate.obtainRootProcess(engineProcessInstanceId, true);
 		} catch (Exception e) {
 			throw new ProcessException("Maybe process" + engineProcessInstanceId + "is ended.", e);
 		}
@@ -247,12 +236,12 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			String engineProcessInstanceId) {
 		
 		// Unique instance exists
-		if (activitiAccessor == null) {
+		if (activitiTemplate == null) {
 			getWorkflowAccessor();
 		}
 		
 		try {
-			Set<String> processInstanceNames = activitiAccessor.getProcessInstanceVariableNames(engineProcessInstanceId);
+			Set<String> processInstanceNames = activitiTemplate.getProcessInstanceVariableNames(engineProcessInstanceId);
 			return processInstanceNames == null ? null : processInstanceNames.toArray(new String[processInstanceNames.size()]); 
 		} catch (Exception e) {
 			throw new ProcessException("Maybe process" + engineProcessInstanceId + "is ended.", e);
@@ -265,12 +254,12 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			String processDefinitionKey) {
 		
 		// Unique instance exists
-		if (activitiAccessor == null) {
+		if (activitiTemplate == null) {
 			getWorkflowAccessor();
 		}
 		
 		try {
-			Set<String> processInstanceNames = activitiAccessor.getLastedVersionProcessDefinitionVariableNames(processDefinitionKey);
+			Set<String> processInstanceNames = activitiTemplate.getLastedVersionProcessDefinitionVariableNames(processDefinitionKey);
 			return processInstanceNames == null ? null : processInstanceNames.toArray(new String[processInstanceNames.size()]); 
 		} catch (Exception e) {
 			throw new ProcessException("Can not get variables by process definition key " + processDefinitionKey, e);

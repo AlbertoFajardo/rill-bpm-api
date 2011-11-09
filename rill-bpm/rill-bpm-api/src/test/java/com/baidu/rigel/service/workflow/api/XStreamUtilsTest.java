@@ -1,6 +1,8 @@
 package com.baidu.rigel.service.workflow.api;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -75,6 +77,22 @@ public class XStreamUtilsTest {
 		
 		String simpleType = "abc";
 		Assert.assertTrue(!XStreamSerializeHelper.isXStreamSerialized(simpleType));
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testListStringSerialized() {
+		
+		List<String> list = new ArrayList<String>(2);
+		list.add("1234");
+		list.add("abcd");
+		
+		String xml = XStreamSerializeHelper.serializeXml(XStreamUtilsTest.class.getName() + ".testListStringSerialized", list);
+		Assert.assertEquals("<list>\n  <string>1234</string>\n  <string>abcd</string>\n"
+				+ "</list>", xml);
+		
+		List<String> deserializedList = XStreamSerializeHelper.deserializeObject(xml, XStreamUtilsTest.class.getName() + ".testListStringSerialized", List.class);
+		Assert.assertEquals(list, deserializedList);
 	}
 	
 }

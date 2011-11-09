@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.springframework.util.Assert;
 
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
@@ -67,9 +65,15 @@ public interface WorkflowOperations {
         	return (T) fromXml;
         }
         
+        /**
+         * Check parameter given is XStream serialized or not.
+         * @param xml check target
+         * @return <code>True</code> only parameter is not <code>NULL</code> and is a regular XML fragment.
+         */
         public static boolean isXStreamSerialized(Object xml) {
         	
-        	Assert.notNull(xml);
+        	if (xml == null) return false;
+        	
         	if (!(xml instanceof String)) return false;
         	
         	try {
