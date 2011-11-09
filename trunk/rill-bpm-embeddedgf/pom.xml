@@ -55,7 +55,7 @@
 									<goal>unpack-dependencies</goal>
 								</goals>
 								<configuration>
-									<excludes>javax/servlet/**,com/sun/xml/ws/tx/at/WSATConstants.class,com/sun/xml/ws/tx/at/WSATHelper*.class,com/sun/xml/ws/tx/coord/common/client/RegistrationProxyBuilder*.class,com/sun/xml/ws/tx/coord/v10/client/RegistrationProxyBuilderImpl*.class</excludes>
+									<excludes>org/apache/naming/**,javax/servlet/**,com/sun/xml/ws/tx/at/WSATConstants.class,com/sun/xml/ws/tx/at/WSATHelper*.class,com/sun/xml/ws/tx/coord/common/client/RegistrationProxyBuilder*.class,com/sun/xml/ws/tx/coord/v10/client/RegistrationProxyBuilderImpl*.class,com/sun/xml/ws/tx/at/tube/WSATClientHelper.class</excludes>
 									<outputDirectory>${project.build.classes.dir}</outputDirectory>
 								</configuration>
 							</execution>
