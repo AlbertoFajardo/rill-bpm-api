@@ -19,7 +19,7 @@
      -->
     
     <!-- Work bean below -->
-    <bean id="workflowAccessor" class="com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate">
+    <bean id="workflowAccessor" class="com.baidu.rigel.service.workflow.ws.api.activiti.RobustActivitiTemplate">
         <!-- open comment when you want to integrate with spring.
         <property name="processEngine" ref="processEngine" />
          -->
