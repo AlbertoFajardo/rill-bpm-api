@@ -34,7 +34,7 @@
     				<list>
     					<value>--datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</value>
     					<value>--restype=javax.sql.XADataSource</value>
-    					<value>--property=portNumber=3306:password=activiti:user=activiti:serverName=localhost:databaseName=rilldb</value>
+    					<value>--property=${jdbcpool.property}</value>
     					<value>rilldb_pool</value>
     				</list>
     			</entry>
