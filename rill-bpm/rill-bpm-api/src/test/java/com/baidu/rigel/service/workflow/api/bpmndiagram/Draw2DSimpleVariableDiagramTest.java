@@ -119,7 +119,7 @@ public class Draw2DSimpleVariableDiagramTest extends PluggableActivitiTestCase {
 
         // Draw png ///////////////////////////////////////////
         ProcessMonitorChartInfoHelper helper = (ProcessMonitorChartInfoHelper) processEngineConfiguration.getBeans().get("processMonitorChartInfoHelper");
-        ProcessMonitorChartInfoHelper.ChartInfo chartInfo = helper.getMonitorChartInfo(processInstance.getProcessInstanceId());
+        ProcessMonitorChartInfoHelper.ChartInfo chartInfo = helper.getMonitorChartInfo(processInstance.getProcessInstanceId()).get(processInstance.getProcessInstanceId());
 
         String filePath = null;
         try {

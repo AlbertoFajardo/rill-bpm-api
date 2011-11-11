@@ -1,5 +1,6 @@
 package com.baidu.rigel.service.workflow.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -7,9 +8,12 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.imageio.stream.FileImageOutputStream;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngines;
@@ -17,12 +21,13 @@ import org.activiti.engine.impl.test.PluggableActivitiTestCase;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.test.Deployment;
 
+import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
+import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 import com.baidu.rigel.service.workflow.api.processvar.DummyOrderAudit;
 
 public class PgSupportV2Test extends PluggableActivitiTestCase {
 
-	private static final Logger log = Logger.getLogger(PgSupportV2Test.class
-			.getName());
+	protected final Logger log = Logger.getLogger(this.getClass().getName());
 
 	private WorkflowOperations workflowAccessor;
 
@@ -32,6 +37,18 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 
 	public void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
 		this.workflowAccessor = workflowAccessor;
+	}
+	
+	private ProcessMonitorChartInfoHelper processMonitorChartInfoHelper;
+	
+
+	public final ProcessMonitorChartInfoHelper getProcessMonitorChartInfoHelper() {
+		return processMonitorChartInfoHelper;
+	}
+
+	public final void setProcessMonitorChartInfoHelper(
+			ProcessMonitorChartInfoHelper processMonitorChartInfoHelper) {
+		this.processMonitorChartInfoHelper = processMonitorChartInfoHelper;
 	}
 
 	/*
@@ -91,6 +108,9 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 		// Inject workflow accessor
 		this.setWorkflowAccessor((WorkflowOperations) processEngineConfiguration
 				.getBeans().get("workflowAccessor"));
+		
+		this.setProcessMonitorChartInfoHelper((ProcessMonitorChartInfoHelper) processEngineConfiguration
+				.getBeans().get("processMonitorChartInfoHelper"));
 	}
 
 	@Deployment(resources = {
@@ -224,6 +244,24 @@ public class PgSupportV2Test extends PluggableActivitiTestCase {
 		log.info("process instance[" + processInstanceId + "] is running.");
 		
 		// -------------------------------- Pg-support-resetOrderReceiptType_v2
+		
+		// -------------------------------- Retrieve chart informations
+		Map<String, ChartInfo> allChartInfos = getProcessMonitorChartInfoHelper().getMonitorChartInfo(processInstanceId);
+		assertEquals(5, allChartInfos.size());
+		
+		for (Entry<String, ChartInfo> entry : allChartInfos.entrySet()) {
+	        try {
+	            File tmpImage = File.createTempFile("processDefinitionKey" + entry.getKey(), ".png");
+	            FileImageOutputStream fios = new FileImageOutputStream(tmpImage);
+	            fios.write(entry.getValue().getDiagramBytes());
+	            fios.flush();
+	            fios.close();
+	            fios = null;
+	        } catch (IOException ex) {
+	            Logger.getLogger(PgSupportV2Test.class.getName()).log(Level.SEVERE, null, ex);
+	            assertEquals("Can not generate process " + entry.getKey() + " diagram image.", true, false);
+	        }
+		}
 		
 	}
 

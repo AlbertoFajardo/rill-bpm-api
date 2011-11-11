@@ -12,7 +12,6 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.bpmndiagram;
 
-import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +27,8 @@ import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.Ellipse;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+
+import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 /**
  *
  * Draw2D API to draw anchors.
@@ -133,7 +134,7 @@ public class SmartSmoothDrawingPDG {
     // exclusive gateway
     activityDrawInstructions.put("exclusiveGateway", new ActivityDrawInstruction() {
       public void draw(SmartSmoothDrawingPDC processDiagramCreator, ActivityImpl activityImpl) {
-        processDiagramCreator.drawExclusiveGateway(activityImpl.getX(), activityImpl.getY(),
+        processDiagramCreator.drawExclusiveGateway(activityImpl.getId(), activityImpl.getX(), activityImpl.getY(),
                 activityImpl.getWidth(), activityImpl.getHeight());
       }
     });
@@ -141,7 +142,7 @@ public class SmartSmoothDrawingPDG {
     // parallel gateway
     activityDrawInstructions.put("parallelGateway", new ActivityDrawInstruction() {
       public void draw(SmartSmoothDrawingPDC processDiagramCreator, ActivityImpl activityImpl) {
-        processDiagramCreator.drawParallelGateway(activityImpl.getX(), activityImpl.getY(),
+        processDiagramCreator.drawParallelGateway(activityImpl.getId(), activityImpl.getX(), activityImpl.getY(),
                 activityImpl.getWidth(), activityImpl.getHeight());
       }
     });
@@ -187,7 +188,7 @@ public class SmartSmoothDrawingPDG {
     // call activity
     activityDrawInstructions.put("callActivity", new ActivityDrawInstruction() {
       public void draw(SmartSmoothDrawingPDC processDiagramCreator, ActivityImpl activityImpl) {
-        processDiagramCreator.drawCollapsedCallActivity((String) activityImpl.getProperty("name"),
+        processDiagramCreator.drawCollapsedCallActivity(activityImpl.getId(), (String) activityImpl.getProperty("name"),
                   activityImpl.getX(), activityImpl.getY(), activityImpl.getWidth(), activityImpl.getHeight());
       }
     });
@@ -210,7 +211,7 @@ public class SmartSmoothDrawingPDG {
     return generateDiagram(processDefinition, "jpg", Collections.<String>emptyList());
   }
 
-  protected static SmartSmoothDrawingPDC generateDiagram(ProcessDefinitionEntity processDefinition, List<String> highLightedActivities, List<String> takedTransitions) {
+  protected static SmartSmoothDrawingPDC generateDiagram(ProcessDefinitionEntity processDefinition, List<String> highLightedActivities, Map<String, String> takedTransitions) {
     SmartSmoothDrawingPDC SmartSmoothDrawingPDC = initSmartSmoothDrawingPDC(processDefinition).setTakeTransitions(takedTransitions);
     for (ActivityImpl activity : processDefinition.getActivities()) {
      drawActivity(SmartSmoothDrawingPDC, activity, highLightedActivities);
@@ -221,22 +222,23 @@ public class SmartSmoothDrawingPDG {
 
   public static ProcessMonitorChartInfoHelper.ChartInfo generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities) {
 
-      return generateDiagram(processDefinition, imageType, highLightedActivities, Collections.<String>emptyList());
+      return generateDiagram(processDefinition, imageType, highLightedActivities, Collections.<String, String>emptyMap());
   }
 
-  public static ProcessMonitorChartInfoHelper.ChartInfo generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities, List<String> takedTransitions) {
+  public static ProcessMonitorChartInfoHelper.ChartInfo generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities, Map<String, String> takedTransitions) {
 
       SmartSmoothDrawingPDC smartSmoothDrawingPDC = generateDiagram(processDefinition, highLightedActivities, takedTransitions);
       return new ChartInfo().setDiagramBytes(smartSmoothDrawingPDC.generateImageByteArray(imageType))
-              .setTaskDefinitionKeyPosition(smartSmoothDrawingPDC.getTaskDefinitionKeyPosition());
+              .setTaskDefinitionKeyPosition(smartSmoothDrawingPDC.getTaskDefinitionKeyPosition()).setTaskDefinitionKeyType(smartSmoothDrawingPDC.getTaskDefinitionKeyType());
+      
   }
 
-  protected static void drawActivity(SmartSmoothDrawingPDC SmartSmoothDrawingPDC, ActivityImpl activity, List<String> highLightedActivities) {
+  protected static void drawActivity(SmartSmoothDrawingPDC smartSmoothDrawingPDC, ActivityImpl activity, List<String> highLightedActivities) {
     String type = (String) activity.getProperty("type");
     ActivityDrawInstruction drawInstruction = activityDrawInstructions.get(type);
     if (drawInstruction != null) {
 
-      drawInstruction.draw(SmartSmoothDrawingPDC, activity);
+      drawInstruction.draw(smartSmoothDrawingPDC, activity);
 
       // Gather info on the multi instance marker
       boolean multiInstanceSequential = false, multiInstanceParallel = false, collapsed = false;
@@ -256,16 +258,17 @@ public class SmartSmoothDrawingPDG {
       }
 
       // Actually draw the markers
-      SmartSmoothDrawingPDC.drawActivityMarkers(activity.getX(), activity.getY(), activity.getWidth(),
+      smartSmoothDrawingPDC.drawActivityMarkers(activity.getX(), activity.getY(), activity.getWidth(),
               activity.getHeight(), multiInstanceSequential, multiInstanceParallel, collapsed);
 
       // Draw highlighted activities
       if (highLightedActivities.contains(activity.getId())) {
-          drawHighLight(SmartSmoothDrawingPDC, activity);
+          drawHighLight(smartSmoothDrawingPDC, activity);
       }
 
       // Reject activity position infos to PDC
-      SmartSmoothDrawingPDC.addTaskDefinitionKeyPosition(activity.getId(), new Integer[] {activity.getX(), activity.getY(), activity.getWidth(),activity.getHeight()});
+      smartSmoothDrawingPDC.addTaskDefinitionKeyPosition(activity.getId(), new Integer[] {activity.getX(), activity.getY(), activity.getWidth(),activity.getHeight()});
+      smartSmoothDrawingPDC.addTaskDefinitionKeyType(activity.getId(), type);
 
     }
 
@@ -278,10 +281,10 @@ public class SmartSmoothDrawingPDG {
           && sequenceFlow.getProperty(BpmnParse.PROPERTYNAME_CONDITION) != null
           && !((String) activity.getProperty("type")).toLowerCase().contains("gateway");
         if (i < waypoints.size() - 2) {
-          SmartSmoothDrawingPDC.drawSequenceflowWithoutArrow(waypoints.get(i-2), waypoints.get(i-1),
+          smartSmoothDrawingPDC.drawSequenceflowWithoutArrow(waypoints.get(i-2), waypoints.get(i-1),
                 waypoints.get(i), waypoints.get(i+1), drawConditionalIndicator, sequenceFlow);
         } else {
-          SmartSmoothDrawingPDC.drawSequenceflow(waypoints.get(i-2), waypoints.get(i-1),
+          smartSmoothDrawingPDC.drawSequenceflow(waypoints.get(i-2), waypoints.get(i-1),
                   waypoints.get(i), waypoints.get(i+1), drawConditionalIndicator, sequenceFlow);
         }
       }
@@ -289,7 +292,7 @@ public class SmartSmoothDrawingPDG {
 
     // Nested activities (boundary events)
     for (ActivityImpl nestedActivity : activity.getActivities()) {
-      drawActivity(SmartSmoothDrawingPDC, nestedActivity, highLightedActivities);
+      drawActivity(smartSmoothDrawingPDC, nestedActivity, highLightedActivities);
     }
   }
 

@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
@@ -57,6 +58,7 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
     private RepositoryService repositoryService;
     private IdentityService identityService;
     private FormService formService;
+    private HistoryService historyService;
     private List<ProcessOperationInteceptor> processOperationInteceptors;
     private ActivitiExtraService extraService;
     private ProcessEngine processEngine;
@@ -70,6 +72,15 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
 
 	public final void setCache(TaskInstanceRelatedInfoCache cache) {
 		this.cache = cache;
+	}
+
+	
+	public final HistoryService getHistoryService() {
+		return historyService;
+	}
+
+	public final void setHistoryService(HistoryService historyService) {
+		this.historyService = historyService;
 	}
 
 	public FormService getFormService() {
@@ -227,6 +238,9 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
         }
         if (getFormService() == null) {
             this.setFormService(getProcessEngine().getFormService());
+        }
+        if (getHistoryService() == null) {
+        	this.setHistoryService(getProcessEngine().getHistoryService());
         }
 
         // Initialize extra service

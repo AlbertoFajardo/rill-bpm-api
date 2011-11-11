@@ -12,6 +12,7 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.bpmndiagram;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
@@ -29,7 +30,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.imageio.ImageIO;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramCanvas;
 import org.activiti.engine.impl.pvm.PvmTransition;
@@ -39,268 +42,420 @@ import org.springframework.util.CollectionUtils;
 
 /**
  * Keep png file size of Eclipse-Designer' generated.
+ * 
  * @author mengran
  */
 public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 
-    protected static Color TASK_COLOR_COMPLETED = new Color(230, 230, 230);
-    List<String> takeTransitions = null;
-    Map<String, List<Integer>> taskDefinitionKeyPosition = new HashMap<String, List<Integer>>();
+	protected static Color TASK_COLOR_COMPLETED = new Color(250, 208, 11);
+	protected static Color TASK_COLOR = new Color(186, 205, 227);
+	protected static Color HIGHLIGHT_COLOR = new Color(234, 81, 69);
+	
+	protected static Stroke CALLACTIVITY_TASK_BORDER_STROKE = new BasicStroke(3.2f);
 
-    public List<String> getTakeTransitions() {
-        return takeTransitions;
-    }
+	Map<String, String> takeTransitions = null;
+	Map<String, List<Integer>> taskDefinitionKeyPosition = new HashMap<String, List<Integer>>();
+	Map<String, String> taskDefinitionKeyType = new HashMap<String, String>();
 
-    public SmartSmoothDrawingPDC setTakeTransitions(List<String> takeTransitions) {
-        this.takeTransitions = takeTransitions;
-        return this;
-    }
+	public Map<String, String> getTakeTransitions() {
+		return takeTransitions;
+	}
 
-    /**
-     * Fill when drawing for improve performance.
-     * @return task definition key & position map
-     */
-    public Map<String, List<Integer>> getTaskDefinitionKeyPosition() {
-        return taskDefinitionKeyPosition;
-    }
+	public SmartSmoothDrawingPDC setTakeTransitions(
+			Map<String, String> takeTransitions) {
+		this.takeTransitions = takeTransitions;
+		return this;
+	}
 
-    void addTaskDefinitionKeyPosition(String taskDefinitionKey, Integer[] position) {
+	/**
+	 * Fill when drawing for improve performance.
+	 * 
+	 * @return task definition key & position map
+	 */
+	public Map<String, List<Integer>> getTaskDefinitionKeyPosition() {
+		return taskDefinitionKeyPosition;
+	}
 
-        taskDefinitionKeyPosition.put(taskDefinitionKey, Arrays.asList(position));
-    }
+	void addTaskDefinitionKeyPosition(String taskDefinitionKey,
+			Integer[] position) {
 
-    public SmartSmoothDrawingPDC(int width, int height, int minX, int minY) {
-        super(width, height, minX, minY);
+		taskDefinitionKeyPosition.put(taskDefinitionKey,
+				Arrays.asList(position));
+	}
+	
+	void addTaskDefinitionKeyType(String taskDefinitionKey, String type) {
+		taskDefinitionKeyType.put(taskDefinitionKey, type);
+	}
 
-        // Add by MENGRAN for
-        g.setFont(new Font("宋体", Font.PLAIN, 12));
-        this.fontMetrics = g.getFontMetrics();
-    }
+	public final Map<String, String> getTaskDefinitionKeyType() {
+		return taskDefinitionKeyType;
+	}
 
-    public SmartSmoothDrawingPDC(int width, int height) {
-        super(width, height);
+	public SmartSmoothDrawingPDC(int width, int height, int minX, int minY) {
+		super(width, height, minX, minY);
 
-        // Add by MENGRAN for
-        g.setFont(new Font("宋体", Font.PLAIN, 12));
-        this.fontMetrics = g.getFontMetrics();
-    }
+		// Add by MENGRAN for
+		g.setFont(new Font("宋体", Font.PLAIN, 12));
+		this.fontMetrics = g.getFontMetrics();
+	}
 
-    private boolean haveExecuted(ActivityImpl activity) {
+	public SmartSmoothDrawingPDC(int width, int height) {
+		super(width, height);
 
-        if (CollectionUtils.isEmpty(getTakeTransitions())) {
-            return false;
-        }
+		// Add by MENGRAN for
+		g.setFont(new Font("宋体", Font.PLAIN, 12));
+		this.fontMetrics = g.getFontMetrics();
+	}
 
-        for (PvmTransition transition : activity.getOutgoingTransitions()) {
-            if (haveExecuted(transition)) {
-                return true;
-            }
-        }
+	private enum EXECUTE_STATUS {
 
-        return false;
-    }
+		NO, ING, ED
+	}
 
-    private boolean haveExecuted(PvmTransition transition) {
+	private EXECUTE_STATUS haveExecuted(String nodeId) {
 
-        if (CollectionUtils.isEmpty(getTakeTransitions())) {
-            return false;
-        }
+		nodeId = "(" + nodeId + ")";
+		EXECUTE_STATUS status = EXECUTE_STATUS.NO;
+		for (String tansitionName : getTakeTransitions().values()) {
+			if (tansitionName.startsWith(nodeId)) {
+				status = EXECUTE_STATUS.ED;
+			} else if (tansitionName.endsWith(nodeId)) {
+				status = EXECUTE_STATUS.ING;
+			}
+		}
 
-        if (getTakeTransitions().contains(transition.getId())) {
-            return true;
-        }
+		return status;
+	}
 
-        return false;
-    }
+	private boolean haveExecuted(ActivityImpl activity) {
 
-    public void drawStartEvent(int x, int y, int width, int height, Image image, ActivityImpl activity) {
-        if (haveExecuted(activity)) {
-            Paint originalPaint = g.getPaint();
-            g.setPaint(TASK_COLOR_COMPLETED);
-            g.draw(new Ellipse2D.Double(x, y, width, height));
-            g.setPaint(originalPaint);
-        } else {
-            g.draw(new Ellipse2D.Double(x, y, width, height));
-        }
-        if (image != null) {
-            g.drawImage(image, x, y, width, height, null);
-        }
-    }
+		if (CollectionUtils.isEmpty(getTakeTransitions())) {
+			return false;
+		}
 
-    public void drawNoneEndEvent(int x, int y, int width, int height, ActivityImpl activity) {
-        if (haveExecuted(activity)) {
-            Stroke originalStroke = g.getStroke();
-            g.setStroke(END_EVENT_STROKE);
-            Paint originalPaint = g.getPaint();
-            g.setPaint(TASK_COLOR_COMPLETED);
-            g.draw(new Ellipse2D.Double(x, y, width, height));
-            g.setPaint(originalPaint);
-            g.setStroke(originalStroke);
-        } else {
-            Stroke originalStroke = g.getStroke();
-            g.setStroke(END_EVENT_STROKE);
-            g.draw(new Ellipse2D.Double(x, y, width, height));
-            g.setStroke(originalStroke);
-        }
-    }
+		for (PvmTransition transition : activity.getOutgoingTransitions()) {
+			if (haveExecuted(transition)) {
+				return true;
+			}
+		}
 
-    public void drawUserTask(String name, int x, int y, int width, int height, ActivityImpl activity) {
-        drawTask(name, x, y, width, height, activity);
-        g.drawImage(USERTASK_IMAGE, x + 7, y + 7, ICON_SIZE, ICON_SIZE, null);
-    }
+		return false;
+	}
 
-    public void drawTask(String name, int x, int y, int width, int height, ActivityImpl activity) {
-        drawTask(name, x, y, width, height, false, activity);
-    }
+	private boolean haveExecuted(PvmTransition transition) {
 
-    protected void drawTask(String name, int x, int y, int width, int height, boolean thickBorder, ActivityImpl activity) {
-        Paint originalPaint = g.getPaint();
-        if (haveExecuted(activity)) {
-            g.setPaint(TASK_COLOR_COMPLETED);
-        } else {
-            g.setPaint(TASK_COLOR);
-        }
+		if (CollectionUtils.isEmpty(getTakeTransitions())) {
+			return false;
+		}
 
-        // shape
-        RoundRectangle2D rect = new RoundRectangle2D.Double(x, y, width, height, 20, 20);
-        g.fill(rect);
-        g.setPaint(originalPaint);
+		if (getTakeTransitions().keySet().contains(transition.getId())) {
+			return true;
+		}
 
-        if (thickBorder) {
-            Stroke originalStroke = g.getStroke();
-            g.setStroke(THICK_TASK_BORDER_STROKE);
-            g.draw(rect);
-            g.setStroke(originalStroke);
-        } else {
-            g.draw(rect);
-        }
+		return false;
+	}
 
-        // text
-        if (name != null) {
-            String text = fitTextToWidth(name, width);
-            int textX = x + ((width - fontMetrics.stringWidth(text)) / 2);
-            int textY = y + ((height - fontMetrics.getHeight()) / 2) + fontMetrics.getHeight();
-            g.drawString(text, textX, textY);
-        }
-    }
+	public void drawStartEvent(int x, int y, int width, int height,
+			Image image, ActivityImpl activity) {
+		if (haveExecuted(activity)) {
+			Paint originalPaint = g.getPaint();
+			g.setPaint(TASK_COLOR_COMPLETED);
+			g.draw(new Ellipse2D.Double(x, y, width, height));
+			g.setPaint(originalPaint);
+		} else {
+			g.draw(new Ellipse2D.Double(x, y, width, height));
+		}
+		if (image != null) {
+			g.drawImage(image, x, y, width, height, null);
+		}
+	}
 
-    public void drawSequenceflow(int srcX, int srcY, int targetX, int targetY, boolean conditional, PvmTransition sequenceFlow) {
-        Line2D.Double line = new Line2D.Double(srcX, srcY, targetX, targetY);
-        Paint originalPaint = g.getPaint();
-        if (haveExecuted(sequenceFlow)) {
-            g.setPaint(TASK_COLOR_COMPLETED);
-            g.draw(line);
-            g.setPaint(originalPaint);
-        } else {
-            g.draw(line);
-        }
-        drawArrowHead(line, sequenceFlow);
+	public void drawNoneEndEvent(int x, int y, int width, int height,
+			ActivityImpl activity) {
+		if (haveExecuted(activity)) {
+			Stroke originalStroke = g.getStroke();
+			g.setStroke(END_EVENT_STROKE);
+			Paint originalPaint = g.getPaint();
+			g.setPaint(TASK_COLOR_COMPLETED);
+			g.draw(new Ellipse2D.Double(x, y, width, height));
+			g.setPaint(originalPaint);
+			g.setStroke(originalStroke);
+		} else {
+			Stroke originalStroke = g.getStroke();
+			g.setStroke(END_EVENT_STROKE);
+			g.draw(new Ellipse2D.Double(x, y, width, height));
+			g.setStroke(originalStroke);
+		}
+	}
 
-        if (conditional) {
-            drawConditionalSequenceFlowIndicator(line, sequenceFlow);
-        }
-    }
+	public void drawUserTask(String name, int x, int y, int width, int height,
+			ActivityImpl activity) {
+		drawTask(name, x, y, width, height, activity);
+		g.drawImage(USERTASK_IMAGE, x + 7, y + 7, ICON_SIZE, ICON_SIZE, null);
+	}
 
-    public void drawSequenceflowWithoutArrow(int srcX, int srcY, int targetX, int targetY, boolean conditional, PvmTransition sequenceFlow) {
-        Line2D.Double line = new Line2D.Double(srcX, srcY, targetX, targetY);
-        Paint originalPaint = g.getPaint();
-        if (haveExecuted(sequenceFlow)) {
-            g.setPaint(TASK_COLOR_COMPLETED);
-            g.draw(line);
-            g.setPaint(originalPaint);
-        } else {
-            g.draw(line);
-        }
-        if (conditional) {
-            drawConditionalSequenceFlowIndicator(line, sequenceFlow);
-        }
-    }
+	public void drawTask(String name, int x, int y, int width, int height,
+			ActivityImpl activity) {
+		drawTask(name, x, y, width, height, false, activity);
+	}
 
-    public void drawArrowHead(Line2D.Double line, PvmTransition sequenceFlow) {
-        int doubleArrowWidth = 2 * ARROW_WIDTH;
-        Polygon arrowHead = new Polygon();
-        arrowHead.addPoint(0, 0);
-        arrowHead.addPoint(-ARROW_WIDTH, -doubleArrowWidth);
-        arrowHead.addPoint(ARROW_WIDTH, -doubleArrowWidth);
+	protected void drawTask(String name, int x, int y, int width, int height,
+			boolean thickBorder, ActivityImpl activity) {
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(activity)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+		} else {
+			g.setPaint(TASK_COLOR);
+		}
 
-        AffineTransform transformation = new AffineTransform();
-        transformation.setToIdentity();
-        double angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
-        transformation.translate(line.x2, line.y2);
-        transformation.rotate((angle - Math.PI / 2d));
+		// shape
+		RoundRectangle2D rect = new RoundRectangle2D.Double(x, y, width,
+				height, 20, 20);
+		g.fill(rect);
+		g.setPaint(originalPaint);
 
-        AffineTransform originalTransformation = g.getTransform();
-        g.setTransform(transformation);
-        Paint originalPaint = g.getPaint();
-        if (haveExecuted(sequenceFlow)) {
-            g.setPaint(TASK_COLOR_COMPLETED);
-            g.fill(arrowHead);
-            g.setPaint(originalPaint);
-        } else {
-            g.fill(arrowHead);
-        }
-        g.setTransform(originalTransformation);
-    }
+		if (thickBorder) {
+			Stroke originalStroke = g.getStroke();
+			g.setStroke(THICK_TASK_BORDER_STROKE);
+			g.draw(rect);
+			g.setStroke(originalStroke);
+		} else {
+			g.draw(rect);
+		}
 
-    public void drawConditionalSequenceFlowIndicator(Line2D.Double line, PvmTransition sequenceFlow) {
-        int horizontal = (int) (CONDITIONAL_INDICATOR_WIDTH * 0.7);
-        int halfOfHorizontal = horizontal / 2;
-        int halfOfVertical = CONDITIONAL_INDICATOR_WIDTH / 2;
+		// text
+		if (name != null) {
+			String text = fitTextToWidth(name, width);
+			int textX = x + ((width - fontMetrics.stringWidth(text)) / 2);
+			int textY = y + ((height - fontMetrics.getHeight()) / 2)
+					+ fontMetrics.getHeight();
+			g.drawString(text, textX, textY);
+		}
+	}
 
-        Polygon conditionalIndicator = new Polygon();
-        conditionalIndicator.addPoint(0, 0);
-        conditionalIndicator.addPoint(-halfOfHorizontal, halfOfVertical);
-        conditionalIndicator.addPoint(0, CONDITIONAL_INDICATOR_WIDTH);
-        conditionalIndicator.addPoint(halfOfHorizontal, halfOfVertical);
+	public void drawSequenceflow(int srcX, int srcY, int targetX, int targetY,
+			boolean conditional, PvmTransition sequenceFlow) {
+		Line2D.Double line = new Line2D.Double(srcX, srcY, targetX, targetY);
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(sequenceFlow)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+			g.draw(line);
+			g.setPaint(originalPaint);
+		} else {
+			g.draw(line);
+		}
+		drawArrowHead(line, sequenceFlow);
 
-        AffineTransform transformation = new AffineTransform();
-        transformation.setToIdentity();
-        double angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
-        transformation.translate(line.x1, line.y1);
-        transformation.rotate((angle - Math.PI / 2d));
+		if (conditional) {
+			drawConditionalSequenceFlowIndicator(line, sequenceFlow);
+		}
+	}
 
-        AffineTransform originalTransformation = g.getTransform();
-        g.setTransform(transformation);
-        g.draw(conditionalIndicator);
+	public void drawSequenceflowWithoutArrow(int srcX, int srcY, int targetX,
+			int targetY, boolean conditional, PvmTransition sequenceFlow) {
+		Line2D.Double line = new Line2D.Double(srcX, srcY, targetX, targetY);
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(sequenceFlow)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+			g.draw(line);
+			g.setPaint(originalPaint);
+		} else {
+			g.draw(line);
+		}
+		if (conditional) {
+			drawConditionalSequenceFlowIndicator(line, sequenceFlow);
+		}
+	}
 
-        Paint originalPaint = g.getPaint();
-        if (haveExecuted(sequenceFlow)) {
-            g.setPaint(TASK_COLOR_COMPLETED);
-        } else {
-            g.setPaint(CONDITIONAL_INDICATOR_COLOR);
-        }
-        g.fill(conditionalIndicator);
+	public void drawArrowHead(Line2D.Double line, PvmTransition sequenceFlow) {
+		int doubleArrowWidth = 2 * ARROW_WIDTH;
+		Polygon arrowHead = new Polygon();
+		arrowHead.addPoint(0, 0);
+		arrowHead.addPoint(-ARROW_WIDTH, -doubleArrowWidth);
+		arrowHead.addPoint(ARROW_WIDTH, -doubleArrowWidth);
 
-        g.setPaint(originalPaint);
-        g.setTransform(originalTransformation);
-    }
+		AffineTransform transformation = new AffineTransform();
+		transformation.setToIdentity();
+		double angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+		transformation.translate(line.x2, line.y2);
+		transformation.rotate((angle - Math.PI / 2d));
 
-    /**
-     * Generates an image of what currently is drawn on the canvas.
-     *
-     * Throws an {@link ActivitiException} when {@link #close()} is already called.
-     */
-    public byte[] generateImageByteArray(String imageType) {
-        if (closed) {
-            throw new ActivitiException("ProcessDiagramGenerator already closed");
-        }
+		AffineTransform originalTransformation = g.getTransform();
+		g.setTransform(transformation);
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(sequenceFlow)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+			g.fill(arrowHead);
+			g.setPaint(originalPaint);
+		} else {
+			g.fill(arrowHead);
+		}
+		g.setTransform(originalTransformation);
+	}
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-//            // Try to remove white space
-//            minX = (minX <= 5) ? 5 : minX;
-//            minY = (minY <= 5) ? 5 : minY;
-            BufferedImage imageToSerialize = processDiagram;
-//            if (minX >= 0 && minY >= 0) {
-//                imageToSerialize = processDiagram.getSubimage(minX - 5, minY - 5,
-//                        canvasWidth - minX + 5, canvasHeight - minY + 5);
-//            }
-            ImageIO.write(imageToSerialize, imageType, out);
-        } catch (IOException e) {
-            throw new ActivitiException("Error while generating process image", e);
-        } finally {
-            IoUtil.closeSilently(out);
-        }
-        return out.toByteArray();
-    }
+	public void drawConditionalSequenceFlowIndicator(Line2D.Double line,
+			PvmTransition sequenceFlow) {
+		int horizontal = (int) (CONDITIONAL_INDICATOR_WIDTH * 0.7);
+		int halfOfHorizontal = horizontal / 2;
+		int halfOfVertical = CONDITIONAL_INDICATOR_WIDTH / 2;
+
+		Polygon conditionalIndicator = new Polygon();
+		conditionalIndicator.addPoint(0, 0);
+		conditionalIndicator.addPoint(-halfOfHorizontal, halfOfVertical);
+		conditionalIndicator.addPoint(0, CONDITIONAL_INDICATOR_WIDTH);
+		conditionalIndicator.addPoint(halfOfHorizontal, halfOfVertical);
+
+		AffineTransform transformation = new AffineTransform();
+		transformation.setToIdentity();
+		double angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+		transformation.translate(line.x1, line.y1);
+		transformation.rotate((angle - Math.PI / 2d));
+
+		AffineTransform originalTransformation = g.getTransform();
+		g.setTransform(transformation);
+		g.draw(conditionalIndicator);
+
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(sequenceFlow)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+		} else {
+			g.setPaint(CONDITIONAL_INDICATOR_COLOR);
+		}
+		g.fill(conditionalIndicator);
+
+		g.setPaint(originalPaint);
+		g.setTransform(originalTransformation);
+	}
+
+	public void drawParallelGateway(String id, int x, int y, int width,
+			int height) {
+		// rhombus
+		drawGateway(id, x, y, width, height);
+
+		// plus inside rhombus
+		Stroke orginalStroke = g.getStroke();
+		g.setStroke(GATEWAY_TYPE_STROKE);
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(id).equals(EXECUTE_STATUS.ED)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+		}
+		Line2D.Double line = new Line2D.Double(x + 10, y + height / 2, x
+				+ width - 10, y + height / 2); // horizontal
+		g.draw(line);
+		line = new Line2D.Double(x + width / 2, y + height - 10, x + width / 2,
+				y + 10); // vertical
+		g.draw(line);
+		g.setStroke(orginalStroke);
+		g.setPaint(originalPaint);
+	}
+
+	public void drawExclusiveGateway(String id, int x, int y, int width,
+			int height) {
+		// rhombus
+		drawGateway(id, x, y, width, height);
+
+		int quarterWidth = width / 4;
+		int quarterHeight = height / 4;
+
+		// X inside rhombus
+		Stroke orginalStroke = g.getStroke();
+		g.setStroke(GATEWAY_TYPE_STROKE);
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(id).equals(EXECUTE_STATUS.ED)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+		}
+		Line2D.Double line = new Line2D.Double(x + quarterWidth + 3, y
+				+ quarterHeight + 3, x + 3 * quarterWidth - 3, y + 3
+				* quarterHeight - 3);
+		g.draw(line);
+		line = new Line2D.Double(x + quarterWidth + 3, y + 3 * quarterHeight
+				- 3, x + 3 * quarterWidth - 3, y + quarterHeight + 3);
+		g.draw(line);
+
+		g.setStroke(orginalStroke);
+		g.setPaint(originalPaint);
+	}
+
+	public void drawGateway(String id, int x, int y, int width, int height) {
+		Polygon rhombus = new Polygon();
+		rhombus.addPoint(x, y + (height / 2));
+		rhombus.addPoint(x + (width / 2), y + height);
+		rhombus.addPoint(x + width, y + (height / 2));
+		rhombus.addPoint(x + (width / 2), y);
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(id).equals(EXECUTE_STATUS.ED)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+			g.draw(rhombus);
+			g.setPaint(originalPaint);
+		} else {
+			g.draw(rhombus);
+		}
+		g.setPaint(originalPaint);
+	}
+
+	public void drawCollapsedCallActivity(String id, String name, int x, int y,
+			int width, int height) {
+
+		Paint originalPaint = g.getPaint();
+		if (haveExecuted(id).equals(EXECUTE_STATUS.ING)) {
+			g.setPaint(HIGHLIGHT_COLOR);
+		} else if (haveExecuted(id).equals(EXECUTE_STATUS.ED)) {
+			g.setPaint(TASK_COLOR_COMPLETED);
+		} else {
+			g.setPaint(TASK_COLOR);
+		}
+		
+		// shape
+		RoundRectangle2D rect = new RoundRectangle2D.Double(x, y, width,
+				height, 20, 20);
+		g.fill(rect);
+		
+		Stroke originalStroke = g.getStroke();
+	    g.setStroke(CALLACTIVITY_TASK_BORDER_STROKE);
+		g.draw(rect);
+		g.setStroke(originalStroke);
+		g.setPaint(originalPaint);
+
+		// text
+		if (name != null) {
+			String text = fitTextToWidth(name, width);
+			int textX = x + ((width - fontMetrics.stringWidth(text)) / 2);
+			int textY = y + ((height - fontMetrics.getHeight()) / 2)
+					+ fontMetrics.getHeight();
+			g.drawString(text, textX, textY);
+		}
+
+	}
+
+	/**
+	 * Generates an image of what currently is drawn on the canvas.
+	 * 
+	 * Throws an {@link ActivitiException} when {@link #close()} is already
+	 * called.
+	 */
+	public byte[] generateImageByteArray(String imageType) {
+		if (closed) {
+			throw new ActivitiException(
+					"ProcessDiagramGenerator already closed");
+		}
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			// // Try to remove white space
+			// minX = (minX <= 5) ? 5 : minX;
+			// minY = (minY <= 5) ? 5 : minY;
+			BufferedImage imageToSerialize = processDiagram;
+			// if (minX >= 0 && minY >= 0) {
+			// imageToSerialize = processDiagram.getSubimage(minX - 5, minY - 5,
+			// canvasWidth - minX + 5, canvasHeight - minY + 5);
+			// }
+			ImageIO.write(imageToSerialize, imageType, out);
+		} catch (IOException e) {
+			throw new ActivitiException("Error while generating process image",
+					e);
+		} finally {
+			IoUtil.closeSilently(out);
+		}
+		return out.toByteArray();
+	}
 }

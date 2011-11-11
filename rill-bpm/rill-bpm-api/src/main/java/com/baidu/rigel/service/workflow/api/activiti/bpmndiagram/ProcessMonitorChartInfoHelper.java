@@ -12,22 +12,26 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti.bpmndiagram;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import javax.annotation.Resource;
+
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.impl.cmd.GetDeploymentProcessDefinitionCmd;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.ReadOnlyProcessDefinition;
 import org.activiti.engine.impl.util.ReflectUtil;
-import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
-import org.springframework.aop.SpringProxy;
-import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
 
 /**
  * Process monitor chart generation helper classes.
@@ -39,8 +43,14 @@ import org.springframework.util.CollectionUtils;
  */
 public class ProcessMonitorChartInfoHelper {
 
+	private static final Logger logger = Logger.getLogger(ProcessMonitorChartInfoHelper.class.getName());
+	
+	@Resource
     private WorkflowOperations workflowAccessor;
+	@Resource
     private RigelWfTransitionTraceListener rigelWfTransitionTraceListener;
+	
+    private ActivitiAccessor activitiAccessor;
 
     public RigelWfTransitionTraceListener getRigelWfTransitionTraceListener() {
         return rigelWfTransitionTraceListener;
@@ -56,6 +66,8 @@ public class ProcessMonitorChartInfoHelper {
 
 	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
 		this.workflowAccessor = workflowAccessor;
+		
+		activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
 	}
 
 
@@ -63,8 +75,19 @@ public class ProcessMonitorChartInfoHelper {
 
         private byte[] diagramBytes;
         private Map<String, List<Integer>> taskDefinitionKeyPosition = new HashMap<String, List<Integer>>();
+        private Map<String, String> taskDefinitionKeyType = new HashMap<String, String>();
 
-        public byte[] getDiagramBytes() {
+        public final Map<String, String> getTaskDefinitionKeyType() {
+			return taskDefinitionKeyType;
+		}
+
+		public final ChartInfo setTaskDefinitionKeyType(
+				Map<String, String> taskDefinitionKeyType) {
+			this.taskDefinitionKeyType = taskDefinitionKeyType;
+			return this;
+		}
+
+		public byte[] getDiagramBytes() {
             return diagramBytes;
         }
 
@@ -89,48 +112,46 @@ public class ProcessMonitorChartInfoHelper {
     /**
      * Get process monitor chart info
      * @param processInstanceId process instance id
-     * @return process monitor chart info. NULL if process is end/ process intance id is invalid.
+     * @return process monitor chart info. NULL if process is end/ process instance id is invalid.
      */
-    public ChartInfo getMonitorChartInfo(String processInstanceId) {
+    public Map<String, ChartInfo> getMonitorChartInfo(String processInstanceId) {
 
-        List<String> takedTransitions = getRigelWfTransitionTraceListener().getTakedTransitions(processInstanceId);
+        Map<String, Map<String, String>> takedTransitions = getRigelWfTransitionTraceListener().getTakedTransitions(processInstanceId);
         // Delegate this operation
         return getMonitorChartInfo(processInstanceId, takedTransitions);
     }
-    
-    private ActivitiTemplate convertToActivitiTemplate(WorkflowOperations workflowAccessor) {
+
+    public Map<String, ChartInfo> getMonitorChartInfo(String processInstanceId, Map<String, Map<String, String>> takedTransitions) {
     	
-    	if (workflowAccessor instanceof SpringProxy) {
-    		try {
-				return (ActivitiTemplate) ((Advised) workflowAccessor).getTargetSource().getTarget();
-			} catch (Exception e) {
-				throw new IllegalArgumentException(e);
-			}
-    	} else {
-    		return (ActivitiTemplate) workflowAccessor;
-    	}
-    }
-
-    public ChartInfo getMonitorChartInfo(String processInstanceId, List<String> takedTransitions) {
-
-        // Process is end?
-        ProcessInstance processInstance = convertToActivitiTemplate(workflowAccessor).getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-        if (processInstance == null) return null;
-
-        ReadOnlyProcessDefinition processDefinition = (ReadOnlyProcessDefinition) ReflectUtil.invoke(workflowAccessor, "runExtraCommand",
-                new Object[] {new GetDeploymentProcessDefinitionCmd(processInstance.getProcessDefinitionId())});
-        Assert.notNull(processDefinition, "Can not found process definition[" + processInstance.getProcessInstanceId() + "]");
-
-        List<String> taskDefinitionKeyList = new ArrayList<String>();
-        List<Task> taskList = convertToActivitiTemplate(workflowAccessor).getTaskService().createTaskQuery().processInstanceId(processInstanceId).list();
-        if (!CollectionUtils.isEmpty(taskList)) {
-            for (Task task : taskList) {
-                taskDefinitionKeyList.add(task.getTaskDefinitionKey());
+    	Map<String, ChartInfo> allChartInfo = new HashMap<String, ProcessMonitorChartInfoHelper.ChartInfo>();
+    	
+    	for (Entry<String, Map<String, String>> entry : takedTransitions.entrySet()) {
+    		
+    		// Process is not exists.
+            HistoricProcessInstance processInstance = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(entry.getKey()).singleResult();
+            if (processInstance == null) {
+            	logger.warning("Can not get process instance by given id " + entry.getKey());
+            	return null;
             }
-        }
-        ChartInfo chartInfo = SmartSmoothDrawingPDG.generateDiagram((ProcessDefinitionEntity) processDefinition, "png",
-                taskDefinitionKeyList, takedTransitions);
+
+            ReadOnlyProcessDefinition processDefinition = (ReadOnlyProcessDefinition) ReflectUtil.invoke(activitiAccessor, "runExtraCommand",
+                    new Object[] {new GetDeploymentProcessDefinitionCmd(processInstance.getProcessDefinitionId())});
+            Assert.notNull(processDefinition, "Can not found process definition[" + processInstance.getId() + "]");
+
+            List<String> taskDefinitionKeyList = new ArrayList<String>();
+            List<Task> taskList = activitiAccessor.getTaskService().createTaskQuery().processInstanceId(entry.getKey()).list();
+            if (!CollectionUtils.isEmpty(taskList)) {
+                for (Task task : taskList) {
+                    taskDefinitionKeyList.add(task.getTaskDefinitionKey());
+                }
+            }
+            ChartInfo chartInfo = SmartSmoothDrawingPDG.generateDiagram((ProcessDefinitionEntity) processDefinition, "png",
+                    taskDefinitionKeyList, entry.getValue());
+            
+            allChartInfo.put(entry.getKey(), chartInfo);
+    	}
         
-        return chartInfo;
+        return allChartInfo;
     }
+    
 }
