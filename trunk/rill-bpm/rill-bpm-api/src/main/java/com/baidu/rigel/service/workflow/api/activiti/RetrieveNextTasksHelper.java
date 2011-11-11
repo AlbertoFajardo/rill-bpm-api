@@ -12,8 +12,6 @@
  */
 package com.baidu.rigel.service.workflow.api.activiti;
 
-import com.baidu.rigel.service.workflow.api.ThreadLocalResourceHolder;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +23,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.DelegateTask;
@@ -43,15 +42,75 @@ import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.xml.Element;
 import org.activiti.engine.impl.variable.VariableDeclaration;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.util.CollectionUtils;
+
+import com.baidu.rigel.service.workflow.api.ThreadLocalResourceHolder;
+import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
  * Retrieve generated-task and put it on thread.
+ * <p>
+ * 	Add auto awire transition take listener mechanism.
  * @author mengran
  */
-public class RetrieveNextTasksHelper implements BpmnParseListener {
+public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingBean, BeanFactoryAware {
 
-    public void parseProcess(Element processElement, ProcessDefinitionEntity processDefinition) {
+	private boolean autoAwireTransactionTakeListener = true;
+	
+    public final boolean isAutoAwireTransactionTakeListener() {
+		return autoAwireTransactionTakeListener;
+	}
+
+	public final void setAutoAwireTransactionTakeListener(
+			boolean autoAwireTransactionTakeListener) {
+		this.autoAwireTransactionTakeListener = autoAwireTransactionTakeListener;
+	}
+
+    private List<TransitionTakeEventListener> transitionTakeEventListener = new ArrayList<TransitionTakeEventListener>();
+
+    public List<TransitionTakeEventListener> getTransitionTakeEventListener() {
+        return transitionTakeEventListener;
+    }
+
+    public void setTransitionTakeEventListener(List<TransitionTakeEventListener> transitionTakeEventListener) {
+        this.transitionTakeEventListener = transitionTakeEventListener;
+    }
+    
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		
+		if (!isAutoAwireTransactionTakeListener()) {
+			logger.info("Disabled auto awire transaction take listener, so return.");
+			return;
+		}
+		
+		Map<String, TransitionTakeEventListener> map = ((ListableBeanFactory) cacheBeanFactory).getBeansOfType(TransitionTakeEventListener.class);
+		if (CollectionUtils.isEmpty(map)) return;
+		
+		if (getTransitionTakeEventListener() == null) {
+			setTransitionTakeEventListener(new ArrayList<RetrieveNextTasksHelper.TransitionTakeEventListener>());
+		}
+		
+		for (Entry<String, TransitionTakeEventListener> entry : map.entrySet()) {
+			logger.fine("Find " + entry.getValue().getClass() + " named " + entry.getKey() + ", and add to transion take listeners.");
+			getTransitionTakeEventListener().add(entry.getValue());
+		}
+	}
+	
+	private BeanFactory cacheBeanFactory;
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		
+		cacheBeanFactory = beanFactory;
+	}
+
+	public void parseProcess(Element processElement, ProcessDefinitionEntity processDefinition) {
         // Do nothing
     }
 
@@ -305,17 +364,6 @@ public class RetrieveNextTasksHelper implements BpmnParseListener {
         }
 
     }
-
-    private List<TransitionTakeEventListener> transitionTakeEventListener = new ArrayList<TransitionTakeEventListener>();
-
-    public List<TransitionTakeEventListener> getTransitionTakeEventListener() {
-        return transitionTakeEventListener;
-    }
-
-    public void setTransitionTakeEventListener(List<TransitionTakeEventListener> transitionTakeEventListener) {
-        this.transitionTakeEventListener = transitionTakeEventListener;
-    }
-
 
     public static abstract class TransitionTakeEventListener implements ExecutionListener {
 

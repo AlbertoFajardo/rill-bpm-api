@@ -41,7 +41,7 @@ public class Draw2DProcessDiagramTest {
                 // Generate process diagrame image bytes
                 ProcessMonitorChartInfoHelper helper = new ProcessMonitorChartInfoHelper();
                 helper.setWorkflowAccessor((ActivitiTemplate) getWorkflowAccessor());
-                ProcessMonitorChartInfoHelper.ChartInfo chartInfo = helper.getMonitorChartInfo(processInstance.getProcessInstanceId(), null);
+                ProcessMonitorChartInfoHelper.ChartInfo chartInfo = helper.getMonitorChartInfo(processInstance.getProcessInstanceId()).get(processInstance.getProcessInstanceId());
                 try {
                     File tmpImage = File.createTempFile("drawProcessDiagramTest", ".png");
                     FileImageOutputStream fios = new FileImageOutputStream(tmpImage);

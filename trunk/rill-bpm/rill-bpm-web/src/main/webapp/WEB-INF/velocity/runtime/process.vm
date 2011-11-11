@@ -32,9 +32,15 @@ var Ajax = {
     };
 
 var transport;
-function retrieveTaskInfo(taskDefinitionKey) {
+function retrieveTaskInfo(processInstanceId, taskDefinitionKey, type) {
+	 // alert(taskDefinitionKey + " " + processInstanceId + " " + type);
+	// return;
+	if (type !== 'userTask') {
+		// alert(type + " ignore!!!")
+		return;
+	}
     transport = Ajax.getTransport();
-     var url = "$!{contextPath}/bpmndiagram/taskinfo?processInstanceId=" + $!{processInstanceId} + "&activityDefineId=" + taskDefinitionKey + "&randomAjax" + Math.random();
+     var url = processInstanceId + "/diagram/" + taskDefinitionKey + "?randomAjax" + Math.random();
      transport.open("GET", url, true);
      transport.onreadystatechange = updatePage;
      transport.send(null);
@@ -59,12 +65,12 @@ function updatePage() {
 </script>
 </head>
 <body>
-    <img src="$!{contextPath}/bpmndiagram/diagram?processInstanceId=$!{processInstanceId}" border="0" usemap="#bpmnDiagram" alt="Bpmn Diagram" />
+    <img src="$!{processInstanceId}/diagram" border="0" usemap="#bpmnDiagram" alt="Bpmn Diagram" />
 
     <map name="bpmnDiagram" id="bpmnDiagram">
         #foreach($tdpEntry in $taskDefinitionPositionMap.entrySet())
             <area id="$!{tdpEntry.key}" shape="rect" coords="$!{tdpEntry.value.get(0)},$!{tdpEntry.value.get(1)},$!{tdpEntry.value.get(2)},$!{tdpEntry.value.get(3)}"
-                onmouseover="retrieveTaskInfo('$!{tdpEntry.key}');" alt="$!{tdpEntry.key}" />
+                onclick="retrieveTaskInfo('$!{processInstanceId}', '$!{tdpEntry.key}', '$!taskDefinitionTypeMap.get("$!{tdpEntry.key}")');" />
 	#end
     </map>
 </body>

@@ -16,12 +16,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
@@ -29,8 +31,10 @@ import org.activiti.engine.impl.util.ReflectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.util.CollectionUtils;
 
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
+import com.baidu.rigel.service.workflow.api.WorkflowOperations;
+import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
 import com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
 
 /**
@@ -47,9 +51,10 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
 
     @Override
     public void onTransitionTake(DelegateExecution execution, final String processInstanceId, final TransitionImpl transition) {
-
+    	
+    	WorkflowOperations workflowAccessor =  beanFactory.getBean("workflowAccessor", WorkflowOperations.class);
         // Do insert
-        ReflectUtil.invoke(beanFactory.getBean("workflowAccessor", ActivitiTemplate.class), "runExtraCommand",
+        ReflectUtil.invoke(ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class), "runExtraCommand",
                 new Object[] {new Command<Void>(){
 
             public Void execute(CommandContext commandContext) {
@@ -82,24 +87,27 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
     }
 
     @SuppressWarnings("unchecked")
-	public List<String> getTakedTransitions(final String processInstanceId) {
+	public Map<String, Map<String, String>> getTakedTransitions(final String processInstanceId) {
 
+    	WorkflowOperations workflowAccessor =  beanFactory.getBean("workflowAccessor", WorkflowOperations.class);
+    	final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
+    	
         // Do Search
-        return (List<String>) ReflectUtil.invoke(beanFactory.getBean("workflowAccessor", ActivitiTemplate.class), "runExtraCommand",
-                new Object[] {new Command<List<String>>(){
-
-            public List<String> execute(CommandContext commandContext) {
-
-                List<String> takedTransitions = new ArrayList<String>();
+        return (Map<String, Map<String, String>>) ReflectUtil.invoke(activitiAccessor, "runExtraCommand",
+                new Object[] {new Command<Map<String, Map<String, String>>>(){
+            
+            private void deeplyFirstRetrieveTransition(CommandContext commandContext, Map<String, Map<String, String>> allTransitions, String processInstance) {
+            	
+            	Map<String, String> takedTransitions = new LinkedHashMap<String, String>();
                 Connection c = commandContext.getDbSqlSession().getSqlSession().getConnection();
                 PreparedStatement pst = null;
                 ResultSet rs = null;
                 try {
-                    pst = c.prepareStatement("select TRANSITION_ID_ from RIGEL_WF_TRANSITION_TAKE_TRACE where PROC_INST_ID_ = ?");
-                    pst.setString(1, processInstanceId);
+                    pst = c.prepareStatement("select TRANSITION_ID_, TRANSITION_NAME_ from RIGEL_WF_TRANSITION_TAKE_TRACE where PROC_INST_ID_ = ? order by ID_ ASC");
+                    pst.setString(1, processInstance);
                     rs = pst.executeQuery();
                     while (rs.next()) {
-                        takedTransitions.add(rs.getString(1));
+                        takedTransitions.put(rs.getString(1), rs.getString(2));
                     }
                 } catch (SQLException ex) {
                     Logger.getLogger(RigelWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
@@ -117,9 +125,26 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
                             Logger.getLogger(RigelWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
+                    
+                    allTransitions.put(processInstance, takedTransitions);
                 }
                 
-                return takedTransitions;
+                List<HistoricProcessInstance> subProcesses = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery()
+                		.superProcessInstanceId(processInstance).orderByProcessInstanceStartTime().asc().list();
+                if (CollectionUtils.isEmpty(subProcesses)) return;
+                
+                for (HistoricProcessInstance hp : subProcesses) {
+                	deeplyFirstRetrieveTransition(commandContext, allTransitions, hp.getId());
+                }
+            }
+            
+            public Map<String, Map<String, String>> execute(CommandContext commandContext) {
+
+                Map<String, Map<String, String>> allTransitions = new LinkedHashMap<String, Map<String, String>>();
+                
+                deeplyFirstRetrieveTransition(commandContext, allTransitions, processInstanceId);
+                
+                return allTransitions;
             }
         }});
     }
