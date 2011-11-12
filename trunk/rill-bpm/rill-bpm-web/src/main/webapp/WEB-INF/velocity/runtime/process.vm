@@ -3,75 +3,80 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Bpmn Diagram</title>
+<style type="text/css">
+	/*demo page css*/
+	body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
+	.demoHeaders { margin-top: 2em; }
+	ul#icons {margin: 0; padding: 0;}
+	ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left;  list-style: none;}
+	ul#icons span.ui-icon {float: left; margin: 0 4px;}
+</style>
+<link type="text/css" href="../../../css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+<script type="text/javascript" src="../../../js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="../../../js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript">
-var Try = {
-  these: function() {
-    var returnValue;
 
-    for (var i = 0, length = arguments.length; i < length; i++) {
-      var lambda = arguments[i];
-      try {
-        returnValue = lambda();
-        break;
-      } catch (e) { }
-    }
+// Document ready
+$(document).ready(function() {
+	// alert("Hello jQuery");
+	
+	$("#dialog").hide();
+	
+	// Add onclick event to map area
+	$("area[name^='$!{processInstanceId}_']").each(function(index, areaElement) {
+		$(areaElement).click(function() {
+			var eid = $(this).attr("id").substring('$!{processInstanceId}_'.length);
+			handleMapAreaClick('$!{processInstanceId}', eid, $(this).attr("activityType"));
+		});
+	});	
+	
+});
 
-    return returnValue;
-  }
-};
-var Ajax = {
-      getTransport: function() {
-        return Try.these(
-          function() {return new XMLHttpRequest()},
-          function() {return new ActiveXObject('Msxml2.XMLHTTP')},
-          function() {return new ActiveXObject('Microsoft.XMLHTTP')}
-        ) || false;
-      },
+function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 
-      activeRequestCount: 0
-    };
-
-var transport;
-function retrieveTaskInfo(processInstanceId, taskDefinitionKey, type) {
-	 // alert(taskDefinitionKey + " " + processInstanceId + " " + type);
-	// return;
+	if (type === 'callActivity') {
+		var caUrl = processInstanceId + "/callActivity/" + taskDefinitionKey + "?randomAjax=" + Math.random();
+		//alert(caUrl);
+		jQuery.getJSON(caUrl, function(data){
+			jQuery.each(data, function(key, val){
+				if (key === "callActivityPList") {
+					if (jQuery.isArray(val) && val.length == 1) {
+						// Single callActivity process
+						document.location.href = val[0].id;
+					} else if (jQuery.isArray(val) && val.length > 1) {
+						// Multiple callActivity processes
+						$( "#dialog" ).dialog({
+							height: 140,
+							width:400,
+							modal: true
+						});
+						// document.location.href = val[0].id;
+					}
+				}
+			});
+		});
+		return;
+	}
+	
 	if (type !== 'userTask') {
 		// alert(type + " ignore!!!")
 		return;
 	}
-    transport = Ajax.getTransport();
-     var url = processInstanceId + "/diagram/" + taskDefinitionKey + "?randomAjax" + Math.random();
-     transport.open("GET", url, true);
-     transport.onreadystatechange = updatePage;
-     transport.send(null);
-}
-
-function updatePage() {
-     if (transport.readyState == 4) {
-       if (transport.status == 200) {
-         var taskInfoJson = eval('('+transport.responseText+')');
-         if (typeof(taskInfoJson.activitiDefineId)!="undefined" && taskInfoJson.activitiDefineId !== "null") {
-            var altString = "Task Executor(s): " + taskInfoJson.taskExeMan +
-                            "\nInitialize Time: " + taskInfoJson.taskInitialTime +
-                            "\nCompletion Time: " + taskInfoJson.taskCompleteTime;
-            document.getElementById(taskInfoJson.activitiDefineId).setAttribute("alt", altString);
-       } else {
-            return;
-       }
-     }
-   }
 }
 
 </script>
 </head>
 <body>
-    <img src="$!{processInstanceId}/diagram" border="0" usemap="#bpmnDiagram" alt="Bpmn Diagram" />
+    <img src="$!{processInstanceId}/diagram" border="0" usemap="#bpmnDiagram$!{processInstanceId}" />
 
-    <map name="bpmnDiagram" id="bpmnDiagram">
+    <map name="bpmnDiagram$!{processInstanceId}" id="bpmnDiagram$!{processInstanceId}">
         #foreach($tdpEntry in $taskDefinitionPositionMap.entrySet())
-            <area id="$!{tdpEntry.key}" shape="rect" coords="$!{tdpEntry.value.get(0)},$!{tdpEntry.value.get(1)},$!{tdpEntry.value.get(2)},$!{tdpEntry.value.get(3)}"
-                onclick="retrieveTaskInfo('$!{processInstanceId}', '$!{tdpEntry.key}', '$!taskDefinitionTypeMap.get("$!{tdpEntry.key}")');" />
-	#end
+            <area id="$!{processInstanceId}_$!{tdpEntry.key}" name="$!{processInstanceId}_$!{tdpEntry.key}" shape="rect" 
+            activityType='$!taskDefinitionTypeMap.get("$!{tdpEntry.key}")' href="javascript:void(0)"
+            coords="$!{tdpEntry.value.get(0)},$!{tdpEntry.value.get(1)},$!{tdpEntry.value.get(2)},$!{tdpEntry.value.get(3)}" />
+		#end
     </map>
+    
+    <div id="dialog" title="Please select processes.">Generated from JSON.</div>
 </body>
 </html>

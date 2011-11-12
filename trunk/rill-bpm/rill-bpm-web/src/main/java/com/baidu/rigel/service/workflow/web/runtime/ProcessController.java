@@ -1,5 +1,6 @@
 package com.baidu.rigel.service.workflow.web.runtime;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +12,20 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.impl.bpmn.behavior.CallActivityBehavior;
+import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
+import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.json.JSONWriter;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -71,6 +83,59 @@ public class ProcessController {
 		mav.addAllObjects(charInfoMap);
 		mav.setViewName("/runtime/process");
 		return mav;
+	}
+	
+	@RequestMapping(value = { "/{processInstanceId}/callActivity/{callActivityId}" }, method = RequestMethod.GET)
+	public void callActivity(HttpServletRequest request,
+			HttpServletResponse response, @PathVariable("processInstanceId") final String processInstanceId,
+			@PathVariable("callActivityId") final String callActivityId) throws Exception {
+		
+		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(
+				processMonitorChartInfoHelper.getWorkflowAccessor(), ActivitiAccessor.class);
+		
+		List<HistoricProcessInstance> callActivityProcessList = activitiAccessor.runExtraCommand(new Command<List<HistoricProcessInstance>>() {
+
+			@Override
+			public List<HistoricProcessInstance> execute(CommandContext commandContext) {
+				
+				final HistoricProcessInstance processInstance = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+				
+				// Initialize process definition if need.
+				ProcessDefinitionImpl pd = null;
+				pd = Context.getProcessEngineConfiguration().getDeploymentCache().findDeployedProcessDefinitionById(processInstance.getProcessDefinitionId());
+				Assert.notNull(pd, "Can not find process definition of process instance id " + processInstanceId);
+				
+				ActivityImpl callActivity = pd.findActivity(callActivityId);
+				Field callActivityField = ReflectUtil.getField("processDefinitonKey", ((CallActivityBehavior) callActivity.getActivityBehavior()));
+				callActivityField.setAccessible(true);
+				String processDefinitionKey = ReflectionUtils.getField(callActivityField, ((CallActivityBehavior) callActivity.getActivityBehavior())).toString();
+				
+				List<HistoricProcessInstance> subProcessList = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery()
+						.superProcessInstanceId(processInstanceId).orderByProcessInstanceStartTime().asc().list();
+				if (CollectionUtils.isEmpty(subProcessList)) return null;
+				
+				List<HistoricProcessInstance> callActivityPidList = new ArrayList<HistoricProcessInstance>(subProcessList.size());
+				for (HistoricProcessInstance hp : subProcessList) {
+					if (processDefinitionKey.equals(commandContext.getProcessDefinitionManager().findLatestProcessDefinitionById(hp.getProcessDefinitionId()).getKey())) {
+						callActivityPidList.add(hp);
+					}
+				}
+				
+				return callActivityPidList;
+			}
+        	
+        });
+		
+		// Return historic task information
+		response.setContentType("application/json");
+		JSONWriter jsonWriter = new JSONWriter(response.getWriter());
+		jsonWriter
+			.object()
+			.key("callActivityPList")
+			.value(callActivityProcessList)
+			.endObject();
+		response.getWriter().flush();
+		
 	}
 
 	@RequestMapping(value = { "/{processInstanceId}/diagram" }, method = RequestMethod.GET)
