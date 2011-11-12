@@ -96,6 +96,7 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 
 		// Add by MENGRAN for
 		g.setFont(new Font("宋体", Font.PLAIN, 12));
+		g.setPaint(TASK_COLOR);
 		this.fontMetrics = g.getFontMetrics();
 	}
 
@@ -229,7 +230,11 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 			int textX = x + ((width - fontMetrics.stringWidth(text)) / 2);
 			int textY = y + ((height - fontMetrics.getHeight()) / 2)
 					+ fontMetrics.getHeight();
+			
+			Paint originalPaint1 = g.getPaint();
+			g.setPaint(Color.BLACK);
 			g.drawString(text, textX, textY);
+			g.setPaint(originalPaint1);
 		}
 	}
 
@@ -422,8 +427,14 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 			int textX = x + ((width - fontMetrics.stringWidth(text)) / 2);
 			int textY = y + ((height - fontMetrics.getHeight()) / 2)
 					+ fontMetrics.getHeight();
+			Paint originalPaint1 = g.getPaint();
+			g.setPaint(Color.BLACK);
 			g.drawString(text, textX, textY);
+			g.setPaint(originalPaint1);
 		}
+		
+		// FIXME: Change icon
+		g.drawImage(SERVICETASK_IMAGE, x + 7, y + 7, ICON_SIZE, ICON_SIZE, null);
 
 	}
 
