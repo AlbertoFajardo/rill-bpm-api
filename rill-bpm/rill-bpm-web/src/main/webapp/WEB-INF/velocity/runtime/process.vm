@@ -8,6 +8,7 @@
 </style>
 <link type="text/css" href="../../../css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
 
+<script type="text/javascript" src="../../../js/rill.js"></script>
 <script type="text/javascript" src="../../../js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="../../../js/jquery-ui-1.8.16.custom.min.js"></script>
 
@@ -47,8 +48,8 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 						// Multiple callActivity processes
 						var genLink = "<div id='genLink'>";
 						$(val).each(function(index, pi) {
-							// alert(Date.parse(pi.startTime));
-							genLink = genLink + "<a href='" + pi.id + "'>" + pi.startTime + "</a><br />"
+							var d = new Date(pi.startTime).format("Y-m-d h:i:s");
+							genLink = genLink + "<a href='" + pi.id + "'>" + d + "</a><br />"
 						});
 						// alert(genLink);
 						genLink = genLink + "</div>";
@@ -79,7 +80,9 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 						var taskInfo = "<div id='taskInfo'>";
 						hasTaskInfo = 0;
 						$(val).each(function(index, ti) {
-							taskInfo = taskInfo + ti.name + " Start Time:" + ti.startTime + " End Time:" + ti.endTime;
+							var s = new Date(ti.startTime).format("Y-m-d h:i:s");
+							var e = new Date(ti.endTime).format("Y-m-d h:i:s");
+							taskInfo = taskInfo + ti.name + " Start Time:" + s + " End Time:" + e;
 							hasTaskInfo = 1;
 						});
 						// alert(taskInfo);
