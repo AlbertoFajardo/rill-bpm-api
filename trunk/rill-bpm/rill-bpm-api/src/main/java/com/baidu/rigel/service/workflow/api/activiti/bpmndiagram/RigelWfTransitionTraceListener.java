@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,18 +88,18 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
     }
 
     @SuppressWarnings("unchecked")
-	public Map<String, Map<String, String>> getTakedTransitions(final String processInstanceId) {
+	public Map<String, List<String[]>> getTakedTransitions(final String processInstanceId) {
 
     	WorkflowOperations workflowAccessor =  beanFactory.getBean("workflowAccessor", WorkflowOperations.class);
     	final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
     	
         // Do Search
-        return (Map<String, Map<String, String>>) ReflectUtil.invoke(activitiAccessor, "runExtraCommand",
-                new Object[] {new Command<Map<String, Map<String, String>>>(){
+        return (Map<String, List<String[]>>) ReflectUtil.invoke(activitiAccessor, "runExtraCommand",
+                new Object[] {new Command<Map<String, List<String[]>>>(){
             
-            private void deeplyFirstRetrieveTransition(CommandContext commandContext, Map<String, Map<String, String>> allTransitions, String processInstance) {
+            private void deeplyFirstRetrieveTransition(CommandContext commandContext, Map<String, List<String[]>> allTransitions, String processInstance) {
             	
-            	Map<String, String> takedTransitions = new LinkedHashMap<String, String>();
+            	List<String[]> takedTransitions = new ArrayList<String[]>();
                 Connection c = commandContext.getDbSqlSession().getSqlSession().getConnection();
                 PreparedStatement pst = null;
                 ResultSet rs = null;
@@ -107,7 +108,7 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
                     pst.setString(1, processInstance);
                     rs = pst.executeQuery();
                     while (rs.next()) {
-                        takedTransitions.put(rs.getString(1), rs.getString(2));
+                        takedTransitions.add(new String[] {rs.getString(1), rs.getString(2)});
                     }
                 } catch (SQLException ex) {
                     Logger.getLogger(RigelWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
@@ -138,9 +139,9 @@ public class RigelWfTransitionTraceListener extends TransitionTakeEventListener 
                 }
             }
             
-            public Map<String, Map<String, String>> execute(CommandContext commandContext) {
+            public Map<String, List<String[]>> execute(CommandContext commandContext) {
 
-                Map<String, Map<String, String>> allTransitions = new LinkedHashMap<String, Map<String, String>>();
+                Map<String, List<String[]>> allTransitions = new LinkedHashMap<String, List<String[]>>();
                 
                 deeplyFirstRetrieveTransition(commandContext, allTransitions, processInstanceId);
                 

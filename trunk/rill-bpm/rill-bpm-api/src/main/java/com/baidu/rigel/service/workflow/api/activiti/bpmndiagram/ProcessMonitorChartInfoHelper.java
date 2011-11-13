@@ -116,16 +116,16 @@ public class ProcessMonitorChartInfoHelper {
      */
     public Map<String, ChartInfo> getMonitorChartInfo(String processInstanceId) {
 
-        Map<String, Map<String, String>> takedTransitions = getRigelWfTransitionTraceListener().getTakedTransitions(processInstanceId);
+        Map<String, List<String[]>> takedTransitions = getRigelWfTransitionTraceListener().getTakedTransitions(processInstanceId);
         // Delegate this operation
         return getMonitorChartInfo(processInstanceId, takedTransitions);
     }
 
-    public Map<String, ChartInfo> getMonitorChartInfo(String processInstanceId, Map<String, Map<String, String>> takedTransitions) {
+    public Map<String, ChartInfo> getMonitorChartInfo(String processInstanceId, Map<String, List<String[]>> takedTransitions) {
     	
     	Map<String, ChartInfo> allChartInfo = new HashMap<String, ProcessMonitorChartInfoHelper.ChartInfo>();
     	
-    	for (Entry<String, Map<String, String>> entry : takedTransitions.entrySet()) {
+    	for (Entry<String, List<String[]>> entry : takedTransitions.entrySet()) {
     		
     		// Process is not exists.
             HistoricProcessInstance processInstance = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(entry.getKey()).singleResult();

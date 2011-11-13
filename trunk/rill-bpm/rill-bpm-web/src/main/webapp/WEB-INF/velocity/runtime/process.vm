@@ -4,16 +4,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Bpmn Diagram</title>
 <style type="text/css">
-	/*demo page css*/
 	body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
-	.demoHeaders { margin-top: 2em; }
-	ul#icons {margin: 0; padding: 0;}
-	ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left;  list-style: none;}
-	ul#icons span.ui-icon {float: left; margin: 0 4px;}
 </style>
 <link type="text/css" href="../../../css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+
 <script type="text/javascript" src="../../../js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="../../../js/jquery-ui-1.8.16.custom.min.js"></script>
+
 <script type="text/javascript">
 
 // Document ready
@@ -33,7 +30,10 @@ $(document).ready(function() {
 });
 
 function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
-
+	
+	$("#genLink").remove();
+	$("#taskInfo").remove();
+	
 	if (type === 'callActivity') {
 		var caUrl = processInstanceId + "/callActivity/" + taskDefinitionKey + "?randomAjax=" + Math.random();
 		//alert(caUrl);
@@ -45,6 +45,15 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 						document.location.href = val[0].id;
 					} else if (jQuery.isArray(val) && val.length > 1) {
 						// Multiple callActivity processes
+						var genLink = "<div id='genLink'>";
+						$(val).each(function(index, pi) {
+							// alert(Date.parse(pi.startTime));
+							genLink = genLink + "<a href='" + pi.id + "'>" + pi.startTime + "</a><br />"
+						});
+						// alert(genLink);
+						genLink = genLink + "</div>";
+						$(genLink).appendTo($("#dialog"));
+						
 						$( "#dialog" ).dialog({
 							height: 140,
 							width:400,
@@ -58,8 +67,36 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 		return;
 	}
 	
-	if (type !== 'userTask') {
+	if (type === 'userTask') {
 		// alert(type + " ignore!!!")
+		var caUrl = processInstanceId + "/diagram/" + taskDefinitionKey + "?randomAjax=" + Math.random();
+		//alert(caUrl);
+		jQuery.getJSON(caUrl, function(data){
+			jQuery.each(data, function(key, val){
+				if (key === "historicTaskList") {
+					if (jQuery.isArray(val)) {
+						// Multiple task instance
+						var taskInfo = "<div id='taskInfo'>";
+						hasTaskInfo = 0;
+						$(val).each(function(index, ti) {
+							taskInfo = taskInfo + ti.name + " Start Time:" + ti.startTime + " End Time:" + ti.endTime;
+							hasTaskInfo = 1;
+						});
+						// alert(taskInfo);
+						if (hasTaskInfo === 0) {
+							taskInfo = taskInfo + "No execution information";
+						}
+						taskInfo = taskInfo + "</div>";
+						$(taskInfo).appendTo($("#dialog"));
+						$( "#dialog" ).dialog({
+							height: 140,
+							width:400,
+							modal: true
+						});
+					}
+				}
+			});
+		});
 		return;
 	}
 }
@@ -77,6 +114,6 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 		#end
     </map>
     
-    <div id="dialog" title="Please select processes.">Generated from JSON.</div>
+    <div id="dialog" title=""></div>
 </body>
 </html>
