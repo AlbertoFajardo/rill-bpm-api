@@ -53,16 +53,16 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 	
 	protected static Stroke CALLACTIVITY_TASK_BORDER_STROKE = new BasicStroke(3.2f);
 
-	Map<String, String> takeTransitions = null;
+	private List<String[]> takeTransitions = null;
 	Map<String, List<Integer>> taskDefinitionKeyPosition = new HashMap<String, List<Integer>>();
 	Map<String, String> taskDefinitionKeyType = new HashMap<String, String>();
 
-	public Map<String, String> getTakeTransitions() {
+	private List<String[]> getTakeTransitions() {
 		return takeTransitions;
 	}
 
 	public SmartSmoothDrawingPDC setTakeTransitions(
-			Map<String, String> takeTransitions) {
+			List<String[]> takeTransitions) {
 		this.takeTransitions = takeTransitions;
 		return this;
 	}
@@ -117,10 +117,10 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 
 		nodeId = "(" + nodeId + ")";
 		EXECUTE_STATUS status = EXECUTE_STATUS.NO;
-		for (String tansitionName : getTakeTransitions().values()) {
-			if (tansitionName.startsWith(nodeId)) {
+		for (String[] tansitionIdName : getTakeTransitions()) {
+			if (tansitionIdName[1].startsWith(nodeId)) {
 				status = EXECUTE_STATUS.ED;
-			} else if (tansitionName.endsWith(nodeId)) {
+			} else if (tansitionIdName[1].endsWith(nodeId)) {
 				status = EXECUTE_STATUS.ING;
 			}
 		}
@@ -148,9 +148,11 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 		if (CollectionUtils.isEmpty(getTakeTransitions())) {
 			return false;
 		}
-
-		if (getTakeTransitions().keySet().contains(transition.getId())) {
-			return true;
+		
+		for (String[] takeTransitionIdName : getTakeTransitions()) {
+			if (takeTransitionIdName[0].equals(transition.getId())) {
+				return true;
+			}
 		}
 
 		return false;
@@ -215,6 +217,7 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 		g.fill(rect);
 		g.setPaint(originalPaint);
 
+		g.setPaint(Color.GRAY);
 		if (thickBorder) {
 			Stroke originalStroke = g.getStroke();
 			g.setStroke(THICK_TASK_BORDER_STROKE);
@@ -223,6 +226,7 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 		} else {
 			g.draw(rect);
 		}
+		g.setPaint(originalPaint);
 
 		// text
 		if (name != null) {
@@ -415,6 +419,7 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 				height, 20, 20);
 		g.fill(rect);
 		
+		g.setPaint(TASK_COLOR);
 		Stroke originalStroke = g.getStroke();
 	    g.setStroke(CALLACTIVITY_TASK_BORDER_STROKE);
 		g.draw(rect);

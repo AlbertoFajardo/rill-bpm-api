@@ -211,7 +211,7 @@ public class SmartSmoothDrawingPDG {
     return generateDiagram(processDefinition, "jpg", Collections.<String>emptyList());
   }
 
-  protected static SmartSmoothDrawingPDC generateDiagram(ProcessDefinitionEntity processDefinition, List<String> highLightedActivities, Map<String, String> takedTransitions) {
+  protected static SmartSmoothDrawingPDC generateDiagram(ProcessDefinitionEntity processDefinition, List<String> highLightedActivities, List<String[]> takedTransitions) {
     SmartSmoothDrawingPDC SmartSmoothDrawingPDC = initSmartSmoothDrawingPDC(processDefinition).setTakeTransitions(takedTransitions);
     for (ActivityImpl activity : processDefinition.getActivities()) {
      drawActivity(SmartSmoothDrawingPDC, activity, highLightedActivities);
@@ -222,10 +222,10 @@ public class SmartSmoothDrawingPDG {
 
   public static ProcessMonitorChartInfoHelper.ChartInfo generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities) {
 
-      return generateDiagram(processDefinition, imageType, highLightedActivities, Collections.<String, String>emptyMap());
+      return generateDiagram(processDefinition, imageType, highLightedActivities, Collections.<String[]>emptyList());
   }
 
-  public static ProcessMonitorChartInfoHelper.ChartInfo generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities, Map<String, String> takedTransitions) {
+  public static ProcessMonitorChartInfoHelper.ChartInfo generateDiagram(ProcessDefinitionEntity processDefinition, String imageType, List<String> highLightedActivities, List<String[]> takedTransitions) {
 
       SmartSmoothDrawingPDC smartSmoothDrawingPDC = generateDiagram(processDefinition, highLightedActivities, takedTransitions);
       return new ChartInfo().setDiagramBytes(smartSmoothDrawingPDC.generateImageByteArray(imageType))

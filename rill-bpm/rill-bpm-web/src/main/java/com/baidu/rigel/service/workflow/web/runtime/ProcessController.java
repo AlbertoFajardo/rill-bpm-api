@@ -127,7 +127,7 @@ public class ProcessController {
         });
 		
 		// Return historic task information
-		response.setContentType("application/json");
+		response.setContentType("application/json;charset=UTF-8");
 		JSONWriter jsonWriter = new JSONWriter(response.getWriter());
 		jsonWriter
 			.object()
@@ -167,7 +167,7 @@ public class ProcessController {
 			HttpServletResponse response,
 			@PathVariable("processInstanceId") String processInstanceId,
 			@PathVariable("activityId") String activityId) throws Exception {
-
+		
 		Map<String, ChartInfo> allChartInfos = processMonitorChartInfoHelper
 				.getMonitorChartInfo(processInstanceId);
 		ChartInfo chartInfo = allChartInfos.get(processInstanceId);
@@ -190,34 +190,16 @@ public class ProcessController {
 					.createHistoricTaskInstanceQuery()
 					.processInstanceId(processInstanceId)
 					.taskDefinitionKey(activityId).list();
-			if (historicTaskList == null || historicTaskList.isEmpty()) {
-				// Can not find task informations and throws error.
-				response.setContentType("application/json");
-				JSONWriter jsonWriter = new JSONWriter(response.getWriter());
-				jsonWriter.object().endObject();
-				response.getWriter().flush();
-				return;
-			} else {
-				// Return historic task information
-				response.setContentType("application/json");
-				JSONWriter jsonWriter = new JSONWriter(response.getWriter());
-				jsonWriter
-						.object()
-						.key("taskExeMan")
-						.value(historicTaskList.get(0).getAssignee())
-						.key("taskCompleteTime")
-						.value(historicTaskList.get(0).getEndTime() == null ? "Running..."
-								: df.format(historicTaskList.get(0)
-										.getEndTime()))
-						.key("taskInitialTime")
-						.value(historicTaskList.get(0).getStartTime() == null ? ""
-								: df.format(historicTaskList.get(0)
-										.getStartTime()))
-						.key("activitiDefineId").value(activityId)
-						.endObject();
-				response.getWriter().flush();
-				return;
-			}
+			
+			response.setContentType("application/json;charset=UTF-8");
+			JSONWriter jsonWriter = new JSONWriter(response.getWriter());
+			jsonWriter
+			.object()
+			.key("historicTaskList")
+			.value(historicTaskList)
+			.endObject();
+			response.getWriter().flush();
+			return;
 		} else if (chartInfo.getTaskDefinitionKeyType().get(activityId).equals("callActivity")) {
 			
 		} else if (chartInfo.getTaskDefinitionKeyType().get(activityId).equals("subProcess")) {
