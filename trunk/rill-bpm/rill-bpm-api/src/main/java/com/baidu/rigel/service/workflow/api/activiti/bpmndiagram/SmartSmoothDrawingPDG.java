@@ -62,7 +62,7 @@ public class SmartSmoothDrawingPDG {
     activityDrawInstructions.put("endEvent", new ActivityDrawInstruction() {
       public void draw(SmartSmoothDrawingPDC processDiagramCreator, ActivityImpl activityImpl) {
         processDiagramCreator.drawNoneEndEvent(activityImpl.getX(), activityImpl.getY(),
-                activityImpl.getWidth(), activityImpl.getHeight());
+                activityImpl.getWidth(), activityImpl.getHeight(), activityImpl);
       }
     });
 

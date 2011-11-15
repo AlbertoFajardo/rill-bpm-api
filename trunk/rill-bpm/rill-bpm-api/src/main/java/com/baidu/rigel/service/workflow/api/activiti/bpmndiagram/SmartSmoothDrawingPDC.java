@@ -175,7 +175,7 @@ public class SmartSmoothDrawingPDC extends ProcessDiagramCanvas {
 
 	public void drawNoneEndEvent(int x, int y, int width, int height,
 			ActivityImpl activity) {
-		if (haveExecuted(activity)) {
+		if (haveExecuted(activity) || EXECUTE_STATUS.ING.equals(haveExecuted(activity.getId()))) {
 			Stroke originalStroke = g.getStroke();
 			g.setStroke(END_EVENT_STROKE);
 			Paint originalPaint = g.getPaint();
