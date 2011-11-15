@@ -1,3 +1,4 @@
+// http://jacwright.com/projects/javascript/date_format/
 // Simulates PHP's date function
 Date.prototype.format = function(format) {
     var returnStr = '';
