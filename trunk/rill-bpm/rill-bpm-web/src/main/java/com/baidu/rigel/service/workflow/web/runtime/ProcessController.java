@@ -1,7 +1,6 @@
 package com.baidu.rigel.service.workflow.web.runtime;
 
 import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +39,6 @@ import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 @RequestMapping("/runtime/process")
 public class ProcessController {
 
-	private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	@Resource
 	private ProcessMonitorChartInfoHelper processMonitorChartInfoHelper;
 
