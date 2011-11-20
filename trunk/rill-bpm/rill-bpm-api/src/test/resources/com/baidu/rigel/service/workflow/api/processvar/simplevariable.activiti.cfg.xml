@@ -1,49 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-    <import resource="classpath:com/baidu/rigel/service/workflow/api/applicationContext-test-pgsupport.xml" />
+	<import
+		resource="classpath:com/baidu/rigel/service/workflow/api/applicationContext-test-pgsupport.xml" />
 
-    <bean id="processEngineConfiguration" class="com.baidu.rigel.service.workflow.api.activiti.Spring25ProcessConfigurationFactory" depends-on="internalProcessEngineConfiguration">
-        <property name="processEngineConfiguration">
-        	<ref local="internalProcessEngineConfiguration"/>
-        </property>
-        <property name="processEngineName" value="simplevariableEngine" />
-    </bean>
+	<bean id="riglWfTransitionTraceSchemaListener"
+		class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.RiglWfTransitionTraceSchemaListener">
+	</bean>
 
-    <bean id="internalProcessEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
 
-        <property name="jdbcUrl" value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000;MVCC=TRUE" />
-        <property name="jdbcDriver" value="org.h2.Driver" />
-        <property name="jdbcUsername" value="sa" />
-        <property name="jdbcPassword" value="" />
-        <property name="jdbcMaxActiveConnections" value="50" />
-        <property name="jdbcMaxIdleConnections" value="10" />
+	<!-- ##Activiti5 configuration## start -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="org.h2.Driver" />
+		<property name="url"
+			value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000;MVCC=TRUE" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
 
-        <!-- Database configurations -->
-        <property name="databaseSchemaUpdate" value="true" />
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
 
-        <!-- job executor configurations -->
-        <property name="jobExecutorActivate" value="false" />
+	<bean id="processEngineConfiguration"
+		class="com.baidu.rigel.service.workflow.api.activiti.RillProcessEngineConfiguration">
+		<property name="dataSource" ref="dataSource" />
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="databaseSchemaUpdate" value="true" />
+		<property name="mailServerHost" value="localhost" />
+		<property name="mailServerPort" value="5025" />
+		<property name="jobExecutorActivate" value="false" />
+		<!-- Rill extension -->
+		<property name="postParseListeners">
+			<bean
+				class="com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper">
+				<property name="transitionTakeEventListener">
+					<list>
+						<ref bean="rigelWfTransitionTraceListener" />
+					</list>
+				</property>
+			</bean>
+		</property>
 
-        <!-- mail server configurations -->
-        <property name="mailServerPort" value="5025" />
-
-        <!-- Rill extension -->
-        <property name="postParseListeners">
-            <bean class="com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper">
-                <property name="transitionTakeEventListener">
-                    <list>
-                        <ref bean="rigelWfTransitionTraceListener" />
-                    </list>
-                </property>
-            </bean>
-        </property>
-
-        <property name="processEngineName" value="simplevariableEngine" />
-    </bean>
+		<property name="processEngineName" value="simplevariableEngine" />
+	</bean>
+	<!-- ##Activiti5 configuration## end -->
 
 </beans>

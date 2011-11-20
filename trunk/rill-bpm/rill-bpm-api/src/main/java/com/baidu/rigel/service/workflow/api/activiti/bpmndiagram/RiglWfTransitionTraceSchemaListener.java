@@ -7,6 +7,11 @@ import org.activiti.engine.impl.interceptor.CommandExecutor;
 
 import com.baidu.rigel.service.workflow.api.activiti.RillProcessEngineConfiguration.SchemaOperationEventListener;
 
+/**
+ * Schema operation listener for RIGEL_WF_*, it's noticed during process engine creating.
+ * @author mengran
+ *
+ */
 public class RiglWfTransitionTraceSchemaListener extends SchemaOperationEventListener {
 
 	@Override

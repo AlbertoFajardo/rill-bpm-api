@@ -31,8 +31,11 @@
         </property>
     </bean>
 
+	<bean id="processMonitorChartInfoHelper" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
     <bean id="rigelWfTransitionTraceListener" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.RigelWfTransitionTraceListener" />
-    <bean id="processMonitorChartInfoHelper" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
+    <bean id="riglWfTransitionTraceSchemaListener"
+		class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.RiglWfTransitionTraceSchemaListener">
+	</bean>
 
 	<!-- the transactional advice (what 'happens'; see the <aop:advisor/> bean 
 		below) -->
