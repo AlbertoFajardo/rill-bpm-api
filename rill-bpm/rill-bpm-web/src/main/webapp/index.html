@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Solutions 
+Description: A two-column, fixed-width design for 1024x768 screen resolutions.
+Version    : 1.0
+Released   : 20091102
+
+-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>rill-bpm-web - make BPM easily</title>
+<meta name="keywords" content="BPM" />
+<meta name="description" content="rill-bpm-web" />
+<link type="text/css" href="./css/solutions/style.css" rel="stylesheet" />
+<link type="text/css" href="./css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+
+<script type="text/javascript" src="./js/rill.js"></script>
+<script type="text/javascript" src="./js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.8.16.custom.min.js"></script>
+
+<script type="text/javascript">
+
+// Document ready
+$(document).ready(function() {
+	// alert("Hello jQuery");
+	
+	$("#accordion").accordion({ header: "h3" });
+});
+
+</script>
+
+</head>
+<body>
+	<div id="logo">
+		<h1><a href="http://code.google.com/p/rill-bpm-api/" target="_blank">rill-bpm-web  </a></h1>
+		<p><em> 基于<a href="http://www.activiti.org/">Activiti</a>的企业级BPM解决方案</em></p>
+	</div>
+	<hr />
+	<!-- end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li class="current_page_item"><a href="" class="first">主页</a></li>
+				<li><a href="web/console/">流程管理</a></li>
+				<li><a href="#">流程分析</a></li>
+				<li><a href="#">关于</a></li>
+			</ul>
+		</div>
+		<!-- end #menu -->
+		<div id="search">
+			<form method="get" action="">
+				<fieldset>
+				<input type="text" name="s" id="search-text" size="15" />
+				<input type="submit" id="search-submit" value="搜索" />
+				</fieldset>
+			</form>
+		</div>
+		<!-- end #search -->
+	</div>
+	<!-- end #header -->
+	<!-- end #header-wrapper -->
+	<div id="page">
+		<div id="content">
+		  <div class="post">
+				<h2 class="title"><a href="javascript:void(0);">流程管理 </a></h2>
+				<p class="meta"><em>这里是一个 <strong>流程管理 </strong>入口。流程部署、流程查询、创建流程等  <a href="web/console/">进入</a></em></p>
+				<div class="entry">
+					<div id="accordion">
+						<div>
+							<h3><a href="javascript:void(0);">流程部署</a></h3>
+							<div>提供web接口的流程部署功能，可以部署单个/多个（zip格式压缩）流程定义文件。</div>
+						</div>
+						<div>
+							<h3><a href="javascript:void(0);">流程查询</a></h3>
+							<div>提供正在运行中的流程查询功能。可以查看流程的详细信息，比如发起人、发起时间、当前任务等；也可以监控流程运行的轨迹。</div>
+						</div>
+			
+						<div>
+							<h3><a href="javascript:void(0);">创建流程</a></h3>
+							<div>提供动态表单渲染功能。可以在部署流程后直接创建流程。</div>
+						</div>
+					</div>
+					<!-- 
+					<div><a href="#" class="links">Full Story</a></div>
+					 -->
+				</div>
+		  </div>
+			<div class="post">
+				<h2 class="title"><a href="#">Lorem ipsum sed aliquam</a></h2>
+				<p class="meta"><em>Sunday, April 26, 2009 7:27 AM Posted by <a href="#">Someone</a></em></p>
+				<div class="entry">
+					<p>Sed lacus. Donec lectus. Nullam pretium nibh ut turpis. Nam bibendum. In nulla tortor, elementum vel, tempor at, varius non, purus. Mauris vitae nisl nec   consectetuer. Donec ipsum. Proin imperdiet est. Phasellus <a href="#">dapibus semper urna</a>. Pellentesque ornare, orci in consectetuer hendrerit, urna elit eleifend nunc, ut consectetuer nisl felis ac diam. Etiam non felis. Donec ut ante. In id eros.</p>
+				</div>
+					<div><a href="#" class="links">Full Story</a></div>
+			</div>
+			<div class="post">
+				<h2 class="title"><a href="#">Lorem ipsum sed aliquam</a></h2>
+				<p class="meta"><em>Sunday, April 26, 2009 7:27 AM Posted by <a href="#">Someone</a></em></p>
+				<div class="entry">
+					<p>Mauris vitae nisl nec metus placerat consectetuer. Donec ipsum. Proin imperdiet est. Sed lacus. Donec lectus. Nullam pretium nibh ut turpis. Nam bibendum. In nulla tortor, elementum vel, tempor at, varius non, purus. Mauris vitae nisl nec metus placerat consectetuer. Donec ipsum. Proin imperdiet est. Phasellus <a href="#">dapibus semper urna</a>. Pellentesque ornare, orci in consectetuer hendrerit, urna elit eleifend nunc, ut consectetuer nisl felis ac diam. </p>
+			  </div>
+					<div><a href="#" class="links">Full Story</a></div>
+			</div>
+		</div><!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>企业级BPM解决方案</h2>
+					<p>使用业界流行的开源软件、框架（Tomcat、Embedded GlassFish、Activiti、Spring、jQuery）打造企业级BPM解决方案。</p>
+					<p>使用WS-AT/WS-COORD、JTA/2PC来解决分布式系统的事务协调。</p>
+				</li>
+				<li>
+					<h2>Pellenteque ornare </h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+					</ul>
+				</li>
+				<li>
+					<h2>Turpis nulla</h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+	<div id="footer">
+		<p>Copyright (c) 2011 RillMeng. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	<!-- end #footer -->
+</body>
+</html>
