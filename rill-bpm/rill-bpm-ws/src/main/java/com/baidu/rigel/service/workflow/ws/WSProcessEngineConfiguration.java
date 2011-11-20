@@ -7,7 +7,7 @@ package com.baidu.rigel.service.workflow.ws;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.impl.bpmn.deployer.BpmnDeployer;
@@ -17,69 +17,79 @@ import org.activiti.engine.impl.bpmn.parser.XMLImporter;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.util.ReflectUtil;
-import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.springframework.util.Assert;
+
+import com.baidu.rigel.service.workflow.api.activiti.RillProcessEngineConfiguration;
 
 /**
  * WS extension process engine configuration.
+ * 
  * @author mengran
  */
-public class WSProcessEngineConfiguration extends SpringProcessEngineConfiguration {
+public class WSProcessEngineConfiguration extends
+		RillProcessEngineConfiguration {
 
-    private static final Logger log = Logger.getLogger(WSProcessEngineConfiguration.class.getName());
-    
-    private XMLImporter wsXmlImporter;
+	private XMLImporter wsXmlImporter;
 
-    public XMLImporter getWsXmlImporter() {
-        return wsXmlImporter;
-    }
+	public XMLImporter getWsXmlImporter() {
+		return wsXmlImporter;
+	}
 
-    public void setWsXmlImporter(XMLImporter wsXmlImporter) {
-        this.wsXmlImporter = wsXmlImporter;
-    }
-    
-    @Override
-    public ProcessEngine buildProcessEngine() {
-        ProcessEngine processEngine = super.buildProcessEngine();
-        // Change WS importer
-        for (Deployer deployer : getDeployers()) {
-            // Find BpmnDeployer
-            if (deployer instanceof BpmnDeployer) {
-                ((BpmnDeployer) deployer).setBpmnParser(new WSBpmnParser(expressionManager));
-                log.log(Level.INFO, "Change BpmnParser implementation to {0}", WSBpmnParser.class.getName());
-            }
-        }
-        
-        return processEngine;
-    }
-    
-    public class WSBpmnParser extends BpmnParser {
+	public void setWsXmlImporter(XMLImporter wsXmlImporter) {
+		this.wsXmlImporter = wsXmlImporter;
+	}
 
-        public WSBpmnParser(ExpressionManager expressionManager) {
-            super(expressionManager);
-        }
+	@Override
+	public ProcessEngine buildProcessEngine() {
+		ProcessEngine processEngine = super.buildProcessEngine();
+		
+		// Change WS importer
+		for (Deployer deployer : getDeployers()) {
+			// Find BpmnDeployer
+			if (deployer instanceof BpmnDeployer) {
+				((BpmnDeployer) deployer).setBpmnParser(new WSBpmnParser(
+						expressionManager));
+				log.log(Level.INFO, "Change BpmnParser implementation to {0}",
+						WSBpmnParser.class.getName());
+			}
+		}
 
-        @Override
-        public BpmnParse createParse() {
-            BpmnParse bpmnParse = super.createParse();
-            
-            // Change WS importer implementation
-            Field importers = ReflectUtil.getField("importers", bpmnParse);
-            Assert.notNull(importers);
-            try {
-                importers.setAccessible(true);
-                ((Map<String, XMLImporter>) importers.get(bpmnParse)).put("http://schemas.xmlsoap.org/wsdl/", getWsXmlImporter());
-            } catch (IllegalArgumentException ex) {
-                log.log(Level.SEVERE, "Exception when xmlImporter config", ex);
-                throw new ActivitiException("Exception when xmlImporter config", ex);
-            } catch (IllegalAccessException ex) {
-                log.log(Level.SEVERE, "Exception when xmlImporter config", ex);
-                throw new ActivitiException("Exception when xmlImporter config", ex);
-            }
-            
-            return bpmnParse;
-        }
-        
-    }
-    
+		return processEngine;
+	}
+
+	public class WSBpmnParser extends BpmnParser {
+
+		public WSBpmnParser(ExpressionManager expressionManager) {
+			super(expressionManager);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public BpmnParse createParse() {
+			BpmnParse bpmnParse = super.createParse();
+
+			// Change WS importer implementation
+			Field importers = ReflectUtil.getField("importers", bpmnParse);
+			Assert.notNull(importers);
+			try {
+				importers.setAccessible(true);
+				((Map<String, XMLImporter>) importers.get(bpmnParse)).put(
+						"http://schemas.xmlsoap.org/wsdl/", getWsXmlImporter());
+			} catch (IllegalArgumentException ex) {
+				log.log(Level.SEVERE, "Exception when xmlImporter config", ex);
+				throw new ActivitiException(
+						"Exception when xmlImporter config", ex);
+			} catch (IllegalAccessException ex) {
+				log.log(Level.SEVERE, "Exception when xmlImporter config", ex);
+				throw new ActivitiException(
+						"Exception when xmlImporter config", ex);
+			}
+
+			return bpmnParse;
+		}
+
+	}
+	
+
+
 }

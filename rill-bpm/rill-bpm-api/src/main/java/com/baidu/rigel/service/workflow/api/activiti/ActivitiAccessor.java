@@ -37,10 +37,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.baidu.rigel.service.workflow.api.ProcessOperationInteceptor;
+import com.baidu.rigel.service.workflow.api.ThreadLocalResourceHolder;
 import com.baidu.rigel.service.workflow.api.WorkflowOperations;
 import com.baidu.rigel.service.workflow.api.WorkflowTemplate;
 import com.baidu.rigel.service.workflow.api.exception.ProcessException;
@@ -53,6 +55,8 @@ import com.baidu.rigel.service.workflow.api.support.TaskInstanceRelatedInfoCache
  */
 public abstract class ActivitiAccessor extends WorkflowTemplate implements InitializingBean, BeanFactoryAware, ApplicationEventPublisherAware {
 
+	public static final String ENGINE_BUILDING_TRANSACTION_PROPAGATION_EXPOSE = ActivitiAccessor.class.getName() + ".ENGINE_BUILDING_TRANSACTION_PROPAGATION_EXPOSE";
+	
     private RuntimeService runtimeService;
     private TaskService taskService;
     private RepositoryService repositoryService;
@@ -209,9 +213,15 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
     	
         if (this.getProcessEngine() == null) {
             Assert.notNull(this.getProcessEngineConfiguration(), "Properties 'ProcessEngineConfiguration' is required.");
-
-            // Retrieve process engine from it's holder
-            this.setProcessEngine(getProcessEngineConfiguration().buildProcessEngine());
+            
+            // We specify transaction propagation for fix MySQL's SQLException: 
+            // XAER_RMFAIL: The command cannot be executed when global transaction is in the  ACTIVE state
+            ThreadLocalResourceHolder.bindProperty(ENGINE_BUILDING_TRANSACTION_PROPAGATION_EXPOSE, new Integer(TransactionDefinition.PROPAGATION_NOT_SUPPORTED));
+			try {
+            	ActivitiAccessor.this.setProcessEngine(getProcessEngineConfiguration().buildProcessEngine());
+			} finally {
+				ThreadLocalResourceHolder.unbindProperty(ENGINE_BUILDING_TRANSACTION_PROPAGATION_EXPOSE);
+			}
             logger.log(Level.INFO, "Build process engine from it''s configuration.{0}", getProcessEngine());
         } else {
             logger.log(Level.INFO, "Retrieve process engine from inject property.{0}", getProcessEngine());
@@ -251,28 +261,7 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
         if (cache.getWorkflowAccessor() == null) {
         	cache.setWorkflowAccessor(this);
         }
-        
-        // RIGEL_WF_* DB initialize
-        runExtraCommand(new Command<Boolean>() {
 
-            public Boolean execute(CommandContext commandContext) {
-
-                boolean tablePresent = commandContext.getDbSqlSession().isTablePresent("RIGEL_WF_TRANSITION_TAKE_TRACE");
-                if (tablePresent) {
-                    return true;
-                }
-
-                // Do create
-                String resourceName = getResourceForDbOperation(commandContext.getDbSqlSession(), "create", "create", "wf");
-                commandContext.getDbSqlSession().executeSchemaResource("create", "wf", resourceName, false);
-                return true;
-            }
-
-            String getResourceForDbOperation(DbSqlSession dbSqlSession, String directory, String operation, String component) {
-                String databaseType = dbSqlSession.getDbSqlSessionFactory().getDatabaseType();
-                return "com/baidu/rigel/service/workflow/db/" + directory + "/rigel." + databaseType + "." + operation + "." + component + ".sql";
-            }
-        });
     }
 
     private class ActivitiExtraService extends ServiceImpl {
