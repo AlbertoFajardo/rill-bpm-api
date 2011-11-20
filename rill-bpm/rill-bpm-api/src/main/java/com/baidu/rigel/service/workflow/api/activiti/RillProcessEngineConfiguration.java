@@ -1,6 +1,5 @@
 package com.baidu.rigel.service.workflow.api.activiti;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,14 +18,16 @@ import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.interceptor.CommandInterceptor;
 import org.activiti.engine.impl.interceptor.LogInterceptor;
 import org.activiti.engine.impl.interceptor.SessionFactory;
-import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.activiti.spring.SpringTransactionInterceptor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.SpringProxy;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.NameMatchMethodPointcutAdvisor;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,7 +37,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.ReflectionUtils;
 
 import com.baidu.rigel.service.workflow.api.ThreadLocalResourceHolder;
 
@@ -48,11 +48,17 @@ import com.baidu.rigel.service.workflow.api.ThreadLocalResourceHolder;
  *  Add schema check listener mechanism, use Observer and Proxy Pattern.
  *
  */
-public class RillProcessEngineConfiguration extends SpringProcessEngineConfiguration{
+public class RillProcessEngineConfiguration extends SpringProcessEngineConfiguration implements BeanFactoryAware {
 
 	protected final Logger log = Logger.getLogger(getClass().getName());
 	
 	private ApplicationEventPublisher heldApplicationEventPublisher;
+	private BeanFactory beanFactory;
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory; 
+	}
 	
 	@Override
 	public ProcessEngine buildProcessEngine() {
@@ -77,9 +83,6 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
 
         public SchemaOperationEventListenerAdapter(SimpleApplicationEventMulticaster aemc) {
             this.saemc = aemc;
-            Field beanFactoryField = ReflectUtil.getField("beanFactory", getBeans());
-            beanFactoryField.setAccessible(true);
-            BeanFactory beanFactory = (BeanFactory) ReflectionUtils.getField(beanFactoryField, getBeans());
             String[] listenerNames = ((ListableBeanFactory) beanFactory).getBeanNamesForType(SchemaOperationEventListener.class);
             if (listenerNames != null && listenerNames.length > 0) {
                 for (String listenerName : listenerNames) {
@@ -136,7 +139,13 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
 	
 	private void proxyDbSqlSessionFactory() {
 		
-		final DbSqlSessionFactory dbSqlSessionFactory = (DbSqlSessionFactory) getSessionFactories().get(DbSqlSession.class);
+		final SessionFactory sessionFactory = getSessionFactories().get(DbSqlSession.class);
+		if (sessionFactory instanceof SpringProxy) {
+			log.warning("DbSqlSessionFactory has been proxied. so we directly return." + sessionFactory);
+			return;
+		}
+		
+		final DbSqlSessionFactory dbSqlSessionFactory = (DbSqlSessionFactory) sessionFactory;
 		ProxyFactory factory = new ProxyFactory(dbSqlSessionFactory);
 		NameMatchMethodPointcutAdvisor advisor = new NameMatchMethodPointcutAdvisor(new MethodInterceptor() {
 			
@@ -316,6 +325,7 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
 		  }
 		
 	}
+
 
 	
 }

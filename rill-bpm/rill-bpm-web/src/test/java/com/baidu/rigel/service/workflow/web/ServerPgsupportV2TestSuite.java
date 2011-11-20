@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	ServerPgsupportV2Test.class
 })
-public class ServerPgsupportV2SuiteTest {
+public class ServerPgsupportV2TestSuite {
 
 	
 }
