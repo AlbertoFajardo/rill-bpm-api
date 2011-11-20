@@ -3,19 +3,20 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  -5.7.jar antlr-2.7.2.jar aopalliance-1.0.jar aspectjweaver-1.6.8.jar 
  commons-beanutils-1.7.0.jar commons-chain-1.1.jar commons-collections
  -3.2.1.jar commons-dbcp-1.4.jar commons-digester-1.8.jar commons-emai
- l-1.2.jar commons-lang-2.4.jar commons-logging-1.1.jar commons-pool-1
- .5.4.jar commons-validator-1.3.1.jar dom4j-1.1.jar draw2d-3.2.100-v20
- 070529.jar freemarker-2.3.8.jar hazelcast-1.9.3.1.jar hazelcast-clien
- t-1.9.3.1.jar hazelcast-spring-1.9.3.1.jar jsr250-api-1.0.jar livetri
- be-jsr223-2.0.6.jar mail-1.4.1.jar mybatis-3.0.4.jar mysql-connector-
- java-5.1.18.jar oro-2.0.8.jar rill-bpm-api.jar rill-bpm-embeddedgf-3.
- 1.jar rill-bpm-ws.jar spring-aop-3.0.3.RELEASE.jar spring-asm-3.0.3.R
- ELEASE.jar spring-beans-3.0.3.RELEASE.jar spring-context-3.0.3.RELEAS
- E.jar spring-context-support-3.0.3.RELEASE.jar spring-core-3.0.3.RELE
- ASE.jar spring-expression-3.0.3.RELEASE.jar spring-jdbc-3.0.3.RELEASE
- .jar spring-orm-3.0.3.RELEASE.jar spring-test-3.0.3.RELEASE.jar sprin
- g-tx-3.0.3.RELEASE.jar spring-web-3.0.3.RELEASE.jar spring-webmvc-3.0
- .3.RELEASE.jar sslext-1.2-0.jar struts-core-1.3.8.jar struts-taglib-1
- .3.8.jar struts-tiles-1.3.8.jar swt-3.3.0-v3346.jar velocity-1.6.3.ja
- r velocity-tools-2.0.jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar
+ l-1.2.jar commons-fileupload-1.2.2.jar commons-io-1.4.jar commons-lan
+ g-2.4.jar commons-logging-1.1.jar commons-pool-1.5.4.jar commons-vali
+ dator-1.3.1.jar dom4j-1.1.jar draw2d-3.2.100-v20070529.jar freemarker
+ -2.3.8.jar hazelcast-1.9.3.1.jar hazelcast-client-1.9.3.1.jar hazelca
+ st-spring-1.9.3.1.jar jsr250-api-1.0.jar livetribe-jsr223-2.0.6.jar m
+ ail-1.4.1.jar mybatis-3.0.4.jar mysql-connector-java-5.1.18.jar oro-2
+ .0.8.jar rill-bpm-api.jar rill-bpm-embeddedgf-3.1.jar rill-bpm-ws.jar
+  spring-aop-3.0.3.RELEASE.jar spring-asm-3.0.3.RELEASE.jar spring-bea
+ ns-3.0.3.RELEASE.jar spring-context-3.0.3.RELEASE.jar spring-context-
+ support-3.0.3.RELEASE.jar spring-core-3.0.3.RELEASE.jar spring-expres
+ sion-3.0.3.RELEASE.jar spring-jdbc-3.0.3.RELEASE.jar spring-orm-3.0.3
+ .RELEASE.jar spring-test-3.0.3.RELEASE.jar spring-tx-3.0.3.RELEASE.ja
+ r spring-web-3.0.3.RELEASE.jar spring-webmvc-3.0.3.RELEASE.jar sslext
+ -1.2-0.jar struts-core-1.3.8.jar struts-taglib-1.3.8.jar struts-tiles
+ -1.3.8.jar swt-3.3.0-v3346.jar velocity-1.6.3.jar velocity-tools-2.0.
+ jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar
 

@@ -22,6 +22,20 @@
         <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
     </listener>
     
+    <!-- Character filter -->
+    <filter>
+	    <filter-name>UTF8Filter</filter-name>
+    	<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    	<init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+    	<filter-name>UTF8Filter</filter-name>
+    	<url-pattern>/web/*</url-pattern>
+    </filter-mapping>
+    
     <!-- wstx-services -->
     <servlet>
         <description>WS-Coordination registerResponse service endpoint</description>
@@ -100,5 +114,6 @@
     </session-config>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 </web-app>

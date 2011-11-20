@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Solutions 
+Description: A two-column, fixed-width design for 1024x768 screen resolutions.
+Version    : 1.0
+Released   : 20091102
+
+-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>rill-bpm-web - process console</title>
+<meta name="keywords" content="BPM" />
+<meta name="description" content="rill-bpm-web" />
+<link type="text/css" href="#springUrl("")/css/solutions/style.css" rel="stylesheet" />
+<link type="text/css" href="#springUrl("")/css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<style type="text/css">
+	#deploy-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
+	#deploy-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+</style>	
+
+<script type="text/javascript" src="#springUrl("")/js/rill.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jquery-ui-1.8.16.custom.min.js"></script>
+
+<script type="text/javascript">
+
+// Document ready
+$(document).ready(function() {
+	// alert("Hello jQuery");
+	
+	$("#dialog").hide();
+	
+	$("#deploy-submit").click(function() {
+		if ($("#deployFile").val().length < 1) return false;
+		$("#deployForm").submit();
+	});
+	//hover states on the static widgets
+	$('#deploy-submit, ul#icons li').hover(
+		function() { $(this).addClass('ui-state-hover'); }, 
+		function() { $(this).removeClass('ui-state-hover'); }
+	);
+	
+});
+
+function afterDeploy(deploymentId, message) {
+	
+	var message = deploymentId < 0 ? "<div>部署失败[" + message + "]</div>" : "<div>部署成功[" + deploymentId + "]</div>";
+	$("#dialog").empty(); 
+	$(message).appendTo($("#dialog"));
+	$( "#dialog" ).dialog({
+		height: 140,
+		width:400,
+		modal: true
+	});
+}
+
+</script>
+
+</head>
+<body>
+	<div id="logo">
+		<h1><a href="http://code.google.com/p/rill-bpm-api/" target="_blank">rill-bpm-web  </a></h1>
+		<p><em> 基于<a href="http://www.activiti.org/">Activiti</a>的企业级BPM解决方案</em></p>
+	</div>
+	<hr />
+	<!-- end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li><a href="#springUrl("")" class="first">主页</a></li>
+				<li class="current_page_item"><a href="javascript:void(0);">流程管理</a></li>
+				<li><a href="#">流程分析</a></li>
+				<li><a href="#">关于</a></li>
+			</ul>
+		</div>
+		<!-- end #menu -->
+		<div id="search">
+			<form method="get" action="">
+				<fieldset>
+				<input type="text" name="s" id="search-text" size="15" />
+				<input type="submit" id="search-submit" value="搜索" />
+				</fieldset>
+			</form>
+		</div>
+		<!-- end #search -->
+	</div>
+	<!-- end #header -->
+	<!-- end #header-wrapper -->
+	<div id="page">
+		<div id="content">
+		  <div class="post">
+				<h2 class="title"><a href="javascript:void(0);">流程部署 </a></h2>
+				<p class="meta"><em>提供web接口的流程部署功能，可以部署单个/多个（zip格式压缩）流程定义文件。</em></p>
+				<div class="entry">
+					<form id="deployForm" name="deployForm" method="post" action="#springUrl("")/web/console/deploy" target="hiddenDeployIframe" 
+						enctype="multipart/form-data">
+						<input type="hidden" name="afterDeploy" value="afterDeploy" />
+						<input type="file" id="deployFile" name="deployFile" size="40" />
+						<p><a href="javascript:void(0);" id="deploy-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-newwin"></span>部署</a></p>
+					</form>
+					<iframe name="hiddenDeployIframe" id="hiddenDeployIframe" style="display:none"></iframe>
+				</div>
+		  </div>
+			<div class="post">
+				<h2 class="title"><a href="#">流程查询</a></h2>
+				<p class="meta"><em>提供查看流程定义、运行中的流程实例功能。</em></p>
+				<div class="entry">
+					<p>Sed lacus. Donec lectus. Nullam pretium nibh ut turpis. Nam bibendum. In nulla tortor, elementum vel, tempor at, varius non, purus. Mauris vitae nisl nec   consectetuer. Donec ipsum. Proin imperdiet est. Phasellus <a href="#">dapibus semper urna</a>. Pellentesque ornare, orci in consectetuer hendrerit, urna elit eleifend nunc, ut consectetuer nisl felis ac diam. Etiam non felis. Donec ut ante. In id eros.</p>
+				</div>
+					<div><a href="#" class="links">Full Story</a></div>
+			</div>
+			<div class="post">
+				<h2 class="title"><a href="#">Lorem ipsum sed aliquam</a></h2>
+				<p class="meta"><em>Sunday, April 26, 2009 7:27 AM Posted by <a href="#">Someone</a></em></p>
+				<div class="entry">
+					<p>Mauris vitae nisl nec metus placerat consectetuer. Donec ipsum. Proin imperdiet est. Sed lacus. Donec lectus. Nullam pretium nibh ut turpis. Nam bibendum. In nulla tortor, elementum vel, tempor at, varius non, purus. Mauris vitae nisl nec metus placerat consectetuer. Donec ipsum. Proin imperdiet est. Phasellus <a href="#">dapibus semper urna</a>. Pellentesque ornare, orci in consectetuer hendrerit, urna elit eleifend nunc, ut consectetuer nisl felis ac diam. </p>
+			  </div>
+					<div><a href="#" class="links">Full Story</a></div>
+			</div>
+		</div><!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>流程管理</h2>
+					<p>这里集成了常用的流程相关的交互功能。</p>
+				</li>
+				<li>
+					<h2>流程部署 </h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+					</ul>
+				</li>
+				<li>
+					<h2>Turpis nulla</h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+	<div id="footer">
+		<p>Copyright (c) 2011 RillMeng. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	<!-- end #footer -->
+	
+	<div id="dialog" title=""></div>
+</body>
+</html>
