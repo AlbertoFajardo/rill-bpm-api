@@ -1,12 +1,28 @@
 package com.baidu.rigel.service.workflow.web.console;
 
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.engine.impl.HistoricProcessInstanceQueryImpl;
+import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
+import org.activiti.engine.impl.ProcessDefinitionQueryProperty;
+import org.activiti.engine.impl.ProcessInstanceQueryImpl;
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.util.json.JSONWriter;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.repository.ProcessDefinitionQuery;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -73,6 +89,75 @@ public class ProcessManagerConsoleController {
 	                + "','" + e.getMessage() + "');</script>"); 
 			response.getWriter().flush();
 		}
+		
+	}
+	
+	@RequestMapping(value = { "/processDefList" }, method = RequestMethod.GET)
+	public void processDefList(HttpServletRequest request,
+			final HttpServletResponse response) throws Exception {
+		
+		response.setContentType("application/json;charset=UTF-8");
+		final PrintWriter out = response.getWriter();
+		
+		final Integer page = Integer.parseInt(request.getParameter("page"));
+		final Integer rows = Integer.parseInt(request.getParameter("rows"));
+		final boolean sord = "asc".equals(request.getParameter("sord")) ? true : false;
+		final ProcessDefinitionQueryProperty pdqp = ProcessDefinitionQueryProperty.findByName(request.getParameter("sidx")) == null ? 
+				ProcessDefinitionQueryProperty.PROCESS_DEFINITION_KEY : ProcessDefinitionQueryProperty.findByName(request.getParameter("sidx"));
+		activitiAccessor.runExtraCommand(new Command<Void>() {
+
+			@Override
+			public Void execute(CommandContext commandContext) {
+				
+				ProcessDefinitionQuery pdq = new ProcessDefinitionQueryImpl(commandContext).orderBy(pdqp);
+				if (sord) {
+					pdq.asc();
+				} else {
+					pdq.desc();
+				}
+				List<ProcessDefinition> processDefList = pdq.listPage((page - 1) * rows, rows);
+				long totalCnt = new ProcessDefinitionQueryImpl(commandContext).count();
+				
+				List<Map<String, Object>> processDefMap = new ArrayList<Map<String,Object>>(processDefList.size());
+				for (int i = 0; i < processDefList.size(); i++) {
+					Map<String, Object> element = new LinkedHashMap<String, Object>();
+					element.put("id", processDefList.get(i).getId());
+					String[] peerProcessDef = new String[5];
+					// Key
+					peerProcessDef[0] = processDefList.get(i).getKey();
+					// Running
+					Long runningCnt = new ProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefList.get(i).getId()).count();
+					peerProcessDef[1] = runningCnt + "";
+					// End
+					Long endCnt = new HistoricProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefList.get(i).getId()).count();
+					peerProcessDef[2] = endCnt + "";
+					// Version
+					peerProcessDef[3] = processDefList.get(i).getVersion() + "";
+					// Deploy Time
+					Deployment deployment = commandContext.getDeploymentManager().findDeploymentById(processDefList.get(i).getDeploymentId());
+					peerProcessDef[4] = DateFormatUtils.format(deployment.getDeploymentTime(), "yyyy-MM-dd hh:m:ss");
+					element.put("cell", peerProcessDef);
+					processDefMap.add(element);
+				}
+				
+				JSONWriter jsonWriter = new JSONWriter(out);
+				jsonWriter
+					.object()
+					.key("total")
+					.value((totalCnt / rows) + 1)
+					.key("page")
+					.value(page)
+					.key("records")
+					.value(totalCnt)
+					.key("invdata")
+					.value(processDefMap)
+					.endObject();
+				out.flush();
+				
+				return null;
+			}
+			
+		});
 		
 	}
 }

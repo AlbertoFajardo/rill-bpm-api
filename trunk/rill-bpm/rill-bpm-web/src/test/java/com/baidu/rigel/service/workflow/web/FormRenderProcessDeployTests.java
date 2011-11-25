@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.baidu.rigel.service.workflow.api.ContinuousPerformanceTests;
 
-public class FormRenderProcessDeployTest {
+public class FormRenderProcessDeployTests {
 
 	private ProcessEngine processEngine;
 	

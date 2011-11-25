@@ -87,9 +87,9 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-api</artifactId>
-			<classifier>test</classifier>
 			<version>${version}</version>
 			<scope>test</scope>
+			<type>test-jar</type>
 		</dependency>
 	</dependencies>
 
