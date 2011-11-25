@@ -22,11 +22,14 @@ Released   : 20091102
 <style type="text/css">
 	#deploy-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
 	#deploy-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
-</style>	
+</style>
+<link rel="stylesheet" type="text/css" media="screen" href="#springUrl("")/css/jqgrid/ui.jqgrid.css" />	
 
 <script type="text/javascript" src="#springUrl("")/js/rill.js"></script>
 <script type="text/javascript" src="#springUrl("")/js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="#springUrl("")/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jqgrid/i18n/grid.locale-en.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jqgrid/jquery.jqGrid.min.js"></script>
 
 <script type="text/javascript">
 
@@ -45,6 +48,30 @@ $(document).ready(function() {
 		function() { $(this).addClass('ui-state-hover'); }, 
 		function() { $(this).removeClass('ui-state-hover'); }
 	);
+	
+	// Data tables "#springUrl("")/web/console/processDefList"
+	$('#jqGrid').jqGrid({ 
+		url : "#springUrl("")/web/console/processDefList",
+		datatype : 'json',
+		mtype : 'GET',
+		colNames:['流程定义ID','运行中', '已结束', '版本','最新上传时间'],
+		colModel :[ 
+	      {name:'procDefKey', index:'PD.KEY_', width:120}, 
+	      {name:'procDefRunning', index:'procDefRunning', width:20, sortable: false},
+	      {name:'procDefEnd', index:'procDefEnd', width:20, sortable: false}, 
+	      {name:'procDefVersion', index:'procDefVersion', width:20, sortable: false}, 
+	      {name:'procDefLastedTime', index:'procDefLastedTime', width:75, align:'center', sortable: false}
+	    ],
+	    jsonReader : {
+	    	repeatitems: true,
+	    	root:"invdata"
+	    },
+		autowidth : true,
+		pager: '#jqGridPager',
+		height: 'auto',
+	    rowNum:10,
+	    rowList:[10]
+    });
 	
 });
 
@@ -108,12 +135,12 @@ function afterDeploy(deploymentId, message) {
 				</div>
 		  </div>
 			<div class="post">
-				<h2 class="title"><a href="#">流程查询</a></h2>
+				<h2 class="title"><a href="javascript:void(0);">流程查询</a></h2>
 				<p class="meta"><em>提供查看流程定义、运行中的流程实例功能。</em></p>
 				<div class="entry">
-					<p>Sed lacus. Donec lectus. Nullam pretium nibh ut turpis. Nam bibendum. In nulla tortor, elementum vel, tempor at, varius non, purus. Mauris vitae nisl nec   consectetuer. Donec ipsum. Proin imperdiet est. Phasellus <a href="#">dapibus semper urna</a>. Pellentesque ornare, orci in consectetuer hendrerit, urna elit eleifend nunc, ut consectetuer nisl felis ac diam. Etiam non felis. Donec ut ante. In id eros.</p>
+					<table id="jqGrid"><tr><td/></tr></table> 
+					<div id="jqGridPager"></div> 
 				</div>
-					<div><a href="#" class="links">Full Story</a></div>
 			</div>
 			<div class="post">
 				<h2 class="title"><a href="#">Lorem ipsum sed aliquam</a></h2>

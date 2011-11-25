@@ -10,7 +10,7 @@ import org.activiti.engine.test.Deployment;
 
 import com.baidu.rigel.service.workflow.api.PgSupportV2Test;
 
-public class ServerPgsupportV2Test extends PgSupportV2Test {
+public class ServerPgsupportV2Tests extends PgSupportV2Test {
 
 	@Override
 	public void runBare() throws Throwable {
