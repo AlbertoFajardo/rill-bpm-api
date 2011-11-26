@@ -49,7 +49,7 @@ $(document).ready(function() {
 		function() { $(this).removeClass('ui-state-hover'); }
 	);
 	
-	// Data tables "#springUrl("")/web/console/processDefList"
+	// Process definition
 	$('#jqGrid').jqGrid({ 
 		url : "#springUrl("")/web/console/processDefList",
 		datatype : 'json',
@@ -66,8 +66,79 @@ $(document).ready(function() {
 	    	repeatitems: true,
 	    	root:"invdata"
 	    },
+	    gridComplete: function() {
+	    	$("tr.jqgrow", this).each(function(index, ele){
+	    		trRowId = $(ele).attr("id");
+	    		$("td", ele).each(function(tdIndex, tdEle){
+	    			tdEleText = $(tdEle).text();
+	    			if (tdIndex == 1 && tdEleText !== "0") {
+	    				$(tdEle).empty(); 
+	    				runningLink = "<a onclick='processInstanceList(\"" + trRowId + "\", true);' class='ui-state-default ui-corner-all' href='javascript:void(0);'>" + tdEleText + "</a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    			if (tdIndex == 2 && tdEleText !== "0") {
+	    				$(tdEle).empty(); 
+	    				runningLink = "<a onclick='processInstanceList(\"" + trRowId + "\", false);' class='ui-state-default ui-corner-all' href='javascript:void(0);'>" + tdEleText + "</a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    		});
+	    	});
+	    },
+		beforeSelectRow: function(rowid, e) {
+		    //var $link = $('a', e.target);
+		    //if (e.target.tagName.toUpperCase() === "A" || $link.length > 0) {
+		    //    // link exist in the item which is clicked
+		    //    return false;
+		    //}
+		    return false;
+		},
 		autowidth : true,
 		pager: '#jqGridPager',
+		height: 'auto',
+	    rowNum:10,
+	    rowList:[10]
+    });
+    
+    // Process instance
+	$('#pijqGrid').jqGrid({ 
+		url : "#springUrl("")/web/console/processInstanceList/" + true + "/" + "-1" + "?randomAjax=" + Math.random(),
+		datatype : 'json',
+		mtype : 'GET',
+		colNames:['流程实例ID','业务对象KEY', '启动时间', '结束时间','启动人'],
+		colModel :[ 
+	      {name:'procInstanceId', index:'PROC_INST_ID_', width:30, sortable: true}, 
+	      {name:'businessKey', index:'BUSINESS_KEY_', width:50, sortable: true},
+	      {name:'startTime', index:'START_TIME_', width:75, align:'center', sortable: true}, 
+	      {name:'endTime', index:'END_TIME_', width:75, align:'center', sortable: true}, 
+	      {name:'startUser', index:'startUser', width:50, align:'left', sortable: false}
+	    ],
+	    jsonReader : {
+	    	repeatitems: true,
+	    	root:"invdata"
+	    },
+	    gridComplete: function() {
+	    	$("tr.jqgrow", this).each(function(index, ele){
+	    		trRowId = $(ele).attr("id");
+	    		$("td", ele).each(function(tdIndex, tdEle){
+	    			tdEleText = $(tdEle).text();
+	    			if (tdIndex == 0) {
+	    				$(tdEle).empty(); 
+	    				runningLink = "<a target='_blank' class='ui-state-default ui-corner-all' href='#springUrl("")/web/runtime/process/" + tdEleText + "'>" + tdEleText + "</a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    		});
+	    	});
+	    },
+		beforeSelectRow: function(rowid, e) {
+		    //var $link = $('a', e.target);
+		    //if (e.target.tagName.toUpperCase() === "A" || $link.length > 0) {
+		    //    // link exist in the item which is clicked
+		    //    return false;
+		    //}
+		    return false;
+		},
+		autowidth : true,
+		pager: '#pijqGridPager',
 		height: 'auto',
 	    rowNum:10,
 	    rowList:[10]
@@ -75,6 +146,14 @@ $(document).ready(function() {
 	
 });
 
+function processInstanceList(processDefId, isRunning) {
+	
+	changedUrl = '#springUrl("")/web/console/processInstanceList/' + isRunning + '/' + processDefId + '?randomAjax=' + Math.random(),
+	$("#pijqGrid").setGridParam({url: changedUrl});
+	$("#pijqGrid").trigger("reloadGrid");
+}
+
+// Deploy submit call method
 function afterDeploy(deploymentId, message) {
 	
 	var message = deploymentId < 0 ? "<div>部署失败[" + message + "]</div>" : "<div>部署成功[" + deploymentId + "]</div>";
@@ -129,26 +208,26 @@ function afterDeploy(deploymentId, message) {
 						enctype="multipart/form-data">
 						<input type="hidden" name="afterDeploy" value="afterDeploy" />
 						<input type="file" id="deployFile" name="deployFile" size="40" />
-						<p><a href="javascript:void(0);" id="deploy-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-newwin"></span>部署</a></p>
+						<p><a href="javascript:void(0);" id="deploy-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-disk"></span>部署</a></p>
 					</form>
 					<iframe name="hiddenDeployIframe" id="hiddenDeployIframe" style="display:none"></iframe>
 				</div>
 		  </div>
 			<div class="post">
-				<h2 class="title"><a href="javascript:void(0);">流程查询</a></h2>
-				<p class="meta"><em>提供查看流程定义、运行中的流程实例功能。</em></p>
+				<h2 class="title"><a href="javascript:void(0);">流程定义查询</a></h2>
+				<p class="meta"><em>引擎中部署的所有流程定义及版本。</em></p>
 				<div class="entry">
 					<table id="jqGrid"><tr><td/></tr></table> 
 					<div id="jqGridPager"></div> 
 				</div>
 			</div>
 			<div class="post">
-				<h2 class="title"><a href="#">Lorem ipsum sed aliquam</a></h2>
-				<p class="meta"><em>Sunday, April 26, 2009 7:27 AM Posted by <a href="#">Someone</a></em></p>
+				<h2 class="title"><a href="javascript:void(0);">流程实例查询</a></h2>
+				<p class="meta"><em>流程实例列表</em></p>
 				<div class="entry">
-					<p>Mauris vitae nisl nec metus placerat consectetuer. Donec ipsum. Proin imperdiet est. Sed lacus. Donec lectus. Nullam pretium nibh ut turpis. Nam bibendum. In nulla tortor, elementum vel, tempor at, varius non, purus. Mauris vitae nisl nec metus placerat consectetuer. Donec ipsum. Proin imperdiet est. Phasellus <a href="#">dapibus semper urna</a>. Pellentesque ornare, orci in consectetuer hendrerit, urna elit eleifend nunc, ut consectetuer nisl felis ac diam. </p>
-			  </div>
-					<div><a href="#" class="links">Full Story</a></div>
+					<table id="pijqGrid"><tr><td/></tr></table> 
+					<div id="pijqGridPager"></div> 
+				</div>
 			</div>
 		</div><!-- end #content -->
 		<div id="sidebar">

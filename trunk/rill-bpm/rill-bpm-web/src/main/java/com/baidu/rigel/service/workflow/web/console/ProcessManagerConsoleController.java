@@ -11,10 +11,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.impl.HistoricProcessInstanceQueryImpl;
+import org.activiti.engine.impl.HistoricProcessInstanceQueryProperty;
 import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
 import org.activiti.engine.impl.ProcessDefinitionQueryProperty;
-import org.activiti.engine.impl.ProcessInstanceQueryImpl;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.util.json.JSONWriter;
@@ -24,6 +26,7 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -126,10 +129,10 @@ public class ProcessManagerConsoleController {
 					// Key
 					peerProcessDef[0] = processDefList.get(i).getKey();
 					// Running
-					Long runningCnt = new ProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefList.get(i).getId()).count();
+					Long runningCnt = new HistoricProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefList.get(i).getId()).unfinished().count();
 					peerProcessDef[1] = runningCnt + "";
 					// End
-					Long endCnt = new HistoricProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefList.get(i).getId()).count();
+					Long endCnt = new HistoricProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefList.get(i).getId()).finished().count();
 					peerProcessDef[2] = endCnt + "";
 					// Version
 					peerProcessDef[3] = processDefList.get(i).getVersion() + "";
@@ -159,5 +162,80 @@ public class ProcessManagerConsoleController {
 			
 		});
 		
+	}
+	
+	@RequestMapping(value = { "/processInstanceList/{running}/{processDefinitionId}" }, method = RequestMethod.GET)
+	public void processInstanceList(@PathVariable(value="running") final boolean running, 
+			@PathVariable(value="processDefinitionId") final String processDefinitionId, HttpServletRequest request,
+			final HttpServletResponse response) throws Exception {
+		
+		response.setContentType("application/json;charset=UTF-8");
+		final PrintWriter out = response.getWriter();
+		
+		final Integer page = Integer.parseInt(request.getParameter("page"));
+		final Integer rows = Integer.parseInt(request.getParameter("rows"));
+		final boolean sord = "asc".equals(request.getParameter("sord")) ? true : false;
+		final HistoricProcessInstanceQueryProperty hpiqp = HistoricProcessInstanceQueryProperty.findByName(request.getParameter("sidx")) == null ? 
+				HistoricProcessInstanceQueryProperty.PROCESS_INSTANCE_ID_ : HistoricProcessInstanceQueryProperty.findByName(request.getParameter("sidx"));
+		activitiAccessor.runExtraCommand(new Command<Void>() {
+
+			@Override
+			public Void execute(CommandContext commandContext) {
+				
+				HistoricProcessInstanceQuery hpiq = new HistoricProcessInstanceQueryImpl(commandContext).orderBy(hpiqp);
+				if (sord) {
+					hpiq.asc();
+				} else {
+					hpiq.desc();
+				}
+				if (!running) {
+					hpiq.finished();
+				} else {
+					hpiq.unfinished();
+				}
+				if (!"-1".equals(processDefinitionId)) {
+					 hpiq.processDefinitionId(processDefinitionId);
+				}
+				List<HistoricProcessInstance> processInstanceList = hpiq.listPage((page - 1) * rows, rows);
+				long totalCnt = new HistoricProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefinitionId).count();
+				
+				List<Map<String, Object>> processInstanceMap = new ArrayList<Map<String,Object>>(processInstanceList.size());
+				for (int i = 0; i < processInstanceList.size(); i++) {
+					Map<String, Object> element = new LinkedHashMap<String, Object>();
+					element.put("id", processInstanceList.get(i).getId());
+					String[] peerProcessDef = new String[5];
+					// Process instance id
+					peerProcessDef[0] = processInstanceList.get(i).getId();
+					// Business key
+					peerProcessDef[1] = processInstanceList.get(i).getBusinessKey();
+					// Start time
+					peerProcessDef[2] = DateFormatUtils.format(processInstanceList.get(i).getStartTime(), "yyyy-MM-dd hh:m:ss");
+					// End time
+					peerProcessDef[3] = processInstanceList.get(i).getEndTime() == null ? ""
+							: DateFormatUtils.format(processInstanceList.get(i).getEndTime(), "yyyy-MM-dd hh:m:ss");
+					// Start user
+					peerProcessDef[4] = processInstanceList.get(i).getStartUserId();
+					element.put("cell", peerProcessDef);
+					processInstanceMap.add(element);
+				}
+				
+				JSONWriter jsonWriter = new JSONWriter(out);
+				jsonWriter
+					.object()
+					.key("total")
+					.value((totalCnt / rows) + 1)
+					.key("page")
+					.value(page)
+					.key("records")
+					.value(totalCnt)
+					.key("invdata")
+					.value(processInstanceMap)
+					.endObject();
+				out.flush();
+				
+				return null;
+			}
+			
+		});
 	}
 }
