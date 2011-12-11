@@ -19,22 +19,22 @@
      -->
     
     <!-- Work bean below -->
-    <bean id="workflowAccessor" class="com.baidu.rigel.service.workflow.ws.api.activiti.RobustActivitiTemplate">
+    <bean id="workflowAccessor" class="org.rill.bpm.ws.api.activiti.RobustActivitiTemplate">
         <!-- open comment when you want to integrate with spring.
         <property name="processEngine" ref="processEngine" />
          -->
         <property name="processEngineConfiguration" ref="processEngineConfiguration" />
         <property name="commonTaskLifecycleInterceptor">
             <list>
-                <bean class="com.baidu.rigel.service.workflow.api.support.XpathVarConvertTaskLifecycleInterceptor" />
+                <bean class="org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor" />
             </list>
         </property>
     </bean>
 
-	<bean id="processMonitorChartInfoHelper" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
-    <bean id="rigelWfTransitionTraceListener" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.RigelWfTransitionTraceListener" />
+	<bean id="processMonitorChartInfoHelper" class="org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
+    <bean id="rigelWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
     <bean id="riglWfTransitionTraceSchemaListener"
-		class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.RiglWfTransitionTraceSchemaListener">
+		class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceSchemaListener">
 	</bean>
 
 	<!-- the transactional advice (what 'happens'; see the <aop:advisor/> bean 
@@ -52,7 +52,7 @@
 		an operation defined by the FooService interface -->
 	<aop:config>
 		<aop:pointcut id="workflowAccessorOperation"
-			expression="execution(* com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate.*(..))" />
+			expression="execution(* org.rill.bpm.api.activiti.ActivitiTemplate.*(..))" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="workflowAccessorOperation" />
 	</aop:config>
     
