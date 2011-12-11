@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.web.runtime;
+package org.rill.bpm.web.runtime;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -21,6 +21,10 @@ import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.json.JSONWriter;
+import org.rill.bpm.api.activiti.ActivitiAccessor;
+import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
+import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
+import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -30,10 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
-import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
-import com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 @Controller
 @RequestMapping("/runtime/process")

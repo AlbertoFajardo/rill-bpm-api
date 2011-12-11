@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.web.console;
+package org.rill.bpm.web.console;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,12 +19,15 @@ import org.activiti.engine.impl.ProcessDefinitionQueryImpl;
 import org.activiti.engine.impl.ProcessDefinitionQueryProperty;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.util.json.JSONWriter;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.rill.bpm.api.WorkflowOperations;
+import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,8 +36,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
 
 @Controller
 @RequestMapping("/console")
@@ -125,7 +126,7 @@ public class ProcessManagerConsoleController {
 				for (int i = 0; i < processDefList.size(); i++) {
 					Map<String, Object> element = new LinkedHashMap<String, Object>();
 					element.put("id", processDefList.get(i).getId());
-					String[] peerProcessDef = new String[5];
+					String[] peerProcessDef = new String[6];
 					// Key
 					peerProcessDef[0] = processDefList.get(i).getKey();
 					// Running
@@ -139,6 +140,10 @@ public class ProcessManagerConsoleController {
 					// Deploy Time
 					Deployment deployment = commandContext.getDeploymentManager().findDeploymentById(processDefList.get(i).getDeploymentId());
 					peerProcessDef[4] = DateFormatUtils.format(deployment.getDeploymentTime(), "yyyy-MM-dd hh:m:ss");
+					// Command
+					// FIXME Only latest process definition
+					ProcessDefinitionEntity latestProcessDefinition = commandContext.getProcessDefinitionManager().findLatestProcessDefinitionByKey(processDefList.get(i).getKey());
+					peerProcessDef[5] = processDefList.get(i).getId().equals(latestProcessDefinition.getId()) ? processDefList.get(i).getId() : "";
 					element.put("cell", peerProcessDef);
 					processDefMap.add(element);
 				}
@@ -203,18 +208,21 @@ public class ProcessManagerConsoleController {
 				for (int i = 0; i < processInstanceList.size(); i++) {
 					Map<String, Object> element = new LinkedHashMap<String, Object>();
 					element.put("id", processInstanceList.get(i).getId());
-					String[] peerProcessDef = new String[5];
+					String[] peerProcessDef = new String[6];
 					// Process instance id
 					peerProcessDef[0] = processInstanceList.get(i).getId();
 					// Business key
 					peerProcessDef[1] = processInstanceList.get(i).getBusinessKey();
-					// Start time
-					peerProcessDef[2] = DateFormatUtils.format(processInstanceList.get(i).getStartTime(), "yyyy-MM-dd hh:m:ss");
-					// End time
-					peerProcessDef[3] = processInstanceList.get(i).getEndTime() == null ? ""
-							: DateFormatUtils.format(processInstanceList.get(i).getEndTime(), "yyyy-MM-dd hh:m:ss");
+					// Process definition key
+					ProcessDefinition pd = new ProcessDefinitionQueryImpl(commandContext).processDefinitionId(processInstanceList.get(i).getProcessDefinitionId()).singleResult();
+					peerProcessDef[2] = pd.getKey();
 					// Start user
-					peerProcessDef[4] = processInstanceList.get(i).getStartUserId();
+					peerProcessDef[3] = processInstanceList.get(i).getStartUserId();
+					// Start time
+					peerProcessDef[4] = DateFormatUtils.format(processInstanceList.get(i).getStartTime(), "yyyy-MM-dd hh:m:ss");
+					// End time
+					peerProcessDef[5] = processInstanceList.get(i).getEndTime() == null ? ""
+							: DateFormatUtils.format(processInstanceList.get(i).getEndTime(), "yyyy-MM-dd hh:m:ss");
 					element.put("cell", peerProcessDef);
 					processInstanceMap.add(element);
 				}
