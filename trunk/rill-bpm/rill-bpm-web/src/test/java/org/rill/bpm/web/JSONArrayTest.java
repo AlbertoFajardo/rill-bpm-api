@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.web;
+package org.rill.bpm.web;
 
 import java.io.StringWriter;
 
