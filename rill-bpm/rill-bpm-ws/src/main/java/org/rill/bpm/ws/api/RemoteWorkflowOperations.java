@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.baidu.rigel.service.workflow.ws.api;
+package org.rill.bpm.ws.api;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +15,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.rill.bpm.api.WorkflowTemplate.WorkflowResponse;
+import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.util.Assert;
 
-import com.baidu.rigel.service.workflow.api.WorkflowTemplate.WorkflowResponse;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
 
 /**
  * Remote access work-flow API.

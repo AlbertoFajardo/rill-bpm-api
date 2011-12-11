@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.baidu.rigel.service.workflow.ws;
+package org.rill.bpm.ws;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -17,9 +17,9 @@ import org.activiti.engine.impl.bpmn.parser.XMLImporter;
 import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.util.ReflectUtil;
+import org.rill.bpm.api.activiti.RillProcessEngineConfiguration;
 import org.springframework.util.Assert;
 
-import com.baidu.rigel.service.workflow.api.activiti.RillProcessEngineConfiguration;
 
 /**
  * WS extension process engine configuration.

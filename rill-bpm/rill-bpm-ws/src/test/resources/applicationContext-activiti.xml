@@ -24,7 +24,7 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <bean id="processEngineConfiguration" class="com.baidu.rigel.service.workflow.ws.WSProcessEngineConfiguration">
+    <bean id="processEngineConfiguration" class="org.rill.bpm.ws.WSProcessEngineConfiguration">
         <property name="dataSource" ref="dataSource" />
         <property name="transactionManager" ref="transactionManager" />
         <property name="databaseSchemaUpdate" value="true" />
@@ -33,14 +33,11 @@
         <property name="jobExecutorActivate" value="false" />
         <!-- Rill extension -->
         <property name="postParseListeners">
-            <bean class="com.baidu.rigel.service.workflow.api.activiti.RetrieveNextTasksHelper" />
+            <bean class="org.rill.bpm.api.activiti.RetrieveNextTasksHelper" />
         </property>
         <property name="wsXmlImporter">
-            <bean class="com.baidu.rigel.service.workflow.ws.metro.WSImportToolImporterImpl" />
+            <bean class="org.rill.bpm.ws.metro.WSImportToolImporterImpl" />
         </property>
-    </bean>
-    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
-        <property name="processEngineConfiguration" ref="processEngineConfiguration" />
     </bean>
     <!-- ##Activiti5 configuration## end  -->
   

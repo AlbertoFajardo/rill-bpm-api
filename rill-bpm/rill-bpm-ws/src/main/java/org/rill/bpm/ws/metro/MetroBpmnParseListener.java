@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.ws.metro;
+package org.rill.bpm.ws.metro;
 
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;

@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.ws;
+package org.rill.bpm.ws;
 
 import java.io.File;
 import java.net.Inet4Address;

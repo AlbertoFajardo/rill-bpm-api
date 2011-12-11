@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.ws.metro;
+package org.rill.bpm.ws.metro;
 
 import org.activiti.engine.impl.bpmn.behavior.AbstractBpmnActivityBehavior;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;

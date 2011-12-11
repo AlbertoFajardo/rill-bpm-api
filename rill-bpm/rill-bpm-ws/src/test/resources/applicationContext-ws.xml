@@ -19,19 +19,19 @@
      -->
     
     <!-- Work bean below -->
-    <bean id="workflowAccessor" class="com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate">
+    <bean id="workflowAccessor" class="org.rill.bpm.api.activiti.ActivitiTemplate">
         <!-- open comment when you want to integrate with spring.
         <property name="processEngine" ref="processEngine" />
          -->
         <property name="processEngineConfiguration" ref="processEngineConfiguration" />
         <property name="commonTaskLifecycleInterceptor">
             <list>
-                <bean class="com.baidu.rigel.service.workflow.api.support.XpathVarConvertTaskLifecycleInterceptor" />
+                <bean class="org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor" />
             </list>
         </property>
     </bean>
 
-    <bean id="rigelWfTransitionTraceListener" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.RigelWfTransitionTraceListener" />
-    <bean id="processMonitorChartInfoHelper" class="com.baidu.rigel.service.workflow.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
+    <bean id="rigelWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
+    <bean id="processMonitorChartInfoHelper" class="org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
     
 </beans>
