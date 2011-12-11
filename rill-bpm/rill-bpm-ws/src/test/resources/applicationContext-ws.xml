@@ -31,7 +31,7 @@
         </property>
     </bean>
 
-    <bean id="rigelWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
+    <bean id="rillWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
     <bean id="processMonitorChartInfoHelper" class="org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
     
 </beans>

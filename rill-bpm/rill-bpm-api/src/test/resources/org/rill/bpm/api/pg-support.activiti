@@ -2489,7 +2489,7 @@
     <fonts name="Arial" size="8"/>
     <fonts name="Arial" size="8" bold="true"/>
   </pi:Diagram>
-  <bpmn2:Process id="pg-support" name="&#x76d8;&#x53e4;">
+  <bpmn2:Process id="pg-support" name="&#x76d8;&#x53e4;" namespace="http://www.activiti.org/test">
     <documentation id="documentation_process" text="&#x76d8;&#x53e4;&#x652f;&#x6301;&#x6d41;&#x7a0b;"/>
   </bpmn2:Process>
   <bpmn2:StartEvent id="startevent3" name="Start" outgoing="flow37"/>
@@ -2500,7 +2500,7 @@
     <flowElements xsi:type="bpmn2:EndEvent" id="endevent6" name="End" incoming="flow27"/>
     <flowElements xsi:type="bpmn2:UserTask" id="usertask9" name="&#x4e00;&#x7ebf;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow39" outgoing="flow24" candidateGroups="/7" formKey="/pg-support/managerAudit.action">
       <documentation text=""/>
-      <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+      <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
         <fieldExtensions fieldname="task_lifecycle_interceptor" expression="dummyTLI"/>
       </activitiListeners>
     </flowElements>
@@ -2632,7 +2632,7 @@
     <flowElements xsi:type="bpmn2:UserTask" id="usertask23" name="&#x5f00;&#x6536;&#x6b3e;&#x8bc1;&#x660e;" incoming="flow74" candidateGroups="/47" formKey="">
       <documentation text=""/>
     </flowElements>
-    <flowElements xsi:type="bpmn2:UserTask" id="usertask24" name="&#x5b8c;&#x5584;&#x8d22;&#x52a1;&#x4fe1;&#x606f;" incoming="flow75 flow77" outgoing="flow95" candidateGroups="/46" formKey="">
+    <flowElements xsi:type="bpmn2:UserTask" id="usertask24" name="&#x5b8c;&#x5584;&#x8d22;&#x52a1;&#x4fe1;&#x606f;" incoming="flow75 flow77" outgoing="flow95" candidateGroups="/46" formKey="" dueDate="">
       <documentation text=""/>
     </flowElements>
     <flowElements xsi:type="bpmn2:SequenceFlow" id="flow73" name="&#x63d0;&#x524d;&#x5f00;&#x53d1;&#x7968;" sourceRef="exclusivegateway15" targetRef="usertask22">
@@ -2678,11 +2678,11 @@
   </bpmn2:SequenceFlow>
   <bpmn2:EndEvent id="endevent11" name="End" incoming="flow89"/>
   <bpmn2:SequenceFlow id="flow89" name="&#x7b49;&#x5f85;&#x91cd;&#x65b0;&#x8fdb;&#x5165;&#x8d22;&#x52a1;&#x6d41;&#x7a0b;" sourceRef="exclusivegateway18" targetRef="endevent11">
-    <executionListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.transition.AfterFinanceListener" event="take"/>
+    <executionListeners implementationType="classType" implementation="org.rill.bpm.api.transition.AfterFinanceListener" event="take"/>
   </bpmn2:SequenceFlow>
   <bpmn2:SequenceFlow id="flow93" name="" sourceRef="usertask25" targetRef="parallelgateway4"/>
   <bpmn2:SequenceFlow id="flow94" name="AfterModReceiptType" sourceRef="subprocess4" targetRef="exclusivegateway17">
-    <executionListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.transition.AfterModFinanceReceiveTypeListener" event="take"/>
+    <executionListeners implementationType="classType" implementation="org.rill.bpm.api.transition.AfterModFinanceReceiveTypeListener" event="take"/>
   </bpmn2:SequenceFlow>
   <bpmn2:CandidateGroup group="ht_support_fgsywzc_order_supporter"/>
   <bpmn2:CandidateGroup group="ht_support_assistanter_and_helper"/>

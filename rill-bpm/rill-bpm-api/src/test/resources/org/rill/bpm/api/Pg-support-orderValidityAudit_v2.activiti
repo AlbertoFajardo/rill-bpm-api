@@ -509,7 +509,7 @@
   <bpmn2:SequenceFlow id="flow3" name="" sourceRef="callactivity1" targetRef="exclusivegateway2"/>
   <bpmn2:UserTask id="preaudit" name="&#x9884;&#x5ba1;&#x6838;" incoming="flow4 flow12" outgoing="flow7 flow9" default="flow7" candidateGroups="/24" formKey="preaudit/preAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="preAuditTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=15"/>
       <fieldExtensions fieldname="event" expression="22"/>
@@ -518,7 +518,7 @@
   <bpmn2:SequenceFlow id="flow4" name="" sourceRef="exclusivegateway2" targetRef="preaudit"/>
   <bpmn2:UserTask id="modorder" name="&#x4fee;&#x6539;&#x8ba2;&#x5355;" incoming="flow5" outgoing="flow6" candidateGroups="/26" formKey="manageraudit/rejectinit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="init_status" expression="status=3"/>
       <fieldExtensions fieldname="event" expression="33"/>
     </activitiListeners>
@@ -533,7 +533,7 @@
   <bpmn2:SequenceFlow id="flow8" name="" sourceRef="exclusivegateway3" targetRef="endevent1"/>
   <bpmn2:UserTask id="preaudit_mod" name="&#x9884;&#x5ba1;&#x6838;&#x9a73;&#x56de;&#x4fee;&#x6539;" incoming="flow9" outgoing="flow10" candidateGroups="/25" formKey="preaudit/preAuditRejectModInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="orderInfoChangeTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=41"/>
       <fieldExtensions fieldname="event" expression="433"/>
