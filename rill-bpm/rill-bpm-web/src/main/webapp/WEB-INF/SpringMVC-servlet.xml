@@ -11,7 +11,7 @@
 "
 	default-autowire="byName">
 
-	<context:component-scan base-package="com.baidu.rigel.service.workflow.web" />
+	<context:component-scan base-package="org.rill.bpm.web" />
 	
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />

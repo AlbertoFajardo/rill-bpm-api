@@ -11,7 +11,7 @@
 
     <listener>
         <description>WSAT Context Loader</description>
-        <listener-class>com.baidu.rigel.service.workflow.ws.WSATContextListener</listener-class>
+        <listener-class>org.rill.bpm.ws.WSATContextListener</listener-class>
     </listener>
     <listener>
         <description>Spring Application Context Loader</description>
