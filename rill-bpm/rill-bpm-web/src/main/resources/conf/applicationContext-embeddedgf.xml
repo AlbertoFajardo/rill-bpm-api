@@ -13,7 +13,7 @@
 ">
     
     <!-- ##Embedded GF configuration## start  -->
-    <bean id="embeddedGlassfish" class="com.baidu.rigel.service.workflow.ws.metro.EmbeddedGlassfishLifecycle" 
+    <bean id="embeddedGlassfish" class="org.rill.bpm.ws.metro.EmbeddedGlassfishLifecycle" 
     	init-method="start" destroy-method="stop">
     	<property name="properties">
     		<props>
