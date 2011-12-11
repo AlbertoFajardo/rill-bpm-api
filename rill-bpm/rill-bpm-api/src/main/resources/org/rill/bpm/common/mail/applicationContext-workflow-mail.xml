@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+       default-autowire="byName">
+
+    <context:annotation-config />
+
+    <!--
+        - Application context definition for Petclinic on Hibernate.
+    -->
+
+    <bean id="freeMarkerConfigurerSupport" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="templateLoaderPath" value="classpath:/com/baidu/rigel/service/workflow/common/mail/freemarker/template" />
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="template_update_delay">3600</prop>
+                <prop key="locale">zh_CN</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="templateMailSender" class="org.rill.bpm.common.mail.freemarker.FreeMarkerTemplateMailSender">
+    </bean>
+
+    <bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
+    </bean>
+
+</beans>
