@@ -522,7 +522,7 @@
   <bpmn2:SequenceFlow id="flow6" name="" sourceRef="callactivity1" targetRef="exclusivegateway2"/>
   <bpmn2:UserTask id="sendcontract" name="&#x786e;&#x8ba4;&#x5408;&#x540c;&#x53d1;&#x653e;" incoming="flow7" outgoing="flow8 flow12" default="flow12" candidateGroups="/25" formKey="contract/sendOutContractInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="contractSendoutTaskLifecycleInterceptor,in2OutConditionTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="contractStatus=201"/>
       <fieldExtensions fieldname="event" expression="102"/>
@@ -531,7 +531,7 @@
   <bpmn2:SequenceFlow id="flow7" name="" sourceRef="exclusivegateway2" targetRef="sendcontract"/>
   <bpmn2:UserTask id="modcontract" name="&#x4fee;&#x6539;&#x5408;&#x540c;&#x4fe1;&#x606f;" incoming="flow8" outgoing="flow9" candidateGroups="/26" formKey="contract/modContractInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="orderInfoChangeTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="contractStatus=203"/>
       <fieldExtensions fieldname="event" expression="112"/>

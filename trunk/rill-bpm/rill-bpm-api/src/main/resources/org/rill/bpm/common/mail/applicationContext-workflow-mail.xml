@@ -15,7 +15,7 @@
 
     <bean id="freeMarkerConfigurerSupport" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
         <property name="defaultEncoding" value="UTF-8" />
-        <property name="templateLoaderPath" value="classpath:/com/baidu/rigel/service/workflow/common/mail/freemarker/template" />
+        <property name="templateLoaderPath" value="classpath:/ort/rill/bpm/common/mail/freemarker/template" />
         <property name="freemarkerSettings">
             <props>
                 <prop key="template_update_delay">3600</prop>

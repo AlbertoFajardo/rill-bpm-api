@@ -76,7 +76,7 @@ public class UnsortedTest {
     @Test
     public void taskServiceInvokeExpression() {
 
-        String expression = "taskNameAService.taskNameAComplete(com.baidu.rigel.service.workflow.DTO)";
+        String expression = "taskNameAService.taskNameAComplete(org.rill.bpm.DTO)";
         String[] beforeLeftBracket = expression.substring(0, expression.indexOf("(")).split("\\.");
         Assert.assertTrue("The expression parttern is [taskName]Service.[taskName]Complete(DTO.class.getName())", beforeLeftBracket.length == 2);
         String serviceName = beforeLeftBracket[0];
@@ -86,7 +86,7 @@ public class UnsortedTest {
         Assert.assertEquals(methodName, "taskNameAComplete");
 
         String parameter = expression.substring(expression.indexOf("(") + 1, expression.indexOf(")"));
-        Assert.assertEquals(parameter, "com.baidu.rigel.service.workflow.DTO");
+        Assert.assertEquals(parameter, "org.rill.bpm.DTO");
 
         expression = "taskNameAService.taskNameAComplete()";
         String parameterEmpty = expression.substring(expression.indexOf("(") + 1, expression.indexOf(")"));

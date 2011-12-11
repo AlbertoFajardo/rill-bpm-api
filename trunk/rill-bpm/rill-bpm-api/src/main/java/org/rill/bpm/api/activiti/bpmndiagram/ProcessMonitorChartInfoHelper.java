@@ -50,7 +50,16 @@ public class ProcessMonitorChartInfoHelper {
 	@Resource
     private RillWfTransitionTraceListener rillWfTransitionTraceListener;
 	
-    private ActivitiAccessor activitiAccessor;
+    public final RillWfTransitionTraceListener getRillWfTransitionTraceListener() {
+		return rillWfTransitionTraceListener;
+	}
+
+	public final void setRillWfTransitionTraceListener(
+			RillWfTransitionTraceListener rillWfTransitionTraceListener) {
+		this.rillWfTransitionTraceListener = rillWfTransitionTraceListener;
+	}
+
+	private ActivitiAccessor activitiAccessor;
 
     public final WorkflowOperations getWorkflowAccessor() {
 		return workflowAccessor;

@@ -21,7 +21,6 @@ import org.activiti.engine.impl.persistence.deploy.Deployer;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.rill.bpm.ws.WSProcessEngineConfiguration;
 import org.rill.bpm.ws.metro.WSImportToolImporterImpl;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -42,7 +41,6 @@ public class WSProcessEngineConfigurationTest extends AbstractJUnit4SpringContex
     @Resource
     private ProcessEngineConfiguration processEngineConfiguration;
     
-    //@Deployment(resources = {"com/baidu/rigel/service/workflow/api/pg-support.bpmn20.xml"})
     @SuppressWarnings("unchecked")
     @Test
 	public void testChangeWSXmlImporter() {

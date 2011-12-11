@@ -447,7 +447,7 @@
   </bpmn2:Process>
   <bpmn2:UserTask id="manageraudit" name="&#x4e00;&#x7ebf;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow34" outgoing="flow32 flow35 flow40" default="flow40" candidateGroups="/7" formKey="manageraudit/frontManagerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=2"/>
       <fieldExtensions fieldname="event" expression="12"/>
@@ -455,7 +455,7 @@
   </bpmn2:UserTask>
   <bpmn2:UserTask id="seniormanageraudit" name="&#x9ad8;&#x7ea7;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow32" outgoing="flow31 flow36 flow41" default="flow41" candidateGroups="/8" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=5"/>
       <fieldExtensions fieldname="event" expression="14"/>
@@ -463,7 +463,7 @@
   </bpmn2:UserTask>
   <bpmn2:UserTask id="directoraudit" name="&#x603b;&#x76d1;&#x5ba1;&#x6838;" incoming="flow31" outgoing="flow28 flow37 flow42" default="flow42" candidateGroups="/9" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=8"/>
       <fieldExtensions fieldname="event" expression="16"/>
@@ -471,7 +471,7 @@
   </bpmn2:UserTask>
   <bpmn2:UserTask id="generalmanageraudit" name="&#x603b;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow28" outgoing="flow30 flow38 flow43" default="flow43" candidateGroups="/11" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=11"/>
       <fieldExtensions fieldname="event" expression="18"/>
@@ -479,7 +479,7 @@
   </bpmn2:UserTask>
   <bpmn2:UserTask id="finance_manager_audit" name="&#x8d22;&#x52a1;&#x90e8;&#x7ecf;&#x7406;&#x5ba1;&#x6838;" incoming="flow30" outgoing="flow39 flow44" default="flow44" candidateGroups="/12" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="status=44"/>
       <fieldExtensions fieldname="event" expression="34"/>

@@ -456,7 +456,7 @@
   <bpmn2:StartEvent id="startevent1" name="Start" outgoing="flow1"/>
   <bpmn2:UserTask id="mod_order_receipt_type" name="&#x4fee;&#x6539;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow1 flow18" outgoing="flow12" candidateGroups="/26" formKey="finance/modReceiptTypeInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="modReceiptTypeTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="event" expression="329"/>
     </activitiListeners>
@@ -464,7 +464,7 @@
   <bpmn2:SequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="mod_order_receipt_type"/>
   <bpmn2:UserTask id="manager_audit_receipt_type" name="&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow12" outgoing="flow4 flow9 flow14" default="flow9" candidateGroups="/27" formKey="manageraudit/frontManagerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="auditReceiptTypeTaskLifecycleInterceptor,auditReceiptTypePostStatusTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="modReceiptTypeStatus=131,financeStatus=131"/>
       <fieldExtensions fieldname="event" expression="330"/>
@@ -472,7 +472,7 @@
   </bpmn2:UserTask>
   <bpmn2:UserTask id="seniormanager_audit_receipt_type" name="&#x9ad8;&#x7ea7;&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow4" outgoing="flow5 flow10 flow15" default="flow10" candidateGroups="/29" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="auditReceiptTypeTaskLifecycleInterceptor,auditReceiptTypePostStatusTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="modReceiptTypeStatus=153,financeStatus=153"/>
       <fieldExtensions fieldname="event" expression="331"/>
@@ -483,7 +483,7 @@
   </bpmn2:SequenceFlow>
   <bpmn2:UserTask id="directormanager_audit_receipt_type" name="&#x603b;&#x76d1;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow5" outgoing="flow6 flow11 flow16" default="flow11" candidateGroups="/30" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="auditReceiptTypeTaskLifecycleInterceptor,auditReceiptTypePostStatusTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="modReceiptTypeStatus=156,financeStatus=156"/>
       <fieldExtensions fieldname="event" expression="332"/>
@@ -494,7 +494,7 @@
   </bpmn2:SequenceFlow>
   <bpmn2:UserTask id="generalmanager_audit_receipt_type" name="&#x603b;&#x7ecf;&#x7406;&#x5ba1;&#x6838;&#x8ba2;&#x5355;&#x6536;&#x6b3e;&#x7c7b;&#x578b;" incoming="flow6" outgoing="flow7 flow19" default="flow7" candidateGroups="/31" formKey="manageraudit/managerAuditInit.action" dueDate="">
     <documentation text=""/>
-    <activitiListeners implementationType="classType" implementation="com.baidu.rigel.service.workflow.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
+    <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="task_lifecycle_interceptor" expression="auditReceiptTypeTaskLifecycleInterceptor,auditReceiptTypePostStatusTaskLifecycleInterceptor"/>
       <fieldExtensions fieldname="init_status" expression="modReceiptTypeStatus=159,financeStatus=159"/>
       <fieldExtensions fieldname="event" expression="333"/>
