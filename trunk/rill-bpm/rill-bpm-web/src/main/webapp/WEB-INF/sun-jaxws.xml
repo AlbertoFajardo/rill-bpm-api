@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <endpoints version="2.0" xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime">
-  <endpoint implementation="com.baidu.rigel.service.workflow.ws.api.activiti.RemoteActivitiTemplate" name="BPMWebService" url-pattern="/BPMWebService"/>
+  <endpoint implementation="org.rill.bpm.ws.api.activiti.RemoteActivitiTemplate" name="BPMWebService" url-pattern="/BPMWebService"/>
   
   <!-- v1.0 -->
   <endpoint service="{http://schemas.xmlsoap.org/ws/2004/10/wscoor}Coordinator" wsdl="WEB-INF/wsdl/wscoor.wsdl" implementation="com.sun.xml.ws.tx.coord.v10.endpoint.RegistrationPortTypeRPCPortImpl" port="{http://schemas.xmlsoap.org/ws/2004/10/wscoor}Registration" name="Registration" url-pattern="/RegistrationPortTypeRPC"/>
