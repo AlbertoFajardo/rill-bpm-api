@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.ws.metro;
+package org.rill.bpm.ws.metro;
 
 import java.util.HashMap;
 import java.util.List;

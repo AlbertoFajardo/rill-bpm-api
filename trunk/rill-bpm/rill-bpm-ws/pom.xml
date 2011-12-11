@@ -69,210 +69,161 @@
                         </goals>
                     </execution>
                 </executions>
+                <version>2.1.2</version>
             </plugin>
-            
-            <plugin>
-            	<groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-antrun-plugin</artifactId>
-		        <version>1.7</version>
-		        <executions>
-		          <execution>
-		            <phase>prepare-package</phase>
-		            <configuration>
-		              <target>
-		              	
-		              	<echo message="start importing..."/>
-		              	<property name="M2_REPO" value="${user.home}/.m2/repository" />
-						<property name="WS_STUB_DIR" value="${project.build.directory}/stubsources" />
-						<property name="WS_STUB_CLASSES_DIR" value="${project.build.directory}/stubclasses" />
-						<property name="WSDL_LOCATION" value="http://10.81.21.140:8080/rill-bpm-server/BPMWebService?wsdl" />
-					
-						<path id="classpath.libs">
-							<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
-								<include name="*.jar" />
-							</fileset>
-							<fileset dir="${M2_REPO}/com/sun/istack/istack-commons-tools/1.1">
-								<include name="*.jar" />
-							</fileset>
-							<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-xjc/2.1.7">
-								<include name="*.jar" />
-							</fileset>
-							<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-impl/2.1.7">
-								<include name="*.jar" />
-							</fileset>
-							<fileset dir="${M2_REPO}/org/glassfish/metro/webservices-rt/2.1">
-								<include name="*.jar" />
-							</fileset>
-							<fileset dir="${java.home}/../lib/">
-								<include name="tools.jar" />
-							</fileset>
-						</path>
-					
-						<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport" classpathref="classpath.libs">
-						</taskdef>
-					
-							<mkdir dir="${WS_STUB_DIR}"/>
-							<mkdir dir="${WS_STUB_CLASSES_DIR}"/>
-							<wsimport 
-								wsdl="${WSDL_LOCATION}"
-								sourcedestdir="${WS_STUB_DIR}"
-								destdir="${WS_STUB_CLASSES_DIR}"
-								keep="true"
-								verbose="true"
-								package="com.baidu.rigel.service.workflow.ws.client"
-								/>
-		              
-		              <echo message="end import operation."/>
-		              </target>
-		            </configuration>
-		            <goals>
-		              <goal>run</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		      </plugin>
-            
-            <!-- 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                    	<id>generate-stub</id>
-                    	<phase>prepare-package</phase>
-                        <goals>
-                            <goal>wsgen</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sei>com.baidu.rigel.service.workflow.ws.api.activiti.RemoteActivitiTemplate</sei>
-                    <genWsdl>true</genWsdl>
-                    <keep>false</keep>
-                    <verbose>true</verbose>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.rill</groupId>
-                        <artifactId>rill-bpm-api</artifactId>
-                        <version>${version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                    	<id>import-stub</id>
-                    	<phase>prepare-package</phase>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                	<wsdlFiles>
-				         <wsdlFile>BPMWebService?wsdl</wsdlFile>
-				     </wsdlFiles>
-				    <wsdlLocation>http://10.81.21.140:8080/rill-bpm-server/*</wsdlLocation>
-                    <packageName>com.baidu.rigel.service.workflow.ws.api.activiti.client</packageName>
-                    <target>2.1</target>
-                    <keep>false</keep>
-                    <verbose>true</verbose>
-                    <destDir>${project.build.directory}/wsimport/stubclasses</destDir>
-                    <sourceDestDir>${project.build.directory}/wsimport/stubsources</sourceDestDir>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.rill</groupId>
-                        <artifactId>rill-bpm-api</artifactId>
-                        <version>${version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-      		 -->
-      		<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>jar-stubclasses</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<classesDirectory>${project.build.directory}/stubclasses</classesDirectory>
-							<finalName>${project.artifactId}-${project.version}-stub</finalName>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>install-jar-stubclasses</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
-							<classifier>stub</classifier>
-							<groupId>${project.groupId}</groupId>
-							<artifactId>${project.artifactId}</artifactId>
-							<packaging>jar</packaging>
-							<version>${project.version}</version>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
-            <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>jar-stubsources</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<classesDirectory>${project.build.directory}/stubsources</classesDirectory>
-							<finalName>${project.artifactId}-${project.version}-stub-sources</finalName>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>install-jar-stubsources</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
-							<classifier>stub-sources</classifier>
-							<groupId>${project.groupId}</groupId>
-							<artifactId>${project.artifactId}</artifactId>
-							<packaging>jar</packaging>
-							<version>${project.version}</version>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
     	</plugins>
     </build>
+    
+    <profiles>
+    	<profile>
+    		<id>generate-stub</id>
+    		<build>
+    			<plugins>
+    				<plugin>
+		            	<groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-antrun-plugin</artifactId>
+				        <executions>
+				          <execution>
+				            <phase>prepare-package</phase>
+				            <configuration>
+				              <target>
+				              	<echo message="start importing..."/>
+				              	<property name="M2_REPO" value="${user.home}/.m2/repository" />
+								<property name="WS_STUB_DIR" value="${project.build.directory}/stubsources" />
+								<property name="WS_STUB_CLASSES_DIR" value="${project.build.directory}/stubclasses" />
+								<property name="WSDL_LOCATION" value="http://10.81.21.140:8080/rill-bpm-server/BPMWebService?wsdl" />
+							
+								<path id="classpath.libs">
+									<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/istack/istack-commons-tools/1.1">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-xjc/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-impl/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/org/glassfish/metro/webservices-rt/2.1">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${java.home}/../lib/">
+										<include name="tools.jar" />
+									</fileset>
+								</path>
+							
+								<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport" classpathref="classpath.libs">
+								</taskdef>
+							
+									<mkdir dir="${WS_STUB_DIR}"/>
+									<mkdir dir="${WS_STUB_CLASSES_DIR}"/>
+									<wsimport 
+										wsdl="${WSDL_LOCATION}"
+										sourcedestdir="${WS_STUB_DIR}"
+										destdir="${WS_STUB_CLASSES_DIR}"
+										keep="true"
+										verbose="true"
+										package="org.rill.bpm.ws.client"
+										/>
+				              
+				              <echo message="end import operation."/>
+				              </target>
+				            </configuration>
+				            <goals>
+				              <goal>run</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+				        <version>1.7</version>
+				      </plugin>
+		            
+		      		<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubclasses</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub</finalName>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.2</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-install-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>install-jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
+									<classifier>stub</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.1</version>
+					</plugin>
+					
+		            <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubsources</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub-sources</finalName>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.2</version>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-install-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>install-jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
+									<classifier>stub-sources</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.1</version>
+					</plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+    </profiles>
       
 </project>

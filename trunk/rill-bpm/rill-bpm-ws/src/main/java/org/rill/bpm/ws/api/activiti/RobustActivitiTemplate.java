@@ -1,4 +1,4 @@
-package com.baidu.rigel.service.workflow.ws.api.activiti;
+package org.rill.bpm.ws.api.activiti;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.rill.bpm.api.activiti.ActivitiTemplate;
+import org.rill.bpm.api.exception.ProcessException;
+import org.rill.bpm.ws.api.RemoteWorkflowOperations.RemoteWorkflowResponse;
+import org.springframework.util.ObjectUtils;
 
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiTemplate;
-import com.baidu.rigel.service.workflow.ws.api.RemoteWorkflowOperations.RemoteWorkflowResponse;
 
 public class RobustActivitiTemplate extends ActivitiTemplate {
 
@@ -27,25 +29,34 @@ public class RobustActivitiTemplate extends ActivitiTemplate {
 		return superResult;
 	}
 
+	protected String generateNextTaskInsKey(String engineTaskInstanceId) {
+		
+		return NEXT_TASK_IDS_KEY + "." + engineTaskInstanceId;
+	}
+	
 	protected void recordTaskCompleteInfo(String engineTaskInstanceId,
 			Map<String, Object> passToEngine, List<String> taskIds) {
 				
 		// Put it into cache.
-		getCache().putTaskExecutionInfo(engineTaskInstanceId, NEXT_TASK_IDS_KEY, XStreamSerializeHelper.serializeXml(NEXT_TASK_IDS_KEY, taskIds));
-
+		String fromCache = getCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), XStreamSerializeHelper.serializeXml(NEXT_TASK_IDS_KEY, taskIds));
+		logger.info("Put next task ids " + ObjectUtils.getDisplayString(taskIds) + " into cache, return from cache is " + fromCache);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public RemoteWorkflowResponse handleTaskInstanceHasEnd(String engineTaskInstanceId, CommandContext commandContext) {
 		
-		HashMap<String, String> extendAttrs = getTaskInstanceExtendAttrs(engineTaskInstanceId);
+		HashMap<String, String> extendAttrs = getTaskInstanceInformations(engineTaskInstanceId);
 		
 		String engineProcessInstanceId = extendAttrs.get(TaskInformations.PROCESS_INSTANCE_ID.name());
 		String businessKey = extendAttrs.get(TaskInformations.BUSINESS_OBJECT_ID.name());
 		String rootProcessInstanceId = extendAttrs.get(TaskInformations.ROOT_PROCESS_INSTANCE_ID.name());
-		// FIXME: Cache process definition key.
-//		String processDefinitionKey = extendAttrs.
-		String nextTaskIds = getCache().getTaskExecutionInfo(engineTaskInstanceId, RobustActivitiTemplate.NEXT_TASK_IDS_KEY);
+		String processDefinitionKey = extendAttrs.get(TaskInformations.PROCESS_DEFINE_KEY.name());
+		
+		String nextTaskIds = getCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), "");
+		if ("".equals(nextTaskIds)) {
+			throw new ProcessException("Can not find next task IDs cache by key " + generateNextTaskInsKey(engineTaskInstanceId) + ", maybe wrong retrieve timing or cache expired.");
+		}
+		
 		List<String> taskIds = new ArrayList<String>();
 		if (XStreamSerializeHelper.isXStreamSerialized(nextTaskIds)) {
 			taskIds = XStreamSerializeHelper.deserializeObject(nextTaskIds, RobustActivitiTemplate.NEXT_TASK_IDS_KEY, List.class);
@@ -54,7 +65,7 @@ public class RobustActivitiTemplate extends ActivitiTemplate {
 		ProcessInstance processInstance = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
 		return new RemoteWorkflowResponse(
 				engineProcessInstanceId, businessKey,
-				null, taskIds, rootProcessInstanceId, processInstance == null).setRobustReturn(true);
+				processDefinitionKey, taskIds, rootProcessInstanceId, processInstance == null).setRobustReturn(true);
 	}
 	
 }

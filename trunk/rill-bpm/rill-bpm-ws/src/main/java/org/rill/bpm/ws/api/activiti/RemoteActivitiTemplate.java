@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.baidu.rigel.service.workflow.ws.api.activiti;
+package org.rill.bpm.ws.api.activiti;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,13 +26,13 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.rill.bpm.api.WorkflowOperations;
+import org.rill.bpm.api.activiti.ActivitiAccessor;
+import org.rill.bpm.api.exception.ProcessException;
+import org.rill.bpm.ws.api.RemoteWorkflowOperations;
 import org.springframework.util.Assert;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.baidu.rigel.service.workflow.api.WorkflowOperations;
-import com.baidu.rigel.service.workflow.api.activiti.ActivitiAccessor;
-import com.baidu.rigel.service.workflow.api.exception.ProcessException;
-import com.baidu.rigel.service.workflow.ws.api.RemoteWorkflowOperations;
 import com.sun.xml.ws.api.tx.at.Transactional;
 import com.sun.xml.ws.api.tx.at.Transactional.Version;
 
@@ -202,7 +202,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			String engineTaskInstanceId) {
 		
 		// Delegate this operation
-		Map<String, String> extendAttrMap = getWorkflowAccessor().getTaskInstanceExtendAttrs(engineTaskInstanceId);
+		Map<String, String> extendAttrMap = getWorkflowAccessor().getTaskInstanceInformations(engineTaskInstanceId);
 		if (extendAttrMap == null) {
 			return null;
 		}

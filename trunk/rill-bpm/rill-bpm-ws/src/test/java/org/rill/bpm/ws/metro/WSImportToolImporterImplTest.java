@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.baidu.rigel.service.workflow.ws.metro;
+package org.rill.bpm.ws.metro;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.rill.bpm.ws.metro.WSImportToolImporterImpl;
 import org.springframework.core.io.ClassPathResource;
 
 /**
