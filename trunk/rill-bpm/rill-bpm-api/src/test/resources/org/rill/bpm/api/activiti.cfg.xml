@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <import resource="classpath:org/rill/bpm/api/applicationContext-test-pgsupport.xml" />
+
+	<bean id="riglWfTransitionTraceSchemaListener"
+		class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceSchemaListener">
+	</bean>
+
+
+	<!-- ##Activiti5 configuration## start -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="org.h2.Driver" />
+		<property name="url"
+			value="jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000;MVCC=TRUE" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="processEngineConfiguration"
+		class="org.rill.bpm.api.activiti.RillProcessEngineConfiguration">
+		<property name="dataSource" ref="dataSource" />
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="databaseSchemaUpdate" value="true" />
+		<property name="mailServerHost" value="localhost" />
+		<property name="mailServerPort" value="5025" />
+		<property name="jobExecutorActivate" value="false" />
+		<!-- Rill extension -->
+		<property name="postParseListeners">
+			<bean class="org.rill.bpm.api.activiti.RetrieveNextTasksHelper">
+			</bean>
+		</property>
+	</bean>
+	<!-- ##Activiti5 configuration## end -->
+
+</beans>

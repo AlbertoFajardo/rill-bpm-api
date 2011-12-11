@@ -13,8 +13,9 @@
         <relativePath>../</relativePath>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    
     <properties>
-        <activiti.bpmn20.path>${basedir}../../../rill-bpm-bpmn/src/main/resources/diagrams</activiti.bpmn20.path>
+        <infinispan.version>5.1.0.CR1</infinispan.version>
     </properties>
 
     <dependencies>
@@ -33,6 +34,33 @@
             <artifactId>spring-jdbc</artifactId>
             <version>${spring.framework.version}</version>
         </dependency>
+        
+        <dependency>
+           <groupId>org.infinispan</groupId>
+           <artifactId>infinispan-core</artifactId>
+           <version>${infinispan.version}</version>
+        </dependency>
+        <dependency>
+           <groupId>org.infinispan</groupId>
+           <artifactId>infinispan-spring</artifactId>
+           <version>${infinispan.version}</version>
+           <scope>compile</scope>
+           <exclusions>
+           	<exclusion>
+           		<groupId>org.springframework</groupId>
+          		<artifactId>spring-aop</artifactId>
+           	</exclusion>
+           	<exclusion>
+           		<groupId>org.springframework</groupId>
+          		<artifactId>spring-asm</artifactId>
+           	</exclusion>
+           	<exclusion>
+           		<groupId>org.springframework</groupId>
+          		<artifactId>spring-expression</artifactId>
+           	</exclusion>
+           </exclusions>
+        </dependency>
+        
         <dependency>
             <artifactId>spring-test</artifactId>
             <groupId>org.springframework</groupId>
@@ -44,14 +72,6 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.config.file>${basedir}/src/test/resources/logging.properties</java.util.logging.config.file>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
@@ -61,54 +81,8 @@
                         </goals>
                     </execution>
                 </executions>
+                <version>2.3.2</version>
             </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <!-- here the phase you need -->
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/test/resources/com/baidu/rigel/service/workflow/api</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${activiti.bpmn20.path}</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Split workflow from activiti-engine
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>rigel-tcom-workflow</classifier>
-                            <includes>
-                                <include>**/rigel/service/workflow/**/*</include>
-                                <include>**/org/eclipse/swt/**/*</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -121,6 +95,7 @@
                         </goals>
                     </execution>
                 </executions>
+                <version>2.1.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
