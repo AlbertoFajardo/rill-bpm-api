@@ -229,5 +229,18 @@
 	        <uniqueVersion>false</uniqueVersion>  
 	    </snapshotRepository>
     </distributionManagement>
+    
+    <profiles>
+    	<profile>
+    		<id>googlecode-snapshot</id>
+    		<modules>
+    			<module>rill-bpm-api</module>
+			    <module>rill-bpm-ws</module>
+			    <!-- 
+			    <module>rill-bpm-web</module>
+			     -->
+    		</modules>
+    	</profile>
+    </profiles>
   
 </project>
