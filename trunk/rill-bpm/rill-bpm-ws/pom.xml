@@ -76,7 +76,11 @@
     
     <profiles>
     	<profile>
-    		<id>generate-stub</id>
+    		<id>deploy-stub-to-googlecode-snapshots</id>
+    		<properties>
+    			<googlecode.snapshot.url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/snapshots</googlecode.snapshot.url>
+    			<googlecode.snapshot.repositoryId>googlecode-repo-snapshots</googlecode.snapshot.repositoryId>
+    		</properties>
     		<build>
     			<plugins>
     				<plugin>
@@ -91,7 +95,7 @@
 				              	<property name="M2_REPO" value="${user.home}/.m2/repository" />
 								<property name="WS_STUB_DIR" value="${project.build.directory}/stubsources" />
 								<property name="WS_STUB_CLASSES_DIR" value="${project.build.directory}/stubclasses" />
-								<property name="WSDL_LOCATION" value="http://10.81.21.140:8080/rill-bpm-server/BPMWebService?wsdl" />
+								<property name="WSDL_LOCATION" value="http://localhost:8080/rill-bpm-web/BPMWebService?wsdl" />
 							
 								<path id="classpath.libs">
 									<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
@@ -154,6 +158,17 @@
 									<finalName>${project.artifactId}-${project.version}-stub</finalName>
 								</configuration>
 							</execution>
+							<execution>
+								<id>jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubsources</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub-sources</finalName>
+								</configuration>
+							</execution>
 						</executions>
 						<version>2.3.2</version>
 					</plugin>
@@ -177,32 +192,6 @@
 									<version>${project.version}</version>
 								</configuration>
 							</execution>
-						</executions>
-						<version>2.3.1</version>
-					</plugin>
-					
-		            <plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>jar-stubsources</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-								<configuration>
-									<classesDirectory>${project.build.directory}/stubsources</classesDirectory>
-									<finalName>${project.artifactId}-${project.version}-stub-sources</finalName>
-								</configuration>
-							</execution>
-						</executions>
-						<version>2.3.2</version>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-install-plugin</artifactId>
-						<executions>
 							<execution>
 								<id>install-jar-stubsources</id>
 								<phase>prepare-package</phase>
@@ -221,6 +210,49 @@
 						</executions>
 						<version>2.3.1</version>
 					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy-jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<url>${googlecode.snapshot.url}</url>
+									<repositoryId>${googlecode.snapshot.repositoryId}</repositoryId>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
+									<classifier>stub</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<url>${googlecode.snapshot.url}</url>
+									<repositoryId>${googlecode.snapshot.repositoryId}</repositoryId>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
+									<classifier>stub-sources</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.5</version>
+					</plugin>
+					
     			</plugins>
     		</build>
     	</profile>
