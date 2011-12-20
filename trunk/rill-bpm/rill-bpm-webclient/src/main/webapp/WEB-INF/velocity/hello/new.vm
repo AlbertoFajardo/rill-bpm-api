@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<title>Say Hello Form</title>
+	</head>
+	<form action="/rill-bpm-client/web/hello" method="POST">
+		<table>
+			<tr>
+				<td>Please enter your name: </td>
+				<td>
+					#springBind("command.whoSay")
+					<input name="${status.expression}" value="$!status.value" type="text" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="submit" value="Submit" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</html>
