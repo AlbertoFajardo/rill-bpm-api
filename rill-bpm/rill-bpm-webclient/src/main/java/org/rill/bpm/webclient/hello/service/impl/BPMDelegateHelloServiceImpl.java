@@ -54,6 +54,11 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
         me.setKey("startKeys");
         me.setValue("Hello BPMServer");
         mea.getItem().add(me);
+        MapElements level = new MapElements();
+        me.setKey("level");
+        me.setValue("A");
+        mea.getItem().add(level);
+       
         
         logger.info("Start process[" + PROCESS_DEFINITION_KEY + "]" + " by " + name + " with businessObjectId " + businessObjectId);
         // Start a process instance
