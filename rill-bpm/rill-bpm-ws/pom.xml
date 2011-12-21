@@ -26,7 +26,7 @@
         <dependency>
             <artifactId>rill-bpm-api</artifactId>
             <groupId>org.rill</groupId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -38,7 +38,7 @@
             <artifactId>rill-bpm-api</artifactId>
             <groupId>org.rill</groupId>
             <type>test-jar</type>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         
