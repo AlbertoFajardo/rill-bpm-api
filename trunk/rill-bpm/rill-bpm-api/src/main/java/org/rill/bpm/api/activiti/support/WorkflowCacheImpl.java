@@ -2,8 +2,6 @@ package org.rill.bpm.api.activiti.support;
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.interceptor.Command;
@@ -18,15 +16,24 @@ import org.rill.bpm.api.WorkflowOperations.XStreamSerializeHelper;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter;
 import org.rill.bpm.api.exception.ProcessException;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.Assert;
 
 
 public class WorkflowCacheImpl implements WorkflowCache {
 
-	@Resource
 	private WorkflowOperations workflowAccessor;
 	
+	public final WorkflowOperations getWorkflowAccessor() {
+		return workflowAccessor;
+	}
+	
+	@Required
+	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
+		this.workflowAccessor = workflowAccessor;
+	}
+
 	@Override
 	@Cacheable(value = { "default" })
 	public String getTaskRelatedInfo(String taskInstanceId, WorkflowOperations.TaskInformations key) {

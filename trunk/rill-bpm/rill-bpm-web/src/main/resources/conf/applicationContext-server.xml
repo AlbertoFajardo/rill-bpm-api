@@ -52,7 +52,7 @@
 		an operation defined by the FooService interface -->
 	<aop:config>
 		<aop:pointcut id="workflowAccessorOperation"
-			expression="execution(* org.rill.bpm.api.activiti.ActivitiTemplate.*(..))" />
+			expression="execution(* org.rill.bpm.api.WorkflowOperations.*(..))" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="workflowAccessorOperation" />
 	</aop:config>
     
