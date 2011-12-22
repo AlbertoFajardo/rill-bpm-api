@@ -51,6 +51,7 @@ import com.sun.xml.ws.api.message.Header;
 import com.sun.xml.ws.api.message.Headers;
 import com.sun.xml.ws.tx.at.WSATConstants;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import com.sun.xml.ws.tx.at.WSATHelper;
 
@@ -69,7 +70,9 @@ import javax.transaction.xa.Xid;
 
 
 public class WSATClientHelper implements WSATClient {
-    private volatile int counter = 0;
+	// Modified by MENGRAN at 2011-12-22 for volatile -> AtomicInteger and change to static variables
+    private static AtomicInteger counter = new AtomicInteger(0);
+    
     private static final Logger LOGGER = Logger.getLogger(WSATClientHelper.class);
 
     /**
@@ -188,7 +191,8 @@ public class WSATClientHelper implements WSATClient {
         String txId;
         byte[] activityId = WSATHelper.assignUUID().getBytes();
         LOGGER.info("WS-AT activityId:" + activityId);
-        Xid xid = new XidImpl(1234, new String(System.currentTimeMillis() + "-" + counter++).getBytes(), new byte[]{});
+        // Modified by MENGRAN at 2011-12-22 for change counter++ to AtomicInteger.incrementAndGet()
+        Xid xid = new XidImpl(1234, new String(System.currentTimeMillis() + "-" + counter.incrementAndGet()).getBytes(), new byte[]{});
         txId = TransactionIdHelper.getInstance().xid2wsatid(xid);
         long ttl = 0;
         try {
