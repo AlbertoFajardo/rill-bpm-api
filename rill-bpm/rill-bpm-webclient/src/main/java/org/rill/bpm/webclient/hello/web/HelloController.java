@@ -1,9 +1,10 @@
 package org.rill.bpm.webclient.hello.web;
 
+import java.util.Random;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.rill.bpm.webclient.hello.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -59,14 +60,14 @@ public class HelloController {
 	@RequestMapping(value={"/new_ab"}, method=RequestMethod.GET)
 	public void _sayHello(HttpServletRequest request, HttpServletResponse response) {
 		
-		getHelloService().sayHello(RandomStringUtils.random(10));
+		getHelloService().sayHello(new Integer(new Random().nextInt()).toString());
 		
 	}
 	// For apache AB roll back
 	@RequestMapping(value={"/new_ab_rollback"}, method=RequestMethod.GET)
 	public void _sayHelloRollback(HttpServletRequest request, HttpServletResponse response) {
 		
-		getHelloService().sayHello(RandomStringUtils.random(10) + "_rollback");
+		getHelloService().sayHello(new Integer(new Random().nextInt()).toString() + "_rollback");
 		
 	}
 }

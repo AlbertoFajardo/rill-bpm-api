@@ -9,7 +9,7 @@ import org.rill.bpm.webclient.hello.service.HelloService;
 import org.rill.bpm.ws.client.CreateProcessInstanceDto;
 import org.rill.bpm.ws.client.MapElements;
 import org.rill.bpm.ws.client.MapElementsArray;
-import org.rill.bpm.ws.client.RemoteActivitiTemplateService;
+import org.rill.bpm.ws.client.RemoteActivitiTemplate;
 import org.rill.bpm.ws.client.RemoteWorkflowResponse;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -31,15 +31,14 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 		this.localDBHelloService = localDBHelloService;
 	}
 
-	@Resource(name="remoteActivitiTemplateService")
-	private RemoteActivitiTemplateService remoteActivitiTemplateService;
+	@Resource(name="remoteActivitiTemplate")
+	private RemoteActivitiTemplate remoteActivitiTemplate;
 
 	@Override
 	@Transactional
 	public void sayHello(String name) {
 
 		String businessObjectId = PROCESS_DEFINITION_KEY + "_" + name;
-        RemoteActivitiTemplateService workflowAccessor = remoteActivitiTemplateService;
         
         // Fill DTO
         CreateProcessInstanceDto dto = new CreateProcessInstanceDto();
@@ -62,7 +61,7 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
         
         logger.info("Start process[" + PROCESS_DEFINITION_KEY + "]" + " by " + name + " with businessObjectId " + businessObjectId);
         // Start a process instance
-        RemoteWorkflowResponse response = workflowAccessor.getRemoteActivitiTemplatePort().createProcessInstance(dto);
+        RemoteWorkflowResponse response = remoteActivitiTemplate.createProcessInstance(dto);
         StringBuilder sb = new StringBuilder();
         sb.append("getEngineProcessInstanceId " + response.getEngineProcessInstanceId());
         sb.append("getEngineTaskInstanceIds " + ObjectUtils.getDisplayString(response.getEngineTaskInstanceIds()));
@@ -75,8 +74,8 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
         logger.info("Start process result: " + sb.toString());
         
         // Get process instance ID
-    	String engineProcessInstanceId = workflowAccessor.getRemoteActivitiTemplatePort().getEngineProcessInstanceIdByBOId(PROCESS_DEFINITION_KEY, businessObjectId);
-    	Assert.isTrue(engineProcessInstanceId == null, "Activiti has commited? WS-AT does not work.");
+    	String engineProcessInstanceId = remoteActivitiTemplate.getEngineProcessInstanceIdByBOId(PROCESS_DEFINITION_KEY, businessObjectId);
+    	Assert.isTrue(engineProcessInstanceId == null, "Activiti has commited? WS-AT does not work. [engineProcessInstanceId= " + engineProcessInstanceId + "]" + sb.toString());
     	Assert.isTrue(response.getBusinessObjectId().equals(businessObjectId));
     	Assert.isTrue(response.getProcessDefinitionKey().equals(PROCESS_DEFINITION_KEY));
     	Assert.isTrue(response.getEngineTaskInstanceIds().size() == 1);

@@ -6,31 +6,21 @@
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:p="http://www.springframework.org/schema/p"
 
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
-          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
     
     <!-- ##WS client configuration## start  -->
-    <bean id="remoteActivitiTemplateService" class="org.rill.bpm.ws.client.RemoteActivitiTemplateService">
-		<constructor-arg>
-			<bean class="java.net.URL">
-				<constructor-arg>
-					<value>${ws.activiti.wsdl1}</value>
-				</constructor-arg>
-			</bean>
-		</constructor-arg>
-		<constructor-arg>
-			<bean class="javax.xml.namespace.QName">
-				<constructor-arg>
-					<value>http://activiti.api.ws.bpm.rill.org/</value>
-				</constructor-arg>
-				<constructor-arg>
-					<value>RemoteActivitiTemplateService</value>
-				</constructor-arg>
-			</bean>
-		</constructor-arg>
+    <bean id="remoteActivitiTemplate" class="org.springframework.remoting.jaxws.JaxWsPortProxyFactoryBean">
+	    <property name="serviceInterface" value="org.rill.bpm.ws.client.RemoteActivitiTemplate"/>
+	    <property name="wsdlDocumentUrl" value="${ws.activiti.wsdl1}"/>
+	    <!-- 
+	    <property name="namespaceUri" value="http://activiti.api.ws.bpm.rill.org/"/>
+	     -->
+	    <property name="serviceName" value="RemoteActivitiTemplateService"/>
+	    <property name="portName" value="RemoteActivitiTemplatePort"/>
 	</bean>
     <!-- ##WS client configuration## end  -->
   
