@@ -22,3 +22,4 @@ Project descriptions:
 
 = !Important! =
   # add -Dhttp.keepAlive=false to JVM start command (to prevent thread hangs)
+  # import rill-bpm modules as maven project(don't open rill-bpm-embeddedgf project)
