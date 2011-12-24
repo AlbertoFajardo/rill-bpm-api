@@ -57,11 +57,6 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-ws</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.rill</groupId>
-			<artifactId>rill-bpm-ws</artifactId>
 			<classifier>stub</classifier>
 			<version>${project.version}</version>
 		</dependency>

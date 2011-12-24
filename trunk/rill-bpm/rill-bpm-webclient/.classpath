@@ -186,11 +186,6 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/rill/rill-bpm-ws/1.0-SNAPSHOT/rill-bpm-ws-1.0-SNAPSHOT.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/3.1.0.RC1/spring-aop-3.1.0.RC1.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
