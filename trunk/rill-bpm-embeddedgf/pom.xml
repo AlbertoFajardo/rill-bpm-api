@@ -160,6 +160,7 @@
 				<executions>
 					<execution>
 						<id>jar-sources</id>
+						<phase>process-sources</phase>
 						<goals>
 							<goal>jar</goal>
 						</goals>
