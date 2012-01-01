@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-promotionsExpires-contract_v2" name="Pg-support-promotionsExpires-contract_v2">
+    <documentation>Place documentation for the 'Pg-support-promotionsExpires-contract_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="change_activity_re_send_contract" name="合同作废重新发放" default="flow2" activiti:candidateGroups="ht_support_fgsywzc_constract_supporter" activiti:formKey="finance/changeActivityReSendContractInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>508</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>contractStatus=216</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>contractStatus=217</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>completeFinanceChangeActivityOkTaskLifecycleInteceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="change_activity_re_send_contract"></sequenceFlow>
+    <userTask id="assistantor_change_activity" name="修改订单优惠规则" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="finance/changeActivityInitNew.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>507</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>contractStatus=215</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow7"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="" sourceRef="change_activity_re_send_contract" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="change_activity_re_back_contract" name="合同返还" activiti:candidateGroups="ht_support_fgsywzc_constract_supporter" activiti:formKey="finance/changeActivityReReturnContractInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>509</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>contractStatus=218</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>contractStatus=217</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>completeFinanceChangeActivityOkTaskLifecycleInteceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" name="需返还合同" sourceRef="exclusivegateway1" targetRef="change_activity_re_back_contract">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${nee_return_contract==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow4" name="驳回" sourceRef="change_activity_re_send_contract" targetRef="assistantor_change_activity">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow5" name="" sourceRef="assistantor_change_activity" targetRef="change_activity_re_send_contract"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow6" name="" sourceRef="change_activity_re_back_contract" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow7" name="" sourceRef="exclusivegateway1" targetRef="exclusivegateway2"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow8" name="" sourceRef="exclusivegateway2" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-promotionsExpires-contract_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-promotionsExpires-contract_v2" id="BPMNPlane_Pg-support-promotionsExpires-contract_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="60" y="200"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="change_activity_re_send_contract" id="BPMNShape_change_activity_re_send_contract">
+        <omgdc:Bounds height="55" width="105" x="200" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="assistantor_change_activity" id="BPMNShape_assistantor_change_activity">
+        <omgdc:Bounds height="55" width="105" x="200" y="60"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="400" y="197"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="change_activity_re_back_contract" id="BPMNShape_change_activity_re_back_contract">
+        <omgdc:Bounds height="55" width="105" x="540" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="572" y="320"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="575" y="410"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="95" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="200" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="305" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="400" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="440" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="540" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="305" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="252" y="115"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="252" y="115"></omgdi:waypoint>
+        <omgdi:waypoint x="318" y="155"></omgdi:waypoint>
+        <omgdi:waypoint x="305" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="592" y="245"></omgdi:waypoint>
+        <omgdi:waypoint x="592" y="320"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="420" y="237"></omgdi:waypoint>
+        <omgdi:waypoint x="592" y="320"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="592" y="360"></omgdi:waypoint>
+        <omgdi:waypoint x="592" y="410"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

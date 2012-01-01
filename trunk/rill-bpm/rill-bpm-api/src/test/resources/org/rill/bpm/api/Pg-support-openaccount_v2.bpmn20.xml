@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-openaccount_v2" name="Pg-support-openaccount_v2">
+    <documentation>Place documentation for the 'Pg-support-openaccount_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="openacountaudit" name="开户信息审核" activiti:candidateGroups="ht_support_fgsywzc_openaccount_checker" activiti:formKey="account/openAccountAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>26</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=17</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="openacountaudit"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="" sourceRef="openacountaudit" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="openaccountaudit_layup" name="开户信息审核" activiti:candidateGroups="ht_support_fgsywzc_openaccount_checker" activiti:formKey="account/openAccountAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=18</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>26</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="openaccount_reaudit" name="开户审核再审" activiti:candidateGroups="ht_support_fgsywzc_openaccount_checker" activiti:formKey="account/openAccountAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=39</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>116</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" name="搁置" sourceRef="exclusivegateway1" targetRef="openaccountaudit_layup">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==2}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow4" name="" sourceRef="openaccountaudit_layup" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="confirm_open_account" name="确认开户" activiti:candidateGroups="ht_support_fgsywzc_openaccount" activiti:formKey="account/openAccountInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=23</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>30</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>status=19</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow5" name="通过" sourceRef="exclusivegateway1" targetRef="confirm_open_account">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==0}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow6" name="" sourceRef="confirm_open_account" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow7" name="" sourceRef="openaccount_reaudit" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="fixurl" name="开户审核需再审完善网站信息" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="account/completeUrlInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=37</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>114</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="openaccount_auditor_mod_custinfo" name="开户审核人员修改网站信息" activiti:candidateGroups="ht_support_fgsywzc_openaccount_checker" activiti:formKey="account/openAccAuditorModCustInfo.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=42</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>120</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="mod_custinfo" name="修改客户资料" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="account/modCustomerInfo.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=40</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>119</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow8" name="需再审-非网建" sourceRef="exclusivegateway1" targetRef="fixurl">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==8 && __order_orderBuildWebType !=2}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow10" name="驳回" sourceRef="exclusivegateway1" targetRef="mod_custinfo">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <callActivity id="callactivity1" name="资质审核" calledElement="Pg-support-contractQualification_v2"></callActivity>
+    <sequenceFlow id="flow11" name="" sourceRef="fixurl" targetRef="callactivity1"></sequenceFlow>
+    <sequenceFlow id="flow12" name="" sourceRef="openaccount_auditor_mod_custinfo" targetRef="callactivity1"></sequenceFlow>
+    <sequenceFlow id="flow13" name="" sourceRef="mod_custinfo" targetRef="callactivity1"></sequenceFlow>
+    <sequenceFlow id="flow14" name="" sourceRef="callactivity1" targetRef="openaccount_reaudit"></sequenceFlow>
+    <sequenceFlow id="flow15" name="需再审-网建" sourceRef="exclusivegateway1" targetRef="openaccount_auditor_mod_custinfo">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==8 && __order_orderBuildWebType ==2}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-openaccount_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-openaccount_v2" id="BPMNPlane_Pg-support-openaccount_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="40" y="210"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="openacountaudit" id="BPMNShape_openacountaudit">
+        <omgdc:Bounds height="55" width="105" x="140" y="200"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="340" y="207"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="openaccountaudit_layup" id="BPMNShape_openaccountaudit_layup">
+        <omgdc:Bounds height="55" width="105" x="140" y="330"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="openaccount_reaudit" id="BPMNShape_openaccount_reaudit">
+        <omgdc:Bounds height="55" width="105" x="140" y="80"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_open_account" id="BPMNShape_confirm_open_account">
+        <omgdc:Bounds height="55" width="105" x="308" y="370"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="660" y="380"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="fixurl" id="BPMNShape_fixurl">
+        <omgdc:Bounds height="55" width="105" x="456" y="119"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="openaccount_auditor_mod_custinfo" id="BPMNShape_openaccount_auditor_mod_custinfo">
+        <omgdc:Bounds height="55" width="105" x="456" y="220"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mod_custinfo" id="BPMNShape_mod_custinfo">
+        <omgdc:Bounds height="55" width="105" x="456" y="308"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
+        <omgdc:Bounds height="55" width="105" x="620" y="80"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="75" y="227"></omgdi:waypoint>
+        <omgdi:waypoint x="140" y="227"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="245" y="227"></omgdi:waypoint>
+        <omgdi:waypoint x="360" y="207"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="360" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="192" y="330"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="245" y="357"></omgdi:waypoint>
+        <omgdi:waypoint x="331" y="320"></omgdi:waypoint>
+        <omgdi:waypoint x="360" y="247"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="360" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="360" y="370"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="413" y="397"></omgdi:waypoint>
+        <omgdi:waypoint x="660" y="397"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="192" y="135"></omgdi:waypoint>
+        <omgdi:waypoint x="360" y="207"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="360" y="207"></omgdi:waypoint>
+        <omgdi:waypoint x="508" y="174"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="360" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="508" y="308"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="561" y="146"></omgdi:waypoint>
+        <omgdi:waypoint x="672" y="135"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="561" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="672" y="135"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="561" y="335"></omgdi:waypoint>
+        <omgdi:waypoint x="672" y="135"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="620" y="107"></omgdi:waypoint>
+        <omgdi:waypoint x="245" y="107"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="380" y="227"></omgdi:waypoint>
+        <omgdi:waypoint x="414" y="248"></omgdi:waypoint>
+        <omgdi:waypoint x="508" y="275"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

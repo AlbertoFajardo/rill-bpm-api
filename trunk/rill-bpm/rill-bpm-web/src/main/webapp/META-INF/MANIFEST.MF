@@ -16,9 +16,9 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  aop-3.1.0.RC1.jar spring-asm-3.1.0.RC1.jar spring-beans-3.1.0.RC1.jar
   spring-context-3.1.0.RC1.jar spring-context-support-3.1.0.RC1.jar sp
  ring-core-3.1.0.RC1.jar spring-expression-3.1.0.RC1.jar spring-jdbc-3
- .1.0.RC1.jar spring-orm-3.1.0.RC1.jar spring-test-3.0.3.RELEASE.jar s
- pring-tx-3.1.0.RC1.jar spring-web-3.1.0.RC1.jar spring-webmvc-3.1.0.R
- C1.jar sslext-1.2-0.jar struts-core-1.3.8.jar struts-taglib-1.3.8.jar
-  struts-tiles-1.3.8.jar swt-3.3.0-v3346.jar velocity-1.6.3.jar veloci
- ty-tools-2.0.jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar
+ .1.0.RC1.jar spring-orm-3.1.0.RC1.jar spring-tx-3.1.0.RC1.jar spring-
+ web-3.1.0.RC1.jar spring-webmvc-3.1.0.RC1.jar sslext-1.2-0.jar struts
+ -core-1.3.8.jar struts-taglib-1.3.8.jar struts-tiles-1.3.8.jar swt-3.
+ 3.0-v3346.jar velocity-1.6.3.jar velocity-tools-2.0.jar xpp3_min-1.1.
+ 3.4.O.jar xstream-1.2.2.jar
 
