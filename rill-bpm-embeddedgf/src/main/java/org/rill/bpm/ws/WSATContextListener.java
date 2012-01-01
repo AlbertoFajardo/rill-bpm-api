@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -18,6 +19,14 @@ import com.sun.xml.ws.tx.dev.WSATRuntimeConfig;
 
 /**
  * Prepare WSAT environment.
+ * @author mengran
+ *
+ */
+/**
+ * @author mengran
+ *
+ */
+/**
  * @author mengran
  *
  */
@@ -72,10 +81,22 @@ public class WSATContextListener implements ServletContextListener {
         };
         
         WSATRuntimeConfig.initializer()
-        		.httpPort(sce.getServletContext().getInitParameter("HTTP_PORT") == null ? "8080" : sce.getServletContext().getInitParameter(WSAT_HTTP_PORT))
+        		.httpPort(pickPort(sce.getServletContext()))
                 .txLogLocation(txlogLocationProvider)
                 .hostName(pickHost())
                 .done();
+	}
+	
+	/**
+	 * <ul>
+	 * 	<li> First use <code>context-param</code> configuration
+	 * 	<li> Second use 8080 directly
+	 * @param sc servlet context
+	 * @return HTTP port
+	 */
+	protected String pickPort(ServletContext sc) {
+		
+		return sc.getInitParameter("HTTP_PORT") == null ? "8080" : sc.getInitParameter(WSAT_HTTP_PORT).trim();
 	}
 	
 	private String pickHost() throws RuntimeException {
