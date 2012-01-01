@@ -8,10 +8,10 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath*:conf/applicationContext*.xml</param-value>
     </context-param>
-
+    
     <listener>
         <description>WSAT Context Loader</description>
-        <listener-class>org.rill.bpm.ws.WSATContextListener</listener-class>
+        <listener-class>org.rill.bpm.ws.listener.WSATServerPickPortListener</listener-class>
     </listener>
     <listener>
         <description>Spring Application Context Loader</description>

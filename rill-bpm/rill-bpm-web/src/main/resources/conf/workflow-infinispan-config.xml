@@ -135,18 +135,17 @@
 
       -->
       <!-- Use the property below to point to a specific JGroups configuration file on your classpath -->
-         <!--
-         <properties>
+         <!-- 
+            machineId="m1" 
+            rackId="r1" nodeName="Node-A"
+             -->
+      <transport 
+            clusterName="workflowCache-cluster" 
+            >
+            <properties>
             <property name="configurationFile" value="jgroups-tcp.xml" />
          </properties>
-         -->
-      <!-- comment by MENGRAN for set infinispan to local mode 
-      <transport 
-            clusterName="infinispan-cluster" 
-            machineId="m1" 
-            rackId="r1" nodeName="Node-A">
       </transport>
-       -->
 
       <!--
          Used to customize the marshaller used to serialize objects and deserialize byte streams.  Also allows you to
@@ -249,9 +248,7 @@
 
          http://community.jboss.org/wiki/Clusteringmodes
       -->
-      <!-- comment by MENGRAN for set infinispan to local mode
-      <clustering mode="replication">
-		 -->
+      <clustering mode="d">
          <!--
             Defines whether to retrieve state on startup.  This is only valud for 'replication' mode.
          
@@ -278,9 +275,7 @@
             replQueueMaxElements="500"
          />
          -->
-      <!-- comment by MENGRAN for set infinispan to local mode
       </clustering>
-       -->
 
    </default>
 

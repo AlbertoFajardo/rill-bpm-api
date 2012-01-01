@@ -4,12 +4,6 @@
     <display-name>rill-bpm-webclient</display-name>
     
     <context-param>
-        <description>HTTP Port</description>
-        <param-name>HTTP_PORT</param-name>
-        <param-value>7070</param-value>
-    </context-param>
-    
-    <context-param>
         <description>Spring Application Context</description>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath*:conf/applicationContext*.xml</param-value>
@@ -17,7 +11,7 @@
 
     <listener>
         <description>WSAT Context Loader</description>
-        <listener-class>org.rill.bpm.ws.WSATContextListener</listener-class>
+        <listener-class>org.rill.bpm.ws.listener.WSATServerPickPortListener</listener-class>
     </listener>
     <listener>
         <description>Spring Application Context Loader</description>

@@ -50,6 +50,12 @@
 			<version>${spring.framework.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+			<version>${spring.framework.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
 			<version>1.6.3</version>
@@ -120,6 +126,10 @@
 					<wtpversion>2.0</wtpversion>
 					<!--  -->
 					<useProjectReferences>false</useProjectReferences>
+					<classpathContainers>
+				   <classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
+				   <classpathContainer>org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0</classpathContainer>
+				   </classpathContainers>
 				</configuration>
 			</plugin>
 		</plugins>

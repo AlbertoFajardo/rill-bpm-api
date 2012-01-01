@@ -95,7 +95,7 @@
 				              	<property name="M2_REPO" value="${user.home}/.m2/repository" />
 								<property name="WS_STUB_DIR" value="${project.build.directory}/stubsources" />
 								<property name="WS_STUB_CLASSES_DIR" value="${project.build.directory}/stubclasses" />
-								<property name="WSDL_LOCATION" value="http://localhost:8080/rill-bpm-web/BPMWebService?wsdl" />
+								<property name="WSDL_LOCATION" value="http://localhost:6060/rill-bpm-web/BPMWebService?wsdl" />
 							
 								<path id="classpath.libs">
 									<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
@@ -133,6 +133,12 @@
 										/>
 				              
 				              <echo message="end import operation."/>
+				              
+				              <copy todir="${WS_STUB_CLASSES_DIR}">
+							    <fileset dir="${project.build.directory}/classes">
+							      <include name="**/WSATServerPickPort*.class"/>
+							    </fileset>
+							  </copy>
 				              </target>
 				            </configuration>
 				            <goals>
@@ -142,7 +148,7 @@
 				        </executions>
 				        <version>1.7</version>
 				      </plugin>
-		            
+		      
 		      		<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-jar-plugin</artifactId>
