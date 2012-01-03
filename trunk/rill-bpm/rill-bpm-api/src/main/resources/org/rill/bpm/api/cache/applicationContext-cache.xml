@@ -13,7 +13,7 @@
 	<!-- Infinispan cache manager -->
 	<bean id="cacheManager"
           class="org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean"
-          p:configurationFileLocation="classpath:/org/rill/bpm/api/workflow-infinispan-config.xml" />
+          p:configurationFileLocation="classpath:/org/rill/bpm/api/cache/workflow-infinispan-config.xml" />
 
 	<!-- Work flow cache accessor -->
 	<bean id="workflowCache" class="org.rill.bpm.api.activiti.support.WorkflowCacheImpl" />
