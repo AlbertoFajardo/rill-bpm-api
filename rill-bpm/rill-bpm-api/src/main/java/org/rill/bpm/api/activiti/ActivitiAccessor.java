@@ -287,7 +287,7 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
 
         String cacheHit = null;
         logger.log(Level.FINE, "get Task related informations of taskInstanceId: " + taskInstanceId + ", key is " + cacheInfo);
-        cacheHit = workflowCache.getTaskRelatedInfo(taskInstanceId, cacheInfo);
+        cacheHit = workflowCache.getTaskRelatedInfo(taskInstanceId, cacheInfo.name());
 
         return cacheHit;
     }

@@ -137,7 +137,7 @@
       -->
       <!-- Use the property below to point to a specific JGroups configuration file on your classpath -->
       <transport 
-            clusterName="workflowCache-cluster"
+            clusterName="test-workflowCache-cluster"
             >
          <properties>
             <property name="configurationFile" value="jgroups-tcp.xml" />

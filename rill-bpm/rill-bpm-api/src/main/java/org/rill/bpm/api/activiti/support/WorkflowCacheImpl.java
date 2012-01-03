@@ -1,6 +1,7 @@
 package org.rill.bpm.api.activiti.support;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.TaskListener;
@@ -23,6 +24,8 @@ import org.springframework.util.Assert;
 
 public class WorkflowCacheImpl implements WorkflowCache {
 
+	protected Logger logger = Logger.getLogger(this.getClass().getName());
+	
 	private WorkflowOperations workflowAccessor;
 	
 	public final WorkflowOperations getWorkflowAccessor() {
@@ -36,7 +39,10 @@ public class WorkflowCacheImpl implements WorkflowCache {
 
 	@Override
 	@Cacheable(value = { "default" })
-	public String getTaskRelatedInfo(String taskInstanceId, WorkflowOperations.TaskInformations key) {
+	public String getTaskRelatedInfo(String taskInstanceId, String taskInformationsKey) {
+		
+		logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + taskInformationsKey);
+		WorkflowOperations.TaskInformations key = WorkflowOperations.TaskInformations.valueOf(taskInformationsKey);
 		
 		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
 		TaskEntity task = null;
@@ -48,9 +54,11 @@ public class WorkflowCacheImpl implements WorkflowCache {
         final TaskEntity taskEntity = task;
 
         if (WorkflowOperations.TaskInformations.PROCESS_INSTANCE_ID.equals(key)) {
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getProcessInstanceId());
         	return task.getProcessInstanceId();
         }
         if (WorkflowOperations.TaskInformations.TASK_TAG.equals(key)) {
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getTaskDefinitionKey());
         	return task.getTaskDefinitionKey();
         }
         if (WorkflowOperations.TaskInformations.TASK_ROLE_TAG.equals(key)) {
@@ -63,6 +71,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
 				}
         		
             });
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + taskRoleTag);
         	return taskRoleTag;
         }
         if (WorkflowOperations.TaskInformations.BUSINESS_OBJECT_ID.equals(key)) {
@@ -70,10 +79,11 @@ public class WorkflowCacheImpl implements WorkflowCache {
             String rootProcessInstanceId = activitiAccessor.obtainRootProcess(task.getProcessInstanceId(), true);
             ProcessInstance rootPi = activitiAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(rootProcessInstanceId).singleResult();
             Assert.notNull(rootPi.getBusinessKey(), "Business key must not be null, so this means we need upgrade this code to fix it.");
+            logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + rootPi.getBusinessKey());
             return rootPi.getBusinessKey();
         }
         if (WorkflowOperations.TaskInformations.CLASSDELEGATE_ADAPTER_TLI.equals(key)) {
-        	return activitiAccessor.runExtraCommand(new Command<String>() {
+        	String classDelegateTli = activitiAccessor.runExtraCommand(new Command<String>() {
 
 				@Override
 				public String execute(CommandContext commandContext) {
@@ -96,19 +106,22 @@ public class WorkflowCacheImpl implements WorkflowCache {
 				}
         		
             });
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + classDelegateTli);
         }
         
         if (WorkflowOperations.TaskInformations.CLASSDELEGATE_ADAPTER_TOI.equals(key)) {
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + "null");
         	return null;
         }
         
         if (WorkflowOperations.TaskInformations.FORM_KEY.equals(key)) {
         	
-        	return activitiAccessor.getFormService().getTaskFormData(taskInstanceId).getFormKey();
+        	String formKey = activitiAccessor.getFormService().getTaskFormData(taskInstanceId).getFormKey();
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + formKey);
         }
         
         if (WorkflowOperations.TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION.equals(key)) {
-        	return activitiAccessor.runExtraCommand(new Command<String>() {
+        	String taskServiceInvokeExp = activitiAccessor.runExtraCommand(new Command<String>() {
 
 				@Override
 				public String execute(CommandContext commandContext) {
@@ -131,10 +144,11 @@ public class WorkflowCacheImpl implements WorkflowCache {
 				}
         		
             });
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + taskServiceInvokeExp);
         }
         
         if (WorkflowOperations.TaskInformations.EXTEND_ATTRIBUTES.equals(key)) {
-        	return activitiAccessor.runExtraCommand(new Command<String>() {
+        	String extendAttributes = activitiAccessor.runExtraCommand(new Command<String>() {
 
 				@Override
 				public String execute(CommandContext commandContext) {
@@ -157,19 +171,22 @@ public class WorkflowCacheImpl implements WorkflowCache {
 				}
         		
             });
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + extendAttributes);
         }
         
         if (WorkflowOperations.TaskInformations.TASK_DEFINE_NAME.equals(key)) {
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getName());
         	return task.getName();
         }
         
         if (WorkflowOperations.TaskInformations.ROOT_PROCESS_INSTANCE_ID.equals(key)) {
         	String rootProcessInstanceId = activitiAccessor.obtainRootProcess(task.getProcessInstanceId(), true);
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + rootProcessInstanceId);
         	return rootProcessInstanceId;
         }
         
         if (WorkflowOperations.TaskInformations.PROCESS_DEFINE_KEY.equals(key)) {
-        	return activitiAccessor.runExtraCommand(new Command<String>() {
+        	String processDefinitionKey = activitiAccessor.runExtraCommand(new Command<String>() {
 
 				@Override
 				public String execute(CommandContext commandContext) {
@@ -178,6 +195,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
 				}
         		
             });
+        	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + processDefinitionKey);
         }
         
         throw new UnsupportedOperationException("Unsupported key: " + key);
@@ -187,6 +205,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
 	@Cacheable(value = { "default" }, key="#key")
 	public String getOrSetUserInfo(String key, String value) {
 		
+		logger.info("NOT HIT: method[getOrSetUserInfo] cache key:" + key + ", value:" + value);
 		return value;
 	}
 
