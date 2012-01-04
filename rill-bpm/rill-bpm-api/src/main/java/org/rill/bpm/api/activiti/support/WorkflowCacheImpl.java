@@ -52,6 +52,11 @@ public class WorkflowCacheImpl implements WorkflowCache {
             throw new ProcessException("Can't get task instance by giving ID" + taskInstanceId, e);
         }
         final TaskEntity taskEntity = task;
+        // Reason may two: one is task ID is invalid, other is task information value is null so not cache it.
+        if (taskEntity == null) {
+        	logger.info("Task[" + taskInstanceId +"] isn't exists, return null");
+        	return null;
+        }
 
         if (WorkflowOperations.TaskInformations.PROCESS_INSTANCE_ID.equals(key)) {
         	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getProcessInstanceId());
@@ -107,6 +112,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
         		
             });
         	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + classDelegateTli);
+        	return classDelegateTli;
         }
         
         if (WorkflowOperations.TaskInformations.CLASSDELEGATE_ADAPTER_TOI.equals(key)) {
@@ -118,6 +124,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
         	
         	String formKey = activitiAccessor.getFormService().getTaskFormData(taskInstanceId).getFormKey();
         	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + formKey);
+        	return formKey;
         }
         
         if (WorkflowOperations.TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION.equals(key)) {
@@ -145,6 +152,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
         		
             });
         	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + taskServiceInvokeExp);
+        	return taskServiceInvokeExp;
         }
         
         if (WorkflowOperations.TaskInformations.EXTEND_ATTRIBUTES.equals(key)) {
@@ -172,6 +180,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
         		
             });
         	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + extendAttributes);
+        	return extendAttributes;
         }
         
         if (WorkflowOperations.TaskInformations.TASK_DEFINE_NAME.equals(key)) {
@@ -196,6 +205,7 @@ public class WorkflowCacheImpl implements WorkflowCache {
         		
             });
         	logger.info("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + processDefinitionKey);
+        	return processDefinitionKey;
         }
         
         throw new UnsupportedOperationException("Unsupported key: " + key);
