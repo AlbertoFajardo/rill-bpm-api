@@ -65,12 +65,11 @@
 					<groupId>org.infinispan</groupId>
 					<artifactId>infinispan-core</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.infinispan</groupId>
+					<artifactId>infinispan-spring</artifactId>
+				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-client-hotrod</artifactId>
-			<version>${infinispan.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rill</groupId>

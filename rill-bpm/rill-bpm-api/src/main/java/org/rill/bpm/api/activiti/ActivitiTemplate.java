@@ -24,6 +24,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.impl.bpmn.behavior.CallActivityBehavior;
+import org.activiti.engine.impl.bpmn.data.AbstractDataAssociation;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
@@ -48,7 +50,9 @@ import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 
@@ -176,8 +180,23 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 for (ActivityImpl ai : listActivities) {
                     
                     if (ai.isScope()) {
-                        // Means sub-process or call-activity
-                        deepFirstTraversal(processAllVariables, ai.getActivities());
+                        // Means call-activity
+                    	if (ai.getActivityBehavior() instanceof CallActivityBehavior) {
+                    		Field dataInputAssociations = ReflectUtil.getField("dataInputAssociations", ai.getActivityBehavior());
+                    		dataInputAssociations.setAccessible(true);
+                    		@SuppressWarnings("unchecked")
+							List<AbstractDataAssociation> list = (List<AbstractDataAssociation>) ReflectionUtils.getField(dataInputAssociations, ai.getActivityBehavior());
+                    		if (!CollectionUtils.isEmpty(list)) {
+                    			for (AbstractDataAssociation ada : list) {
+                    				// Add input associations
+                    				processAllVariables.add(ada.getSource());
+                    			}
+                    		}
+                    	} else {
+                    		// sub-process
+                    		deepFirstTraversal(processAllVariables, ai.getActivities());
+                    	}
+                        
                     }
                     
                     List<PvmTransition> outTransitions = ai.getOutgoingTransitions();

@@ -23,6 +23,7 @@ import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 import org.rill.bpm.api.processvar.DummyOrder;
 import org.rill.bpm.api.processvar.DummyOrderAudit;
+import org.rill.bpm.api.processvar.DummyReceiptInfo;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -187,14 +188,22 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		Map<String, Object> sendcontractflowParams = new HashMap<String, Object>();
 		DummyOrder order = new DummyOrder();
 		order.setIsNeedGift(DummyOrder.XIAN_TI);
+		DummyReceiptInfo receiptInfo = new DummyReceiptInfo();
+		receiptInfo.setReceiptType(DummyReceiptInfo.PRE_INVOICE);
 		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
 		sendcontractflowParams.put("orderAudit", orderAudit);
 		sendcontractflowParams.put("order", order);
+		sendcontractflowParams.put("receiptInfo", receiptInfo);
 		
 		List<String> sendcontractResult = workflowAccessor
 				.completeTaskInstance(sendcontract, "sendcontract", sendcontractflowParams);
 		// contract finance gift
 		Assert.assertEquals(3, sendcontractResult.size());
+		for (String taskId : sendcontractResult) {
+			HashMap<String, String> extendAttributes = workflowAccessor
+					.getTaskInstanceInformations(taskId);
+			logger.info(extendAttributes);
+		}
 		
 		String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
 		Assert.assertNotNull("Root process instance isn't running?", processInstanceId);

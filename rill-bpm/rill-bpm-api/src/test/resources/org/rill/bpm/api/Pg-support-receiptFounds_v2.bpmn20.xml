@@ -3,7 +3,7 @@
   <process id="Pg-support-receiptFounds_v2" name="Pg-support-receiptFounds_v2">
     <documentation>Place documentation for the 'Pg-support-receiptFounds_v2' process here.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow4"></exclusiveGateway>
     <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
     <userTask id="writereceipt" name="开发票" activiti:candidateGroups="ht_support_fgscwb_stiffmanager" activiti:formKey="finance/makeoutReceiptInit.action">
       <extensionElements>

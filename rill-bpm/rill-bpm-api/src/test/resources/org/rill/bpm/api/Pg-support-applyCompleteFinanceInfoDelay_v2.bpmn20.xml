@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-applyCompleteFinanceInfoDelay_v2" name="Pg-support-applyCompleteFinanceInfoDelay_v2">
+    <documentation>Place documentation for the 'Pg-support-applyCompleteFinanceInfoDelay_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="cf_delay_apply" name="完善财务信息延期申请" activiti:candidateGroups="ht_support_khfz_staff" activiti:formKey="ordertimingtask/financeDelayApplyInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>427</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=501</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="receipt_delay_apply" name="返回收款证明延期申请" activiti:candidateGroups="ht_support_khfz_staff" activiti:formKey="ordertimingtask/proofDelayApplyInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=508</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>423</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow2" name="先开发票" sourceRef="exclusivegateway1" targetRef="cf_delay_apply">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__receiptInfo_receiptType==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3" name="先开收款证明" sourceRef="exclusivegateway1" targetRef="receipt_delay_apply">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__receiptInfo_receiptType==1}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="cf_delay_sm_audit" name="高级经理完善财务信息延期审核" default="flow12" activiti:candidateGroups="ht_support_khfzb_senior_manager" activiti:formKey="ordertimingtask/financeDelayAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=502</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>429</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>financeDelayInteceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeDelayStatus=513</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow4" name="" sourceRef="cf_delay_apply" targetRef="cf_delay_sm_audit"></sequenceFlow>
+    <userTask id="cf_delay_md_audit" name="总监完善财务信息延期审核" default="flow13" activiti:candidateGroups="ht_support_khfzb_director" activiti:formKey="ordertimingtask/financeDelayAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=504</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>430</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>financeDelayInteceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeDelayStatus=513</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="cf_delay_gm_audit" name="总经理完善财务信息延期审核" default="flow11" activiti:candidateGroups="ht_support_khfzb_general_manager" activiti:formKey="ordertimingtask/financeDelayAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=506</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>431</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeDelayStatus=513</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>financeDelayInteceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow5" name="高阶再审" sourceRef="cf_delay_sm_audit" targetRef="cf_delay_md_audit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_super==1 && __orderAudit_auditAction==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow6" name="高阶再审" sourceRef="cf_delay_md_audit" targetRef="cf_delay_gm_audit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_super==1 && __orderAudit_auditAction==0}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="cf_delay_apply_mod" name="完善财务信息延期申请修改" activiti:candidateGroups="ht_support_khfz_staff" activiti:formKey="ordertimingtask/financeDelayModifyInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=520</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>428</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" name="驳回" sourceRef="cf_delay_md_audit" targetRef="cf_delay_apply_mod">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" name="驳回" sourceRef="cf_delay_gm_audit" targetRef="cf_delay_apply_mod">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow9" name="驳回" sourceRef="cf_delay_sm_audit" targetRef="cf_delay_apply_mod">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow10" name="" sourceRef="cf_delay_apply_mod" targetRef="cf_delay_sm_audit"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow11" name="" sourceRef="cf_delay_gm_audit" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow12" name="" sourceRef="cf_delay_sm_audit" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow13" name="" sourceRef="cf_delay_md_audit" targetRef="endevent1"></sequenceFlow>
+    <userTask id="receipt_delay_sm_audit" name="高级经理返回收款证明延期审核" default="flow17" activiti:candidateGroups="ht_support_khfzb_senior_manager" activiti:formKey="ordertimingtask/proofDelayAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=509</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>425</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>financeDelayInteceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeDelayStatus=516</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="receipt_delay_md_audit" name="总监返回收款证明延期审核" default="flow18" activiti:candidateGroups="ht_support_khfzb_director" activiti:formKey="ordertimingtask/proofDelayAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=511</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>426</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeDelayStatus=516</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>financeDelayInteceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="receipt_delay_mod" name="返回收款证明延期申请修改" activiti:candidateGroups="ht_support_khfz_staff" activiti:formKey="ordertimingtask/proofDelayModifyInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeDelayStatus=522</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>424</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow14" name="" sourceRef="receipt_delay_apply" targetRef="receipt_delay_sm_audit"></sequenceFlow>
+    <sequenceFlow id="flow15" name="驳回" sourceRef="receipt_delay_sm_audit" targetRef="receipt_delay_mod">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow16" name="高阶再审" sourceRef="receipt_delay_sm_audit" targetRef="receipt_delay_md_audit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_super==1 && __orderAudit_auditAction==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow17" name="" sourceRef="receipt_delay_sm_audit" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow18" name="" sourceRef="receipt_delay_md_audit" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow19" name="驳回" sourceRef="receipt_delay_md_audit" targetRef="receipt_delay_mod">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow20" name="" sourceRef="receipt_delay_mod" targetRef="receipt_delay_sm_audit"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-applyCompleteFinanceInfoDelay_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-applyCompleteFinanceInfoDelay_v2" id="BPMNPlane_Pg-support-applyCompleteFinanceInfoDelay_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="40" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cf_delay_apply" id="BPMNShape_cf_delay_apply">
+        <omgdc:Bounds height="55" width="105" x="150" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="receipt_delay_apply" id="BPMNShape_receipt_delay_apply">
+        <omgdc:Bounds height="55" width="105" x="150" y="264"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="37" y="180"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cf_delay_sm_audit" id="BPMNShape_cf_delay_sm_audit">
+        <omgdc:Bounds height="55" width="105" x="310" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cf_delay_md_audit" id="BPMNShape_cf_delay_md_audit">
+        <omgdc:Bounds height="55" width="105" x="480" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cf_delay_gm_audit" id="BPMNShape_cf_delay_gm_audit">
+        <omgdc:Bounds height="55" width="105" x="660" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cf_delay_apply_mod" id="BPMNShape_cf_delay_apply_mod">
+        <omgdc:Bounds height="55" width="105" x="310" y="10"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="695" y="230"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="receipt_delay_sm_audit" id="BPMNShape_receipt_delay_sm_audit">
+        <omgdc:Bounds height="55" width="105" x="300" y="264"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="receipt_delay_md_audit" id="BPMNShape_receipt_delay_md_audit">
+        <omgdc:Bounds height="55" width="105" x="480" y="264"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="receipt_delay_mod" id="BPMNShape_receipt_delay_mod">
+        <omgdc:Bounds height="55" width="105" x="300" y="360"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="57" y="135"></omgdi:waypoint>
+        <omgdi:waypoint x="57" y="180"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="57" y="180"></omgdi:waypoint>
+        <omgdi:waypoint x="202" y="155"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="57" y="220"></omgdi:waypoint>
+        <omgdi:waypoint x="150" y="291"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="255" y="127"></omgdi:waypoint>
+        <omgdi:waypoint x="310" y="127"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="415" y="127"></omgdi:waypoint>
+        <omgdi:waypoint x="480" y="127"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="585" y="127"></omgdi:waypoint>
+        <omgdi:waypoint x="660" y="127"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="480" y="127"></omgdi:waypoint>
+        <omgdi:waypoint x="362" y="65"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="660" y="127"></omgdi:waypoint>
+        <omgdi:waypoint x="362" y="65"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="415" y="127"></omgdi:waypoint>
+        <omgdi:waypoint x="362" y="65"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="362" y="65"></omgdi:waypoint>
+        <omgdi:waypoint x="278" y="79"></omgdi:waypoint>
+        <omgdi:waypoint x="310" y="127"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="712" y="155"></omgdi:waypoint>
+        <omgdi:waypoint x="712" y="230"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="362" y="155"></omgdi:waypoint>
+        <omgdi:waypoint x="712" y="230"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="532" y="155"></omgdi:waypoint>
+        <omgdi:waypoint x="712" y="230"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="255" y="291"></omgdi:waypoint>
+        <omgdi:waypoint x="300" y="291"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="352" y="319"></omgdi:waypoint>
+        <omgdi:waypoint x="352" y="360"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="405" y="291"></omgdi:waypoint>
+        <omgdi:waypoint x="480" y="291"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="405" y="291"></omgdi:waypoint>
+        <omgdi:waypoint x="469" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="695" y="247"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="585" y="291"></omgdi:waypoint>
+        <omgdi:waypoint x="712" y="265"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="532" y="319"></omgdi:waypoint>
+        <omgdi:waypoint x="405" y="387"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="405" y="387"></omgdi:waypoint>
+        <omgdi:waypoint x="288" y="339"></omgdi:waypoint>
+        <omgdi:waypoint x="352" y="319"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

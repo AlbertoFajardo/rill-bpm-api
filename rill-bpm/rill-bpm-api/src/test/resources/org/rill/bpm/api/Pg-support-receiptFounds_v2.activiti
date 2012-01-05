@@ -2513,7 +2513,7 @@
     <documentation id="documentation_process" text="Place documentation for the 'Pg-support-receiptFounds_v2' process here."/>
   </bpmn2:Process>
   <bpmn2:StartEvent id="startevent1" name="Start" outgoing="flow1"/>
-  <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow1 flow13 flow27" outgoing="flow2 flow3 flow4"/>
+  <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow1 flow13 flow27" outgoing="flow2 flow3 flow4" default="flow4"/>
   <bpmn2:SequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"/>
   <bpmn2:UserTask id="writereceipt" name="&#x5f00;&#x53d1;&#x7968;" incoming="flow2" outgoing="flow5" candidateGroups="/44" formKey="finance/makeoutReceiptInit.action" dueDate="">
     <documentation text=""/>
