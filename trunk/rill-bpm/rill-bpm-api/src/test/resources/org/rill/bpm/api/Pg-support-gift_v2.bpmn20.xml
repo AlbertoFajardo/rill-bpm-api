@@ -40,7 +40,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__order_isNeedGift==1}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow3" name="后申领" sourceRef="exclusivegateway1" targetRef="latter_apply_gift">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[{__order_isNeedGift==2}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__order_isNeedGift==2}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow4" name="" sourceRef="latter_apply_gift" targetRef="manager_audit_gift"></sequenceFlow>
     <sequenceFlow id="flow5" name="" sourceRef="manager_audit_gift" targetRef="exclusivegateway2"></sequenceFlow>
