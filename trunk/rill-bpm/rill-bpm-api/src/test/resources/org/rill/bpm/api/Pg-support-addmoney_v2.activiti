@@ -691,7 +691,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.2" lineWidth="1" filled="false" transparency="0.0"/>
       <link businessObjects="flow3"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.0" value=""/>
+        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="-40" y="-14" style="/0/@styles.1" font="/0/@fonts.0" value="&#x9a73;&#x56de;&#x4fee;&#x6539;&#x7528;&#x6237;&#x540d;&#x7528;&#x6237;ID"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" transparency="0.0" style="/0/@styles.2">
@@ -1341,12 +1341,14 @@
   </bpmn2:UserTask>
   <bpmn2:SequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="add_money"/>
   <bpmn2:CandidateGroup group="ht_support_fgscwb_addmoney"/>
-  <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow2 flow4" outgoing="flow3 flow5"/>
+  <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow2 flow4" outgoing="flow3 flow5" default="flow5"/>
   <bpmn2:SequenceFlow id="flow2" name="" sourceRef="add_money" targetRef="exclusivegateway1"/>
   <bpmn2:UserTask id="add_money_reject_for_account_error" name="&#x52a0;&#x6b3e;&#x9a73;&#x56de;&#x4fee;&#x6539;&#x7528;&#x6237;&#x540d;&#x7528;&#x6237;ID" incoming="flow3" outgoing="flow4" candidateGroups="/11" formKey="" dueDate="">
     <documentation text=""/>
   </bpmn2:UserTask>
-  <bpmn2:SequenceFlow id="flow3" name="" sourceRef="exclusivegateway1" targetRef="add_money_reject_for_account_error"/>
+  <bpmn2:SequenceFlow id="flow3" name="&#x9a73;&#x56de;&#x4fee;&#x6539;&#x7528;&#x6237;&#x540d;&#x7528;&#x6237;ID" sourceRef="exclusivegateway1" targetRef="add_money_reject_for_account_error">
+    <conditionExpression id="flow3_condition" body="${add_money_reject_reason==1}"/>
+  </bpmn2:SequenceFlow>
   <bpmn2:SequenceFlow id="flow4" name="" sourceRef="add_money_reject_for_account_error" targetRef="exclusivegateway1"/>
   <bpmn2:CandidateGroup group="ht_support_fgsywzc_openaccount"/>
   <bpmn2:ExclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" incoming="flow5" outgoing="flow6 flow7 flow8" default="flow8"/>

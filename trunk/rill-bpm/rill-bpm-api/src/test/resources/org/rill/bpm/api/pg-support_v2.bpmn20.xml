@@ -61,7 +61,7 @@
     <callActivity id="callactivity3" name="合同资质处理" default="flow18" calledElement="Pg-support-contractQualification_v2">
       <extensionElements>
         <activiti:in source="__order_contractStatus" target="__order_contractStatus"></activiti:in>
-        <activiti:out source="__order_contractStatus" target="contract_return_flag"></activiti:out>
+        <activiti:out source="__orderAudit_auditAction" target="contract_return_flag"></activiti:out>
       </extensionElements>
     </callActivity>
     <sequenceFlow id="flow14" name="" sourceRef="parallelgateway2" targetRef="callactivity3"></sequenceFlow>

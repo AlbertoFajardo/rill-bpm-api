@@ -19,10 +19,12 @@
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="add_money"></sequenceFlow>
-    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow5"></exclusiveGateway>
     <sequenceFlow id="flow2" name="" sourceRef="add_money" targetRef="exclusivegateway1"></sequenceFlow>
     <userTask id="add_money_reject_for_account_error" name="加款驳回修改用户名用户ID" activiti:candidateGroups="ht_support_fgsywzc_openaccount"></userTask>
-    <sequenceFlow id="flow3" name="" sourceRef="exclusivegateway1" targetRef="add_money_reject_for_account_error"></sequenceFlow>
+    <sequenceFlow id="flow3" name="驳回修改用户名用户ID" sourceRef="exclusivegateway1" targetRef="add_money_reject_for_account_error">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${add_money_reject_reason==1}]]></conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="flow4" name="" sourceRef="add_money_reject_for_account_error" targetRef="exclusivegateway1"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="flow8"></exclusiveGateway>
     <sequenceFlow id="flow5" name="" sourceRef="exclusivegateway1" targetRef="exclusivegateway2"></sequenceFlow>

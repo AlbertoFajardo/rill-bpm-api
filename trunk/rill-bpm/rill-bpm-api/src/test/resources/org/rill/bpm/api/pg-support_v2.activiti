@@ -1032,7 +1032,7 @@
   <bpmn2:SequenceFlow id="flow13" name="" sourceRef="sendcontract" targetRef="parallelgateway2"/>
   <bpmn2:CallActivity id="callactivity3" name="&#x5408;&#x540c;&#x8d44;&#x8d28;&#x5904;&#x7406;" incoming="flow14" outgoing="flow17 flow18" default="flow18" calledElement="Pg-support-contractQualification_v2">
     <inParameters source="__order_contractStatus" target="__order_contractStatus"/>
-    <outParameters source="__order_contractStatus" target="contract_return_flag"/>
+    <outParameters source="__orderAudit_auditAction" target="contract_return_flag"/>
   </bpmn2:CallActivity>
   <bpmn2:SequenceFlow id="flow14" name="" sourceRef="parallelgateway2" targetRef="callactivity3"/>
   <bpmn2:CallActivity id="callactivity4" name="&#x7968;&#x636e;&#x6b3e;&#x9879;&#x5904;&#x7406;" incoming="flow15" outgoing="flow19" calledElement="Pg-support-receiptFounds_v2">

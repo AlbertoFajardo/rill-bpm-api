@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL-XMI" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
-  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="BPMNdiagram" name="Pg-support-receiptFounds_v2.activiti" snapToGrid="true" showGuides="true" pictogramLinks="/0/@children.0/@link /0/@children.1/@link /0/@connections.0/@link /0/@children.2/@link /0/@children.2/@children.0/@link /0/@children.3/@link /0/@children.3/@children.0/@link /0/@children.4/@link /0/@connections.1/@link /0/@connections.2/@link /0/@connections.3/@link /0/@children.5/@link /0/@connections.4/@link /0/@connections.5/@link /0/@children.6/@link /0/@connections.6/@link /0/@children.7/@link /0/@children.7/@children.0/@link /0/@connections.7/@link /0/@connections.8/@link /0/@children.8/@link /0/@children.8/@children.0/@link /0/@connections.9/@link /0/@children.9/@link /0/@children.9/@children.0/@link /0/@children.10/@link /0/@children.10/@children.0/@link /0/@children.11/@link /0/@children.11/@children.0/@link /0/@children.12/@link /0/@children.12/@children.0/@link /0/@children.13/@link /0/@children.13/@children.0/@link /0/@connections.10/@link /0/@connections.11/@link /0/@connections.12/@link /0/@connections.13/@link /0/@connections.14/@link /0/@connections.15/@link /0/@connections.16/@link /0/@connections.17/@link /0/@connections.18/@link /0/@connections.19/@link /0/@connections.20/@link /0/@connections.21/@link /0/@children.14/@link /0/@connections.22/@link /0/@connections.23/@link /0/@children.15/@link /0/@connections.24/@link /0/@children.16/@link /0/@connections.25/@link /0/@children.17/@link /0/@connections.26/@link /0/@children.18/@link /0/@connections.27/@link /0/@children.19/@link /0/@connections.28/@link /0/@children.20/@link /0/@connections.29/@link /0/@children.21/@link /0/@connections.30/@link /0/@children.22/@link /0/@children.22/@children.0/@link /0/@connections.31/@link /0/@children.23/@link /0/@children.23/@children.0/@link /0/@connections.32/@link /0/@children.24/@link /0/@children.24/@children.0/@link /0/@connections.33/@link /0/@children.25/@link /0/@children.25/@children.0/@link /0/@connections.34/@link /0/@connections.35/@link /0/@connections.36/@link /0/@connections.37/@link /0/@children.26/@link /0/@connections.38/@link /0/@children.27/@link /0/@children.27/@children.0/@link /0/@connections.39/@link /0/@children.28/@link /0/@connections.40/@link /0/@connections.41/@link /0/@connections.42/@link /0/@children.29/@link /0/@connections.43/@link /0/@connections.44/@link /0/@children.30/@link /0/@children.30/@children.0/@link /0/@connections.45/@link /0/@connections.46/@link /0/@children.31/@link /0/@connections.47/@link /0/@children.32/@link /0/@connections.48/@link /0/@children.33/@link /0/@children.33/@children.0/@link /0/@connections.49/@link /0/@children.34/@link /0/@connections.50/@link /0/@connections.51/@link /0/@children.35/@link /0/@children.35/@children.0/@link /0/@connections.52/@link /0/@connections.53/@link /0/@children.36/@link /0/@children.36/@children.0/@link /0/@connections.54/@link /0/@children.37/@link /0/@children.37/@children.0/@link /0/@connections.55/@link /0/@children.38/@link /0/@children.38/@children.0/@link /0/@connections.56/@link /0/@connections.57/@link /0/@connections.58/@link /0/@children.39/@link /0/@connections.59/@link /0/@connections.60/@link /0/@connections.61/@link /0/@children.40/@link /0/@connections.62/@link /0/@children.41/@link /0/@children.41/@children.0/@link /0/@connections.63/@link /0/@children.42/@link /0/@connections.64/@link /0/@connections.65/@link /0/@children.43/@link /0/@children.43/@children.0/@link /0/@connections.66/@link /0/@connections.67/@link /0/@children.44/@link /0/@connections.68/@link /0/@children.45/@link /0/@connections.69/@link /0/@children.46/@link /0/@children.46/@children.0/@link /0/@connections.70/@link /0/@connections.71/@link /0/@children.47/@link /0/@connections.72/@link /0/@connections.73/@link /0/@children.48/@link /0/@connections.74/@link">
+  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="BPMNdiagram" name="Pg-support-receiptFounds_v2.activiti" snapToGrid="true" showGuides="true" pictogramLinks="/0/@children.0/@link /0/@children.1/@link /0/@connections.0/@link /0/@children.2/@link /0/@children.2/@children.0/@link /0/@children.3/@link /0/@children.3/@children.0/@link /0/@children.4/@link /0/@connections.1/@link /0/@connections.2/@link /0/@connections.3/@link /0/@children.5/@link /0/@connections.4/@link /0/@connections.5/@link /0/@children.6/@link /0/@connections.6/@link /0/@children.7/@link /0/@children.7/@children.0/@link /0/@connections.7/@link /0/@connections.8/@link /0/@children.8/@link /0/@children.8/@children.0/@link /0/@connections.9/@link /0/@children.9/@link /0/@children.9/@children.0/@link /0/@children.10/@link /0/@children.10/@children.0/@link /0/@children.11/@link /0/@children.11/@children.0/@link /0/@children.12/@link /0/@children.12/@children.0/@link /0/@children.13/@link /0/@children.13/@children.0/@link /0/@connections.10/@link /0/@connections.11/@link /0/@connections.12/@link /0/@connections.13/@link /0/@connections.14/@link /0/@connections.15/@link /0/@connections.16/@link /0/@connections.17/@link /0/@connections.18/@link /0/@connections.19/@link /0/@connections.20/@link /0/@connections.21/@link /0/@children.14/@link /0/@connections.22/@link /0/@connections.23/@link /0/@children.15/@link /0/@connections.24/@link /0/@children.16/@link /0/@connections.25/@link /0/@children.17/@link /0/@connections.26/@link /0/@children.18/@link /0/@connections.27/@link /0/@children.19/@link /0/@connections.28/@link /0/@children.20/@link /0/@connections.29/@link /0/@children.21/@link /0/@connections.30/@link /0/@children.22/@link /0/@children.22/@children.0/@link /0/@connections.31/@link /0/@children.23/@link /0/@children.23/@children.0/@link /0/@connections.32/@link /0/@children.24/@link /0/@children.24/@children.0/@link /0/@connections.33/@link /0/@children.25/@link /0/@children.25/@children.0/@link /0/@connections.34/@link /0/@connections.35/@link /0/@connections.36/@link /0/@connections.37/@link /0/@children.26/@link /0/@connections.38/@link /0/@children.27/@link /0/@children.27/@children.0/@link /0/@connections.39/@link /0/@children.28/@link /0/@connections.40/@link /0/@connections.41/@link /0/@connections.42/@link /0/@children.29/@link /0/@connections.43/@link /0/@connections.44/@link /0/@children.30/@link /0/@children.30/@children.0/@link /0/@connections.45/@link /0/@connections.46/@link /0/@children.31/@link /0/@connections.47/@link /0/@children.32/@link /0/@connections.48/@link /0/@children.33/@link /0/@children.33/@children.0/@link /0/@connections.49/@link /0/@children.34/@link /0/@connections.50/@link /0/@connections.51/@link /0/@children.35/@link /0/@children.35/@children.0/@link /0/@connections.52/@link /0/@connections.53/@link /0/@children.36/@link /0/@children.36/@children.0/@link /0/@connections.54/@link /0/@children.37/@link /0/@children.37/@children.0/@link /0/@connections.55/@link /0/@children.38/@link /0/@children.38/@children.0/@link /0/@connections.56/@link /0/@connections.57/@link /0/@connections.58/@link /0/@children.39/@link /0/@connections.59/@link /0/@connections.60/@link /0/@connections.61/@link /0/@children.40/@link /0/@connections.62/@link /0/@children.41/@link /0/@children.41/@children.0/@link /0/@connections.63/@link /0/@children.42/@link /0/@connections.64/@link /0/@connections.65/@link /0/@children.43/@link /0/@children.43/@children.0/@link /0/@connections.66/@link /0/@connections.67/@link /0/@children.44/@link /0/@connections.68/@link /0/@children.45/@link /0/@connections.69/@link /0/@children.46/@link /0/@children.46/@children.0/@link /0/@connections.70/@link /0/@connections.71/@link /0/@children.47/@link /0/@connections.72/@link /0/@connections.73/@link /0/@children.48/@link /0/@connections.74/@link /0/@connections.75/@link">
     <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.1" foreground="/0/@colors.0" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
       <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="35" height="35" x="40" y="60">
@@ -838,7 +838,7 @@
         <points y="20"/>
       </graphicsAlgorithm>
       <link businessObjects="exclusivegateway14"/>
-      <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.48 /0/@connections.62" incomingConnections="/0/@connections.47"/>
+      <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.48 /0/@connections.62 /0/@connections.75" incomingConnections="/0/@connections.47"/>
       <anchors xsi:type="pi:BoxRelativeAnchor" visible="true" active="true" referencedGraphicsAlgorithm="/0/@children.31/@graphicsAlgorithm/@graphicsAlgorithmChildren.0" relativeWidth="0.51" relativeHeight="0.1">
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
@@ -1110,7 +1110,7 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="40" height="40" x="1336" y="420">
+      <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="40" height="40" x="1220" y="420">
         <graphicsAlgorithmChildren xsi:type="al:Polygon" lineWidth="1" transparency="0.0" width="40" height="40" style="/0/@styles.0">
           <points y="20"/>
           <points x="20"/>
@@ -1147,7 +1147,7 @@
       </children>
     </children>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
-      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1460" y="513">
+      <graphicsAlgorithm xsi:type="al:Rectangle" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="105" height="55" x="1304" y="413">
         <graphicsAlgorithmChildren xsi:type="al:RoundedRectangle" lineWidth="1" transparency="0.0" width="105" height="55" style="/0/@styles.1" cornerHeight="20" cornerWidth="20"/>
       </graphicsAlgorithm>
       <link businessObjects="senior_manager_audit_receivemoney_mod"/>
@@ -1179,7 +1179,7 @@
         <points y="20"/>
       </graphicsAlgorithm>
       <link businessObjects="exclusivegateway20"/>
-      <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.69 /0/@connections.70" incomingConnections="/0/@connections.68"/>
+      <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.69 /0/@connections.70" incomingConnections="/0/@connections.68 /0/@connections.75"/>
       <anchors xsi:type="pi:BoxRelativeAnchor" visible="true" active="true" referencedGraphicsAlgorithm="/0/@children.44/@graphicsAlgorithm/@graphicsAlgorithmChildren.0" relativeWidth="0.51" relativeHeight="0.1">
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
@@ -2386,7 +2386,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.2" lineWidth="1" filled="false" transparency="0.0"/>
       <link businessObjects="flow74"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.2" value="&#x9a73;&#x56de;"/>
+        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="-3" style="/0/@styles.1" font="/0/@fonts.2" value="&#x9a73;&#x56de;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" transparency="0.0" style="/0/@styles.2">
@@ -2501,6 +2501,22 @@
           <points x="-8" before="3" after="3"/>
         </graphicsAlgorithm>
       </connectionDecorators>
+    </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.31/@anchors.0" end="/0/@children.44/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.2" lineWidth="1" filled="false" transparency="0.0"/>
+      <link businessObjects="flow83"/>
+      <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
+        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.2" value=""/>
+      </connectionDecorators>
+      <connectionDecorators visible="true" locationRelative="true" location="1.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" transparency="0.0" style="/0/@styles.2">
+          <points x="-10" y="-5" before="3" after="3"/>
+          <points/>
+          <points x="-10" y="5" before="3" after="3"/>
+          <points x="-8" before="3" after="3"/>
+        </graphicsAlgorithm>
+      </connectionDecorators>
+      <bendpoints x="1512" y="610"/>
     </connections>
     <colors red="227" green="238" blue="249"/>
     <colors red="255" green="255" blue="255"/>
@@ -2727,7 +2743,7 @@
   <bpmn2:SequenceFlow id="flow52" name="" sourceRef="exclusivegateway13" targetRef="callactivity1"/>
   <bpmn2:SequenceFlow id="flow53" name="" sourceRef="callactivity1" targetRef="exclusivegateway8"/>
   <bpmn2:CandidateGroup group="ht_support_fgscwb_confirmmoney"/>
-  <bpmn2:ExclusiveGateway id="exclusivegateway14" name="Exclusive Gateway" incoming="flow54" outgoing="flow55 flow69"/>
+  <bpmn2:ExclusiveGateway id="exclusivegateway14" name="Exclusive Gateway" incoming="flow54" outgoing="flow55 flow69 flow83" default="flow83"/>
   <bpmn2:SequenceFlow id="flow54" name="" sourceRef="finance_get_money" targetRef="exclusivegateway14"/>
   <bpmn2:ExclusiveGateway id="exclusivegateway15" name="Exclusive Gateway" incoming="flow55" outgoing="flow56 flow61"/>
   <bpmn2:SequenceFlow id="flow55" name="&#x9a73;&#x56de;" sourceRef="exclusivegateway14" targetRef="exclusivegateway15">
@@ -2825,7 +2841,7 @@
   <bpmn2:SequenceFlow id="flow74" name="&#x9a73;&#x56de;" sourceRef="senior_manager_audit_receivemoney_mod" targetRef="exclusivegateway19">
     <conditionExpression id="flow74_condition" body="${__orderAudit_auditAction==1}"/>
   </bpmn2:SequenceFlow>
-  <bpmn2:ExclusiveGateway id="exclusivegateway20" name="Exclusive Gateway" incoming="flow75" outgoing="flow76 flow78" default="flow76"/>
+  <bpmn2:ExclusiveGateway id="exclusivegateway20" name="Exclusive Gateway" incoming="flow75 flow83" outgoing="flow76 flow78" default="flow76"/>
   <bpmn2:SequenceFlow id="flow75" name="" sourceRef="senior_manager_audit_receivemoney_mod" targetRef="exclusivegateway20"/>
   <bpmn2:ExclusiveGateway id="exclusivegateway21" name="Exclusive Gateway" incoming="flow76 flow79" outgoing="flow81"/>
   <bpmn2:SequenceFlow id="flow76" name="" sourceRef="exclusivegateway20" targetRef="exclusivegateway21"/>
@@ -2847,4 +2863,5 @@
   <bpmn2:SequenceFlow id="flow81" name="" sourceRef="exclusivegateway21" targetRef="parallelgateway3"/>
   <bpmn2:EndEvent id="endevent1" name="End" incoming="flow82"/>
   <bpmn2:SequenceFlow id="flow82" name="" sourceRef="parallelgateway3" targetRef="endevent1"/>
+  <bpmn2:SequenceFlow id="flow83" name="" sourceRef="exclusivegateway14" targetRef="exclusivegateway20"/>
 </xmi:XMI>
