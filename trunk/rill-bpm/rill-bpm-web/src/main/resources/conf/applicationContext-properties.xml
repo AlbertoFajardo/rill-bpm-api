@@ -13,7 +13,11 @@
 ">
     
     <!-- ##Properties place holder configuration## start  -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <!-- 
+    	- Use environment feature to handle different steps (develop, test, production)
+    	- When in web environment, JNDI properties will override local properties. 
+    -->
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 	  <property name="locations" value="classpath:conf/jdbc.properties"/>
 	</bean>
     <!-- ##Properties place holder configuration## end  -->
