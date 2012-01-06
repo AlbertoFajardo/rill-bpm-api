@@ -5,7 +5,7 @@
     <startEvent id="startevent1" name="Start"></startEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="latter_apply_gift" name="完善礼品信息" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="giftapply/compGiftInit.action">
+    <userTask id="latter_apply_gift" name="完善礼品信息" default="flow4" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="giftapply/compGiftInit.action">
       <extensionElements>
         <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
           <activiti:field name="init_status">
@@ -53,7 +53,9 @@
     <sequenceFlow id="flow8" name="已收款并非本月" sourceRef="exclusivegateway3" targetRef="exclusivegateway4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${receiveMoney_notin_curMonth==1}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow9" name="" sourceRef="latter_apply_gift" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow9" name="不申领" sourceRef="latter_apply_gift" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__order_isNeedGift==0}]]></conditionExpression>
+    </sequenceFlow>
     <userTask id="auditAndSendGift" name="审核发放礼品" default="flow11" activiti:candidateGroups="ht_support_fgsywzc_gift_supporter" activiti:formKey="giftapply/auditAndSendGiftInit.action">
       <extensionElements>
         <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">

@@ -486,7 +486,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.2" lineWidth="1" filled="false" transparency="0.0"/>
       <link businessObjects="flow9"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.0" value=""/>
+        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="-14" style="/0/@styles.1" font="/0/@fonts.0" value="&#x4e0d;&#x7533;&#x9886;"/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" transparency="0.0" style="/0/@styles.2">
@@ -658,7 +658,7 @@
   <bpmn2:StartEvent id="startevent1" name="Start" outgoing="flow1"/>
   <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow1" outgoing="flow2 flow3"/>
   <bpmn2:SequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"/>
-  <bpmn2:UserTask id="latter_apply_gift" name="&#x5b8c;&#x5584;&#x793c;&#x54c1;&#x4fe1;&#x606f;" incoming="flow3 flow7" outgoing="flow4 flow9" candidateGroups="/37" formKey="giftapply/compGiftInit.action" dueDate="">
+  <bpmn2:UserTask id="latter_apply_gift" name="&#x5b8c;&#x5584;&#x793c;&#x54c1;&#x4fe1;&#x606f;" incoming="flow3 flow7" outgoing="flow4 flow9" default="flow4" candidateGroups="/37" formKey="giftapply/compGiftInit.action" dueDate="">
     <documentation text=""/>
     <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
       <fieldExtensions fieldname="init_status" expression="giftStatus=308"/>
@@ -692,7 +692,9 @@
   <bpmn2:SequenceFlow id="flow8" name="&#x5df2;&#x6536;&#x6b3e;&#x5e76;&#x975e;&#x672c;&#x6708;" sourceRef="exclusivegateway3" targetRef="exclusivegateway4">
     <conditionExpression id="flow8_condition" body="${receiveMoney_notin_curMonth==1}"/>
   </bpmn2:SequenceFlow>
-  <bpmn2:SequenceFlow id="flow9" name="" sourceRef="latter_apply_gift" targetRef="exclusivegateway4"/>
+  <bpmn2:SequenceFlow id="flow9" name="&#x4e0d;&#x7533;&#x9886;" sourceRef="latter_apply_gift" targetRef="exclusivegateway4">
+    <conditionExpression id="flow9_condition" body="${__order_isNeedGift==0}"/>
+  </bpmn2:SequenceFlow>
   <bpmn2:UserTask id="auditAndSendGift" name="&#x5ba1;&#x6838;&#x53d1;&#x653e;&#x793c;&#x54c1;" incoming="flow10 flow20" outgoing="flow11 flow13" default="flow11" candidateGroups="/32" formKey="giftapply/auditAndSendGiftInit.action" dueDate="">
     <documentation text=""/>
     <activitiListeners implementationType="classType" implementation="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter" event="create">
