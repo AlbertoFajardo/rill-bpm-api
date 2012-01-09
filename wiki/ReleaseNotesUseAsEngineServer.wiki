@@ -1,0 +1,15 @@
+#Build your own engine service.
+
+= Software & Version =
+ * [http://labs.renren.com/apache-mirror/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz tomcat]
+ * [http://download.oracle.com/otn-pub/java/jdk/6u30-b12/jdk-6u30-linux-x64.bin jdk]
+
+= Configure =
+
+Add your content here.  Format your content with:
+  * add http.keepAlive=false to JVM start command-line.
+  * Configure DB for engine，add to context.xml
+{{{<Environment name="jdbcpool.property" value="portNumber=3306:password=activiti:user=activiti:serverName=localhost:databaseName=rilldb" type="java.lang.String"/>}}}
+
+= Confirm =
+Start up tomcat server, and access [http://<host>:<port>/<contextPath>/BPMWebService?wsdl WSDL]
