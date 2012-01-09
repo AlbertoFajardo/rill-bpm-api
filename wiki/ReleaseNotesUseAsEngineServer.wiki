@@ -12,4 +12,4 @@ Add your content here.  Format your content with:
 {{{<Environment name="jdbcpool.property" value="portNumber=3306:password=activiti:user=activiti:serverName=localhost:databaseName=rilldb" type="java.lang.String"/>}}}
 
 = Confirm =
-Start up tomcat server, and access [http://<host>:<port>/<contextPath>/BPMWebService?wsdl WSDL]
+Start up tomcat server, and access {{{http://<host>:<port>/<contextPath>/BPMWebService?wsdl}}}
