@@ -27,6 +27,7 @@ import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.Ellipse;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.rill.bpm.api.activiti.RetrieveNextTasksHelper;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 
 /**
@@ -297,7 +298,11 @@ public class SmartSmoothDrawingPDG {
   }
 
     private static List<Integer> centerConnection(PvmTransition sequenceFlow) {
-
+    	
+    	// Adapt feature: go-back
+    	if (sequenceFlow.getId().endsWith(RetrieveNextTasksHelper.GO_BACK_VARIABLE)) {
+    		return new ArrayList<Integer>(0);
+    	}
         List<Integer> waypoints = ((TransitionImpl) sequenceFlow).getWaypoints();
 
         int x1, y1, x2, y2, w1, h1, w2, h2;

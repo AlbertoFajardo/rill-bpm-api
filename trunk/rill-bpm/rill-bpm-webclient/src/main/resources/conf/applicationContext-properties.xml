@@ -13,7 +13,7 @@
 ">
     
     <!-- ##Properties place holder configuration## start  -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 	  <property name="locations">
 	  	<list>
 	  		<value>classpath:conf/jdbc.properties</value>

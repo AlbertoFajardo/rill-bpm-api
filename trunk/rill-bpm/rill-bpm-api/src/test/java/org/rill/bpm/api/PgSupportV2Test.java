@@ -17,8 +17,6 @@ import org.activiti.engine.test.Deployment;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rill.bpm.PeerMethodTestHelperTaskExecutionListener;
-import org.rill.bpm.api.WorkflowOperations;
-import org.rill.bpm.api.WorkflowTemplate;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 import org.rill.bpm.api.processvar.DummyOrder;
@@ -89,6 +87,7 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 
 		// Test obtain extend attributes logic
 		String manageraudit = null;
+		String resetOrderReceiptTypeTaskId = null;
 		for (String taskId : taskList) {
 			HashMap<String, String> extendAttributes = workflowAccessor
 					.getTaskInstanceInformations(taskId);
@@ -106,6 +105,8 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 						extendAttributes.get(WorkflowTemplate.TASK_ROLE_TAG));
 				Assert.assertEquals("manageraudit",
 						extendAttributes.get(WorkflowTemplate.TASK_DEFINE_ID));
+			} else {
+				resetOrderReceiptTypeTaskId = taskId;
 			}
 		}
 
@@ -199,10 +200,13 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 				.completeTaskInstance(sendcontract, "sendcontract", sendcontractflowParams);
 		// contract finance gift
 		Assert.assertEquals(3, sendcontractResult.size());
+		String writereceipt = null;
 		for (String taskId : sendcontractResult) {
 			HashMap<String, String> extendAttributes = workflowAccessor
 					.getTaskInstanceInformations(taskId);
-			logger.info(extendAttributes);
+			if ("writereceipt".equals(extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()))) {
+				writereceipt = taskId;
+			}
 		}
 		
 		String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
@@ -210,6 +214,32 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		logger.info("process instance[" + processInstanceId + "] is running.");
 		
 		// -------------------------------- Pg-support-resetOrderReceiptType_v2
+		List<String> auditResetOrderReceiptType = workflowAccessor.completeTaskInstance(resetOrderReceiptTypeTaskId, "RillMeng", null);
+		Map<String, Object> auditResetOrderReceiptTypeMap = new HashMap<String, Object>();
+		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
+		auditResetOrderReceiptTypeMap.put("orderAudit", orderAudit);
+		auditResetOrderReceiptTypeMap.put("need_highlevel_audit", "false");
+		auditResetOrderReceiptType = workflowAccessor.completeTaskInstance(auditResetOrderReceiptType.get(0), "RillMeng", auditResetOrderReceiptTypeMap);
+		Assert.assertEquals(0, auditResetOrderReceiptType.size());
+		
+		Map<String, Object> goBackMap = new HashMap<String, Object>();
+		goBackMap.put("__go_back", "true");
+		receiptInfo.setReceiptType(DummyReceiptInfo.POST_INVOICE);
+		goBackMap.put("receiptInfo", receiptInfo);
+		List<String> afterGoBack = workflowAccessor.completeTaskInstance(writereceipt, "auditResetOrderReceiptType", goBackMap);
+		HashMap<String, String> extendAttributes = workflowAccessor
+				.getTaskInstanceInformations(afterGoBack.get(0));
+		Assert.assertEquals("completefinanceinfo", extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()));
+		Assert.assertEquals(1, afterGoBack.size());
+		// Complete finance info
+		goBackMap = new HashMap<String, Object>();
+		goBackMap.put("orderAudit", orderAudit);
+		goBackMap.put("activity_out_date", "false");
+		goBackMap.put("finance_info_ok", "true");
+		afterGoBack = workflowAccessor.completeTaskInstance(afterGoBack.get(0), "GoBackIsFalseTest", goBackMap);
+		extendAttributes = workflowAccessor
+				.getTaskInstanceInformations(afterGoBack.get(0));
+		Assert.assertEquals("finance_get_money", extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()));
 		
 		// -------------------------------- Retrieve chart informations
 		Map<String, ChartInfo> allChartInfos = getProcessMonitorChartInfoHelper().getMonitorChartInfo(processInstanceId);
