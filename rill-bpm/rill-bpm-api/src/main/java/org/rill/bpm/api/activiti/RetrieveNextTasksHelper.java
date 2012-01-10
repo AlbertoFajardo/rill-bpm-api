@@ -29,11 +29,16 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.ExecutionListener;
 import org.activiti.engine.delegate.TaskListener;
+import org.activiti.engine.impl.Condition;
 import org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.activiti.engine.impl.bpmn.helper.ClassDelegate;
+import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.el.UelExpressionCondition;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
@@ -353,6 +358,8 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 
     }
 
+    public static final String GO_BACK_FEATURE = "__back_able";
+    public static final String GO_BACK_VARIABLE = "__go_back";
     public void parseSequenceFlow(Element sequenceFlowElement, ScopeImpl scopeElement, TransitionImpl transition) {
 
         // Add transition [take] event listener
@@ -362,8 +369,57 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
                 transition.addExecutionListener(ttel);
             }
         }
-
+        
+        // Add go-back feature [__back_able]
+        String __go_back = GO_BACK_VARIABLE;
+        String id = sequenceFlowElement.attribute("id");
+        String sourceRef = sequenceFlowElement.attribute("sourceRef");
+        String destinationRef = sequenceFlowElement.attribute("targetRef");
+        ActivityImpl sourceActivity = scopeElement.findActivity(sourceRef);
+        ActivityImpl destinationActivity = scopeElement.findActivity(destinationRef);
+        
+        // Set default property if have only one out-going transitions
+        List<PvmTransition> outTransitions = sourceActivity.getOutgoingTransitions();
+        if (outTransitions.size() == 2) {
+        	int goBackTransitionIndex  = -1;
+	        for (int i = 0; i < outTransitions.size(); i++) {
+	        	if (outTransitions.get(i).getId().endsWith(__go_back)) {
+	        		goBackTransitionIndex = i;
+	        	}
+	        }
+	        if (goBackTransitionIndex >= 0) {
+	        	sourceActivity.setProperty("default", outTransitions.get(1 - goBackTransitionIndex).getId());
+	        }
+        }
+        if (id.startsWith(GO_BACK_FEATURE)) {
+	        TransitionImpl gobackTransition = destinationActivity.createOutgoingTransition(id + __go_back);
+	        gobackTransition.setProperty("name", sequenceFlowElement.attribute("name") + __go_back);
+	        gobackTransition.setProperty("documentation", __go_back);
+	        gobackTransition.setDestination(sourceActivity);
+	        String expression = "${" + __go_back + "==true}";
+	
+	        ProcessEngineConfigurationImpl processEngineConfiguration = cacheBeanFactory.getBean(ProcessEngineConfigurationImpl.class);
+	        Condition expressionCondition = new UelExpressionCondition(processEngineConfiguration.getExpressionManager().createExpression(expression));
+	        gobackTransition.setProperty(BpmnParse.PROPERTYNAME_CONDITION_TEXT, expression);
+	        gobackTransition.setProperty(BpmnParse.PROPERTYNAME_CONDITION, expressionCondition);
+	        
+	        // Re-set go-back flag
+	        gobackTransition.addExecutionListener(gobackTransitionTakeListener);
+        }
+        
     }
+    
+    private TransitionTakeEventListener gobackTransitionTakeListener = new TransitionTakeEventListener() {
+
+		@Override
+		public void onTransitionTake(DelegateExecution execution,
+				String processInstanceId, TransitionImpl transition) {
+			
+			logger.log(Level.FINEST, "Set process instance[" + processInstanceId + "] GO_BACK_VARIABLE to false after it taken " + transition);
+			execution.setVariable(GO_BACK_VARIABLE, "false");
+		}
+    	
+    };
 
     public static abstract class TransitionTakeEventListener implements ExecutionListener {
 
