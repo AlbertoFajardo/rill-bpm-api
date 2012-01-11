@@ -76,9 +76,7 @@
         <activiti:in source="__order_isNeedGift" target="__order_isNeedGift"></activiti:in>
       </extensionElements>
     </callActivity>
-    <sequenceFlow id="flow16" name="先/后申领礼品" sourceRef="parallelgateway2" targetRef="callactivity5">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__order_isNeedGift!=0}]]></conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="flow16" name="" sourceRef="parallelgateway2" targetRef="callactivity5"></sequenceFlow>
     <endEvent id="endevent3" name="End"></endEvent>
     <sequenceFlow id="flow17" name="非正常终止" sourceRef="callactivity3" targetRef="endevent3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${contract_return_flag!=0}]]></conditionExpression>

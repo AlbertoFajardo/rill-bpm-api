@@ -793,7 +793,7 @@
       <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.2" lineWidth="1" filled="false" transparency="0.0"/>
       <link businessObjects="flow16"/>
       <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
-        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.5" value="&#x5148;/&#x540e;&#x7533;&#x9886;&#x793c;&#x54c1;"/>
+        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.5" value=""/>
       </connectionDecorators>
       <connectionDecorators visible="true" locationRelative="true" location="1.0">
         <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" transparency="0.0" style="/0/@styles.2">
@@ -1042,9 +1042,7 @@
   <bpmn2:CallActivity id="callactivity5" name="&#x793c;&#x54c1;&#x5904;&#x7406;" incoming="flow16" outgoing="flow21" calledElement="Pg-support-gift_v2">
     <inParameters source="__order_isNeedGift" target="__order_isNeedGift"/>
   </bpmn2:CallActivity>
-  <bpmn2:SequenceFlow id="flow16" name="&#x5148;/&#x540e;&#x7533;&#x9886;&#x793c;&#x54c1;" sourceRef="parallelgateway2" targetRef="callactivity5">
-    <conditionExpression id="flow16_condition" body="${__order_isNeedGift!=0}"/>
-  </bpmn2:SequenceFlow>
+  <bpmn2:SequenceFlow id="flow16" name="" sourceRef="parallelgateway2" targetRef="callactivity5"/>
   <bpmn2:EndEvent id="endevent3" name="End" incoming="flow17"/>
   <bpmn2:SequenceFlow id="flow17" name="&#x975e;&#x6b63;&#x5e38;&#x7ec8;&#x6b62;" sourceRef="callactivity3" targetRef="endevent3">
     <conditionExpression id="flow17_condition" body="${contract_return_flag!=0}"/>

@@ -199,8 +199,13 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
      * @return execute result
      */
     public final <T> T runExtraCommand(Command<T> command) {
-
-        return getExtraService().doOperation(command);
+    	
+    	try {
+    		return getExtraService().doOperation(command);
+    	} catch (Exception e) {
+    		logger.log(Level.SEVERE, "Exception occurred when runExtraCommand.", e);
+    		throw new ProcessException(e);
+    	}
     }
 
     public void afterPropertiesSet() throws Exception {

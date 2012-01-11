@@ -3,7 +3,7 @@
   <process id="Pg-support-gift_v2" name="Pg-support-gift_v2">
     <documentation>Place documentation for the 'Pg-support-gift_v2' process here.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow21"></exclusiveGateway>
     <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
     <userTask id="latter_apply_gift" name="完善礼品信息" default="flow4" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="giftapply/compGiftInit.action">
       <extensionElements>
@@ -121,6 +121,8 @@
     </sequenceFlow>
     <sequenceFlow id="flow19" name="" sourceRef="modgift" targetRef="manager_audit_gift_edit"></sequenceFlow>
     <sequenceFlow id="flow20" name="" sourceRef="manager_audit_gift_edit" targetRef="auditAndSendGift"></sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow21" name="" sourceRef="exclusivegateway1" targetRef="endevent2"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-gift_v2">
     <bpmndi:BPMNPlane bpmnElement="Pg-support-gift_v2" id="BPMNPlane_Pg-support-gift_v2">
@@ -159,6 +161,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="manager_audit_gift_edit" id="BPMNShape_manager_audit_gift_edit">
         <omgdc:Bounds height="55" width="105" x="580" y="313"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35" width="35" x="133" y="147"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="230" y="253"></omgdi:waypoint>
@@ -235,6 +240,10 @@
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
         <omgdi:waypoint x="580" y="340"></omgdi:waypoint>
         <omgdi:waypoint x="463" y="340"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="150" y="233"></omgdi:waypoint>
+        <omgdi:waypoint x="150" y="182"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

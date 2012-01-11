@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:al="http://eclipse.org/graphiti/mm/algorithms" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL-XMI" xmlns:pi="http://eclipse.org/graphiti/mm/pictograms">
-  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="BPMNdiagram" name="Pg-support-gift_v2.activiti" snapToGrid="true" showGuides="true" pictogramLinks="/0/@children.0/@link /0/@children.1/@link /0/@connections.0/@link /0/@children.2/@link /0/@children.2/@children.0/@link /0/@children.3/@link /0/@children.3/@children.0/@link /0/@children.4/@link /0/@connections.1/@link /0/@connections.2/@link /0/@connections.3/@link /0/@connections.4/@link /0/@children.5/@link /0/@connections.5/@link /0/@connections.6/@link /0/@children.6/@link /0/@connections.7/@link /0/@connections.8/@link /0/@children.7/@link /0/@children.7/@children.0/@link /0/@connections.9/@link /0/@connections.10/@link /0/@children.8/@link /0/@connections.11/@link /0/@children.9/@link /0/@connections.12/@link /0/@connections.13/@link /0/@children.10/@link /0/@children.10/@children.0/@link /0/@connections.14/@link /0/@connections.15/@link /0/@children.11/@link /0/@children.11/@children.0/@link /0/@connections.16/@link /0/@connections.17/@link /0/@connections.18/@link">
+  <pi:Diagram visible="true" gridUnit="10" diagramTypeId="BPMNdiagram" name="Pg-support-gift_v2.activiti" snapToGrid="true" showGuides="true" pictogramLinks="/0/@children.0/@link /0/@children.1/@link /0/@connections.0/@link /0/@children.2/@link /0/@children.2/@children.0/@link /0/@children.3/@link /0/@children.3/@children.0/@link /0/@children.4/@link /0/@connections.1/@link /0/@connections.2/@link /0/@connections.3/@link /0/@connections.4/@link /0/@children.5/@link /0/@connections.5/@link /0/@connections.6/@link /0/@children.6/@link /0/@connections.7/@link /0/@connections.8/@link /0/@children.7/@link /0/@children.7/@children.0/@link /0/@connections.9/@link /0/@connections.10/@link /0/@children.8/@link /0/@connections.11/@link /0/@children.9/@link /0/@connections.12/@link /0/@connections.13/@link /0/@children.10/@link /0/@children.10/@children.0/@link /0/@connections.14/@link /0/@connections.15/@link /0/@children.11/@link /0/@children.11/@children.0/@link /0/@connections.16/@link /0/@connections.17/@link /0/@connections.18/@link /0/@children.12/@link /0/@connections.19/@link">
     <graphicsAlgorithm xsi:type="al:Rectangle" background="/0/@colors.1" foreground="/0/@colors.0" lineWidth="1" transparency="0.0" width="1000" height="1000"/>
     <children xsi:type="pi:ContainerShape" visible="true" active="true">
       <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="35" height="35" x="230" y="236">
@@ -28,7 +28,7 @@
         <points y="20"/>
       </graphicsAlgorithm>
       <link businessObjects="exclusivegateway1"/>
-      <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.1 /0/@connections.2" incomingConnections="/0/@connections.0"/>
+      <anchors xsi:type="pi:ChopboxAnchor" outgoingConnections="/0/@connections.1 /0/@connections.2 /0/@connections.19" incomingConnections="/0/@connections.0"/>
       <anchors xsi:type="pi:BoxRelativeAnchor" visible="true" active="true" referencedGraphicsAlgorithm="/0/@children.1/@graphicsAlgorithm/@graphicsAlgorithmChildren.0" relativeWidth="0.51" relativeHeight="0.1">
         <graphicsAlgorithm xsi:type="al:Ellipse" filled="false" lineVisible="false"/>
       </anchors>
@@ -288,6 +288,13 @@
       <children visible="true">
         <graphicsAlgorithm xsi:type="al:Image" lineWidth="1" transparency="0.0" width="16" height="16" x="5" y="5" id="org.activiti.designer.usertask" stretchH="false" stretchV="false" proportional="false"/>
       </children>
+    </children>
+    <children xsi:type="pi:ContainerShape" visible="true" active="true">
+      <graphicsAlgorithm xsi:type="al:Ellipse" lineWidth="1" filled="false" lineVisible="false" transparency="0.0" width="35" height="35" x="133" y="147">
+        <graphicsAlgorithmChildren xsi:type="al:Ellipse" lineWidth="3" transparency="0.0" width="35" height="35" style="/0/@styles.0"/>
+      </graphicsAlgorithm>
+      <link businessObjects="endevent2"/>
+      <anchors xsi:type="pi:ChopboxAnchor" incomingConnections="/0/@connections.19"/>
     </children>
     <styles foreground="/0/@colors.2" lineWidth="20" id="EVENT">
       <renderingStyle>
@@ -647,6 +654,21 @@
         </graphicsAlgorithm>
       </connectionDecorators>
     </connections>
+    <connections xsi:type="pi:FreeFormConnection" visible="true" active="true" start="/0/@children.1/@anchors.0" end="/0/@children.12/@anchors.0">
+      <graphicsAlgorithm xsi:type="al:Polyline" foreground="/0/@colors.2" lineWidth="1" filled="false" transparency="0.0"/>
+      <link businessObjects="flow21"/>
+      <connectionDecorators visible="true" active="true" locationRelative="true" location="0.5">
+        <graphicsAlgorithm xsi:type="al:Text" lineWidth="1" transparency="0.0" x="10" style="/0/@styles.1" font="/0/@fonts.0" value=""/>
+      </connectionDecorators>
+      <connectionDecorators visible="true" locationRelative="true" location="1.0">
+        <graphicsAlgorithm xsi:type="al:Polygon" lineWidth="1" transparency="0.0" style="/0/@styles.2">
+          <points x="-10" y="-5" before="3" after="3"/>
+          <points/>
+          <points x="-10" y="5" before="3" after="3"/>
+          <points x="-8" before="3" after="3"/>
+        </graphicsAlgorithm>
+      </connectionDecorators>
+    </connections>
     <colors red="227" green="238" blue="249"/>
     <colors red="255" green="255" blue="255"/>
     <colors/>
@@ -656,7 +678,7 @@
     <documentation id="documentation_process" text="Place documentation for the 'Pg-support-gift_v2' process here."/>
   </bpmn2:Process>
   <bpmn2:StartEvent id="startevent1" name="Start" outgoing="flow1"/>
-  <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow1" outgoing="flow2 flow3"/>
+  <bpmn2:ExclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" incoming="flow1" outgoing="flow2 flow3 flow21" default="flow21"/>
   <bpmn2:SequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"/>
   <bpmn2:UserTask id="latter_apply_gift" name="&#x5b8c;&#x5584;&#x793c;&#x54c1;&#x4fe1;&#x606f;" incoming="flow3 flow7" outgoing="flow4 flow9" default="flow4" candidateGroups="/37" formKey="giftapply/compGiftInit.action" dueDate="">
     <documentation text=""/>
@@ -744,4 +766,6 @@
   <bpmn2:CandidateGroup group="ht_support_assistanter_and_helper"/>
   <bpmn2:CandidateGroup group="ht_support_khfzb_manager"/>
   <bpmn2:CandidateGroup group="ht_support_assistanter_and_helper"/>
+  <bpmn2:EndEvent id="endevent2" name="End" incoming="flow21"/>
+  <bpmn2:SequenceFlow id="flow21" name="" sourceRef="exclusivegateway1" targetRef="endevent2"/>
 </xmi:XMI>
