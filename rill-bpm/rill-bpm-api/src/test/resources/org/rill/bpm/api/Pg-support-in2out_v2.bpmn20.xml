@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-in2out_v2" name="Pg-support-in2out_v2">
+    <documentation>Place documentation for the 'Pg-support-in2out_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow13"></exclusiveGateway>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="manager_audit_send_type" name="经理审核派单类型" default="flow7" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="in2out/auditSend2OutInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>602</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="in_mod_send_type" name="修改派单类型" activiti:candidateGroups="ht_support_khfz_staff" activiti:formKey="in2out/modSendTypeInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>601</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" name="Out经理驳回" sourceRef="exclusivegateway1" targetRef="manager_audit_send_type">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${out_manager_reject==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3" name="驳回" sourceRef="manager_audit_send_type" targetRef="in_mod_send_type">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="flow6"></exclusiveGateway>
+    <sequenceFlow id="flow4" name="" sourceRef="in_mod_send_type" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow5" name="转Out" sourceRef="exclusivegateway2" targetRef="manager_audit_send_type">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${transfer_to_out==true}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow6" name="" sourceRef="exclusivegateway2" targetRef="endevent1"></sequenceFlow>
+    <userTask id="confirm_transfer_out_manager" name="确认转OUT经理" activiti:candidateGroups="ht_support_assistanter">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>603</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" name="" sourceRef="manager_audit_send_type" targetRef="confirm_transfer_out_manager"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow8" name="" sourceRef="confirm_transfer_out_manager" targetRef="exclusivegateway3"></sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow13" name="" sourceRef="exclusivegateway1" targetRef="confirm_transfer_out_manager"></sequenceFlow>
+    <sequenceFlow id="flow14" name="" sourceRef="exclusivegateway3" targetRef="endevent2"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-in2out_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-in2out_v2" id="BPMNPlane_Pg-support-in2out_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="50" y="180"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="160" y="177"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="manager_audit_send_type" id="BPMNShape_manager_audit_send_type">
+        <omgdc:Bounds height="55" width="105" x="280" y="170"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="in_mod_send_type" id="BPMNShape_in_mod_send_type">
+        <omgdc:Bounds height="55" width="105" x="280" y="290"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="160" y="297"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="163" y="380"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_transfer_out_manager" id="BPMNShape_confirm_transfer_out_manager">
+        <omgdc:Bounds height="55" width="105" x="470" y="170"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40" width="40" x="630" y="177"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35" width="35" x="760" y="180"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="85" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="160" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="200" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="280" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="332" y="225"></omgdi:waypoint>
+        <omgdi:waypoint x="332" y="290"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="280" y="317"></omgdi:waypoint>
+        <omgdi:waypoint x="200" y="317"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="180" y="297"></omgdi:waypoint>
+        <omgdi:waypoint x="332" y="225"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="180" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="180" y="380"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="385" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="470" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="575" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="630" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="180" y="177"></omgdi:waypoint>
+        <omgdi:waypoint x="345" y="85"></omgdi:waypoint>
+        <omgdi:waypoint x="522" y="170"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="670" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="760" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

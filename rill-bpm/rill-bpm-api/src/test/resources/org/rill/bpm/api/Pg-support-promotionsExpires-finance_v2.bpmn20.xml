@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-promotionsExpires-finance_v2" name="Pg-support-promotionsExpires-finance_v2">
+    <documentation>Place documentation for the 'Pg-support-promotionsExpires-finance_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="confirm_order_activity" name="修改订单优惠规则" activiti:candidateGroups="ht_support_complete_financeinfo" activiti:formKey="finance/modFavToOtherActivityInitWithoutAudit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>511</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=211</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeStatus=210</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>changeActivityFinanceOkTaskLifecycleInteceptor,completeFinanceChangeActivityOkTaskLifecycleInteceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow4"></exclusiveGateway>
+    <sequenceFlow id="flow1" name="确认订单类型" sourceRef="exclusivegateway1" targetRef="confirm_order_activity">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_confirm_activity==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow2" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow3" name="" sourceRef="confirm_order_activity" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow4" name="" sourceRef="exclusivegateway1" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-promotionsExpires-finance_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-promotionsExpires-finance_v2" id="BPMNPlane_Pg-support-promotionsExpires-finance_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="60" y="170"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_order_activity" id="BPMNShape_confirm_order_activity">
+        <omgdc:Bounds height="55" width="105" x="320" y="160"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="160" y="167"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="355" y="290"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="200" y="187"></omgdi:waypoint>
+        <omgdi:waypoint x="320" y="187"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="95" y="187"></omgdi:waypoint>
+        <omgdi:waypoint x="160" y="187"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="372" y="215"></omgdi:waypoint>
+        <omgdi:waypoint x="372" y="290"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="180" y="207"></omgdi:waypoint>
+        <omgdi:waypoint x="372" y="290"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

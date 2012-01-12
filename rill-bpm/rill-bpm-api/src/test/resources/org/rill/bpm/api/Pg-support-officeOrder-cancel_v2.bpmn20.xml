@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-officeOrder-cancel_v2" name="Pg-support-officeOrder-cancel_v2">
+    <documentation>Place documentation for the 'Pg-support-officeOrder-cancel_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="bfCancelOrder" name="发起营业厅撤单" activiti:candidateGroups="pg_support_business_office_order_submitor" activiti:formKey="/busioff/cancelOrderInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>471</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>cancelOrderTaskAdapter</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="bfCancelOrder"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow4"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="" sourceRef="bfCancelOrder" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="bfProcessCancelOrder" name="处理营业厅撤单" default="flow6" activiti:candidateGroups="pg_support_business_office_counter_staff" activiti:formKey="/busioff/cancelOrderAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=53</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>processCancelOrderTaskAdapter,handleOfficeCancelOrderTaskLifecycleInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>472</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" name="需再处理" sourceRef="exclusivegateway1" targetRef="bfProcessCancelOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${needFutureProcess==true}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow4" name="" sourceRef="exclusivegateway1" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow6" name="" sourceRef="bfProcessCancelOrder" targetRef="endevent1"></sequenceFlow>
+    <userTask id="bfReCancelOrder" name="重新发起营业厅撤单" activiti:candidateGroups="pg_support_business_office_order_submitor" activiti:formKey="/busioff/cancelOrderInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=54</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>473</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>cancelOrderTaskAdapter</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" name="驳回" sourceRef="bfProcessCancelOrder" targetRef="bfReCancelOrder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" name="" sourceRef="bfReCancelOrder" targetRef="exclusivegateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-officeOrder-cancel_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-officeOrder-cancel_v2" id="BPMNPlane_Pg-support-officeOrder-cancel_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="60" y="140"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="bfCancelOrder" id="BPMNShape_bfCancelOrder">
+        <omgdc:Bounds height="55" width="105" x="190" y="130"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="360" y="137"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="bfProcessCancelOrder" id="BPMNShape_bfProcessCancelOrder">
+        <omgdc:Bounds height="55" width="105" x="328" y="240"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="445" y="140"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="bfReCancelOrder" id="BPMNShape_bfReCancelOrder">
+        <omgdc:Bounds height="55" width="105" x="190" y="240"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="95" y="157"></omgdi:waypoint>
+        <omgdi:waypoint x="190" y="157"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="295" y="157"></omgdi:waypoint>
+        <omgdi:waypoint x="380" y="137"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="380" y="177"></omgdi:waypoint>
+        <omgdi:waypoint x="380" y="240"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="400" y="157"></omgdi:waypoint>
+        <omgdi:waypoint x="445" y="157"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="433" y="267"></omgdi:waypoint>
+        <omgdi:waypoint x="462" y="175"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="328" y="267"></omgdi:waypoint>
+        <omgdi:waypoint x="295" y="267"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="295" y="267"></omgdi:waypoint>
+        <omgdi:waypoint x="380" y="177"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
