@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-giftSendBack_v2" name="Pg-support-giftSendBack_v2">
+    <documentation>Place documentation for the 'Pg-support-giftSendBack_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="manager_audit_return_gift" name="审核礼品退回" default="flow3" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="returngift/returnGiftAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>421</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>giftStatus=312</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>returnGiftTaskLifecycleIntercetor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="confirm_return_gift" name="确认礼品退回" activiti:candidateGroups="ht_support_fgsywzc_gift_supporter" activiti:formKey="returngift/returnGiftConfirmInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>422</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>giftStatus=314</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>returnGiftTaskLifecycleIntercetor</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>giftStatus=316</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow1" name="" sourceRef="confirm_return_gift" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow2" name="" sourceRef="startevent1" targetRef="manager_audit_return_gift"></sequenceFlow>
+    <userTask id="saler_return_gift" name="审核礼品退回驳回修改" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="returngift/returnGiftInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>420</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>giftStatus=313</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>returnGiftTaskLifecycleIntercetor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="saler_return_gift_confirm" name="确认礼品退回驳回修改" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="returngift/returnGiftInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>420</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>returnGiftTaskLifecycleIntercetor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>giftStatus=315</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" name="" sourceRef="manager_audit_return_gift" targetRef="confirm_return_gift"></sequenceFlow>
+    <sequenceFlow id="flow4" name="驳回" sourceRef="manager_audit_return_gift" targetRef="saler_return_gift">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow5" name="" sourceRef="saler_return_gift" targetRef="manager_audit_return_gift"></sequenceFlow>
+    <sequenceFlow id="flow6" name="驳回" sourceRef="confirm_return_gift" targetRef="saler_return_gift_confirm">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow7" name="" sourceRef="saler_return_gift_confirm" targetRef="manager_audit_return_gift"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-giftSendBack_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-giftSendBack_v2" id="BPMNPlane_Pg-support-giftSendBack_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="50" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="manager_audit_return_gift" id="BPMNShape_manager_audit_return_gift">
+        <omgdc:Bounds height="55" width="105" x="170" y="180"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_return_gift" id="BPMNShape_confirm_return_gift">
+        <omgdc:Bounds height="55" width="105" x="370" y="180"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="530" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="saler_return_gift" id="BPMNShape_saler_return_gift">
+        <omgdc:Bounds height="55" width="105" x="170" y="310"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="saler_return_gift_confirm" id="BPMNShape_saler_return_gift_confirm">
+        <omgdc:Bounds height="55" width="105" x="370" y="310"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="475" y="207"></omgdi:waypoint>
+        <omgdi:waypoint x="530" y="207"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="85" y="207"></omgdi:waypoint>
+        <omgdi:waypoint x="170" y="207"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="275" y="207"></omgdi:waypoint>
+        <omgdi:waypoint x="370" y="207"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="222" y="235"></omgdi:waypoint>
+        <omgdi:waypoint x="222" y="310"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="275" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="169" y="271"></omgdi:waypoint>
+        <omgdi:waypoint x="222" y="235"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="422" y="235"></omgdi:waypoint>
+        <omgdi:waypoint x="422" y="310"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="370" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="222" y="235"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
