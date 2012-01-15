@@ -1,15 +1,19 @@
 #Build your own engine service.
 
 = Software & Version =
- * [http://labs.renren.com/apache-mirror/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz tomcat]
+ * [http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.28/bin/apache-tomcat-6.0.28.tar.gz tomcat]
  * [http://download.oracle.com/otn-pub/java/jdk/6u30-b12/jdk-6u30-linux-x64.bin jdk]
 
 = Configure =
 
 Add your content here.  Format your content with:
+  * execute DML at your's DB. MySQL for example 
+    # `drop index ACT_UNIQ_HI_BUS_KEY on act_hi_procinst;`
+    # `alter table ACT_RU_IDENTITYLINK drop FOREIGN KEY ACT_FK_TSKASS_TASK;`
+    # `drop index ACT_FK_TSKASS_TASK on ACT_RU_IDENTITYLINK;`
   * add http.keepAlive=false to JVM start command-line.
   * Configure DB for engine，add to context.xml
-{{{<Environment name="jdbcpool.property" value="portNumber=3306:password=activiti:user=activiti:serverName=localhost:databaseName=rilldb" type="java.lang.String"/>}}}
+   {{{<Environment name="jdbcpool.property" value="portNumber=<port>:password=<your password>:user=<your username>:serverName=<host ip/name>:databaseName=<dbname>" type="java.lang.String"/>}}}
 
 = Confirm =
 Start up tomcat server, and access {{{http://<host>:<port>/<contextPath>/BPMWebService?wsdl}}}
