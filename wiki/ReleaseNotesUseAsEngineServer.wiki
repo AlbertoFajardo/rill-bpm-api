@@ -8,6 +8,7 @@
 
 Add your content here.  Format your content with:
   * add -Dhttp.keepAlive=false to JVM(catalina.sh/bat) start command-line.
+  * add C:\Windows\Fonts\simsun.ttc to dictionary JAVA_HOME/jre/lib/fonts/
   * Configure DB for engine，add to context.xml
    {{{<Environment name="jdbcpool.property" value="portNumber=<port>:password=<your password>:user=<your username>:serverName=<host ip/name>:databaseName=<dbname>" type="java.lang.String"/>}}}
   * *start tomcat server(first time) to execute engine table creation sql*
