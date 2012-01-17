@@ -135,7 +135,7 @@
             http://docs.jboss.org/infinispan/5.0/apidocs/org/infinispan/remoting/transport/jgroups/JGroupsTransport.html
 
       -->
-      <!-- Use the property below to point to a specific JGroups configuration file on your classpath -->
+      <!-- Use the property below to point to a specific JGroups configuration file on your classpath
       <transport 
             clusterName="workflowCache-cluster"
             >
@@ -143,6 +143,7 @@
             <property name="configurationFile" value="jgroups-tcp.xml" />
          </properties>
       </transport>
+       -->
 
       <!--
          Used to customize the marshaller used to serialize objects and deserialize byte streams.  Also allows you to
@@ -245,8 +246,9 @@
          modes supported: distribution (d), replication (r) or invalidation (i).
 
          http://community.jboss.org/wiki/Clusteringmodes
-      -->
+      
       <clustering mode="d">
+      -->
          <!--
             Defines whether to retrieve state on startup.  This is only valud for 'replication' mode.
          
@@ -272,9 +274,9 @@
             replQueueInterval="10000"
             replQueueMaxElements="500"
          />
-         -->
+        
       </clustering>
-
+		 -->
    </default>
 
 

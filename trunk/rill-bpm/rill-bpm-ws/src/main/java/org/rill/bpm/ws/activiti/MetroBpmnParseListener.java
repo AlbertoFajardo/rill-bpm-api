@@ -1,13 +1,23 @@
-package org.rill.bpm.ws.metro;
+package org.rill.bpm.ws.activiti;
 
+import java.util.List;
+
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
+import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
+import org.activiti.engine.impl.el.FixedValue;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.util.xml.Element;
 import org.activiti.engine.impl.variable.VariableDeclaration;
+import org.rill.bpm.api.exception.ProcessException;
+import org.rill.bpm.ws.metro.MetroWSActivityBehavior;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 /**
  * Parse WS service task configurations.
@@ -15,8 +25,10 @@ import org.activiti.engine.impl.variable.VariableDeclaration;
  * @author mengran
  *
  */
-public class MetroBpmnParseListener implements BpmnParseListener {
+public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAware {
 
+	public static final String METRO_WEB_SERVICE = "MetroWebService";
+	
 	public void parseProcess(Element processElement,
 			ProcessDefinitionEntity processDefinition) {
 		// Do nothing
@@ -118,14 +130,43 @@ public class MetroBpmnParseListener implements BpmnParseListener {
 	public void parseServiceTask(Element serviceTaskElement, ScopeImpl scope,
 			ActivityImpl activity) {
 		
-		final String ws = "##MetroWebService#";
-		
 		String expression = serviceTaskElement.attributeNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "expression");
-		if (expression != null && expression.trim().length() > 0 && expression.startsWith(ws)) {
-			String operationRef = expression.substring(ws.length());
-			MetroWSActivityBehavior webServiceActivityBehavior = new MetroWSActivityBehavior(operationRef);
+		WSProcessEngineConfiguration configuration = internalBeanFactory.getBean(WSProcessEngineConfiguration.class);
+		List<FieldDeclaration> fieldDeclarations = configuration.getBpmnParser().createParse().parseFieldDeclarations(serviceTaskElement);
+		String location = null, operationQName = null, xsdIndex = null;
+		for (FieldDeclaration fd : fieldDeclarations) {
+			String fieldValue = fd.getType().equals(Expression.class.getName()) ? 
+					((FixedValue) fd.getValue()).getExpressionText() : fd.getValue().toString();
+			if (fd.getName().equals("location")) {
+				location = fieldValue;
+			}
+			if (fd.getName().equals("operationQName")) {
+				operationQName = fieldValue;
+			}
+			if (fd.getName().equals("xsdIndex")) {
+				xsdIndex = fieldValue;
+			}
+		}
+		configuration.getWsXmlImporter().importFrom(location, null);
+		try {
+			configuration.getWsXmlImporter().importSchema(location, xsdIndex);
+		} catch (Exception e) {
+			throw new ProcessException(e);
+		}
+		
+		if (expression != null && expression.trim().length() > 0 && expression.equals(METRO_WEB_SERVICE)) {
+			String operationRef = operationQName;
+			MetroWSActivityBehavior webServiceActivityBehavior = new MetroWSActivityBehavior(operationRef, 
+					configuration.getWsXmlImporter());
 			activity.setActivityBehavior(webServiceActivityBehavior);
 		}
+	}
+
+	private BeanFactory internalBeanFactory;
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+	
+		this.internalBeanFactory = beanFactory;
 	}
 
 	

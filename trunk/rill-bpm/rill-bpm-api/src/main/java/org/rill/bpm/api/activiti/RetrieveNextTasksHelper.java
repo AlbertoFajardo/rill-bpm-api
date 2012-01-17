@@ -403,6 +403,8 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 	        gobackTransition.setProperty(BpmnParse.PROPERTYNAME_CONDITION_TEXT, expression);
 	        gobackTransition.setProperty(BpmnParse.PROPERTYNAME_CONDITION, expressionCondition);
 	        
+	        // Initialize go-back flag
+	        transition.addExecutionListener(gobackTransitionTakeListener);
 	        // Re-set go-back flag
 	        gobackTransition.addExecutionListener(gobackTransitionTakeListener);
         }
