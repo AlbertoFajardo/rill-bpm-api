@@ -68,12 +68,12 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-api</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-ws</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		
 		<!-- Embedded GF -->
@@ -98,7 +98,7 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-api</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 			<scope>test</scope>
 			<type>test-jar</type>
 		</dependency>

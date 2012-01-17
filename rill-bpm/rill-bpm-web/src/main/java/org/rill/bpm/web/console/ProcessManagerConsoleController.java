@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
@@ -37,10 +39,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 
+
 @Controller
 @RequestMapping("/console")
 public class ProcessManagerConsoleController {
-
+	
+	private static final Logger logger = Logger.getLogger(ProcessManagerConsoleController.class.getName());
+	
 	@Resource
 	private WorkflowOperations workflowAccessor;
 	private ActivitiAccessor activitiAccessor;
@@ -88,9 +93,10 @@ public class ProcessManagerConsoleController {
 	                + "', '')</script>"); 
 			response.getWriter().flush();
 		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Exception occurred when deploy " + deployFile.getOriginalFilename(), e);
 			// Return and call method
 			response.getWriter().println("<script type='text/javascript'>parent." + afterDeploy + "('" + -1  
-	                + "','" + e.getMessage() + "');</script>"); 
+	                + "','" + e.toString() + "');</script>"); 
 			response.getWriter().flush();
 		}
 		
