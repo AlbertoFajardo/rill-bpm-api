@@ -4,7 +4,11 @@
     <documentation>Pangu v2 process base on Activiti.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
-    <callActivity id="callactivity1" name="订单有效性审核" calledElement="Pg-support-orderValidityAudit_v2"></callActivity>
+    <callActivity id="callactivity1" name="订单有效性审核" calledElement="Pg-support-orderValidityAudit_v2">
+      <extensionElements>
+        <activiti:in source="biz_mode" target="biz_mode"></activiti:in>
+      </extensionElements>
+    </callActivity>
     <callActivity id="callactivity2" name="修改订单收款类型" calledElement="Pg-support-resetOrderReceiptType_v2"></callActivity>
     <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
     <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="parallelgateway1"></sequenceFlow>
@@ -76,7 +80,9 @@
         <activiti:in source="__order_isNeedGift" target="__order_isNeedGift"></activiti:in>
       </extensionElements>
     </callActivity>
-    <sequenceFlow id="flow16" name="" sourceRef="parallelgateway2" targetRef="callactivity5"></sequenceFlow>
+    <sequenceFlow id="flow16" name="先/后申领礼品" sourceRef="parallelgateway2" targetRef="callactivity5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__order_isNeedGift!=0}]]></conditionExpression>
+    </sequenceFlow>
     <endEvent id="endevent3" name="End"></endEvent>
     <sequenceFlow id="flow17" name="非正常终止" sourceRef="callactivity3" targetRef="endevent3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${contract_return_flag!=0}]]></conditionExpression>
@@ -90,14 +96,40 @@
     <sequenceFlow id="flow22" name="" sourceRef="parallelgateway3" targetRef="callactivity6"></sequenceFlow>
     <parallelGateway id="parallelgateway4" name="Parallel Gateway"></parallelGateway>
     <sequenceFlow id="flow23" name="" sourceRef="callactivity6" targetRef="parallelgateway4"></sequenceFlow>
-    <callActivity id="callactivity7" name="订单打印" calledElement="Pg-support-orderPrint_v2"></callActivity>
+    <callActivity id="callactivity7" name="订单打印" calledElement="Pg-support-orderPrint_v2">
+      <extensionElements>
+        <activiti:out source="biz_mode" target="biz_mode"></activiti:out>
+      </extensionElements>
+    </callActivity>
     <sequenceFlow id="flow24" name="" sourceRef="parallelgateway4" targetRef="callactivity7"></sequenceFlow>
     <callActivity id="callactivity8" name="加款" calledElement="Pg-support-addmoney_v2"></callActivity>
     <sequenceFlow id="flow25" name="" sourceRef="parallelgateway4" targetRef="callactivity8"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow26" name="" sourceRef="callactivity7" targetRef="exclusivegateway4"></sequenceFlow>
     <sequenceFlow id="flow27" name="" sourceRef="callactivity8" targetRef="exclusivegateway4"></sequenceFlow>
     <sequenceFlow id="flow28" name="结束" sourceRef="exclusivegateway4" targetRef="endevent1"></sequenceFlow>
+    <userTask id="add_receipt_agt" name="补开发票" activiti:candidateGroups="ht_support_fgscwb_stiffmanager" activiti:formKey="finance/complementReceiptInit2.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=102</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>309</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>financeStatus=108</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <parallelGateway id="parallelgateway5" name="Parallel Gateway"></parallelGateway>
+    <sequenceFlow id="flow33" name="" sourceRef="callactivity7" targetRef="parallelgateway5"></sequenceFlow>
+    <sequenceFlow id="flow34" name="" sourceRef="parallelgateway5" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow35" name="代理商" sourceRef="parallelgateway5" targetRef="add_receipt_agt">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${biz_mode==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent5" name="End"></endEvent>
+    <sequenceFlow id="flow36" name="" sourceRef="add_receipt_agt" targetRef="endevent5"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support_v2">
     <bpmndi:BPMNPlane bpmnElement="Pg-support_v2" id="BPMNPlane_Pg-support_v2">
@@ -105,7 +137,7 @@
         <omgdc:Bounds height="35" width="35" x="73" y="40"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35" width="35" x="1065" y="550"></omgdc:Bounds>
+        <omgdc:Bounds height="35" width="35" x="1065" y="740"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
         <omgdc:Bounds height="55" width="105" x="210" y="133"></omgdc:Bounds>
@@ -168,7 +200,16 @@
         <omgdc:Bounds height="55" width="105" x="1030" y="357"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
-        <omgdc:Bounds height="40" width="40" x="1062" y="467"></omgdc:Bounds>
+        <omgdc:Bounds height="40" width="40" x="1062" y="550"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="add_receipt_agt" id="BPMNShape_add_receipt_agt">
+        <omgdc:Bounds height="55" width="105" x="870" y="640"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelgateway5" id="BPMNShape_parallelgateway5">
+        <omgdc:Bounds height="40" width="40" x="902" y="550"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent5" id="BPMNShape_endevent5">
+        <omgdc:Bounds height="35" width="35" x="905" y="740"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="90" y="75"></omgdi:waypoint>
@@ -263,17 +304,29 @@
         <omgdi:waypoint x="942" y="384"></omgdi:waypoint>
         <omgdi:waypoint x="1030" y="384"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
-        <omgdi:waypoint x="975" y="487"></omgdi:waypoint>
-        <omgdi:waypoint x="1082" y="467"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
         <omgdi:waypoint x="1082" y="412"></omgdi:waypoint>
-        <omgdi:waypoint x="1082" y="467"></omgdi:waypoint>
+        <omgdi:waypoint x="1082" y="550"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
-        <omgdi:waypoint x="1082" y="507"></omgdi:waypoint>
-        <omgdi:waypoint x="1082" y="550"></omgdi:waypoint>
+        <omgdi:waypoint x="1082" y="590"></omgdi:waypoint>
+        <omgdi:waypoint x="1082" y="740"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="922" y="515"></omgdi:waypoint>
+        <omgdi:waypoint x="922" y="550"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="942" y="570"></omgdi:waypoint>
+        <omgdi:waypoint x="1082" y="590"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="922" y="590"></omgdi:waypoint>
+        <omgdi:waypoint x="922" y="640"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="922" y="695"></omgdi:waypoint>
+        <omgdi:waypoint x="922" y="740"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

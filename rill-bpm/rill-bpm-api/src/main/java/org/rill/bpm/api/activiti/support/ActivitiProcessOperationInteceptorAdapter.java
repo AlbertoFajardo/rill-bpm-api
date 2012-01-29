@@ -12,14 +12,12 @@
  */
 package org.rill.bpm.api.activiti.support;
 
-import java.util.logging.Level;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.ProcessOperationInteceptor;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.util.StringUtils;
-
-import java.util.logging.Logger;
 
 /**
  * Activiti engine process create interceptor adapter.
@@ -29,14 +27,14 @@ public abstract class ActivitiProcessOperationInteceptorAdapter implements
         ProcessOperationInteceptor {
 
     /** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 
     public abstract WorkflowOperations.PROCESS_OPERATION_TYPE handleOpeationType();
 
     public void postOperation(String engineProcessInstanceId) throws ProcessException {
 
         try {
-            logger.log(Level.FINE, "Execute process operation interceptor#postOperation [{0}].", this);
+            logger.debug("Execute process operation interceptor#postOperation " + this.getClass().getName());
             doPostOperation(engineProcessInstanceId);
         } catch (Exception e) {
             throw new ProcessException(e.getMessage());
@@ -55,7 +53,7 @@ public abstract class ActivitiProcessOperationInteceptorAdapter implements
         }
 
         try {
-            logger.log(Level.FINE, "Execute process operation interceptor#preOperation [{0}].", this);
+            logger.debug("Execute process operation interceptor#preOperation " + this.getClass().getName());
             doPreOperation(engineProcessInstanceId, operator, reason);
         } catch (Exception e) {
             throw new ProcessException(e.getMessage(), e);

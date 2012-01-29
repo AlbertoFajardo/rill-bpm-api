@@ -17,11 +17,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.common.mail.TemplateMailSender;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,7 +33,7 @@ import org.springframework.util.Assert;
 public class TemplateMailSenderSupport {
 
 	public static final String DEFAULT_ENCODE = "UTF-8";
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	private JavaMailSender mailSender;
 	private TaskExecutor taskExecutor;

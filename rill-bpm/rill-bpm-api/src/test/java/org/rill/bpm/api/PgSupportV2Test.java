@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.imageio.stream.FileImageOutputStream;
 
 import org.activiti.engine.test.Deployment;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rill.bpm.PeerMethodTestHelperTaskExecutionListener;
@@ -31,6 +31,8 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 @TestExecutionListeners({PeerMethodTestHelperTaskExecutionListener.class})
 public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 
+	protected final Log logger = LogFactory.getLog(getClass().getName());
+	
 	@Resource
 	private WorkflowOperations workflowAccessor;
 
@@ -66,7 +68,8 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 			"org/rill/bpm/api/Pg-support-openaccount_v2.bpmn20.xml",
 			"org/rill/bpm/api/Pg-support-orderPrint_v2.bpmn20.xml",
 			"org/rill/bpm/api/Pg-support-promotionsExpires-contract_v2.bpmn20.xml",
-			"org/rill/bpm/api/Pg-support-receiptFounds_v2.bpmn20.xml"
+			"org/rill/bpm/api/Pg-support-receiptFounds_v2.bpmn20.xml",
+			"org/rill/bpm/api/Pg-support-managerAudit_agt_v2.bpmn20.xml"
 			 })
 	@Test
 	public void testPgSupportV2() {
@@ -81,8 +84,10 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 
 		// -------------------------------- start Pg-support_v2
 		// Start process by KEY
+		Map<String, Object> startProcessParams = new HashMap<String, Object>();
+		startProcessParams.put("biz_mode", "0");
 		List<String> taskList = workflowAccessor.createProcessInstance(
-				processDefinitionKey, "Rill Meng", orderId.toString(), null);
+				processDefinitionKey, "Rill Meng", orderId.toString(), startProcessParams);
 		Assert.assertEquals(2, taskList.size());
 
 		// Test obtain extend attributes logic
@@ -236,10 +241,19 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		goBackMap.put("orderAudit", orderAudit);
 		goBackMap.put("activity_out_date", "false");
 		goBackMap.put("finance_info_ok", "true");
+		goBackMap.put("biz_mode", "1");
 		afterGoBack = workflowAccessor.completeTaskInstance(afterGoBack.get(0), "GoBackIsFalseTest", goBackMap);
 		extendAttributes = workflowAccessor
 				.getTaskInstanceInformations(afterGoBack.get(0));
-		Assert.assertEquals("finance_get_money", extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()));
+		Assert.assertEquals("agt_manageraudit", extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()));
+		goBackMap = new HashMap<String, Object>();
+		orderAudit.setAuditAction(DummyOrderAudit.REJECT);
+		goBackMap.put("orderAudit", orderAudit);
+		goBackMap.put("need_highlevel_audit", "false");
+		afterGoBack = workflowAccessor.completeTaskInstance(afterGoBack.get(0), "bizModeRejectTest", goBackMap);
+		extendAttributes = workflowAccessor
+				.getTaskInstanceInformations(afterGoBack.get(0));
+		Assert.assertEquals("completefinanceinfo", extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()));
 		
 		// -------------------------------- Retrieve chart informations
 		Map<String, ChartInfo> allChartInfos = getProcessMonitorChartInfoHelper().getMonitorChartInfo(processInstanceId);
@@ -254,7 +268,7 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 	            fios.close();
 	            fios = null;
 	        } catch (IOException ex) {
-	            Logger.getLogger(PgSupportV2Test.class.getName()).log(Level.SEVERE, null, ex);
+	        	logger.error("Exception occurred when try to generate png", ex);
 	            Assert.assertEquals("Can not generate process " + entry.getKey() + " diagram image.", true, false);
 	        }
 		}

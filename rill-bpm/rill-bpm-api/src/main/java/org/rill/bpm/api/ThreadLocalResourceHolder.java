@@ -14,9 +14,9 @@ package org.rill.bpm.api;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.util.ObjectUtils;
 /**
@@ -25,7 +25,7 @@ import org.springframework.util.ObjectUtils;
  */
 public abstract class ThreadLocalResourceHolder {
 
-    private static final Logger log = Logger.getLogger(ThreadLocalResourceHolder.class.getName());
+    protected static final Log LOG = LogFactory.getLog(ThreadLocalResourceHolder.class.getName());
     private static final ThreadLocal<Map<Object, Object>> threadLocalResources = new ThreadLocal<Map<Object, Object>>();
 
     //method-----------------------------------
@@ -56,7 +56,8 @@ public abstract class ThreadLocalResourceHolder {
 
         Map<Object, Object> queryMap = getThreadMap();
 
-        log.log(Level.FINE, "Retrieve Object [{0}] from thread [{1}] using key[{2}].", new Object[]{queryMap.get(key), Thread.currentThread().getName(), key});
+        LOG.debug("Retrieve Object [" + queryMap.get(key) + "] from thread [" + Thread.currentThread().getName() + "] using key[" + key + "].");
+        
         return queryMap.get(key);
     }
 
@@ -72,7 +73,7 @@ public abstract class ThreadLocalResourceHolder {
         }
 
         if (getProperty(key) != null) {
-            log.log(Level.SEVERE, "Already bind [{0}] to thread [{1}], old value:{2}, new value:{3}", new Object[]{key, Thread.currentThread().getName(), getProperty(key), target == null ? "null" : target});
+            LOG.debug("Already bind [" + key + "] to thread [" + Thread.currentThread().getName() + "], old value:{" + getProperty(key) + "}, new value:{" + target == null ? "null" : target + "}");
             throw new ProcessException("Already bind [" + key + "] to thread [" + Thread.currentThread().getName() + "], old value:{" + getProperty(key) + "}, new value:{" + target == null ? "null" : target + "}");
         }
 
@@ -80,7 +81,7 @@ public abstract class ThreadLocalResourceHolder {
         //Set value
         propertiesMap.put(key, target);
 
-        log.log(Level.FINE, "Bound Object [{0}] to thread [{1}]", new Object[]{target, Thread.currentThread().getName()});
+        LOG.debug("Bound Object [" + target + "] to thread [" + Thread.currentThread().getName() + "]");
     }
 
     /**
@@ -96,12 +97,12 @@ public abstract class ThreadLocalResourceHolder {
         //Get Current Thread Map
         Map<Object, Object> propertiesMap = getThreadMap();
         if (!propertiesMap.containsKey(key)) {
-            log.log(Level.FINE, "Removed value [{0}] from thread [{1}]", new Object[]{key, Thread.currentThread().getName()});
+            LOG.debug("Removed value [" + key + "] from thread [" +  Thread.currentThread().getName() + "]");
         }
 
         propertiesMap.remove(key);
 
-        log.log(Level.FINE, "Removed value [{0}] from thread [{1}]", new Object[]{key, Thread.currentThread().getName()});
+        LOG.debug("Removed key [" + key + "] from thread [" + Thread.currentThread().getName() + "]");
     }
 
     public static String printAll() {

@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -113,7 +113,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     }
 	
 	/** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+    protected final Log logger = LogFactory.getLog(getClass().getName());
     
     private List<TaskLifecycleInteceptor> commonTaskLifecycleInterceptor;
     private List<ProcessCreateInteceptor> processCreateInteceptor;
@@ -171,7 +171,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             String[] listenerNames = ((ListableBeanFactory) beanFactory).getBeanNamesForType(ApplicationListener.class);
             if (listenerNames != null && listenerNames.length > 0) {
                 for (String listenerName : listenerNames) {
-                    logger.log(Level.INFO, "Add application listener named [{0}].", listenerName);
+                    logger.info("Add application listener named " + listenerName + ".");
                     aemc.addApplicationListener((ApplicationListener) beanFactory.getBean(listenerName));
                 }
             }
@@ -190,7 +190,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         if (!(beanFactory instanceof ApplicationEventPublisher)) {
             // Means aware method have not been call.
             // FIXME: Adapt spring v2.0 implementation, we use new SimpleApplicationEventMulticaster() but not new SimpleApplicationEventMulticaster(BeanFactory)
-            logger.log(Level.INFO, "Adapt external environment[Not ApplicationContext].{0}", beanFactory);
+            logger.info("Adapt external environment[Not ApplicationContext]." + beanFactory + ".");
             this.applicationEventPublisher = new ApplicationEventPublisherAdapter(new SimpleApplicationEventMulticaster());
         }
 	}
@@ -212,11 +212,11 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             // Means scope start point
             UUID uuid = UUID.randomUUID();
             ThreadLocalResourceHolder.bindProperty(THREAD_RESOURCE_SCOPE, uuid);
-            logger.log(Level.FINE, "Start thread local resource scope. Cache UUID:{0}", uuid);
+            logger.debug("Start thread local resource scope. Cache UUID:" + uuid + ".");
             return uuid;
         } else {
             UUID newUUID = UUID.randomUUID();
-            logger.log(Level.FINE, "Nested workflow access, return new UUID{0}", newUUID);
+            logger.debug("Nested workflow access, return new UUID: " + newUUID + ".");
             return newUUID;
         }
     }
@@ -228,23 +228,20 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
         // Compare UUID
         if (uuid == threadUUID || uuid.equals(threadUUID)) {
-            logger.log(Level.INFO, "Clear thread-local resource. UUID given:{0}; thread UUID:{1}", new Object[]{uuid, threadUUID});
+            logger.info("Clear thread-local resource. UUID given:{" + uuid + "}; thread UUID:{" + threadUUID + "}");
             // Release resource.
             ThreadLocalResourceHolder.getThreadMap().clear();
         } else {
-            logger.log(Level.INFO, "Do not clear thread-local resource. UUID given:{0}; thread UUID:{1}", new Object[]{uuid, threadUUID});
+            logger.info("Do not clear thread-local resource. UUID given:{" + uuid + "}; thread UUID:{" + threadUUID + "}");
         }
     }
 	
 	protected void handleProcessException(ProcessException pe) {
-
-        logger.log(Level.SEVERE, "Process exception occurred!!! \n" + "ProcessInstanceId[{0}"
-                + "]," + "TaskInstanceId[{1}" + "],"
-                + "Process Phase[{2}" + "]," + "Task Phase[{3}].",
-                new Object[]{ObjectUtils.getDisplayString(pe.getEngineProcessInstanceId()),
-                    ObjectUtils.nullSafeToString(pe.getEngineTaskInstanceId()),
-                    pe.getProcessInterceptorPhase().name(),
-                    pe.getTaskLifecycleInterceptorPhase().name()});
+		
+		logger.error("Process exception occurred!!! \n ProcessInstanceId: " + ObjectUtils.getDisplayString(pe.getEngineProcessInstanceId()) + 
+				"TaskInstanceId: " + ObjectUtils.nullSafeToString(pe.getEngineTaskInstanceId()) + 
+				"Process Phase: " + pe.getProcessInterceptorPhase().name() + 
+				"Task Phase:" +  pe.getTaskLifecycleInterceptorPhase().name());
 
         throw pe;
     }
@@ -295,7 +292,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
                 List<ProcessCreateInteceptor> reverseList = new ArrayList<ProcessCreateInteceptor>();
                 reverseList.addAll(getProcessCreateInteceptor());
                 Collections.reverse(reverseList);
-                logger.log(Level.FINE, "Process create interceptor after reverse {0}", ObjectUtils.getDisplayString(reverseList));
+                logger.debug("Process create interceptor after reverse " + ObjectUtils.getDisplayString(reverseList));
                 for (ProcessCreateInteceptor pci : reverseList) {
                     // Do post operation
                     try {
@@ -447,16 +444,16 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
         Assert.notNull(e);
         if (tasklifecycleInteceptors == null || tasklifecycleInteceptors.length == 0) {
-            logger.severe("No task lifecycle interceptor, but who call this method for exception handler.");
+            logger.error("No task lifecycle interceptor, but who call this method for exception handler.");
             return;
         }
 
-        logger.log(Level.INFO, "Call task lifecycle inteceptor''s exception handle method.{0} for murderer:{1}", new Object[]{ObjectUtils.getDisplayString(tasklifecycleInteceptors), exceptionMurderer});
+        logger.info("Call task lifecycle inteceptor''s exception handle method.{" + ObjectUtils.getDisplayString(tasklifecycleInteceptors) + "} for murderer:{" + exceptionMurderer + "}");
         for (TaskLifecycleInteceptor tli : tasklifecycleInteceptors) {
             try {
                 tli.onExceptionOccurred(e, exceptionMurderer);
             } catch (Exception ex) {
-                logger.log(Level.WARNING, "WorkflowOperationsExceptionHandler#onCompleteTaskInstanceException not allow throws any exception.", ex);
+                logger.warn("WorkflowOperationsExceptionHandler#onCompleteTaskInstanceException not allow throws any exception.", ex);
             }
         }
 
@@ -480,7 +477,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     protected List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
             String operator, Map<String, Object> workflowParams) throws ProcessException {
 
-        logger.log(Level.INFO, "Complete task instance. Params:{0}", ObjectUtils.getDisplayString(workflowParams));
+        logger.info("Complete task instance. Params:" + ObjectUtils.getDisplayString(workflowParams));
             
         // Build task execution context
         Object taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, workflowParams);
@@ -504,10 +501,10 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             }
         }
         
-        // Filter engine-driven DTO is nessecary
+        // Filter engine-driven DTO is nesessery
         workflowParamsDynamic.remove(ENGINE_DRIVEN_TASK_FORM_DATA_KEY);
 
-        logger.log(Level.INFO, "Complete task:{0}, with workflow params:{1}", new Object[]{engineTaskInstanceId, ObjectUtils.getDisplayString(workflowParamsDynamic)});
+        logger.info("Complete task:" + engineTaskInstanceId + ", with workflow params: " + ObjectUtils.getDisplayString(workflowParamsDynamic));
                 
         // Access engine
         WorkflowResponse response = null;
@@ -576,7 +573,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         Assert.notEmpty(batchDTO);
         Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
 
-        logger.log(Level.INFO, "Batch complete task instance. Params:{0}", ObjectUtils.getDisplayString(batchDTO));
+        logger.info("Batch complete task instance. Params:" + ObjectUtils.getDisplayString(batchDTO));
         for (Entry<String, Map<String, Object>> element : batchDTO.entrySet()) {
 
             // Delegate to single-task operation
@@ -589,7 +586,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     
     protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext, boolean hasParentProcess) {
 
-        logger.log(Level.INFO, "Process instance[{0}] end. Trigger task[{1}]", new Object[]{processInstanceId, triggerTaskInstanceId});
+        logger.info("Process instance[" + processInstanceId + "] end. Trigger task[" + triggerTaskInstanceId + "]");
         this.applicationEventPublisher.publishEvent(new ProcessInstanceEndEvent(processInstanceId,
                 triggerTaskInstanceId, hasParentProcess, triggerTaskExecutionContext));
     }
@@ -598,14 +595,14 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
         Map<String, String> adArray = getTaskInformations(taskInstanceId);
         if (adArray == null || adArray.isEmpty()) {
-            logger.fine("Return empty array because extend attribute is empty.");
+            logger.debug("Return empty array because extend attribute is empty.");
             return new String[0];
         }
 
         Set<String> valueSet = new LinkedHashSet<String>();
         for (Entry<String, String> entry : adArray.entrySet()) {
             if (extendsAttributeKey.equals(entry.getKey())) {
-                logger.log(Level.FINEST, "Match entry for key[{0}], value[{1}].", new Object[]{extendsAttributeKey, entry.getValue()});
+                logger.debug("Match entry for key[" + extendsAttributeKey + "], value[" + entry.getValue() + "].");
                 String[] interceptorData = StringUtils.delimitedListToStringArray(StringUtils.trimAllWhitespace(entry.getValue()), delim);
                 if (interceptorData != null && interceptorData.length > 0) {
                     valueSet.addAll(Arrays.asList(interceptorData));
@@ -613,7 +610,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             }
         }
 
-        logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] extension attribute key[{1}]:{2}", new Object[]{taskInstanceId, extendsAttributeKey, ObjectUtils.getDisplayString(valueSet)});
+        logger.debug("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] extension attribute key[" + extendsAttributeKey + "]:" + ObjectUtils.getDisplayString(valueSet));
         return valueSet.toArray(new String[valueSet.size()]);
     }
     
@@ -638,7 +635,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             HashMap<String, String> forReturn = new HashMap<String, String>();
 
             forReturn.putAll(extendAttrsMap);
-            logger.log(Level.FINE, "PARSING EXTEND ATTRS--Task[{0}] description/Extend attributes holder result:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(forReturn)});
+            logger.debug("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description/Extend attributes holder result:" + ObjectUtils.getDisplayString(forReturn));
             return forReturn;
 
         } catch (Exception e) {
@@ -673,7 +670,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         
         // Add common TLI configuration
         if (this.getCommonTaskLifecycleInterceptor() != null && !this.getCommonTaskLifecycleInterceptor().isEmpty()) {
-            logger.log(Level.FINEST, "Combin common task-lifecycle-interceptor[{0}].", ObjectUtils.getDisplayString(this.getCommonTaskLifecycleInterceptor()));
+            logger.debug("Combin common task-lifecycle-interceptor: " + ObjectUtils.getDisplayString(this.getCommonTaskLifecycleInterceptor()));
             taskLifecycleInterceptors.addAll(getCommonTaskLifecycleInterceptor());
         }
         
@@ -686,7 +683,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             }
         }
 
-        logger.log(Level.FINE, "Return task[{0}] task-lifecycle-interceptor:{1}", new Object[]{taskInstanceId, ObjectUtils.getDisplayString(taskLifecycleInterceptors)});
+        logger.debug("Return task[" + taskInstanceId + "] task-lifecycle-interceptor:" + ObjectUtils.getDisplayString(taskLifecycleInterceptors));
         return taskLifecycleInterceptors.toArray(new TaskLifecycleInteceptor[taskLifecycleInterceptors.size()]);
     }
     
@@ -716,7 +713,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             try {
                 convertNameToBean(actualClazz, source);
             } catch (Exception e) {
-                logger.log(Level.FINE, "{0}#supportGeneratePattern exception, ignore it.", SpringBeanGenerator.class.getName());
+                logger.debug(SpringBeanGenerator.class.getName() + "#supportGeneratePattern exception, ignore it.");
                 result = false;
             }
 
@@ -727,7 +724,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         private Collection<T> convertNameToBean(Class<T> clazz, String[] beanName) {
 
             if (ObjectUtils.isEmpty(beanName)) {
-                logger.fine("Return empty array because bean names is empty.");
+                logger.debug("Return empty array because bean names is empty.");
                 return new ArrayList<T>(0);
             }
 
@@ -736,12 +733,12 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
                 String[] interceptorData = StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(name));
                 for (String interceptor: interceptorData) {
                     Assert.isTrue(getBeanFactory().containsBean(interceptor), "Bean name[" + interceptor + "] may not be registed in Spring bean factory.");
-                    logger.log(Level.FINEST, "Find bean named[{0}] and add it for return.", interceptor);
+                    logger.debug("Find bean named[" + interceptor + "] and add it for return.");
                     beanList.add((T) getBeanFactory().getBean(interceptor));
                 }
             }
 
-            logger.log(Level.FINE, "Convert bean names[{0}] to beans {1}", new Object[]{ObjectUtils.getDisplayString(beanName), ObjectUtils.getDisplayString(beanList)});
+            logger.debug("Convert bean names[" + ObjectUtils.getDisplayString(beanName) + "] to beans " +  ObjectUtils.getDisplayString(beanList));
             return beanList;
         }
     }

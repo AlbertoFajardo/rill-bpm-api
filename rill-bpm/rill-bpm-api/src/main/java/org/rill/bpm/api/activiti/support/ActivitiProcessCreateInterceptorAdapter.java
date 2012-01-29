@@ -12,8 +12,6 @@
  */
 package org.rill.bpm.api.activiti.support;
 
-import java.util.logging.Level;
-
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
@@ -64,7 +62,7 @@ public abstract class ActivitiProcessCreateInterceptorAdapter extends ProcessCre
         }
 
         try {
-            logger.log(Level.FINE, "Execute process create interceptor#postOperation [{0}].", this);
+            logger.debug("Execute process create interceptor#postOperation " + this.getClass().getName());
             activitiAccessor.runExtraCommand(new Command<Void>() {
 
 				@Override

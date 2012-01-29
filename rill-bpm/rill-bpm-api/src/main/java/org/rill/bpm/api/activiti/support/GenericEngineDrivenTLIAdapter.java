@@ -13,7 +13,6 @@
 package org.rill.bpm.api.activiti.support;
 
 import java.lang.reflect.Method;
-import java.util.logging.Level;
 
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.rill.bpm.api.TaskExecutionContext;
@@ -90,15 +89,15 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
         expression = obtainTaskServiceInvokeExpression(taskExecutionContext);
         if (!StringUtils.hasLength(expression)) {
             if (!isJavaEE6CWE()) {
-                logger.fine("Can not find task service invoke expression from task extend attrs, please set flag to [true] for follow JavaEE6CWE");
+                logger.debug("Can not find task service invoke expression from task extend attrs, please set flag to [true] for follow JavaEE6CWE");
                 return null;
             }
             // Build follow JavaEE6's [Configuration With Exception].
             expression = taskExecutionContext.getTaskDefineName() + "Service." + taskExecutionContext.getTaskDefineName() + "Complete(" + UNKNOWN + ")";
 
-            logger.log(Level.FINEST,"Can not find task service invoke expression from task extend attrs, " + "and we build one follow JavaEE6''s [Configuration With Exception] pattern : {0}", expression);
+            logger.debug("Can not find task service invoke expression from task extend attrs, " + "and we build one follow JavaEE6''s [Configuration With Exception] pattern : " + expression);
         }
-        logger.log(Level.FINE, "Using task service invoke expression: {0}", expression);
+        logger.debug("Using task service invoke expression: " + expression);
 
         // Prepare invoke informations
         String[] beforeLeftBracket = expression.substring(0, expression.indexOf("(")).split("\\.");
@@ -121,9 +120,9 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
             Method method = ReflectionUtils.findMethod(clazz, methodName);
             // Not empty array or not null
             if ((isArray(t) && !ObjectUtils.isEmpty((Object[]) t)) || t != null) {
-                logger.log(Level.WARNING, "Invoke expression: {0}, and is not need any parameter.", expression);
+                logger.warn("Invoke expression: " + expression + ", and is not need any parameter.");
             }
-            logger.log(Level.FINE, "Reflect method: {0} on service bean: {1} for expression:{2}", new Object[]{method, serviceBean, expression});
+            logger.debug("Reflect method: " + method + " on service bean: " + serviceBean + " for expression:" + expression);
             ReflectionUtils.makeAccessible(method);
             return ReflectionUtils.invokeMethod(method, serviceBean);
         } else {
@@ -151,7 +150,7 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
             
             Method method = ReflectionUtils.findMethod(clazz, methodName, parameterClasses);
             ReflectionUtils.makeAccessible(method);
-            logger.log(Level.FINE, "Reflect method: {0} on service bean: {1} params: {2} for expression:{3}", new Object[]{method, serviceBean, ObjectUtils.getDisplayString(parameterObject), expression});
+            logger.debug("Reflect method: " + method + " on service bean: " + serviceBean + " params: " + ObjectUtils.getDisplayString(parameterObject) + " for expression:" + expression);
             return ReflectionUtils.invokeMethod(method, serviceBean, parameterObject);
         }
 

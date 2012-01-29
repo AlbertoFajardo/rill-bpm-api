@@ -13,7 +13,6 @@
 package org.rill.bpm.api.activiti;
 
 import java.util.List;
-import java.util.logging.Level;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
@@ -203,7 +202,7 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
     	try {
     		return getExtraService().doOperation(command);
     	} catch (Exception e) {
-    		logger.log(Level.SEVERE, "Exception occurred when runExtraCommand.", e);
+    		logger.error("Exception occurred when runExtraCommand.", e);
     		throw new ProcessException(e);
     	}
     }
@@ -224,15 +223,15 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
 			} finally {
 				ThreadLocalResourceHolder.unbindProperty(ENGINE_BUILDING_TRANSACTION_PROPAGATION_EXPOSE);
 			}
-            logger.log(Level.INFO, "Build process engine from it''s configuration.{0}", getProcessEngine());
+            logger.info("Build process engine from it''s configuration." + getProcessEngine());
         } else {
-            logger.log(Level.INFO, "Retrieve process engine from inject property.{0}", getProcessEngine());
+            logger.info("Retrieve process engine from inject property." + getProcessEngine());
         }
 
         if (this.getProcessEngineConfiguration() == null) {
             Assert.notNull(this.getProcessEngine(), "Properties 'processEngine' is required.");
             this.setProcessEngineConfiguration(((ProcessEngineImpl) getProcessEngine()).getProcessEngineConfiguration());
-            logger.log(Level.INFO, "Retrieve process configuration from processEngine.{0}", getProcessEngine());
+            logger.info("Retrieve process configuration from processEngine." + getProcessEngine());
         }
 
         // Retrieve service from engine if not inject with property
@@ -271,7 +270,7 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
 
         public <T> T doOperation(Command<T> command) {
 
-            logger.log(Level.INFO, "Run extra command[{0}].", command);
+            logger.info("Run extra command " + command.getClass().getName());
             return getCommandExecutor().execute(command);
         }
     }
@@ -291,7 +290,7 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
         Assert.notNull(cacheInfo, "taskInformations must not null");
 
         String cacheHit = null;
-        logger.log(Level.FINE, "get Task related informations of taskInstanceId: " + taskInstanceId + ", key is " + cacheInfo);
+        logger.debug("get Task related informations of taskInstanceId: " + taskInstanceId + ", key is " + cacheInfo);
         cacheHit = workflowCache.getTaskRelatedInfo(taskInstanceId, cacheInfo.name());
 
         return cacheHit;
@@ -304,11 +303,11 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
         ExecutionEntity rootEE = pi;
         while (rootEE.getSuperExecutionId() != null) {
         	ExecutionEntity superEE = (ExecutionEntity) getRuntimeService().createExecutionQuery().executionId(pi.getSuperExecutionId()).singleResult();
-        	logger.log(Level.FINER, "Found super execution entity{0}, maybe this task is in callActivity scope.", new Object[]{superEE.getId()});
+        	logger.debug("Found super execution entity" + superEE.getId() + ", maybe this task is in callActivity scope.");
         	rootEE = superEE;
         	rootProcessNotCrossCallActivity = obtainRootProcess(superEE.getProcessInstanceId(), true);
         }
-        logger.log(Level.FINE, "Return root execution entity{0}", new Object[]{rootEE.getId()});
+        logger.debug("Return root execution entity" + rootEE.getId());
         
         return rootProcessNotCrossCallActivity;
     }
@@ -329,14 +328,14 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
             try {
                 rootProcessId = parentProcessId;
                 ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().subProcessInstanceId(parentProcessId).singleResult();
-                logger.log(Level.FINEST, "Found parent process instance [{0}] of [{1}", new Object[]{ObjectUtils.getDisplayString(pi), parentProcessId});
+                logger.debug("Found parent process instance " + ObjectUtils.getDisplayString(pi) + " of " + parentProcessId);
                 parentProcessId = pi == null ? null : pi.getProcessInstanceId();
             } catch (ActivitiException e) {
                 throw new ProcessException("Can not found local process instance when try to handle sub-process.", e);
             }
         }
 
-        logger.log(Level.FINE, "Return root process ID[{0}] of {1}", new Object[]{rootProcessId, processInstanceId});
+        logger.debug("Return root process ID " + rootProcessId + " of " + processInstanceId);
         return rootProcessId;
     }
 

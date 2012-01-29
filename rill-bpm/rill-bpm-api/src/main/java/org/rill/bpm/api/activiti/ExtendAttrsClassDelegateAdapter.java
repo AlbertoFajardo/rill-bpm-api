@@ -15,7 +15,6 @@ package org.rill.bpm.api.activiti;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -24,6 +23,8 @@ import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.bpmn.helper.ClassDelegate;
 import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Specify Activiti listener for user fill-in self's extend attributes.
@@ -34,7 +35,7 @@ import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
  */
 public final class ExtendAttrsClassDelegateAdapter extends ClassDelegate {
 
-    private final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 
     private Map<String, String> extendAttrs = new HashMap<String, String>();
     public ExtendAttrsClassDelegateAdapter(String className, List<FieldDeclaration> fieldDeclarations) {
@@ -57,19 +58,19 @@ public final class ExtendAttrsClassDelegateAdapter extends ClassDelegate {
     @Override
     public void notify(DelegateExecution execution) throws Exception {
 
-        logger.fine("Do nothing when TLIClassDelegateAdapter as a execution listener.");
+        logger.debug("Do nothing when TLIClassDelegateAdapter as a execution listener.");
     }
 
     @Override
     public void notify(DelegateTask delegateTask) {
 
-        logger.fine("Do nothing when TLIClassDelegateAdapter as a task listener.");
+        logger.debug("Do nothing when TLIClassDelegateAdapter as a task listener.");
     }
 
     @Override
     public void execute(ActivityExecution execution) throws Exception {
 
-        logger.fine("Do nothing when TLIClassDelegateAdapter as a activity behavior.");
+        logger.debug("Do nothing when TLIClassDelegateAdapter as a activity behavior.");
     }
 
     public final Map<String, String> getExtendAttrs() {
