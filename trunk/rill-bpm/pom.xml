@@ -14,7 +14,7 @@
     <module>rill-bpm-webclient</module>
   </modules>
     <properties>
-        <spring.framework.version>3.1.0.RC1</spring.framework.version>
+        <spring.framework.version>3.1.0.RELEASE</spring.framework.version>
         <activiti.engine.version>5.7</activiti.engine.version>
     </properties>
 

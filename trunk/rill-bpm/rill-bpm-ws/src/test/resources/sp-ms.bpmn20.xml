@@ -47,7 +47,7 @@
           <activiti:string>{http://activiti.api.ws.bpm.rill.org/}getLastedVersionProcessDefinitionVariableNames</activiti:string>
         </activiti:field>
         <activiti:field name="location">
-          <activiti:string>http://localhost:8080/rill-bpm-web/BPMWebService?wsdl</activiti:string>
+          <activiti:string>http://localhost:7070/rill-bpm-web/BPMWebService?wsdl</activiti:string>
         </activiti:field>
         <activiti:field name="xsdIndex">
           <activiti:string>2</activiti:string>
@@ -56,7 +56,7 @@
     </serviceTask>
     <boundaryEvent id="boundarytimer1" name="Expired9Days" cancelActivity="false" attachedToRef="managerAudit">
       <timerEventDefinition>
-        <timeDuration>P9D</timeDuration>
+        <timeDuration>PT9S</timeDuration>
       </timerEventDefinition>
     </boundaryEvent>
     <sequenceFlow id="flow28" name="" sourceRef="boundarytimer1" targetRef="servicetask1"></sequenceFlow>

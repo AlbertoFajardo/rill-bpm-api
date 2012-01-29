@@ -1,16 +1,16 @@
 package org.rill.bpm.webclient.hello.service.impl;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.webclient.hello.dao.HelloDao;
 import org.rill.bpm.webclient.hello.service.HelloService;
 import org.springframework.transaction.annotation.Transactional;
 
 public class HelloServiceImpl implements HelloService {
 
-	protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	private HelloDao helloDao;
 	
@@ -29,7 +29,7 @@ public class HelloServiceImpl implements HelloService {
 		try {
 			getHelloDao().createHello(name);
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Exception when try to persist who say hello.", e);
+			logger.error("Exception when try to persist who say hello.", e);
 			throw new RuntimeException("Exception when try to persist who say hello.", e);
 		}
 	}

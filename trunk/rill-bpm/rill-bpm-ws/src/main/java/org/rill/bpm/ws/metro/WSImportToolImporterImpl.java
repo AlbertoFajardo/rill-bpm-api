@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
@@ -44,6 +42,8 @@ import org.activiti.engine.impl.webservice.SyncWebServiceClient;
 import org.activiti.engine.impl.webservice.WSOperation;
 import org.activiti.engine.impl.webservice.WSService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -76,25 +76,25 @@ import com.sun.xml.xsom.parser.XSOMParser;
  */
 public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingBean {
 
-	protected Logger logger = Logger.getLogger(this.getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
     protected Map<QName, WSService> wsServices = new HashMap<QName, WSService>();
     protected Map<QName, DynamicClientDelegateWSOperation> wsOperations = new HashMap<QName, DynamicClientDelegateWSOperation>();
-    protected String wsdlLocation;
-    protected XSSchemaSet xsSchemaSet;
+    protected Map<String, XSSchemaSet> xsSchemaSets = new HashMap<String, XSSchemaSet>();
     protected BeanFactory internalBeanFactory;
 //    private ActivitiAccessor activitiAccessor;
         
-    public void importFrom(String url, String namespace) {
+    public boolean importFrom(String url, String namespace) {
     	
-    	this.importFrom(url);
+    	return this.importFrom(url);
     }
     
-    public void importFrom(String url) {
-        this.wsServices.clear();
-        this.wsOperations.clear();
-        
-        this.wsdlLocation = url;
+    public boolean importFrom(String url) {
+    	
+    	if (StringUtils.isEmpty(url)) {
+    		logger.warn("Ignore empty wsdl url when import web service.");
+    		return false;
+    	}
 
         // Use JAX-WS Provider to pase wsdl
         URL wsdl = null;
@@ -104,24 +104,33 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
             URL sourceURL = source.getSystemId() == null ? null : new URL(source.getSystemId());
             WSDLModelImpl model = parseWSDL(sourceURL, source);
             for (Entry<QName, WSDLServiceImpl> entry : model.getServices().entrySet()) {
-                WSService wsService = this.importService(entry.getValue());
+                WSService wsService = this.importService(entry.getValue(), url);
                 this.wsServices.put(entry.getKey(), wsService);
             }
             
         } catch (MalformedURLException ex) {
-            logger.log(Level.SEVERE, "Exception occurred when import WS", ex);
+            logger.error("Exception occurred when import WS", ex);
             throw new ProcessException(ex);
         }
+        
+        return true;
     }
 
-    public void importSchema(String location, String xsdIndex) throws Exception {
+    public boolean importSchema(String location, String xsdIndex) throws Exception {
         
+    	if (StringUtils.isEmpty(location)) {
+    		logger.warn("Ignore empty wsdl url when import schema.");
+    		return false;
+    	}
+    	
     	xsdIndex = StringUtils.isEmpty(xsdIndex) ? "1" : new Integer(xsdIndex).toString();
     	String xsdLocation = location.replaceAll("wsdl", "xsd=" + xsdIndex);
     	UrlResource xjc = new UrlResource(xsdLocation);
         XSOMParser parser = new XSOMParser();
         parser.parse(xjc.getInputStream());
-        xsSchemaSet = parser.getResult();
+        xsSchemaSets.put(location, parser.getResult());
+        
+        return true;
     }
 
     /**
@@ -145,10 +154,10 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
         }
     }
 
-    private WSService importService(WSDLServiceImpl service) {
+    private WSService importService(WSDLServiceImpl service, String wsdlLocation) {
         
         DynamicJaxwsClient dynamicJaxwsClient = new DynamicJaxwsClient();
-        WSService wsService = new WSService(service.getName().toString(), this.wsdlLocation, dynamicJaxwsClient);
+        WSService wsService = new WSService(service.getName().toString(), wsdlLocation, dynamicJaxwsClient);
         dynamicJaxwsClient.setTarget(wsService);
         
         for (WSDLPortImpl port : service.getPorts()) {
@@ -165,7 +174,7 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
     
     public static class DynamicJaxwsClient implements SyncWebServiceClient {
 
-    	private static final Logger logger = Logger.getLogger(DynamicJaxwsClient.class.getName());
+    	protected final Log logger = LogFactory.getLog(getClass().getName());
     	
     	private WSService target;
     	private AtomicReference<Dispatch<SOAPMessage>> dynamicJaxwsClient = new AtomicReference<Dispatch<SOAPMessage>>();
@@ -257,7 +266,7 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
 			try {
 				this.djc.send(this.getId(), message.getStructureInstance().toArray());
 			} catch (Exception e) {
-				logger.log(Level.WARNING, "Exception occurred when call WS use dynamic client.", e);
+				logger.warn("Exception occurred when call WS use dynamic client.", e);
 			}
 			
 			// FIXME: MENGRAN. return null at this version.
@@ -267,7 +276,8 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
 		public MessageInstance generateInMessage(ActivityExecution execution) {
 			
 			QName operationQName = QName.valueOf(this.getId());
-			XSComplexType type = xsSchemaSet.getComplexType(operationQName.getNamespaceURI(), operationQName.getLocalPart());
+			XSComplexType type = xsSchemaSets.get(getService().getLocation()).getComplexType(operationQName.getNamespaceURI(), 
+					operationQName.getLocalPart());
 			if (type == null) {
 				throw new ProcessException("Support complexType invoke only at this version." + this.getName());
 			}

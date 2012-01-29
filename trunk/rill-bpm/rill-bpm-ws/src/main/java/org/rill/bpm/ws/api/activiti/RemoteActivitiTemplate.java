@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
@@ -26,6 +25,8 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.exception.ProcessException;
@@ -48,7 +49,7 @@ import com.sun.xml.ws.api.tx.at.Transactional.Version;
 public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 
 	/** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
     
 	// Must use getter method!
 	private WorkflowOperations workflowAccessor;
@@ -124,7 +125,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 								.findTaskById(completeTaskInstanceDto.getEngineTaskInstanceId());
 						// Handle retrieve
 						if (taskEntity == null) {
-							logger.warning("Can not find task instance by id " + completeTaskInstanceDto.getEngineTaskInstanceId() + ", maybe it has beed completed.");
+							logger.warn("Can not find task instance by id " + completeTaskInstanceDto.getEngineTaskInstanceId() + ", maybe it has beed completed.");
 							return activitiTemplate.handleTaskInstanceHasEnd(completeTaskInstanceDto.getEngineTaskInstanceId(), commandContext);
 						}
 						
