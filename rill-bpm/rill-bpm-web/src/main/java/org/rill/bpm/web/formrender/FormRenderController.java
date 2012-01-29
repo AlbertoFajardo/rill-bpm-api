@@ -3,8 +3,6 @@ package org.rill.bpm.web.formrender;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +13,8 @@ import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.springframework.stereotype.Controller;
@@ -31,7 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/formrender")
 public class FormRenderController {
 
-	private static final Logger logger = Logger.getLogger(FormRenderController.class.getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	@Resource
 	private WorkflowOperations workflowAccessor;
@@ -102,7 +102,7 @@ public class FormRenderController {
 	                + "', '')</script>"); 
 			response.getWriter().flush();
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Exception occurred when start process definition id " + processDefinitionId, e);
+			logger.error("Exception occurred when start process definition id " + processDefinitionId, e);
 			// Return and call method
 			response.getWriter().println("<script type='text/javascript'>parent." + afterStart + "('" + -1  
 	                + "','" + e.getMessage() + "');</script>"); 

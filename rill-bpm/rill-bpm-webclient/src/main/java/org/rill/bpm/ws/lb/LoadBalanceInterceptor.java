@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -25,7 +25,7 @@ import org.springframework.util.ReflectionUtils;
 
 public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBean {
 
-	protected Logger logger = Logger.getLogger(this.getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	private Class<?> serviceInterface;
 	private CopyOnWriteArrayList<Object> targets;
@@ -143,7 +143,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 			
 			Date existsDate  = failTimeMap.putIfAbsent(failTarget, new Date());
 			if (existsDate != null) {
-				logger.warning("Fail target object" + failTarget + " in fail-over list already[" + existsDate + "].");
+				logger.warn("Fail target object" + failTarget + " in fail-over list already[" + existsDate + "].");
 			}
 		}
 

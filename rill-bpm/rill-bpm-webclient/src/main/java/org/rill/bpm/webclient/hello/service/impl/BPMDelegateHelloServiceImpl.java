@@ -1,10 +1,11 @@
 package org.rill.bpm.webclient.hello.service.impl;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.webclient.hello.service.HelloService;
 import org.rill.bpm.ws.client.CreateProcessInstanceDto;
 import org.rill.bpm.ws.client.MapElements;
@@ -17,7 +18,7 @@ import org.springframework.util.ObjectUtils;
 
 public class BPMDelegateHelloServiceImpl implements HelloService {
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	public static final String PROCESS_DEFINITION_KEY = "Sp-ms";
 	

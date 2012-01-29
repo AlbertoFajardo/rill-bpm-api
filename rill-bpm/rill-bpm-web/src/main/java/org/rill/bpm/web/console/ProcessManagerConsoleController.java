@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
@@ -28,6 +26,8 @@ import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.springframework.stereotype.Controller;
@@ -44,7 +44,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/console")
 public class ProcessManagerConsoleController {
 	
-	private static final Logger logger = Logger.getLogger(ProcessManagerConsoleController.class.getName());
+	private static final Log LOGGER = LogFactory.getLog(ProcessManagerConsoleController.class);
 	
 	@Resource
 	private WorkflowOperations workflowAccessor;
@@ -93,7 +93,7 @@ public class ProcessManagerConsoleController {
 	                + "', '')</script>"); 
 			response.getWriter().flush();
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Exception occurred when deploy " + deployFile.getOriginalFilename(), e);
+			LOGGER.error("Exception occurred when deploy " + deployFile.getOriginalFilename(), e);
 			// Return and call method
 			response.getWriter().println("<script type='text/javascript'>parent." + afterDeploy + "('" + -1  
 	                + "','" + e.toString() + "');</script>"); 

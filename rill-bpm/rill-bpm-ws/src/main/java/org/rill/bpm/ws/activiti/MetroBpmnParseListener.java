@@ -13,11 +13,13 @@ import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.util.xml.Element;
 import org.activiti.engine.impl.variable.VariableDeclaration;
-import org.rill.bpm.api.exception.ProcessException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.ws.metro.MetroWSActivityBehavior;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Parse WS service task configurations.
@@ -127,34 +129,42 @@ public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAwa
 	}
 	
 	// ------------------------ Implementation ------------------------------//
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	public void parseServiceTask(Element serviceTaskElement, ScopeImpl scope,
 			ActivityImpl activity) {
 		
 		String expression = serviceTaskElement.attributeNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "expression");
-		WSProcessEngineConfiguration configuration = internalBeanFactory.getBean(WSProcessEngineConfiguration.class);
-		List<FieldDeclaration> fieldDeclarations = configuration.getBpmnParser().createParse().parseFieldDeclarations(serviceTaskElement);
-		String location = null, operationQName = null, xsdIndex = null;
-		for (FieldDeclaration fd : fieldDeclarations) {
-			String fieldValue = fd.getType().equals(Expression.class.getName()) ? 
-					((FixedValue) fd.getValue()).getExpressionText() : fd.getValue().toString();
-			if (fd.getName().equals("location")) {
-				location = fieldValue;
-			}
-			if (fd.getName().equals("operationQName")) {
-				operationQName = fieldValue;
-			}
-			if (fd.getName().equals("xsdIndex")) {
-				xsdIndex = fieldValue;
-			}
-		}
-		configuration.getWsXmlImporter().importFrom(location, null);
-		try {
-			configuration.getWsXmlImporter().importSchema(location, xsdIndex);
-		} catch (Exception e) {
-			throw new ProcessException(e);
-		}
-		
+		// Handle METRO_WEB_SERVICE configuration
 		if (expression != null && expression.trim().length() > 0 && expression.equals(METRO_WEB_SERVICE)) {
+			
+			WSProcessEngineConfiguration configuration = internalBeanFactory.getBean(WSProcessEngineConfiguration.class);
+			List<FieldDeclaration> fieldDeclarations = configuration.getBpmnParser().createParse().parseFieldDeclarations(serviceTaskElement);
+			String location = null, operationQName = null, xsdIndex = null;
+			for (FieldDeclaration fd : fieldDeclarations) {
+				String fieldValue = fd.getType().equals(Expression.class.getName()) ? 
+						((FixedValue) fd.getValue()).getExpressionText() : fd.getValue().toString();
+				if (fd.getName().equals("location")) {
+					location = fieldValue;
+				}
+				if (fd.getName().equals("operationQName")) {
+					operationQName = fieldValue;
+				}
+				if (fd.getName().equals("xsdIndex")) {
+					xsdIndex = fieldValue;
+				}
+			}
+			
+			try {
+				configuration.getWsXmlImporter().importFrom(location, null);
+				configuration.getWsXmlImporter().importSchema(location, xsdIndex);
+			} catch (Exception e) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("location: " + ObjectUtils.getDisplayString(location));
+				sb.append(" operationQName: " + ObjectUtils.getDisplayString(operationQName));
+				sb.append(" xsdIndex: " + ObjectUtils.getDisplayString(xsdIndex));
+				logger.warn("Exception occurred when try to import metro web service." + sb.toString(), e);
+			}
+			
 			String operationRef = operationQName;
 			MetroWSActivityBehavior webServiceActivityBehavior = new MetroWSActivityBehavior(operationRef, 
 					configuration.getWsXmlImporter());
