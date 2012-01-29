@@ -13,7 +13,7 @@ Add your content here.  Format your content with:
    {{{<Environment name="jdbcpool.property" value="portNumber=<port>:password=<your password>:user=<your username>:serverName=<host ip/name>:databaseName=<dbname>" type="java.lang.String"/>}}}
   * *start tomcat server(need if first time only) to execute engine table creation sql*
   * execute DML at your's DB. MySQL for example 
-    # `drop index ACT_UNIQ_HI_BUS_KEY on act_hi_procinst;`
+    # `drop index ACT_UNIQ_HI_BUS_KEY on ACT_HI_PROCINST;`
     # `alter table ACT_RU_IDENTITYLINK drop FOREIGN KEY ACT_FK_TSKASS_TASK;`
     # `drop index ACT_FK_TSKASS_TASK on ACT_RU_IDENTITYLINK;`
 
