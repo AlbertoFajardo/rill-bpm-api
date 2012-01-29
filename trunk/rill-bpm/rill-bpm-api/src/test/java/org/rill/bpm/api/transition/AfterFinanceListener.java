@@ -4,9 +4,10 @@
  */
 package org.rill.bpm.api.transition;
 
-import java.util.logging.Logger;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
 
 /**
@@ -15,7 +16,7 @@ import org.rill.bpm.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventList
  */
 public class AfterFinanceListener extends TransitionTakeEventListener {
 
-    static final Logger log = Logger.getLogger(AfterFinanceListener.class.getName());
+	protected final Log log = LogFactory.getLog(getClass().getName());
     
     @Override
     public void onTransitionTake(DelegateExecution execution, String processInstanceId, TransitionImpl transition) {
@@ -26,9 +27,9 @@ public class AfterFinanceListener extends TransitionTakeEventListener {
     
     private void recycle(DelegateExecution execution) {
 
-        log.fine("In service-task change variable of execution is effect way.");
+        log.debug("In service-task change variable of execution is effect way.");
         execution.setVariable("restartFinanceProcess", -1);
-        log.fine("call java service task [recycle] successfully.");
+        log.debug("call java service task [recycle] successfully.");
 //        RuntimeService runtimeService = ProcessEngines.getDefaultProcessEngine().getRuntimeService();
 //        runtimeService.setVariable(execution.getProcessInstanceId(), "restartFinanceProcess", -1);
     }

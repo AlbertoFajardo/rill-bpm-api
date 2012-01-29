@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -47,6 +45,8 @@ import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.xml.Element;
 import org.activiti.engine.impl.variable.VariableDeclaration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.ThreadLocalResourceHolder;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.beans.BeansException;
@@ -103,7 +103,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 		}
 		
 		for (Entry<String, TransitionTakeEventListener> entry : map.entrySet()) {
-			logger.fine("Find " + entry.getValue().getClass() + " named " + entry.getKey() + ", and add to transion take listeners.");
+			logger.debug("Find " + entry.getValue().getClass() + " named " + entry.getKey() + ", and add to transion take listeners.");
 			getTransitionTakeEventListener().add(entry.getValue());
 		}
 	}
@@ -189,14 +189,14 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
     
     // ----------------------------------- My implementation --------------------------------------- //
     private static final String TASK_GATHER = TaskEventListener.class.getName() + ".TASK_TRIGGER";
-    private static final Logger logger = Logger.getLogger(RetrieveNextTasksHelper.class.getName());
+    protected static final Log logger = LogFactory.getLog(RetrieveNextTasksHelper.class.getName());
     private static final Integer EXPERIENCE_TASK_COUNT = 3;
 
     private static class TaskEventListener implements TaskListener {
 
         private static final TaskEventListener CREATE_LISTENER = new TaskEventListener(TaskListener.EVENTNAME_CREATE);
         private static final TaskEventListener COMPLETE_LISTENER = new TaskEventListener(TaskListener.EVENTNAME_COMPLETE);
-        private static final Logger logger = Logger.getLogger(TaskEventListener.class.getName());
+        protected final Log logger = LogFactory.getLog(getClass().getName());
         private String eventName;
 
         private TaskEventListener(String eventName) {
@@ -217,7 +217,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 
         void handleTaskCreate(DelegateTask delegateTask) {
 
-            logger.log(Level.FINEST, "Start handle task create event, task id:{0}", delegateTask.getId());
+            logger.debug("Start handle task create event, task id:" + delegateTask.getId());
             // Obtain trigger thread variable
             handleProcessStart(delegateTask);
 
@@ -225,15 +225,15 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
             Stack<Map<String, Set<String>>> trigger = (Stack<Map<String, Set<String>>>) ThreadLocalResourceHolder.getProperty(TASK_GATHER);
             Map<String, Set<String>> peek = trigger.peek();
             String key = peek.keySet().iterator().next();
-            logger.log(Level.FINEST, "Retrive thread-binding trgger key:{0}", key);
+            logger.debug("Retrive thread-binding trgger key:" + key);
             Set<String> creationTaskIds = peek.get(key);
             creationTaskIds.add(delegateTask.getId());
-            logger.log(Level.FINE, "Add current creation task id:{0} to {1}, key:{2}", new Object[]{delegateTask.getId(), creationTaskIds, key});
+            logger.debug("Add current creation task id:" + delegateTask.getId() + " to " + creationTaskIds + ", key:" + key);
         }
 
         void handleTaskComplete(DelegateTask delegateTask) {
 
-            logger.log(Level.FINEST, "Start handle task complete event, task id:{0}", delegateTask.getId());
+            logger.debug("Start handle task complete event, task id:" + delegateTask.getId());
             // Obtain trigger thread variable
             Stack<Map<String, Set<String>>> trigger = (Stack<Map<String, Set<String>>>) ThreadLocalResourceHolder.getProperty(TASK_GATHER);
             Map<String, Set<String>> element = new HashMap<String, Set<String>>();
@@ -241,7 +241,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
             Set<String> creationTaskIds = new LinkedHashSet<String>(EXPERIENCE_TASK_COUNT);
             element.put(key, creationTaskIds);
             trigger.push(element);
-            logger.log(Level.FINE, "Push current task scope:{0}, key:{1}", new Object[]{delegateTask.getId(), key});
+            logger.debug("Push current task scope:" + delegateTask.getId() + ", key:" + key);
         }
 
         void handleProcessStart(DelegateTask delegateTask) {
@@ -258,7 +258,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 
         Stack<Map<String, Set<String>>> taskScope = (Stack<Map<String, Set<String>>>) ThreadLocalResourceHolder.getProperty(TASK_GATHER);
         if (taskScope == null) {
-            logger.finest("No thread binding task scope yet, we new/bind it.");
+            logger.debug("No thread binding task scope yet, we new/bind it.");
             // Means process start case, and set
             taskScope = new Stack<Map<String, Set<String>>>();
             ThreadLocalResourceHolder.bindProperty(TASK_GATHER, taskScope);
@@ -266,7 +266,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
         // Add to stack top position
         Map<String, Set<String>> element = new HashMap<String, Set<String>>();
         element.put(trigger, new LinkedHashSet<String>(EXPERIENCE_TASK_COUNT));
-        logger.log(Level.FINEST, "Push task scope trigger:{0}", trigger);
+        logger.debug("Push task scope trigger:" + trigger);
         taskScope.push(element);
     }
 
@@ -274,7 +274,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 
         Stack<Map<String, Set<String>>> taskScope = (Stack<Map<String, Set<String>>>) ThreadLocalResourceHolder.getProperty(TASK_GATHER);
         if (taskScope == null) {
-            logger.severe("Pop task scope return null because there is nothing in thread-binding variable");
+            logger.error("Pop task scope return null because there is nothing in thread-binding variable");
             throw new ProcessException("Pop task scope return null because there is nothing in thread-binding variable");
         }
 
@@ -285,12 +285,12 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
         while (!meetTrigger) {
             Map<String, Set<String>> element = taskScope.pop();
             String key = element.keySet().iterator().next();
-            logger.log(Level.FINEST, "Find task scope key:{0}, gather tasks:{1}", new Object[]{key, element.get(key)});
+            logger.debug("Find task scope key:" + key + ", gather tasks:" + element.get(key));
             taskGather.addAll(element.get(key));
             meetTrigger = trigger.equals(key);
         }
 
-        logger.log(Level.FINE, "Pop task scope key:{0}, gather tasks:{1}", new Object[]{trigger, taskGather});
+        logger.debug("Pop task scope key:" + trigger + ", gather tasks:" + taskGather);
         return new ArrayList<String>(taskGather);
     }
 
@@ -324,13 +324,13 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
                                         (List<FieldDeclaration>) fieldDeclarations.get(tl));
                                 classDelegateAdapters.add(adapter);
                             } catch (IllegalArgumentException ex) {
-                                logger.log(Level.SEVERE, null, ex);
+                                logger.error("Exception occurred when try to retrieve extend attributes", ex);
                             } catch (IllegalAccessException ex) {
-                                logger.log(Level.SEVERE, null, ex);
+                            	logger.error("Exception occurred when try to retrieve extend attributes", ex);
                             }
                             
                         } else if (tl.getClass().getName().startsWith("org.activiti")) {
-                            logger.log(Level.FINE ,"Ignore activiti engine's task listener.");
+                            logger.debug("Ignore activiti engine's task listener.");
                             activitiInternalTaskListener.add(tl);
                         } else {
                             throw new ActivitiException("We not allow use Activiti's task listener mechanism.");
@@ -365,7 +365,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
         // Add transition [take] event listener
         if (!CollectionUtils.isEmpty(getTransitionTakeEventListener())) {
             for (TransitionTakeEventListener ttel : getTransitionTakeEventListener()) {
-                logger.log(Level.FINEST, "Add transition take event listener:{0}.", ttel);
+                logger.debug("Add transition take event listener:" +  ttel);
                 transition.addExecutionListener(ttel);
             }
         }
@@ -417,7 +417,7 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 		public void onTransitionTake(DelegateExecution execution,
 				String processInstanceId, TransitionImpl transition) {
 			
-			logger.log(Level.FINEST, "Set process instance[" + processInstanceId + "] GO_BACK_VARIABLE to false after it taken " + transition);
+			logger.debug("Set process instance[" + processInstanceId + "] GO_BACK_VARIABLE to false after it taken " + transition);
 			execution.setVariable(GO_BACK_VARIABLE, "false");
 		}
     	

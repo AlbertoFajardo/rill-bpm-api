@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.impl.bpmn.behavior.CallActivityBehavior;
@@ -84,7 +83,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	        
 			return new WorkflowResponse(response.getProcessInstanceId(), businessObjectId, processDefinitionKey, taskIds, obtainRootProcess(response.getProcessInstanceId(), true));
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new ProcessException(e);
 		}
 	}
@@ -97,7 +96,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         for (String taskId : taskListIds) {
             taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
         }
-        logger.log(Level.FINE, "Retrieve generated-task{0}", ObjectUtils.getDisplayString(taskList));
+        logger.debug("Retrieve generated-task" +  ObjectUtils.getDisplayString(taskList));
 		
         // Means process will end
         ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
@@ -112,7 +111,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             TaskLifecycleInteceptor[] newTasklifecycleInteceptors = (TaskLifecycleInteceptor[]) obtainTaskLifecycleInterceptors(response.getId());
             TaskExecutionContext taskExecutionContext = buildTaskExecuteContext(triggerTaskInstanceId, response.getId(), operator, workflowParams);
 //            taskExecutionContext.setActivityContentResponse(response);
-            logger.log(Level.FINE, "Call generated-task''s interceptor#init {0}", ObjectUtils.getDisplayString(response));
+            logger.debug("Call generated-task''s interceptor#init " + ObjectUtils.getDisplayString(response));
             for (TaskLifecycleInteceptor newTaskLifecycleInteceptor : newTasklifecycleInteceptors) {
                 try {
                     // Invoke interceptor's initial method
@@ -171,7 +170,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                 // Deep-first traversale
                 deepFirstTraversal(processAllVariables, listActivities);
                 
-                logger.log(Level.FINE, "Found process variables:{0}, process definition :{1}", new Object[]{ObjectUtils.getDisplayString(processAllVariables), pd});
+                logger.debug("Found process variables:" + ObjectUtils.getDisplayString(processAllVariables) + ", process definition :" + pd);
                 return processAllVariables;
             }
             
@@ -222,13 +221,13 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
                             Iterator<IdentifierNode> iterator = listIdentifierNode.iterator();
                             while (iterator.hasNext()) {
                                 String variableNames = iterator.next().toString();
-                                logger.log(Level.FINEST, "Found process variables:{0} on transition:{1}", new Object[]{variableNames, pt});
+                                logger.debug("Found process variables:" + variableNames + " on transition:" + pt);
                                 processAllVariables.add(variableNames);
                             }
                         } catch (IllegalArgumentException ex) {
-                            logger.log(Level.SEVERE, "Can not get expression factory object.", ex);
+                            logger.error("Can not get expression factory object.", ex);
                         } catch (IllegalAccessException ex) {
-                            logger.log(Level.SEVERE, "Can not get expression factory object.", ex);
+                            logger.error("Can not get expression factory object.", ex);
                         }
                     }
                 }
@@ -283,7 +282,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
             public void doOperation(String processInstanceId,
                     String operator, String reason) throws ActivitiException {
-                logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation{0}.", operationType());
+                logger.warn("ACTIVITI5: Unsupported operation" + operationType());
 //                throw new ActivitiException("Unsupported operation" + operationType() + ".");
             }
 
@@ -302,7 +301,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
             public void doOperation(String processInstanceId,
                     String operator, String reason) throws ActivitiException {
-                logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation{0}.", operationType());
+                logger.warn("ACTIVITI5: Unsupported operation" + operationType());
 //                throw new ActivitiException("Unsupported operation" + operationType() + ".");
             }
 
@@ -322,7 +321,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             public void doOperation(String engineProcessInstanceId,
                     String operator, String reason) throws ActivitiException {
 
-                logger.log(Level.INFO, "ACTIVITI5: Terminal process instance[{0}.", engineProcessInstanceId);
+                logger.info("ACTIVITI5: Terminal process instance" + engineProcessInstanceId);
                 // Do terminal operation
                 getRuntimeService().deleteProcessInstance(engineProcessInstanceId, reason);
             }
@@ -373,7 +372,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 					        getTaskService().complete(engineTaskInstanceId, passToEngine);
 					        final List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
 					        long endCompleteTime = System.currentTimeMillis();
-					        logger.log(Level.INFO, "Complete task operation done. [taskInstanceid: {0}, operator: {1}, timeCost: {2} ms]", new Object[]{engineTaskInstanceId, operator, endCompleteTime - startCompleteTime});
+					        logger.info("Complete task operation done. [taskInstanceid: " + engineTaskInstanceId + ", operator: " + operator + ", timeCost: " + (endCompleteTime - startCompleteTime) + " ms]");
 					        
 							return new WorkflowResponse(
 									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),
@@ -382,7 +381,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	
 					});
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new ProcessException(e);
 		}
         
@@ -419,7 +418,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         Assert.notNull(oldExecuter, "oldExecuter is null");
         Assert.notNull(newExecuter, "newExecuter is null");
         try {
-            logger.log(Level.SEVERE, "ACTIVITI5: Unsupported operation[reassignTaskExecuter].");
+            logger.error("ACTIVITI5: Unsupported operation[reassignTaskExecuter]. engineTaskInstanceId " + engineTaskInstanceId);
             throw new ActivitiException("Unsupported operation[reassignTaskExecuter].");
         } catch (ActivitiException e) {
             throw new ProcessException(e);

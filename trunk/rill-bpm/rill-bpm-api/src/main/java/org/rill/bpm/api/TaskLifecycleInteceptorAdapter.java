@@ -14,10 +14,8 @@ package org.rill.bpm.api;
 
 import java.util.Map;
 
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.api.exception.TaskInitialException;
 
@@ -25,7 +23,7 @@ public class TaskLifecycleInteceptorAdapter implements
         TaskLifecycleInteceptor {
 
     /** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 
     private void checkTaskExecutionContext(Object taskContext) {
 
@@ -40,7 +38,7 @@ public class TaskLifecycleInteceptorAdapter implements
         checkTaskExecutionContext(taskContext);
 
         try {
-            logger.log(Level.FINE, "Execute task lifecycle interceptor#init [{0}].", this);
+            logger.debug("Execute task lifecycle interceptor#init " + this.getClass().getName() + ".");
             doInit((TaskExecutionContext) taskContext);
         } catch (Exception e) {
             throw new TaskInitialException("Fail to initialize task execution context:" + taskContext, e);
@@ -57,7 +55,7 @@ public class TaskLifecycleInteceptorAdapter implements
         checkTaskExecutionContext(taskContext);
 
         try {
-            logger.log(Level.FINE, "Execute task lifecycle interceptor#postComplete [{0}].", this);
+            logger.debug("Execute task lifecycle interceptor#postComplete " + this.getClass().getName() + ".");
             doPostComplete((TaskExecutionContext) taskContext);
         } catch (Exception e) {
             throw new ProcessException(e);
@@ -75,7 +73,7 @@ public class TaskLifecycleInteceptorAdapter implements
         checkTaskExecutionContext(taskContext);
 
         try {
-            logger.log(Level.FINE, "Execute task lifecycle interceptor#preComplete [{0}].", this);
+            logger.debug("Execute task lifecycle interceptor#preComplete " + this.getClass().getName() + ".");
             doPreComplete((TaskExecutionContext) taskContext);
             return ((TaskExecutionContext) taskContext).getWorkflowParams();
         } catch (Exception e) {
@@ -94,7 +92,7 @@ public class TaskLifecycleInteceptorAdapter implements
         checkTaskExecutionContext(taskContext);
 
         try {
-            logger.log(Level.FINE, "Execute task lifecycle interceptor#afterComplete [{0}].", this);
+            logger.debug("Execute task lifecycle interceptor#afterComplete" + this.getClass().getName() + ".");
             doAfterComplete((TaskExecutionContext) taskContext);
         } catch (Exception e) {
             throw new ProcessException(e);
@@ -109,7 +107,7 @@ public class TaskLifecycleInteceptorAdapter implements
     public void onExceptionOccurred(Exception e,
             TaskLifecycleInteceptor exceptionMurderer) {
 
-        logger.log(Level.FINE, "Execute task lifecycle interceptor#onExceptionOccurred [{0}].", this);
+        logger.debug("Execute task lifecycle interceptor#onExceptionOccurred " + this.getClass().getName() + ".");
         // No nothing
     }
 }

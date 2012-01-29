@@ -29,6 +29,8 @@ import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.util.ReflectUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
@@ -44,6 +46,8 @@ import org.springframework.util.CollectionUtils;
  */
 public class RillWfTransitionTraceListener extends TransitionTakeEventListener implements BeanFactoryAware {
 
+	protected final Log logger = LogFactory.getLog(getClass().getName());
+	
     private BeanFactory beanFactory;
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -70,14 +74,14 @@ public class RillWfTransitionTraceListener extends TransitionTakeEventListener i
                     pst.setString(3, processInstanceId);
                     pst.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(RillWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error("Exception occurred when try to insert transition take trace. ProcessInstanceId:" + processInstanceId + ", transition:" + transition, ex);
                 } finally {
                     if (pst != null) {
                         try {
                             pst.close();
                             pst = null;
                         } catch (SQLException ex) {
-                            Logger.getLogger(RillWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.warn("Exception occurred when try to insert transition take trace. ProcessInstanceId:" + processInstanceId + ", transition:" + transition, ex);
                         }
                     }
                 }
@@ -111,7 +115,7 @@ public class RillWfTransitionTraceListener extends TransitionTakeEventListener i
                         takedTransitions.add(new String[] {rs.getString(1), rs.getString(2)});
                     }
                 } catch (SQLException ex) {
-                    Logger.getLogger(RillWfTransitionTraceListener.class.getName()).log(Level.SEVERE, null, ex);
+                	logger.error("Exception occurred when try to get transition take trace. ProcessInstanceId:" + processInstanceId, ex);
                 } finally {
 
                     if (pst != null) {

@@ -1,9 +1,9 @@
 package org.rill.bpm.api;
 
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.util.StringUtils;
 
@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 public class ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor {
 
 	/** Logger available to subclasses */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+    protected final Log logger = LogFactory.getLog(getClass().getName());
     
     private void checkParam(String processDefinitionKey, String processStarter) {
 
@@ -26,7 +26,7 @@ public class ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor 
         checkParam(processDefinitionKey, processStarter);
 
         try {
-            logger.log(Level.FINE, "Execute process create interceptor#preOperation [{0}].", this);
+            logger.debug("Execute process create interceptor#preOperation" + this.getClass().getName() + ".");
             doPreOperation(processDefinitionKey, processStarter, businessObjectId, startParams);
         } catch (Exception e) {
             throw new ProcessException(e);
@@ -36,7 +36,7 @@ public class ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor 
     public final void postOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) throws ProcessException {
 
         try {
-            logger.log(Level.FINE, "Execute process create interceptor#postOperation [{0}].", this);
+            logger.debug("Execute process create interceptor#postOperation" + this.getClass().getName() + ".");
             
             // FIXME: Need proxy it for prevent call some method.
             doPostOperation(processDefinitionKey, engineProcessInstanceId, businessObjectId, processStarter);

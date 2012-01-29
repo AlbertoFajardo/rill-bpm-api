@@ -292,7 +292,7 @@
     <colors/>
     <fonts name="Arial" size="8"/>
   </pi:Diagram>
-  <bpmn2:Process id="Pg-support-orderPrint_v2" name="Pg-support-orderPrint_v2">
+  <bpmn2:Process id="Pg-support-orderPrint_v2" name="Pg-support-orderPrint_v2" namespace="http://www.activiti.org/test">
     <documentation id="documentation_process" text="Place documentation for the 'Pg-support-orderPrint_v2' process here."/>
   </bpmn2:Process>
   <bpmn2:StartEvent id="startevent1" name="Start" outgoing="flow1"/>

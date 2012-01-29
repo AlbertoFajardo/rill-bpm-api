@@ -4,7 +4,6 @@
  */
 package org.rill.bpm.api.transition;
 
-import java.util.logging.Logger;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RuntimeService;
@@ -16,8 +15,9 @@ import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
-import org.rill.bpm.api.processvar.DummyReceiptInfo;
 
 /**
  *
@@ -25,7 +25,7 @@ import org.rill.bpm.api.processvar.DummyReceiptInfo;
  */
 public class AfterModFinanceReceiveTypeListener extends TransitionTakeEventListener {
 
-    static final Logger log = Logger.getLogger(AfterModFinanceReceiveTypeListener.class.getName());
+	protected final Log log = LogFactory.getLog(getClass().getName());
     
     @Override
     public void onTransitionTake(DelegateExecution execution, String processInstanceId, TransitionImpl transition) {
@@ -36,7 +36,7 @@ public class AfterModFinanceReceiveTypeListener extends TransitionTakeEventListe
     
     private void restart(DelegateExecution execution, String processInstanceId) {
 
-        log.fine("Begin call java service task [restart].");
+        log.debug("Begin call java service task [restart].");
         TaskService taskService = ProcessEngines.getDefaultProcessEngine().getTaskService();
         RuntimeService runtimeService = ProcessEngines.getDefaultProcessEngine().getRuntimeService();
         TaskQuery taskQuery = taskService.createTaskQuery().processInstanceId(processInstanceId);
@@ -61,10 +61,10 @@ public class AfterModFinanceReceiveTypeListener extends TransitionTakeEventListe
 //        for (Session session : sessions.values()) {
 //            session.flush();
 //        }
-        log.fine("MUST: change variable of execution, runtimeService.setVariable() is not effect.");
+        log.debug("MUST: change variable of execution, runtimeService.setVariable() is not effect.");
         execution.setVariable("restartFinanceProcess", 1);
         if (e instanceof ActivityExecution) {
-            log.fine("end the existed finance sub-process");
+            log.debug("end the existed finance sub-process");
             ((ActivityExecution) e).end();
         }
 
@@ -73,7 +73,7 @@ public class AfterModFinanceReceiveTypeListener extends TransitionTakeEventListe
             throw new ActivitiException("ProcessInstance has ended. So ActivityExecution.end() method can not instead of JUMP_INSTANCE.");
         }
 
-        log.fine("Change process variables for create PRE_INVOICE task");
+        log.debug("Change process variables for create PRE_INVOICE task");
 
         execution.setVariable("__receiptInfo_receiptType", 0);
 

@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 
@@ -27,6 +26,8 @@ import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.ReadOnlyProcessDefinition;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.task.Task;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.springframework.util.Assert;
@@ -43,7 +44,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ProcessMonitorChartInfoHelper {
 
-	private static final Logger logger = Logger.getLogger(ProcessMonitorChartInfoHelper.class.getName());
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	@Resource
     private WorkflowOperations workflowAccessor;
@@ -131,7 +132,7 @@ public class ProcessMonitorChartInfoHelper {
     		// Process is not exists.
             HistoricProcessInstance processInstance = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(entry.getKey()).singleResult();
             if (processInstance == null) {
-            	logger.warning("Can not get process instance by given id " + entry.getKey());
+            	logger.warn("Can not get process instance by given id " + entry.getKey());
             	return null;
             }
 

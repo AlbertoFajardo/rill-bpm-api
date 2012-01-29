@@ -16,8 +16,6 @@ import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,6 +24,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.TaskExecutionContext;
 import org.rill.bpm.api.TaskLifecycleInteceptorAdapter;
 import org.rill.bpm.api.WorkflowOperations;
@@ -51,7 +51,7 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
     	factory.setNamespaceAware(true); // never forget this!
     }
     
-    protected static final Logger log = Logger.getLogger(XpathVarConvertTaskLifecycleInterceptor.class.getName());
+    protected static final Log log = LogFactory.getLog(XpathVarConvertTaskLifecycleInterceptor.class.getName());
     
     private static final String ENGINE_VARIABLE_DEFINITION_PREFIX = "__";
     private static final String ENGINE_VARIABLE_DEFINITION_SPLIT = "_";
@@ -90,7 +90,7 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
 
         Map<String, Object> convertAndFilter = convertAndFilter(engineRelateDatanames, taskExecutionContext.getWorkflowParams());
         
-        log.log(Level.INFO, "Change workflow parameter map to : {0}", ObjectUtils.getDisplayString(convertAndFilter));
+        log.info("Change workflow parameter map to :" + ObjectUtils.getDisplayString(convertAndFilter));
         taskExecutionContext.getWorkflowParams().putAll(convertAndFilter);
     }
     
@@ -101,7 +101,7 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
      */
     public static Map<String, Object> convertAndFilter(Set<String> engineRelateDatanames, Map<String, Object> workflowParams) {
     	
-        log.log(Level.INFO, "Before Xpath variable convertion: {0}", ObjectUtils.getDisplayString(workflowParams));
+        log.info("Before Xpath variable convertion:" + ObjectUtils.getDisplayString(workflowParams));
         
         Map<String, Object> convertAndFilter = new HashMap<String, Object>();
         try {
@@ -113,7 +113,7 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
 //                        logger.log(Level.FINE, "Put 0 for variable name:{0} into workflowParams", engineRelateDataname);
 //                        workflowParams.put(engineRelateDataname, "0");
                 		if (!engineRelateDataname.startsWith(ENGINE_VARIABLE_DEFINITION_PREFIX)) {
-                			log.log(Level.FINE, "Ignore unrelated variables${0} and do not change it's value", engineRelateDataname);
+                			log.debug("Ignore unrelated variables" + engineRelateDataname + " and do not change it's value");
                 		} else {
                 			// Generate by Xpath
                             generateByXpath(workflowParams, engineRelateDataname, convertAndFilter);
@@ -124,11 +124,11 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
                 }
             }
         } catch (Exception e) {
-            log.log(Level.SEVERE, "Exception occurred when parse expression using XPath.", e);
+            log.error("Exception occurred when parse expression using XPath.", e);
             throw new ProcessException("Exception occurred when parse expression using XPath.", e);
         }
         
-        log.log(Level.INFO, "After Xpath variable convertion: {0}", ObjectUtils.getDisplayString(workflowParams));
+        log.info("After Xpath variable convertion: " + ObjectUtils.getDisplayString(workflowParams));
         return convertAndFilter;
     }
 
@@ -145,7 +145,7 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
             if (split.length > 1 && workflowParams.containsKey(split[0]) && workflowParams.get(split[0]) != null) {
             	String workflowParamValue = (workflowParams.get(split[0]) instanceof String) ? workflowParams.get(split[0]).toString() 
             			: XStreamSerializeHelper.serializeXml(split[0], workflowParams.get(split[0]));
-            	log.log(Level.FINE, "After XStream serialize :{0}", workflowParamValue);
+            	log.debug("After XStream serialize :" + workflowParamValue);
                 // Check it is XML or not
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 Document doc = builder.parse(new ByteArrayInputStream(workflowParamValue.getBytes("UTF-8")));
@@ -158,20 +158,20 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
                     sb.append("/");
                 }
                 sb.append("text()");
-                log.log(Level.FINE, "Build xPath:{0}", sb.toString());
+                log.debug("Build xPath:" + sb.toString());
                 XPathExpression expr = xpath.compile(sb.toString());
                 String value = (String) expr.evaluate(doc, XPathConstants.STRING);
                 if (StringUtils.hasText(value.toString())) {
-                    log.log(Level.FINE, "Parse xPath:{0} and save value:{1}", new Object[]{sb.toString(), value});
+                    log.debug("Parse xPath:" + sb.toString() + " and save value:" + value);
                     convertAndFilter.put(engineRelateDataname, value);
                 } else {
-                    log.log(Level.WARNING, "Can not get value using XPath because invalid engine data name:{0}", engineRelateDataname);
+                    log.warn("Can not get value using XPath because invalid engine data name: " + engineRelateDataname);
                 }
             } else {
-                log.log(Level.WARNING, "Can not get value using XPath because invalid engine data name:{0}", engineRelateDataname);
+                log.warn("Can not get value using XPath because invalid engine data name:" + engineRelateDataname);
             }
         } catch (Exception e) {
-            log.log(Level.WARNING, "Exception occurred when parse expression using Xpath. Do next one.", e);
+            log.warn("Exception occurred when parse expression using Xpath. Do next one.", e);
         }
         
     }

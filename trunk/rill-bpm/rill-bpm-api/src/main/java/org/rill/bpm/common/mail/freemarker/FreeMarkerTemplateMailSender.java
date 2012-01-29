@@ -19,7 +19,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import org.rill.bpm.common.mail.TemplateMailSender;
 import org.rill.bpm.common.mail.support.TemplateMailSenderSupport;
@@ -30,7 +29,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.util.ObjectUtils;
-
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -63,7 +61,7 @@ public class FreeMarkerTemplateMailSender extends TemplateMailSenderSupport impl
 			// generate using model
 			return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Fail to process mail template.", e);
+			logger.error("Fail to process mail template.", e);
 			throw new RuntimeException(e);
 		}
 	}

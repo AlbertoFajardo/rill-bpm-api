@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
@@ -22,6 +20,8 @@ import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.activiti.spring.SpringTransactionInterceptor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.ThreadLocalResourceHolder;
 import org.springframework.aop.SpringProxy;
 import org.springframework.aop.framework.ProxyFactory;
@@ -50,7 +50,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 public class RillProcessEngineConfiguration extends SpringProcessEngineConfiguration implements BeanFactoryAware {
 
-	protected final Logger log = Logger.getLogger(getClass().getName());
+	protected final Log log = LogFactory.getLog(getClass().getName());
 	
 	private ApplicationEventPublisher heldApplicationEventPublisher;
 	private BeanFactory beanFactory;
@@ -86,7 +86,7 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
             String[] listenerNames = ((ListableBeanFactory) beanFactory).getBeanNamesForType(SchemaOperationEventListener.class);
             if (listenerNames != null && listenerNames.length > 0) {
                 for (String listenerName : listenerNames) {
-                    log.log(Level.INFO, "Add application listener named [{0}].", listenerName);
+                    log.info("Add application listener named " + listenerName);
                     aemc.addApplicationListener((SchemaOperationEventListener) beanFactory.getBean(listenerName));
                 }
             }
@@ -141,7 +141,7 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
 		
 		final SessionFactory sessionFactory = getSessionFactories().get(DbSqlSession.class);
 		if (sessionFactory instanceof SpringProxy) {
-			log.warning("DbSqlSessionFactory has been proxied. so we directly return." + sessionFactory);
+			log.warn("DbSqlSessionFactory has been proxied. so we directly return." + sessionFactory);
 			return;
 		}
 		
