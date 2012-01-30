@@ -10,7 +10,14 @@ Add your content here.  Format your content with:
   * add -Dhttp.keepAlive=false to JVM(catalina.sh/bat) start command-line.
   * add C:\Windows\Fonts\simsun.ttc to dictionary JAVA_HOME/jre/lib/fonts/
   * Configure DB for engine，add to context.xml
-   {{{<Environment name="jdbcpool.property" value="portNumber=<port>:password=<your password>:user=<your username>:serverName=<host ip/name>:databaseName=<dbname>" type="java.lang.String"/>}}}
+   {{{
+<Environment name="jdbc.username" value="<username>" type="java.lang.String"/>
+<Environment name="jdbc.password" value="<password>" type="java.lang.String"/>
+<Environment name="jdbc.maxPoolSize" value="<maxPoolSize>" type="java.lang.String"/>
+<Environment name="jdbc.minPoolSize" value="<minPoolSize>" type="java.lang.String"/>
+<Environment name="jdbc.maxIdleTime" value="<maxIdleTime>" type="java.lang.String"/>
+<Environment name="jdbcpool.property" value="portNumber=<portNumber>:serverName=<serverName>:databaseName=<databaseName>" type="java.lang.String"/>
+}}}
   * *start tomcat server(need if first time only) to execute engine table creation sql*
   * execute DML at your's DB. MySQL for example 
     # `drop index ACT_UNIQ_HI_BUS_KEY on ACT_HI_PROCINST;`
