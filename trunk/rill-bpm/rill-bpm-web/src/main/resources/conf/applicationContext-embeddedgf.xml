@@ -32,9 +32,29 @@
     		<map>
     			<entry key="create-jdbc-connection-pool">
     				<list>
-    					<value>--datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</value>
-    					<value>--restype=javax.sql.XADataSource</value>
-    					<value>--property=${jdbcpool.property}</value>
+    					<value>--datasourceclassname</value>
+    					<value>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</value>
+    					<value>--restype</value>
+    					<value>javax.sql.XADataSource</value>
+    					<value>--steadypoolsize</value>
+    					<value>${jdbc.minPoolSize}</value>
+    					<value>--maxpoolsize</value>
+    					<value>${jdbc.maxPoolSize}</value>
+    					<value>--idletimeout</value>
+    					<value>${jdbc.maxIdleTime}</value>
+    					<!-- either isconnectvalidatereq or failconnection -->
+    					<value>--isconnectvalidatereq</value>
+    					<value>true</value>
+    					<value>--validationmethod</value>
+    					<value>table</value>
+    					<value>--validationtable</value>
+    					<value>ACT_GE_PROPERTY</value>
+    					<!-- 
+    					<value>failconnection</value>
+    					<value>true</value>
+    					 -->
+    					<value>--property</value>
+    					<value>User=${jdbc.username}:Password=${jdbc.password}:${jdbcpool.property}</value>
     					<value>rilldb_pool</value>
     				</list>
     			</entry>
