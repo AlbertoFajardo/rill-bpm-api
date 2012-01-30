@@ -45,7 +45,7 @@
 			<!-- all methods starting with 'get' are read-only -->
 			<tx:method name="get*" read-only="true" />
 			<!-- other methods use the default transaction settings (see below) -->
-			<tx:method name="*" />
+			<tx:method name="*" timeout="120"/>
 		</tx:attributes>
 	</tx:advice>
 	<!-- ensure that the above transactional advice runs for any execution of 

@@ -680,6 +680,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         for (TLIGenerator generator : tempGeneratorList) {
             if (generator.supportGeneratePattern(perTaskInterceptorConfigs)) {
                 taskLifecycleInterceptors.addAll(generator.generate(perTaskInterceptorConfigs));
+            } else {
+            	logger.warn(generator.getClass().getName() + " can not generate TLI " + ObjectUtils.getDisplayString(perTaskInterceptorConfigs));
             }
         }
 
@@ -713,7 +715,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             try {
                 convertNameToBean(actualClazz, source);
             } catch (Exception e) {
-                logger.debug(SpringBeanGenerator.class.getName() + "#supportGeneratePattern exception, ignore it.");
+                logger.warn(SpringBeanGenerator.class.getName() + "#supportGeneratePattern exception, ignore it." + ObjectUtils.getDisplayString(source));
                 result = false;
             }
 
