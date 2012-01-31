@@ -51,6 +51,8 @@
 	    <property name="namespaceUri" value="http://activiti.api.ws.bpm.rill.org/"/>
 	    <property name="serviceName" value="RemoteActivitiTemplateService"/>
 	    <property name="portName" value="RemoteActivitiTemplatePort"/>
+	    <property name="username" value="${metro.auth.username}"/>
+	    <property name="password" value="${metro.auth.password}"/>
 	</bean>
     <!-- ##WS client configuration## end  -->
   

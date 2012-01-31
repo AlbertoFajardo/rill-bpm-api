@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.servlet.ServletContext;
 import javax.xml.ws.WebServiceContext;
@@ -46,6 +47,7 @@ import com.sun.xml.ws.api.tx.at.Transactional.Version;
  * @author mengran
  */
 @WebService
+@HandlerChain(file="HandlerChain.xml")
 public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 
 	/** Logger available to subclasses */
