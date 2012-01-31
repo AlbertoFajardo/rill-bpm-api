@@ -5,10 +5,13 @@
 
 package org.rill.bpm;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+
 import junit.framework.Assert;
+
 import org.activiti.engine.impl.juel.Builder;
 import org.activiti.engine.impl.juel.IdentifierNode;
 import org.activiti.engine.impl.juel.Tree;
@@ -17,6 +20,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 /**
  *
@@ -97,6 +102,16 @@ public class UnsortedTest {
         int y2 = 377;
         int h2 = 60;
         Assert.assertTrue(Math.abs((y1 + h1/2) - (y2 + h2/2)) < 1);
+    }
+    
+    @Test
+    public void base64() {
+    	
+    	String authorization = "Basic YWN0aXZpdGk6aXRpdml0Y2E=".replaceAll("Basic ", "");
+    	
+    	Base64Encoder decoder = new Base64Encoder();
+    	String afterDecode = new String(decoder.decode(authorization));
+    	Assert.assertEquals("activiti:itivitca", afterDecode);
     }
 
 }
