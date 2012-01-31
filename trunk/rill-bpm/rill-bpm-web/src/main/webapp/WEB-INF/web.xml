@@ -107,6 +107,20 @@
         <url-pattern>/BPMWebService</url-pattern>
     </servlet-mapping>
     
+    <security-constraint>
+    	<web-resource-collection>
+    		<web-resource-name>SpringMVC servlet</web-resource-name>
+    		<url-pattern>/web/*</url-pattern>
+    	</web-resource-collection>
+    	<auth-constraint>
+    		<role-name>rill-bpm-web-console</role-name>
+    	</auth-constraint>
+    </security-constraint>
+    
+    <login-config>
+    	<auth-method>BASIC</auth-method>
+    </login-config>
+    
     <session-config>
         <session-timeout>
             30
