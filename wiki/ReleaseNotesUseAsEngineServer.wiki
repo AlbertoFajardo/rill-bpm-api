@@ -26,3 +26,10 @@ Add your content here.  Format your content with:
 
 = Confirm =
 Start up tomcat server, and access {{{http://<host>:<port>/<contextPath>/BPMWebService?wsdl}}}
+
+= Security =
+  * Web console use HTTP BASIC AUTH mechanism, default role is *rill-bpm-web-console*(see web.xml). You need add it to $CATALINA_HOME/conf/tomcat-users.xml.
+  * BPM Web service use HTTP BASIC AUTH mechanism too, by different, it configure at Spring3.1 Environment abstraction.
+
+= Congratulations =
+Just enjoy it.
