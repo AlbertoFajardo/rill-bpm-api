@@ -53,6 +53,8 @@
     					<value>failconnection</value>
     					<value>true</value>
     					 -->
+    					<value>--sqltracelisteners</value>
+    					<value>org.rill.bpm.web.sqltrace.SQLTraceListenerImpl</value>
     					<value>--property</value>
     					<value>User=${jdbc.username}:Password=${jdbc.password}:${jdbcpool.property}</value>
     					<value>rilldb_pool</value>
