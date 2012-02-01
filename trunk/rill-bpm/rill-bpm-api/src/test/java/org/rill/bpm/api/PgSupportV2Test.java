@@ -206,13 +206,23 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		// contract finance gift
 		Assert.assertEquals(3, sendcontractResult.size());
 		String writereceipt = null;
+		String auditSendGift = null;
 		for (String taskId : sendcontractResult) {
 			HashMap<String, String> extendAttributes = workflowAccessor
 					.getTaskInstanceInformations(taskId);
 			if ("writereceipt".equals(extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()))) {
 				writereceipt = taskId;
 			}
+			if ("auditAndSendGift".equals(extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()))) {
+				auditSendGift = taskId;
+			}
 		}
+		// Fix audit gift Lock timeout
+		Map<String, Object> auditGiftSendParams = new HashMap<String, Object>();
+		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
+		auditGiftSendParams.put("orderAudit", orderAudit);
+		List<String> auditGiftSend = workflowAccessor.completeTaskInstance(auditSendGift, "RillMeng", auditGiftSendParams);
+		Assert.assertEquals(0, auditGiftSend.size());
 		
 		String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
 		Assert.assertNotNull("Root process instance isn't running?", processInstanceId);
