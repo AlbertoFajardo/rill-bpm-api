@@ -143,7 +143,7 @@
             clusterName="workflowCache-cluster" 
             >
             <properties>
-            <property name="configurationFile" value="jgroups-tcp.xml" />
+            <property name="configurationFile" value="conf/jgroups-tcp-static.xml" />
          </properties>
       </transport>
 
@@ -264,6 +264,12 @@
          
          <sync replTimeout="20000"/>
          -->
+         <sync/>
+         <hash
+            numOwners="2"
+            rehashWait="120000"
+            rehashRpcTimeout="600000"
+         />
 
          <!--
             Uncomment this for async replication.

@@ -35,6 +35,8 @@
 	    <property name="namespaceUri" value="http://activiti.api.ws.bpm.rill.org/"/>
 	    <property name="serviceName" value="RemoteActivitiTemplateService"/>
 	    <property name="portName" value="RemoteActivitiTemplatePort"/>
+	    <property name="username" value="${metro.auth.username}"/>
+	    <property name="password" value="${metro.auth.password}"/>
 	</bean>
 	
 	<bean id="remoteActivitiTemplate2" class="org.springframework.remoting.jaxws.JaxWsPortProxyFactoryBean">
@@ -43,8 +45,11 @@
 	    <property name="namespaceUri" value="http://activiti.api.ws.bpm.rill.org/"/>
 	    <property name="serviceName" value="RemoteActivitiTemplateService"/>
 	    <property name="portName" value="RemoteActivitiTemplatePort"/>
+	    <property name="username" value="${metro.auth.username}"/>
+	    <property name="password" value="${metro.auth.password}"/>
 	</bean>
 	 -->
+	<!--  -->
 	<bean id="remoteActivitiTemplate" class="org.springframework.remoting.jaxws.JaxWsPortProxyFactoryBean">
 	    <property name="serviceInterface" value="org.rill.bpm.ws.client.RemoteActivitiTemplate"/>
 	    <property name="wsdlDocumentUrl" value="${ws.activiti.wsdl1}"/>
@@ -54,6 +59,7 @@
 	    <property name="username" value="${metro.auth.username}"/>
 	    <property name="password" value="${metro.auth.password}"/>
 	</bean>
+	
     <!-- ##WS client configuration## end  -->
   
 </beans>
