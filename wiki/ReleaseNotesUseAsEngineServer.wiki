@@ -44,6 +44,10 @@ Start up tomcat server, and access {{{http://<host>:<port>/<contextPath>/BPMWebS
 = Security =
   * Web console use HTTP BASIC AUTH mechanism, default role is *rill-bpm-web-console*(see web.xml). You need add it to $CATALINA_HOME/conf/tomcat-users.xml.
   * BPM Web service use HTTP BASIC AUTH mechanism too, by different, it configure at Spring3.1 Environment abstraction.
+   {{{
+metro.auth.username=rill-bpm-web
+metro.auth.password=web-bpm-rill
+}}}
 
 = Cluster =
   * *Client*: Provide load balance invoking feature in rill-bpm-ws stub.jar, and it's strategy is transaction-binding.
