@@ -9,9 +9,7 @@
   
     <modules>
         <module>rill-bpm-api</module>
-    <module>rill-bpm-ws</module>
-    <module>rill-bpm-web</module>
-    <module>rill-bpm-webclient</module>
+	    <module>rill-bpm-ws</module>
   </modules>
     <properties>
         <spring.framework.version>3.1.0.RELEASE</spring.framework.version>
@@ -237,18 +235,5 @@
 	        <uniqueVersion>false</uniqueVersion>  
 	    </snapshotRepository>
     </distributionManagement>
-    
-    <profiles>
-    	<profile>
-    		<id>googlecode-snapshot</id>
-    		<modules>
-    			<module>rill-bpm-api</module>
-			    <module>rill-bpm-ws</module>
-			    <!-- 
-			    <module>rill-bpm-web</module>
-			     -->
-    		</modules>
-    	</profile>
-    </profiles>
   
 </project>
