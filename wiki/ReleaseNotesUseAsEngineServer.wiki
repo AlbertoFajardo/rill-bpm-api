@@ -46,8 +46,8 @@ Start up tomcat server, and access {{{http://<host>:<port>/<contextPath>/BPMWebS
   * BPM Web service use HTTP BASIC AUTH mechanism too, by different, it configure at Spring3.1 Environment abstraction.
 
 = Cluster =
-  * [Client] Provide load balance invoking feature in rill-bpm-ws stub.jar, and it's strategy is transaction-binding.
-  * [Server] Add {{{-Djgroups.tcpping.initial_hosts=server1 ip[port1],server2 ip[port2]}}} to JVM(catalina.sh/bat) start command-line.
+  * *Client*: Provide load balance invoking feature in rill-bpm-ws stub.jar, and it's strategy is transaction-binding.
+  * *Server*: Add {{{-Djgroups.tcpping.initial_hosts=server1 ip[port1],server2 ip[port2]}}} to JVM(catalina.sh/bat) start command-line.
 
 = Congratulations =
 Just enjoy it.
