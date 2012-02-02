@@ -3,15 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.rill</groupId>
     <artifactId>rill-bpm</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>rill - bpm</name>
   
     <modules>
         <module>rill-bpm-api</module>
-    <module>rill-bpm-ws</module>
-    <module>rill-bpm-web</module>
-    <module>rill-bpm-webclient</module>
+	    <module>rill-bpm-ws</module>
   </modules>
     <properties>
         <spring.framework.version>3.1.0.RELEASE</spring.framework.version>
@@ -133,6 +131,12 @@
             <name>Public online Restlet repository</name>  
             <url>http://maven.restlet.org</url>  
         </repository>
+        
+        <repository>  
+	        <id>googlecode-repo-releases</id>  
+	        <name>googlecode Maven Repository Releases</name>  
+	        <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/releases</url>  
+	    </repository>
     </repositories>
     
     <pluginRepositories>
@@ -231,18 +235,5 @@
 	        <uniqueVersion>false</uniqueVersion>  
 	    </snapshotRepository>
     </distributionManagement>
-    
-    <profiles>
-    	<profile>
-    		<id>googlecode-snapshot</id>
-    		<modules>
-    			<module>rill-bpm-api</module>
-			    <module>rill-bpm-ws</module>
-			    <!-- 
-			    <module>rill-bpm-web</module>
-			     -->
-    		</modules>
-    	</profile>
-    </profiles>
   
 </project>

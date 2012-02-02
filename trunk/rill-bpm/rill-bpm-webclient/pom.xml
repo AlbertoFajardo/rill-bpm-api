@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>rill-bpm</artifactId>
 		<groupId>org.rill</groupId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<packaging>war</packaging>
