@@ -12,17 +12,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.transaction.Transaction;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
+import com.sun.xml.ws.tx.at.common.TransactionManagerImpl;
+
+/**
+ * @author mengran
+ *
+ */
 public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBean {
 
 	protected final Log logger = LogFactory.getLog(getClass().getName());
@@ -30,6 +38,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 	private Class<?> serviceInterface;
 	private CopyOnWriteArrayList<Object> targets;
 	private List<Class<?>> failOverExceptions;
+	private ConcurrentHashMap<Integer, Object> jtaTransactionBindingMap = new ConcurrentHashMap<Integer, Object>();
 
 	public final List<Class<?>> getFailOverExceptions() {
 		return failOverExceptions;
@@ -55,10 +64,38 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 		this.targets = targets;
 	}
 
-	protected Object retrieveExecuteTarget() {
+	protected Object retrieveExecuteTarget() throws Throwable {
 		
-		Object randomTarget = getTargets().get(new Random().nextInt(getTargets().size()));
-		return randomTarget;
+		Object transactionAssociationTarget = null;
+		// Process JTA Transaction Binding feature
+		Transaction jtaTransaction = null;
+		if ((jtaTransaction = TransactionManagerImpl.getInstance().getTransaction()) != null) {
+			int hash = jtaTransaction.hashCode();
+			if (jtaTransactionBindingMap.containsKey(hash)) {
+				transactionAssociationTarget = jtaTransactionBindingMap.get(hash);
+				logger.debug("Use LB target:" + transactionAssociationTarget + " for transaction:" + jtaTransaction);
+			} else {
+				// Have not associate with transaction
+				transactionAssociationTarget = randomRetrieveExecuteTarget();
+				Object putResult = jtaTransactionBindingMap.putIfAbsent(hash, transactionAssociationTarget);
+				if (putResult == null) {
+					logger.info("Associate transaction:" + jtaTransaction + " with LB target:" + transactionAssociationTarget);
+				} else {
+					logger.warn("We sure that transaction and thread is one-one relationship strategy, current environment is not??");
+				}
+			}
+		} else {
+			// Maybe not in JTA environment
+			transactionAssociationTarget = randomRetrieveExecuteTarget();
+		}
+		
+		return transactionAssociationTarget;
+	}
+	
+	private Object randomRetrieveExecuteTarget() {
+		
+		// Maybe throw NullPointerException
+		return getTargets().get(new Random().nextInt(getTargets().size()));
 	}
 	
 	protected void doFailOverExecuteTarget(Object failTarget) {
@@ -106,8 +143,9 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 		}
 		
 		Object result = null;
-		Object executeTarget = retrieveExecuteTarget();
+		Object executeTarget = null;
 		try {
+			executeTarget = retrieveExecuteTarget();
 			result = ReflectionUtils.invokeMethod(invocation.getMethod(), executeTarget, invocation.getArguments());
 		} catch (Throwable e) {
 			exceptionHandler(executeTarget, e);
