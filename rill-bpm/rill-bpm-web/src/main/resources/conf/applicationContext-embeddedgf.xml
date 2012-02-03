@@ -42,17 +42,14 @@
     					<value>${jdbc.maxPoolSize}</value>
     					<value>--idletimeout</value>
     					<value>${jdbc.maxIdleTime}</value>
-    					<!-- either isconnectvalidatereq or failconnection -->
+    					<!-- re-connect when DB restarted. -->
     					<value>--isconnectvalidatereq</value>
     					<value>true</value>
     					<value>--validationmethod</value>
-    					<value>table</value>
-    					<value>--validationtable</value>
-    					<value>ACT_GE_PROPERTY</value>
-    					<!-- 
-    					<value>failconnection</value>
-    					<value>true</value>
-    					 -->
+    					<value>custom-validation</value>
+    					<value>--validationclassname</value>
+    					<value>org.glassfish.api.jdbc.validation.MySQLConnectionValidation</value>
+    					
     					<value>--sqltracelisteners</value>
     					<value>org.rill.bpm.web.sqltrace.SQLTraceListenerImpl</value>
     					<value>--property</value>
