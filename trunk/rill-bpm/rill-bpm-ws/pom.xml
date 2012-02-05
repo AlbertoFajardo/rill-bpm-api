@@ -143,12 +143,16 @@
 							    <fileset dir="${project.build.directory}/classes">
 							      <include name="**/WSATServerPickPort*.class"/>
 							      <include name="**/lb/LoadBalance*.class"/>
+							      <include name="**/WSATContextListener*.class"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.class"/>
 							    </fileset>
 							  </copy>
 							  <copy todir="${WS_STUB_DIR}">
 							    <fileset dir="${basedir}/src/main/java">
 							      <include name="**/WSATServerPickPort*.java"/>
 							      <include name="**/lb/LoadBalance*.java"/>
+							      <include name="**/WSATContextListener*.java"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.java"/>
 							    </fileset>
 							  </copy>
 				              </target>
@@ -338,12 +342,16 @@
 							    <fileset dir="${project.build.directory}/classes">
 							      <include name="**/WSATServerPickPort*.class"/>
 							      <include name="**/lb/LoadBalance*.class"/>
+							      <include name="**/WSATContextListener*.class"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.class"/>
 							    </fileset>
 							  </copy>
 							  <copy todir="${WS_STUB_DIR}">
 							    <fileset dir="${basedir}/src/main/java">
 							      <include name="**/WSATServerPickPort*.java"/>
 							      <include name="**/lb/LoadBalance*.java"/>
+							      <include name="**/WSATContextListener*.java"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.java"/>
 							    </fileset>
 							  </copy>
 				              </target>
