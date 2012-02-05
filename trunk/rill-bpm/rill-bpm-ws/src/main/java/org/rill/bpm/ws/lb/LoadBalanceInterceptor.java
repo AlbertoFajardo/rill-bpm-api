@@ -56,12 +56,8 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 		this.serviceInterface = serviceInterface;
 	}
 
-	public final CopyOnWriteArrayList<Object> getTargets() {
-		return targets;
-	}
-
-	public final void setTargets(CopyOnWriteArrayList<Object> targets) {
-		this.targets = targets;
+	public final void setTargets(List<Object> targets) {
+		this.targets = new CopyOnWriteArrayList<Object>(targets);
 	}
 
 	protected Object retrieveExecuteTarget() throws Throwable {
@@ -95,7 +91,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 	private Object randomRetrieveExecuteTarget() {
 		
 		// Maybe throw NullPointerException
-		return getTargets().get(new Random().nextInt(getTargets().size()));
+		return this.targets.get(new Random().nextInt(this.targets.size()));
 	}
 	
 	protected void doFailOverExecuteTarget(Object failTarget) {
@@ -138,7 +134,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 			return "Load balance for " + serviceInterface.getName() + ", targets:" + ObjectUtils.getDisplayString(targets);
 		}
 		
-		if (getTargets().isEmpty()) {
+		if (this.targets.isEmpty()) {
 			throw new IllegalStateException("No target is available, Please wait a moment.");
 		}
 		
@@ -157,7 +153,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		
-		Assert.notEmpty(getTargets(), "No any target to load balance.");
+		Assert.notEmpty(this.targets, "No any target to load balance.");
 	}
 	
 	private final SimpleFailOver SIMPLE_FAIL_OVER = new SimpleFailOver(); 
