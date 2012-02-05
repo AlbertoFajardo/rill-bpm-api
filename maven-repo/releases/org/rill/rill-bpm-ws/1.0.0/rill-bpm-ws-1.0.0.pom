@@ -1,8 +1,482 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.rill</groupId>
-  <artifactId>rill-bpm-ws</artifactId>
-  <version>1.0.0</version>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>rill-bpm</artifactId>
+        <groupId>org.rill</groupId>
+        <version>1.0.0</version>
+        <relativePath>../</relativePath>
+    </parent>
+    <artifactId>rill-bpm-ws</artifactId>
+    <name>rill - bpm - ws</name>
+    
+    <dependencies>
+    	<dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>catalina</artifactId>
+            <version>6.0.28</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>rill-bpm-api</artifactId>
+            <groupId>org.rill</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>activiti-spring</artifactId>
+            <groupId>org.activiti</groupId>
+            <version>${activiti.engine.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>rill-bpm-api</artifactId>
+            <groupId>org.rill</groupId>
+            <classifier>tests</classifier>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Embedded GF -->
+        <dependency>
+            <artifactId>rill-bpm-embeddedgf</artifactId>
+            <groupId>org.rill</groupId>
+            <version>3.1</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>org.glassfish.extras</groupId>
+            		<artifactId>glassfish-embedded-all</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <build>
+    	<plugins>
+    		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <version>2.1.2</version>
+            </plugin>
+    	</plugins>
+    </build>
+    
+    <profiles>
+    	<profile>
+    		<id>deploy-stub-to-googlecode-snapshots</id>
+    		<properties>
+    			<googlecode.snapshot.url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/snapshots</googlecode.snapshot.url>
+    			<googlecode.snapshot.repositoryId>googlecode-repo-snapshots</googlecode.snapshot.repositoryId>
+    		</properties>
+    		<build>
+    			<plugins>
+    				<plugin>
+		            	<groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-antrun-plugin</artifactId>
+				        <executions>
+				          <execution>
+				            <phase>prepare-package</phase>
+				            <configuration>
+				              <target>
+				              	<echo message="start importing..."/>
+				              	<property name="M2_REPO" value="${user.home}/.m2/repository" />
+								<property name="WS_STUB_DIR" value="${project.build.directory}/stubsources" />
+								<property name="WS_STUB_CLASSES_DIR" value="${project.build.directory}/stubclasses" />
+								<property name="WSDL_LOCATION" value="http://localhost:8080/rill-bpm-web/BPMWebService?wsdl" />
+							
+								<path id="classpath.libs">
+									<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/istack/istack-commons-tools/1.1">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-xjc/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-impl/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/org/glassfish/metro/webservices-rt/2.1">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${java.home}/../lib/">
+										<include name="tools.jar" />
+									</fileset>
+								</path>
+							
+								<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport" classpathref="classpath.libs">
+								</taskdef>
+							
+									<mkdir dir="${WS_STUB_DIR}"/>
+									<mkdir dir="${WS_STUB_CLASSES_DIR}"/>
+									<wsimport 
+										wsdl="${WSDL_LOCATION}"
+										sourcedestdir="${WS_STUB_DIR}"
+										destdir="${WS_STUB_CLASSES_DIR}"
+										keep="true"
+										verbose="true"
+										package="org.rill.bpm.ws.client"
+										/>
+				              
+				              <echo message="end import operation."/>
+				              
+				              <copy todir="${WS_STUB_CLASSES_DIR}">
+							    <fileset dir="${project.build.directory}/classes">
+							      <include name="**/WSATServerPickPort*.class"/>
+							      <include name="**/lb/LoadBalance*.class"/>
+							      <include name="**/WSATContextListener*.class"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.class"/>
+							    </fileset>
+							  </copy>
+							  <copy todir="${WS_STUB_DIR}">
+							    <fileset dir="${basedir}/src/main/java">
+							      <include name="**/WSATServerPickPort*.java"/>
+							      <include name="**/lb/LoadBalance*.java"/>
+							      <include name="**/WSATContextListener*.java"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.java"/>
+							    </fileset>
+							  </copy>
+				              </target>
+				            </configuration>
+				            <goals>
+				              <goal>run</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+				        <version>1.7</version>
+				      </plugin>
+		      
+		      		<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubclasses</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub</finalName>
+								</configuration>
+							</execution>
+							<execution>
+								<id>jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubsources</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub-sources</finalName>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.2</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-install-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>install-jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
+									<classifier>stub</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+							<execution>
+								<id>install-jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
+									<classifier>stub-sources</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.1</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy-jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<url>${googlecode.snapshot.url}</url>
+									<repositoryId>${googlecode.snapshot.repositoryId}</repositoryId>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
+									<classifier>stub</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<url>${googlecode.snapshot.url}</url>
+									<repositoryId>${googlecode.snapshot.repositoryId}</repositoryId>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
+									<classifier>stub-sources</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.5</version>
+					</plugin>
+					
+    			</plugins>
+    		</build>
+    	</profile>
+    	
+    	<profile>
+    		<id>deploy-stub-to-googlecode-releases</id>
+    		<properties>
+    			<googlecode.release.url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/releases</googlecode.release.url>
+    			<googlecode.release.repositoryId>googlecode-repo-releases</googlecode.release.repositoryId>
+    		</properties>
+    		<build>
+    			<plugins>
+    				<plugin>
+		            	<groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-antrun-plugin</artifactId>
+				        <executions>
+				          <execution>
+				            <phase>prepare-package</phase>
+				            <configuration>
+				              <target>
+				              	<echo message="start importing..."/>
+				              	<property name="M2_REPO" value="${user.home}/.m2/repository" />
+								<property name="WS_STUB_DIR" value="${project.build.directory}/stubsources" />
+								<property name="WS_STUB_CLASSES_DIR" value="${project.build.directory}/stubclasses" />
+								<property name="WSDL_LOCATION" value="http://localhost:8080/rill-bpm-web/BPMWebService?wsdl" />
+							
+								<path id="classpath.libs">
+									<fileset dir="${M2_REPO}/com/sun/xml/ws/jaxws-tools/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/istack/istack-commons-tools/1.1">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-xjc/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/com/sun/xml/bind/jaxb-impl/2.1.7">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${M2_REPO}/org/glassfish/metro/webservices-rt/2.1">
+										<include name="*.jar" />
+									</fileset>
+									<fileset dir="${java.home}/../lib/">
+										<include name="tools.jar" />
+									</fileset>
+								</path>
+							
+								<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport" classpathref="classpath.libs">
+								</taskdef>
+							
+									<mkdir dir="${WS_STUB_DIR}"/>
+									<mkdir dir="${WS_STUB_CLASSES_DIR}"/>
+									<wsimport 
+										wsdl="${WSDL_LOCATION}"
+										sourcedestdir="${WS_STUB_DIR}"
+										destdir="${WS_STUB_CLASSES_DIR}"
+										keep="true"
+										verbose="true"
+										package="org.rill.bpm.ws.client"
+										/>
+				              
+				              <echo message="end import operation."/>
+				              
+				              <copy todir="${WS_STUB_CLASSES_DIR}">
+							    <fileset dir="${project.build.directory}/classes">
+							      <include name="**/WSATServerPickPort*.class"/>
+							      <include name="**/lb/LoadBalance*.class"/>
+							      <include name="**/WSATContextListener*.class"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.class"/>
+							    </fileset>
+							  </copy>
+							  <copy todir="${WS_STUB_DIR}">
+							    <fileset dir="${basedir}/src/main/java">
+							      <include name="**/WSATServerPickPort*.java"/>
+							      <include name="**/lb/LoadBalance*.java"/>
+							      <include name="**/WSATContextListener*.java"/>
+							      <include name="**/EmbeddedGlassfishLifecycle*.java"/>
+							    </fileset>
+							  </copy>
+				              </target>
+				            </configuration>
+				            <goals>
+				              <goal>run</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+				        <version>1.7</version>
+				      </plugin>
+		      
+		      		<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubclasses</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub</finalName>
+								</configuration>
+							</execution>
+							<execution>
+								<id>jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<classesDirectory>${project.build.directory}/stubsources</classesDirectory>
+									<finalName>${project.artifactId}-${project.version}-stub-sources</finalName>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.2</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-install-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>install-jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
+									<classifier>stub</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+							<execution>
+								<id>install-jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>install-file</goal>
+								</goals>
+								<configuration>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
+									<classifier>stub-sources</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.3.1</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy-jar-stubclasses</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<url>${googlecode.release.url}</url>
+									<repositoryId>${googlecode.release.repositoryId}</repositoryId>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub.jar</file>
+									<classifier>stub</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-jar-stubsources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<url>${googlecode.release.url}</url>
+									<repositoryId>${googlecode.release.repositoryId}</repositoryId>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-stub-sources.jar</file>
+									<classifier>stub-sources</classifier>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<packaging>jar</packaging>
+									<version>${project.version}</version>
+								</configuration>
+							</execution>
+						</executions>
+						<version>2.5</version>
+					</plugin>
+					
+    			</plugins>
+    		</build>
+    	</profile>
+    </profiles>
+      
 </project>
