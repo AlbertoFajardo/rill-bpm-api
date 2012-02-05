@@ -20,7 +20,7 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 
 	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
-	public static final String PROCESS_DEFINITION_KEY = "Sp-ms";
+	public static final String PROCESS_DEFINITION_KEY = "Sp-ms-ws";
 	
 	private HelloService localDBHelloService;
 	

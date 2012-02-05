@@ -5,8 +5,9 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.ClassUtils;
 
+@SuppressWarnings("rawtypes")
 public class LoadBalanceProxyFactoryBean extends LoadBalanceInterceptor 
-	implements FactoryBean<Object>, InitializingBean {
+	implements FactoryBean, InitializingBean {
 
 	private Object serviceProxy;
 	
@@ -17,7 +18,7 @@ public class LoadBalanceProxyFactoryBean extends LoadBalanceInterceptor
 	}
 
 	@Override
-	public Class<?> getObjectType() {
+	public Class getObjectType() {
 		
 		return getServiceInterface();
 	}
