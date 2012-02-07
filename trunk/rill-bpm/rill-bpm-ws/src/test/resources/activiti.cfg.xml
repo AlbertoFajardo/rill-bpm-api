@@ -4,7 +4,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  	<import resource="classpath:org/rill/bpm/api/cache/applicationContext-cache.xml" />
+  	<import resource="classpath:applicationContext-cache.xml" />
 	
     <!-- Work bean below -->
     <bean id="workflowAccessor" class="org.rill.bpm.api.activiti.ActivitiTemplate">
