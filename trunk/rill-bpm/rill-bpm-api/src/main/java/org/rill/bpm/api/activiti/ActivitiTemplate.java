@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.bpmn.behavior.CallActivityBehavior;
 import org.activiti.engine.impl.bpmn.data.AbstractDataAssociation;
 import org.activiti.engine.impl.bpmn.parser.BpmnParse;
@@ -67,6 +68,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 			String processDefinitionKey, String processStarter, String businessObjectId,
 			Map<String, Object> workflowParams) {
 		
+		logger.info(processStarter + " try to create a process instance of key " + processDefinitionKey + " businessObjectId " + businessObjectId);
+		boolean haveSetAuthenticatedUser = false;
 		try {
 			// Do create process instance of work flow engine
 	        UUID taskRetrieveUUID = UUID.randomUUID();
@@ -77,6 +80,15 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	        Map<String, Object> passToEngine = XpathVarConvertTaskLifecycleInterceptor.convertAndFilter(engineRelateDatanames, workflowParams);
 	        workflowParams.putAll(passToEngine);
 	        
+	        // Record start user information at 2012-02-07.
+	        User processStarterUser = getIdentityService().createUserQuery().userId(processStarter).singleResult();
+	        if (processStarterUser == null) {
+	        	processStarterUser = getIdentityService().newUser(processStarter);
+	        	getIdentityService().saveUser(processStarterUser);
+	        }
+	        getIdentityService().setAuthenticatedUserId(processStarterUser.getId());
+	        haveSetAuthenticatedUser = true;
+	        
 	        // Do engine operation
 	        ProcessInstance response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
 	        List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
@@ -85,6 +97,11 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new ProcessException(e);
+		} finally {
+			// Record start user information at 2012-02-07.
+			if (haveSetAuthenticatedUser) {
+				getIdentityService().setAuthenticatedUserId(null);
+			}
 		}
 	}
 
