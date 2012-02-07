@@ -12,7 +12,9 @@ public class SQLTraceListenerImpl implements SQLTraceListener {
 	@Override
 	public void sqlTrace(SQLTraceRecord record) {
 		
-		LOGGER.debug(record);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(record);
+		}
 	}
 
 }
