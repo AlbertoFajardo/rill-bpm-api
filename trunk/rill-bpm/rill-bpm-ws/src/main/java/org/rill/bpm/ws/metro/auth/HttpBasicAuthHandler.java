@@ -9,9 +9,12 @@ import javax.servlet.ServletContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -26,6 +29,8 @@ import com.thoughtworks.xstream.core.util.Base64Encoder;
  */
 @HttpBasicAuth(username="${metro.auth.username}", password="${metro.auth.password}")
 public class HttpBasicAuthHandler implements MessageHandler<MessageHandlerContext> {
+	
+	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	private AtomicReference<ConfigurableBeanFactory> beanfactory = new AtomicReference<ConfigurableBeanFactory>();
 	
@@ -55,6 +60,7 @@ public class HttpBasicAuthHandler implements MessageHandler<MessageHandlerContex
 		boolean authResult = false;
 		HttpBasicAuth httpBasicAuth = retrieveHttpBasicAuth(this.getClass());
 		if (httpBasicAuth == null) {
+			logger.debug("No http basic authentication config. return true");
 			authResult = true;
 		} else {
 			String username = resolveHttpBasicAuthPlaceHolder(beanFactory, httpBasicAuth.username());
@@ -63,6 +69,9 @@ public class HttpBasicAuthHandler implements MessageHandler<MessageHandlerContex
 			String[] afterDecode = decodeAuthorization(authorization);
 			
 			authResult = afterDecode[0].equals(username) && afterDecode[1].equals(password);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Http BASIC AUTH result: configuration- username " + username + " password " + password + ", -http header decode " + ObjectUtils.getDisplayString(afterDecode));
+			}
 		}
 		
 		return authResult;
