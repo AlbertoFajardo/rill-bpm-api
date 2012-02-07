@@ -11,12 +11,16 @@ import java.util.Random;
 import javax.annotation.Resource;
 import javax.imageio.stream.FileImageOutputStream;
 
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.impl.identity.Authentication;
 import org.activiti.engine.test.Deployment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rill.bpm.PeerMethodTestHelperTaskExecutionListener;
+import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 import org.rill.bpm.api.processvar.DummyOrder;
@@ -76,6 +80,7 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 
 		String processDefinitionKey = "Pg-support_v2";
 		Integer orderId = new Random().nextInt();
+		String processStarter = "Rill Meng";
 
 		DummyOrderAudit orderAudit = new DummyOrderAudit();
 		orderAudit.setAuditAction(DummyOrderAudit.AGREE);
@@ -87,8 +92,17 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		Map<String, Object> startProcessParams = new HashMap<String, Object>();
 		startProcessParams.put("biz_mode", "0");
 		List<String> taskList = workflowAccessor.createProcessInstance(
-				processDefinitionKey, "Rill Meng", orderId.toString(), startProcessParams);
+				processDefinitionKey, processStarter, orderId.toString(), startProcessParams);
 		Assert.assertEquals(2, taskList.size());
+		
+		// Check process starter info at 2012-02-07
+		String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
+		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
+		HistoricProcessInstance hisPi = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+		Assert.assertEquals(processStarter, hisPi.getStartUserId());
+		Assert.assertEquals(null, Authentication.getAuthenticatedUserId());
+		User persistentUser = activitiAccessor.getIdentityService().createUserQuery().userId(processStarter).singleResult();
+		Assert.assertEquals(processStarter, persistentUser.getId());
 
 		// Test obtain extend attributes logic
 		String manageraudit = null;
@@ -224,7 +238,7 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		List<String> auditGiftSend = workflowAccessor.completeTaskInstance(auditSendGift, "RillMeng", auditGiftSendParams);
 		Assert.assertEquals(0, auditGiftSend.size());
 		
-		String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
+		processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
 		Assert.assertNotNull("Root process instance isn't running?", processInstanceId);
 		logger.info("process instance[" + processInstanceId + "] is running.");
 		

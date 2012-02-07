@@ -18,6 +18,10 @@ public class ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor 
         if (!StringUtils.hasText(processDefinitionKey)) {
             throw new ProcessException("processDefinitionKey must not empty.");
         }
+        // Add process starter empty check at 2012-02-07
+        if (!StringUtils.hasText(processStarter)) {
+            throw new ProcessException("processStarter must not empty.");
+        }
     }
     
     public final void preOperation(String processDefinitionKey, String processStarter, String businessObjectId, Map<String, Object> startParams) throws ProcessException {
