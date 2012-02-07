@@ -27,6 +27,7 @@ import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
@@ -50,6 +51,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.UrlResource;
+import org.springframework.remoting.RemoteLookupFailureException;
 import org.springframework.util.ObjectUtils;
 import org.xml.sax.SAXException;
 
@@ -84,12 +86,12 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
     protected BeanFactory internalBeanFactory;
 //    private ActivitiAccessor activitiAccessor;
         
-    public boolean importFrom(String url, String namespace) {
+    public boolean importFrom(String url, String namespace, String portQName, String username, String password) {
     	
-    	return this.importFrom(url);
+    	return this.importFrom(url, portQName, username, password);
     }
     
-    public boolean importFrom(String url) {
+    public boolean importFrom(String url, String portQName, String username, String password) {
     	
     	if (StringUtils.isEmpty(url)) {
     		logger.warn("Ignore empty wsdl url when import web service.");
@@ -104,7 +106,7 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
             URL sourceURL = source.getSystemId() == null ? null : new URL(source.getSystemId());
             WSDLModelImpl model = parseWSDL(sourceURL, source);
             for (Entry<QName, WSDLServiceImpl> entry : model.getServices().entrySet()) {
-                WSService wsService = this.importService(entry.getValue(), url);
+                WSService wsService = this.importService(entry.getValue(), url, portQName, username, password);
                 this.wsServices.put(entry.getKey(), wsService);
             }
             
@@ -154,11 +156,14 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
         }
     }
 
-    private WSService importService(WSDLServiceImpl service, String wsdlLocation) {
+    private WSService importService(WSDLServiceImpl service, String wsdlLocation, String portQName, String username, String password) {
         
         DynamicJaxwsClient dynamicJaxwsClient = new DynamicJaxwsClient();
         WSService wsService = new WSService(service.getName().toString(), wsdlLocation, dynamicJaxwsClient);
         dynamicJaxwsClient.setTarget(wsService);
+        dynamicJaxwsClient.setUsername(username);
+        dynamicJaxwsClient.setPassword(password);
+        dynamicJaxwsClient.setPortQName(portQName);
         
         for (WSDLPortImpl port : service.getPorts()) {
             for (WSDLBoundOperationImpl operation : port.getBinding().getBindingOperations()) {
@@ -177,8 +182,35 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
     	protected final Log logger = LogFactory.getLog(getClass().getName());
     	
     	private WSService target;
+    	private String username;
+    	private String password;
+    	private String portQName;
     	private AtomicReference<Dispatch<SOAPMessage>> dynamicJaxwsClient = new AtomicReference<Dispatch<SOAPMessage>>();
 		
+		public final String getPortQName() {
+			return portQName;
+		}
+
+		public final void setPortQName(String portQName) {
+			this.portQName = portQName;
+		}
+
+		public final String getUsername() {
+			return username;
+		}
+
+		public final void setUsername(String username) {
+			this.username = username;
+		}
+
+		public final String getPassword() {
+			return password;
+		}
+
+		public final void setPassword(String password) {
+			this.password = password;
+		}
+
 		public final WSService getTarget() {
 			return target;
 		}
@@ -191,11 +223,27 @@ public class WSImportToolImporterImpl implements BeanFactoryAware, InitializingB
 			
 			QName serviceQName = QName.valueOf(this.getTarget().getName());
 			Service serviceStub = Service.create(new URL(this.target.getLocation()), serviceQName);
-			// FIXME: MENGRAN. Unsafe code.
-			QName portName = serviceStub.getPorts().next();
+			
+			QName portName = QName.valueOf(getPortQName());
 //			serviceStub.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, null);
 			
 			Dispatch<SOAPMessage> forReturn = serviceStub.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
+			Map<String, Object> stubProperties = new HashMap<String, Object>();
+			String username = getUsername();
+			if (username != null) {
+				stubProperties.put(BindingProvider.USERNAME_PROPERTY, username);
+			}
+			String password = getPassword();
+			if (password != null) {
+				stubProperties.put(BindingProvider.PASSWORD_PROPERTY, password);
+			}
+			if (!stubProperties.isEmpty()) {
+				if (!(forReturn instanceof BindingProvider)) {
+					throw new RemoteLookupFailureException("Port stub of class [" + forReturn.getClass().getName() +
+							"] is not a customizable JAX-WS stub: it does not implement interface [javax.xml.ws.BindingProvider]");
+				}
+				((BindingProvider) forReturn).getRequestContext().putAll(stubProperties);
+			}
 			
 			return forReturn;
 		}

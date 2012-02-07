@@ -19,6 +19,7 @@ import org.rill.bpm.ws.metro.MetroWSActivityBehavior;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -139,12 +140,15 @@ public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAwa
 			
 			WSProcessEngineConfiguration configuration = internalBeanFactory.getBean(WSProcessEngineConfiguration.class);
 			List<FieldDeclaration> fieldDeclarations = configuration.getBpmnParser().createParse().parseFieldDeclarations(serviceTaskElement);
-			String location = null, operationQName = null, xsdIndex = null;
+			String location = null, operationQName = null, xsdIndex = null, username=null, password=null, portQName=null;
 			for (FieldDeclaration fd : fieldDeclarations) {
 				String fieldValue = fd.getType().equals(Expression.class.getName()) ? 
 						((FixedValue) fd.getValue()).getExpressionText() : fd.getValue().toString();
 				if (fd.getName().equals("location")) {
 					location = fieldValue;
+				}
+				if (fd.getName().equals("portQName")) {
+					portQName = fieldValue;
 				}
 				if (fd.getName().equals("operationQName")) {
 					operationQName = fieldValue;
@@ -152,10 +156,21 @@ public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAwa
 				if (fd.getName().equals("xsdIndex")) {
 					xsdIndex = fieldValue;
 				}
+				// Add HTTP BASIC AUTH support
+				if (fd.getName().equals("username")) {
+					username = fieldValue;
+				}
+				if (fd.getName().equals("password")) {
+					password = fieldValue;
+				}
 			}
+			// Add null check at 2012-02-07
+			Assert.notNull(location, METRO_WEB_SERVICE + " must configure field: location");
+			Assert.notNull(portQName, METRO_WEB_SERVICE + " must configure field: portQName");
+			Assert.notNull(operationQName, METRO_WEB_SERVICE + " must configure field: operationQName");
 			
 			try {
-				configuration.getWsXmlImporter().importFrom(location, null);
+				configuration.getWsXmlImporter().importFrom(location, null, portQName, username, password);
 				configuration.getWsXmlImporter().importSchema(location, xsdIndex);
 			} catch (Exception e) {
 				StringBuilder sb = new StringBuilder();

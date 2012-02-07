@@ -30,7 +30,7 @@ public class SpmsTests extends AbstractJUnit4SpringContextTests {
 		Assert.assertEquals(1, taskIds.size());
 		
 		try {
-			Thread.sleep(60000);
+			Thread.sleep(11120000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

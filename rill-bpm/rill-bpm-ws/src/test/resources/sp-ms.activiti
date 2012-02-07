@@ -450,7 +450,7 @@
   </bpmn2:SequenceFlow>
   <bpmn2:EndEvent id="endevent2" name="End" incoming="flow21"/>
   <bpmn2:SequenceFlow id="flow21" name="" sourceRef="exclusivegateway3" targetRef="endevent2"/>
-  <bpmn2:ServiceTask id="servicetask1" name="Service Task" incoming="flow28" outgoing="flow29" implementation="MetroWebService" implementationType="expressionType" fieldExtensions="/22 /23 /24" resultVariableName=""/>
+  <bpmn2:ServiceTask id="servicetask1" name="Service Task" incoming="flow28" outgoing="flow29" implementation="MetroWebService" implementationType="expressionType" fieldExtensions="/22 /23 /24 /30 /31 /32" resultVariableName=""/>
   <bpmn2:FieldExtension fieldname="operationQName" expression="{http://activiti.api.ws.bpm.rill.org/}getLastedVersionProcessDefinitionVariableNames"/>
   <bpmn2:FieldExtension fieldname="location" expression="http://localhost:8080/rill-bpm-web/BPMWebService?wsdl"/>
   <bpmn2:FieldExtension fieldname="xsdIndex" expression="2"/>
@@ -465,4 +465,7 @@
   <bpmn2:EndEvent id="endevent3" name="End" incoming="flow29"/>
   <bpmn2:SequenceFlow id="flow29" name="" sourceRef="servicetask1" targetRef="endevent3"/>
   <bpmn2:SequenceFlow id="flow30" name="" sourceRef="startevent1" targetRef="managerAudit"/>
+  <bpmn2:FieldExtension fieldname="portQName" expression="{http://activiti.api.ws.bpm.rill.org/}RemoteActivitiTemplatePort"/>
+  <bpmn2:FieldExtension fieldname="username" expression="rill-bpm-web"/>
+  <bpmn2:FieldExtension fieldname="password" expression="web-bpm-rill"/>
 </xmi:XMI>

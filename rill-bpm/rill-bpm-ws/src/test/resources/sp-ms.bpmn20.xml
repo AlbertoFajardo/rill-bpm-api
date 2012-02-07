@@ -47,10 +47,19 @@
           <activiti:string>{http://activiti.api.ws.bpm.rill.org/}getLastedVersionProcessDefinitionVariableNames</activiti:string>
         </activiti:field>
         <activiti:field name="location">
-          <activiti:string>http://localhost:7070/rill-bpm-web/BPMWebService?wsdl</activiti:string>
+          <activiti:string>http://localhost:8080/rill-bpm-web/BPMWebService?wsdl</activiti:string>
         </activiti:field>
         <activiti:field name="xsdIndex">
           <activiti:string>2</activiti:string>
+        </activiti:field>
+        <activiti:field name="portQName">
+          <activiti:string>{http://activiti.api.ws.bpm.rill.org/}RemoteActivitiTemplatePort</activiti:string>
+        </activiti:field>
+        <activiti:field name="username">
+          <activiti:string>rill-bpm-web</activiti:string>
+        </activiti:field>
+        <activiti:field name="password">
+          <activiti:string>web-bpm-rill</activiti:string>
         </activiti:field>
       </extensionElements>
     </serviceTask>
