@@ -40,33 +40,33 @@
 
 package com.sun.xml.ws.tx.at.tube;
 
-import com.sun.istack.logging.Logger;
-import com.sun.xml.ws.tx.at.internal.WSATGatewayRM;
-import com.sun.xml.ws.tx.at.localization.LocalizationMessages;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.xml.ws.api.message.Header;
-import com.sun.xml.ws.api.message.Headers;
-import com.sun.xml.ws.tx.at.WSATConstants;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import com.sun.xml.ws.tx.at.WSATHelper;
-
-import com.sun.xml.ws.tx.at.common.TransactionImportManager;
-import com.sun.xml.ws.tx.at.common.TransactionManagerImpl;
-import com.sun.xml.ws.tx.at.internal.XidImpl;
-import com.sun.xml.ws.tx.at.runtime.TransactionIdHelper;
-import com.sun.xml.ws.tx.coord.common.WSATCoordinationContextBuilder;
-import com.sun.xml.ws.tx.coord.common.WSCBuilderFactory;
-import com.sun.xml.ws.tx.coord.common.types.CoordinationContextIF;
 
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.Xid;
+
+import com.sun.istack.logging.Logger;
+import com.sun.xml.ws.api.message.Header;
+import com.sun.xml.ws.api.message.Headers;
+import com.sun.xml.ws.tx.at.WSATConstants;
+import com.sun.xml.ws.tx.at.WSATHelper;
+import com.sun.xml.ws.tx.at.common.TransactionImportManager;
+import com.sun.xml.ws.tx.at.common.TransactionManagerImpl;
+import com.sun.xml.ws.tx.at.internal.WSATGatewayRM;
+import com.sun.xml.ws.tx.at.internal.XidImpl;
+import com.sun.xml.ws.tx.at.localization.LocalizationMessages;
+import com.sun.xml.ws.tx.at.runtime.TransactionIdHelper;
+import com.sun.xml.ws.tx.coord.common.WSATCoordinationContextBuilder;
+import com.sun.xml.ws.tx.coord.common.WSCBuilderFactory;
+import com.sun.xml.ws.tx.coord.common.types.CoordinationContextIF;
 
 
 public class WSATClientHelper implements WSATClient {
@@ -169,6 +169,43 @@ public class WSATClientHelper implements WSATClient {
 
        }
    }
+   
+	static long ethernetAddress = 0L;
+	static {
+		try {
+			Enumeration<NetworkInterface> en = NetworkInterface
+					.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface nint = en.nextElement();
+				if (!nint.isLoopback()) {
+					byte[] data = nint.getHardwareAddress();
+					if (data != null && data.length == 6) {
+						if (data.length != 6) {
+				            throw new NumberFormatException("Ethernet address has to consist of 6 bytes");
+				        }
+				        long l = data[0] & 0xFF;
+				        for (int i = 1; i < 6; ++i) {
+				            l = (l << 8) | (data[i] & 0xFF); 
+				        }
+				        ethernetAddress = l;
+						break;
+					}
+				}
+			}
+		} catch (java.net.SocketException e) {
+			// fine, let's take is as signal of not having any interfaces
+		}
+
+		LOGGER.info("Retrieve ethernet address asLong: " + ethernetAddress);
+	}
+   
+   private byte[] globalTransactionId() {
+	   
+	   // Add by MENGRAN for cluster-wide
+	   byte[] originalBytes = new String(ethernetAddress + "-" + System.currentTimeMillis() + "-" + counter.incrementAndGet()).getBytes();
+	   return originalBytes;
+	   
+   }
 
     /**
      * Process ClientRequestInfo received for this outgoing request.
@@ -192,7 +229,7 @@ public class WSATClientHelper implements WSATClient {
         byte[] activityId = WSATHelper.assignUUID().getBytes();
         LOGGER.info("WS-AT activityId:" + activityId);
         // Modified by MENGRAN at 2011-12-22 for change counter++ to AtomicInteger.incrementAndGet()
-        Xid xid = new XidImpl(1234, new String(System.currentTimeMillis() + "-" + counter.incrementAndGet()).getBytes(), new byte[]{});
+        Xid xid = new XidImpl(1234, globalTransactionId(), new byte[]{});
         txId = TransactionIdHelper.getInstance().xid2wsatid(xid);
         long ttl = 0;
         try {
