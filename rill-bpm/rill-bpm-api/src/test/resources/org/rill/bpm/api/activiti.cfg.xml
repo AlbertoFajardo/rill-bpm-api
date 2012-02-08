@@ -34,6 +34,9 @@
 		<property name="mailServerHost" value="localhost" />
 		<property name="mailServerPort" value="5025" />
 		<property name="jobExecutorActivate" value="false" />
+		<property name="idGenerator">
+			<bean class="org.activiti.engine.impl.persistence.StrongUuidGenerator" />	
+		</property>
 		<!-- Rill extension -->
 		<property name="postParseListeners">
 			<bean class="org.rill.bpm.api.activiti.RetrieveNextTasksHelper">

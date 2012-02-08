@@ -20,6 +20,10 @@
         <property name="mailServerHost" value="localhost" />
         <property name="mailServerPort" value="5025" />
         <property name="jobExecutorActivate" value="true" />
+        <!-- ACT-789 -->
+        <property name="idGenerator">
+			<bean class="org.activiti.engine.impl.persistence.StrongUuidGenerator" />	
+		</property>
         <!-- Rill extension -->
 		<property name="postParseListeners">
 			<list>

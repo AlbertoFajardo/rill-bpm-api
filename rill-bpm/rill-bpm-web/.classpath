@@ -90,7 +90,7 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar">
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.5.6/commons-pool-1.5.6.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -116,27 +116,32 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/h2database/h2/1.2.132/h2-1.2.132.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-core/5.1.0.CR4/infinispan-core-5.1.0.CR4.jar">
+  <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-core/5.1.1.FINAL/infinispan-core-5.1.1.FINAL.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-spring/5.1.0.CR4/infinispan-spring-5.1.0.CR4.jar">
+  <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-spring/5.1.1.FINAL/infinispan-spring-5.1.1.FINAL.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging/3.1.0.CR1/jboss-logging-3.1.0.CR1.jar">
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/uuid/java-uuid-generator/3.1.3/java-uuid-generator-3.1.3.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/marshalling/jboss-marshalling/1.3.4.GA/jboss-marshalling-1.3.4.GA.jar">
+  <classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging/3.1.0.CR2/jboss-logging-3.1.0.CR2.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/marshalling/jboss-marshalling-river/1.3.4.GA/jboss-marshalling-river-1.3.4.GA.jar">
+  <classpathentry kind="var" path="M2_REPO/org/jboss/marshalling/jboss-marshalling/1.3.6.GA/jboss-marshalling-1.3.6.GA.jar">
+    <attributes>
+      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/marshalling/jboss-marshalling-river/1.3.6.GA/jboss-marshalling-river-1.3.6.GA.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -146,7 +151,7 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/jgroups/jgroups/3.0.2.Final/jgroups-3.0.2.Final.jar">
+  <classpathentry kind="var" path="M2_REPO/org/jgroups/jgroups/3.0.4.Final/jgroups-3.0.4.Final.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -187,7 +192,6 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/rill/rill-bpm-api/1.0.0/rill-bpm-api-1.0.0-tests.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/rill/rill-bpm-embeddedgf/3.1/rill-bpm-embeddedgf-3.1.jar" sourcepath="M2_REPO/org/rill/rill-bpm-embeddedgf/3.1/rill-bpm-embeddedgf-3.1-sources.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>

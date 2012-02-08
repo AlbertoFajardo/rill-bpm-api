@@ -81,8 +81,8 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 						hasTaskInfo = 0;
 						$(val).each(function(index, ti) {
 							var s = new Date(ti.startTime).format("Y-m-d h:i:s");
-							var e = new Date(ti.endTime).format("Y-m-d h:i:s");
-							taskInfo = taskInfo + ti.name + " Start Time:" + s + " End Time:" + e;
+							var e = ti.endTime === null ? "" : new Date(ti.endTime).format("Y-m-d h:i:s");
+							taskInfo = taskInfo + "任务名称:" + ti.name + "<br /> 开始时间:" + s + "<br /> 结束时间:" + e;
 							hasTaskInfo = 1;
 						});
 						// alert(taskInfo);
