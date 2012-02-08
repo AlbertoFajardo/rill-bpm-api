@@ -145,7 +145,7 @@ public class ProcessManagerConsoleController {
 					peerProcessDef[3] = processDefList.get(i).getVersion() + "";
 					// Deploy Time
 					Deployment deployment = commandContext.getDeploymentManager().findDeploymentById(processDefList.get(i).getDeploymentId());
-					peerProcessDef[4] = DateFormatUtils.format(deployment.getDeploymentTime(), "yyyy-MM-dd hh:m:ss");
+					peerProcessDef[4] = DateFormatUtils.format(deployment.getDeploymentTime(), "yyyy-MM-dd HH:mm:ss");
 					// Command
 					// FIXME Only latest process definition
 					ProcessDefinitionEntity latestProcessDefinition = commandContext.getProcessDefinitionManager().findLatestProcessDefinitionByKey(processDefList.get(i).getKey());
@@ -225,10 +225,10 @@ public class ProcessManagerConsoleController {
 					// Start user
 					peerProcessDef[3] = processInstanceList.get(i).getStartUserId();
 					// Start time
-					peerProcessDef[4] = DateFormatUtils.format(processInstanceList.get(i).getStartTime(), "yyyy-MM-dd hh:m:ss");
+					peerProcessDef[4] = DateFormatUtils.format(processInstanceList.get(i).getStartTime(), "yyyy-MM-dd HH:mm:ss");
 					// End time
 					peerProcessDef[5] = processInstanceList.get(i).getEndTime() == null ? ""
-							: DateFormatUtils.format(processInstanceList.get(i).getEndTime(), "yyyy-MM-dd hh:m:ss");
+							: DateFormatUtils.format(processInstanceList.get(i).getEndTime(), "yyyy-MM-dd HH:mm:ss");
 					element.put("cell", peerProcessDef);
 					processInstanceMap.add(element);
 				}
