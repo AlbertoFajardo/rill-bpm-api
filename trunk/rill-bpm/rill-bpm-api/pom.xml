@@ -15,7 +15,7 @@
     </parent>
     
     <properties>
-        <infinispan.version>5.1.0.CR4</infinispan.version>
+        <infinispan.version>5.1.1.FINAL</infinispan.version>
     </properties>
 
     <dependencies>
