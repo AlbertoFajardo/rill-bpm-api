@@ -6,6 +6,30 @@
 
 	<import resource="classpath:org/rill/bpm/api/cache/applicationContext-cache.xml" />
 	
+	<!-- transaction advise -->
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="*">PROPAGATION_REQUIRED,timeout_-1</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="beanNames">
+			<list>
+				<value>workflowAccessor</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+	
     <!-- Work bean below -->
     <bean id="workflowAccessor" class="org.rill.bpm.api.activiti.ActivitiTemplate">
         <!-- open comment when you want to integrate with spring.
