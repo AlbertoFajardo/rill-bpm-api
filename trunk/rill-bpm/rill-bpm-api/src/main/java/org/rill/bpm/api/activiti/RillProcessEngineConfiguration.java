@@ -1,5 +1,8 @@
 package org.rill.bpm.api.activiti;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,18 +13,27 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.activiti.engine.impl.db.DbSqlSession;
 import org.activiti.engine.impl.db.DbSqlSessionFactory;
+import org.activiti.engine.impl.db.IbatisVariableTypeHandler;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContextInterceptor;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.interceptor.CommandInterceptor;
 import org.activiti.engine.impl.interceptor.LogInterceptor;
 import org.activiti.engine.impl.interceptor.SessionFactory;
+import org.activiti.engine.impl.util.IoUtil;
+import org.activiti.engine.impl.util.ReflectUtil;
+import org.activiti.engine.impl.variable.VariableType;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.activiti.spring.SpringTransactionInterceptor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.type.JdbcType;
 import org.rill.bpm.api.ThreadLocalResourceHolder;
 import org.springframework.aop.SpringProxy;
 import org.springframework.aop.framework.ProxyFactory;
@@ -326,6 +338,38 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
 		
 	}
 
+	@SuppressWarnings("deprecation")
+	@Override
+	protected void initSqlSessionFactory() {
 
+		if (sqlSessionFactory == null) {
+			InputStream inputStream = null;
+			try {
+				inputStream = ReflectUtil
+						.getResourceAsStream("org/rill/bpm/db/mapping/mappings.xml");
+
+				// update the jdbc parameters to the configured ones...
+				Environment environment = new Environment("default",
+						transactionFactory, dataSource);
+				Reader reader = new InputStreamReader(inputStream);
+				XMLConfigBuilder parser = new XMLConfigBuilder(reader);
+				Configuration configuration = parser.getConfiguration();
+				configuration.setEnvironment(environment);
+				configuration.getTypeHandlerRegistry().register(
+						VariableType.class, JdbcType.VARCHAR,
+						new IbatisVariableTypeHandler());
+				configuration = parser.parse();
+
+				sqlSessionFactory = new DefaultSqlSessionFactory(configuration);
+
+			} catch (Exception e) {
+				throw new ActivitiException(
+						"Error while building ibatis SqlSessionFactory: "
+								+ e.getMessage(), e);
+			} finally {
+				IoUtil.closeSilently(inputStream);
+			}
+		}
+	}
 	
 }
