@@ -31,6 +31,8 @@ Released   : 20091102
 <script type="text/javascript" src="#springUrl("")/js/jqgrid/i18n/grid.locale-en.js"></script>
 <script type="text/javascript" src="#springUrl("")/js/jqgrid/jquery.jqGrid.min.js"></script>
 
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
 <script type="text/javascript">
 
 // Document ready
@@ -176,6 +178,28 @@ function afterDeploy(deploymentId, message) {
 	});
 }
 
+
+google.load("visualization", "1", {packages:["corechart"]});
+google.setOnLoadCallback(drawChart);
+function drawChart() {
+	// alert("Hello Google Chart.");
+	threeDaysUrl = '#springUrl("")/web/statistics/process/3days?randomAjax=' + Math.random();
+	jQuery.getJSON(threeDaysUrl, function(jsonData){
+		var data = new google.visualization.DataTable();
+	    data.addColumn('string', 'Day');
+	    data.addColumn('number', 'Running');
+	    data.addColumn('number', 'Stopped');
+	    data.addRows(jsonData[0]);
+	
+	    var options = {
+	      width: 220, title: '启动/完成流程数'
+	    };
+	
+	    var chart = new google.visualization.LineChart(document.getElementById('3daysProcessStartAndEnd'));
+	    chart.draw(data, options); 
+	});
+}
+      
 </script>
 
 </head>
@@ -241,20 +265,13 @@ function afterDeploy(deploymentId, message) {
 		<div id="sidebar">
 			<ul>
 				<li>
-					<h2>流程管理</h2>
-					<p>这里集成了常用的流程相关的交互功能。</p>
+					<h2>流程运行情况</h2>
+					<p>流程运行情况图表。<br />Powered by Google Chart。</p>
 				</li>
 				<li>
-					<h2>流程部署 </h2>
+					<h2>3日内 </h2>
 					<ul>
-						<li><a href="#">Nec metus sed donec</a></li>
-						<li><a href="#">Magna lacus bibendum mauris</a></li>
-						<li><a href="#">Velit semper nisi molestie</a></li>
-						<li><a href="#">Eget tempor eget nonummy</a></li>
-						<li><a href="#">Nec metus sed donec</a></li>
-						<li><a href="#">Velit semper nisi molestie</a></li>
-						<li><a href="#">Eget tempor eget nonummy</a></li>
-						<li><a href="#">Nec metus sed donec</a></li>
+						<div id="3daysProcessStartAndEnd"></div>
 					</ul>
 				</li>
 				<li>

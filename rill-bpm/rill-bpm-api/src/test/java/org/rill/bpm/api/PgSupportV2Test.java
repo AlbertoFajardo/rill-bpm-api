@@ -2,6 +2,7 @@ package org.rill.bpm.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ import javax.imageio.stream.FileImageOutputStream;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.identity.Authentication;
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.test.Deployment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -279,6 +282,21 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 				.getTaskInstanceInformations(afterGoBack.get(0));
 		Assert.assertEquals("completefinanceinfo", extendAttributes.get(WorkflowOperations.TaskInformations.TASK_TAG.name()));
 		
+		
+		// -------------------------------- Test extend mappings
+		activitiAccessor.runExtraCommand(new Command<Void>() {
+
+			@Override
+			public Void execute(CommandContext commandContext) {
+				Date[] startAndEndDate = org.rill.utils.DateUtils.getDayStartAndEndDate(new Date());
+				Map<String, Object> parameterMap = new HashMap<String, Object>();
+				parameterMap.put("timeBegin", startAndEndDate[0]);
+				parameterMap.put("timeEnd", startAndEndDate[1]);
+				Object runningResult = commandContext.getDbSqlSession().selectOne("selectDayRunningRootHistoricProcessInstanceCnt", parameterMap);
+				Assert.assertEquals(1L, runningResult);
+				return null;
+			}
+		});
 		// -------------------------------- Retrieve chart informations
 		Map<String, ChartInfo> allChartInfos = getProcessMonitorChartInfoHelper().getMonitorChartInfo(processInstanceId);
 //		Assert.assertEquals(5, allChartInfos.size());
