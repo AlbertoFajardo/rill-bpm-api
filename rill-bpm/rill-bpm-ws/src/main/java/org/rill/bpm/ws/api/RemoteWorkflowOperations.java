@@ -245,6 +245,14 @@ public interface RemoteWorkflowOperations {
      */
     RemoteWorkflowResponse completeTaskInstance(CompleteTaskInstanceDto completeTaskInstanceDto) throws ProcessException;
     
+    /**
+     * Batch complete task instance API
+     * @param completeTaskInstanceDtos DTO for task completion.
+     * @return process result
+     * @throws ProcessException Exception occurred when task completion.
+     */
+    RemoteWorkflowResponse[] batchCompleteTaskInstance(CompleteTaskInstanceDto[] completeTaskInstanceDtos) throws ProcessException;
+    
     // ------------------------- Query API -----------------------------------//
     
     /**

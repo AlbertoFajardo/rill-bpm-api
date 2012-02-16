@@ -568,7 +568,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         return response.getEngineTaskInstanceIds();
     }
 
-    public final Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, Object>> batchDTO, String operator) throws ProcessException {
+    // Remote final by MENGRAN.
+    public Map<String, List<String>> batchCompleteTaskIntances(Map<String, Map<String, Object>> batchDTO, String operator) throws ProcessException {
 
         Assert.notEmpty(batchDTO);
         Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
