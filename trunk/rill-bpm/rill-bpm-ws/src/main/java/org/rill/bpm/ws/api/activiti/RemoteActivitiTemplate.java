@@ -270,4 +270,24 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 				
 	}
 
+	@Override
+	@Transactional(version = Version.WSAT10)
+	public RemoteWorkflowResponse[] batchCompleteTaskInstance(
+			CompleteTaskInstanceDto[] completeTaskInstanceDtos)
+			throws ProcessException {
+		
+		if (completeTaskInstanceDtos == null || completeTaskInstanceDtos.length == 0) {
+			return null;
+		}
+		
+		List<RemoteWorkflowResponse> batchResult = new ArrayList<RemoteWorkflowOperations.RemoteWorkflowResponse>();
+		// Delegate this operation
+		for (CompleteTaskInstanceDto dto : completeTaskInstanceDtos) {
+			RemoteWorkflowResponse response = this.completeTaskInstance(dto);
+			batchResult.add(response);
+		}
+		
+		return batchResult.toArray(new RemoteWorkflowResponse[batchResult.size()]);
+	}
+
 }
