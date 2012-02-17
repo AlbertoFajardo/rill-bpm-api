@@ -1,3 +1,4 @@
+#labels Phase-Deploy
 #Use as a BPM server.
 
 = Software & Version =
