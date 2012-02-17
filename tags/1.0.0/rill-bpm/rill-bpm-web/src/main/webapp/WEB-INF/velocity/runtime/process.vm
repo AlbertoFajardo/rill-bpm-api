@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Bpmn Diagram</title>
+<style type="text/css">
+	body{ font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;}
+</style>
+<link type="text/css" href="../../../css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+
+<script type="text/javascript" src="../../../js/rill.js"></script>
+<script type="text/javascript" src="../../../js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="../../../js/jquery-ui-1.8.16.custom.min.js"></script>
+
+<script type="text/javascript">
+
+// Document ready
+$(document).ready(function() {
+	// alert("Hello jQuery");
+	
+	$("#dialog").hide();
+	
+	// Add onclick event to map area
+	$("area[name^='$!{processInstanceId}_']").each(function(index, areaElement) {
+		$(areaElement).click(function() {
+			var eid = $(this).attr("id").substring('$!{processInstanceId}_'.length);
+			handleMapAreaClick('$!{processInstanceId}', eid, $(this).attr("activityType"));
+		});
+	});	
+	
+});
+
+function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
+	
+	$("#genLink").remove();
+	$("#taskInfo").remove();
+	
+	if (type === 'callActivity') {
+		var caUrl = processInstanceId + "/callActivity/" + taskDefinitionKey + "?randomAjax=" + Math.random();
+		//alert(caUrl);
+		jQuery.getJSON(caUrl, function(data){
+			jQuery.each(data, function(key, val){
+				if (key === "callActivityPList") {
+					if (jQuery.isArray(val) && val.length == 1) {
+						// Single callActivity process
+						document.location.href = val[0].id;
+					} else if (jQuery.isArray(val) && val.length > 1) {
+						// Multiple callActivity processes
+						var genLink = "<div id='genLink'>";
+						$(val).each(function(index, pi) {
+							var d = new Date(pi.startTime).format("Y-m-d h:i:s");
+							genLink = genLink + "<a href='" + pi.id + "'>" + d + "</a><br />"
+						});
+						// alert(genLink);
+						genLink = genLink + "</div>";
+						$(genLink).appendTo($("#dialog"));
+						
+						$( "#dialog" ).dialog({
+							height: 140,
+							width:400,
+							modal: true
+						});
+						// document.location.href = val[0].id;
+					}
+				}
+			});
+		});
+		return;
+	}
+	
+	if (type === 'userTask') {
+		// alert(type + " ignore!!!")
+		var caUrl = processInstanceId + "/diagram/" + taskDefinitionKey + "?randomAjax=" + Math.random();
+		//alert(caUrl);
+		jQuery.getJSON(caUrl, function(data){
+			jQuery.each(data, function(key, val){
+				if (key === "historicTaskList") {
+					if (jQuery.isArray(val)) {
+						// Multiple task instance
+						var taskInfo = "<div id='taskInfo'>";
+						hasTaskInfo = 0;
+						$(val).each(function(index, ti) {
+							var s = new Date(ti.startTime).format("Y-m-d h:i:s");
+							var e = ti.endTime === null ? "" : new Date(ti.endTime).format("Y-m-d h:i:s");
+							taskInfo = taskInfo + "任务名称:" + ti.name + "<br /> 开始时间:" + s + "<br /> 结束时间:" + e;
+							hasTaskInfo = 1;
+						});
+						// alert(taskInfo);
+						if (hasTaskInfo === 0) {
+							taskInfo = taskInfo + "No execution information";
+						}
+						taskInfo = taskInfo + "</div>";
+						$(taskInfo).appendTo($("#dialog"));
+						$( "#dialog" ).dialog({
+							height: 140,
+							width:400,
+							modal: true
+						});
+					}
+				}
+			});
+		});
+		return;
+	}
+}
+
+</script>
+</head>
+<body>
+    <img src="$!{processInstanceId}/diagram" border="0" usemap="#bpmnDiagram$!{processInstanceId}" />
+
+    <map name="bpmnDiagram$!{processInstanceId}" id="bpmnDiagram$!{processInstanceId}">
+        #foreach($tdpEntry in $taskDefinitionPositionMap.entrySet())
+            <area id="$!{processInstanceId}_$!{tdpEntry.key}" name="$!{processInstanceId}_$!{tdpEntry.key}" shape="rect" 
+            activityType='$!taskDefinitionTypeMap.get("$!{tdpEntry.key}")' href="javascript:void(0)"
+            coords="$!{tdpEntry.value.get(0)},$!{tdpEntry.value.get(1)},$!{tdpEntry.value.get(2)},$!{tdpEntry.value.get(3)}" />
+		#end
+    </map>
+    
+    <div id="dialog" title=""></div>
+</body>
+</html>

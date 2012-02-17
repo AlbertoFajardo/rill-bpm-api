@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd" default-autowire="byName">
+
+	<import resource="classpath:org/rill/bpm/api/cache/applicationContext-cache.xml" />
+	
+	<!-- transaction advise -->
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="*">PROPAGATION_REQUIRED,timeout_-1</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="beanNames">
+			<list>
+				<value>workflowAccessor</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+	
+    <!-- Work bean below -->
+    <bean id="workflowAccessor" class="org.rill.bpm.api.activiti.ActivitiTemplate">
+        <!-- open comment when you want to integrate with spring.
+        <property name="processEngine" ref="processEngine" />
+         -->
+        <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+        <property name="commonTaskLifecycleInterceptor">
+            <list>
+                <bean class="org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor" />
+            </list>
+        </property>
+   </bean>
+
+   <bean id="rillWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
+   <bean id="processMonitorChartInfoHelper" class="org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
+
+   <!-- Test bean below -->
+   <bean id="dummyTLI" class="org.rill.bpm.api.extendattr.DummyTaskLifecycleInterceptor" />
+   <bean id="dummySchemaOperationListener"
+		class="org.rill.bpm.api.RillProcessEngineConfigurationTest.DummySchemaOperationListener">
+	</bean>
+
+</beans>

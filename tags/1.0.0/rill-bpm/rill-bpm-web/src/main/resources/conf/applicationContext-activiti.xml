@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+    
+    <!-- ##Activiti5 configuration## start  -->
+    <bean id="processEngineConfiguration" class="org.rill.bpm.ws.activiti.WSProcessEngineConfiguration">
+        <property name="dataSource" ref="dataSource" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="databaseSchemaUpdate" value="true" />
+        <property name="mailServerHost" value="localhost" />
+        <property name="mailServerPort" value="5025" />
+        <property name="jobExecutorActivate" value="true" />
+        <!-- ACT-789
+        <property name="idGenerator">
+			<bean class="org.activiti.engine.impl.persistence.StrongUuidGenerator" />	
+		</property>
+		 -->
+        <!-- Rill extension -->
+		<property name="postParseListeners">
+			<list>
+				<bean class="org.rill.bpm.api.activiti.RetrieveNextTasksHelper">
+				</bean>
+				<bean class="org.rill.bpm.ws.activiti.MetroBpmnParseListener">
+				</bean>
+			</list>
+		</property>
+		<property name="wsXmlImporter">
+			<bean class="org.rill.bpm.ws.metro.WSImportToolImporterImpl"></bean>
+		</property>
+    </bean>
+    <!-- ##Activiti5 configuration## end  -->
+  
+</beans>

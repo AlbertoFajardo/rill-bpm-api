@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.rill</groupId>
+    <artifactId>rill-bpm</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>rill - bpm</name>
+  
+    <modules>
+        <module>rill-bpm-api</module>
+	    <module>rill-bpm-ws</module>
+  </modules>
+    <properties>
+        <spring.framework.version>3.1.0.RELEASE</spring.framework.version>
+        <activiti.engine.version>5.7</activiti.engine.version>
+    </properties>
+
+    <dependencies>
+        <!-- compile/runtime -->
+        <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
+            <version>${activiti.engine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>draw2d</artifactId>
+            <version>3.2.100-v20070529</version>
+        </dependency>
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.18</version>
+        </dependency>
+        
+        <!-- test -->
+        <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.8.1</version>
+        <scope>test</scope>
+      </dependency>
+        
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.2.132</version>
+            <scope>test</scope>
+      </dependency>
+    </dependencies>
+
+    <repositories>
+    	<repository>
+            <id>spring-milestone</id>
+            <name>spring milestone</name>
+            <url>http://maven.springframework.org/milestone/</url>
+        </repository>
+        <repository>
+            <id>spring-release</id>
+            <name>spring release</name>
+            <url>http://maven.springframework.org/release/</url>
+        </repository>
+        <!-- 
+        <repository>
+            <id>spring-extensions-milestone</id>
+            <name>Spring Extensions Milestone Repository</name>
+            <url>http://extensions.springframework.org/milestone</url>
+        </repository>
+         -->
+         
+        <repository>
+            <id>activiti</id>
+            <name>Activiti</name>
+            <url>http://maven.alfresco.com/nexus/content/repositories/activiti/</url>
+        </repository>
+        <repository>
+            <id>activiti-third-party</id>
+            <name>Activiti third party</name>
+            <url>http://maven.alfresco.com/nexus/content/repositories/activiti-thirdparty/</url>
+        </repository>
+        <!-- 
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://maven.vaadin.com/vaadin-addons</url>
+        </repository>
+         -->
+        <repository>
+            <id>jboss</id>
+            <name>JBoss Repository</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public</url>
+        </repository>
+        
+        <repository>
+            <id>maven-restlet</id>  
+            <name>Public online Restlet repository</name>  
+            <url>http://maven.restlet.org</url>  
+        </repository>
+        
+        <repository>  
+	        <id>googlecode-repo-releases</id>  
+	        <name>googlecode Maven Repository Releases</name>  
+	        <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/releases</url>  
+	    </repository>
+    </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2.java.net</id>
+            <name>Java.net Repository for Maven 2</name>
+            <url>http://download.java.net/maven/2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>sonatype-snapshot-repo</id>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://repository.sonatype.org/content/repositories/apache-snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <optimize>true</optimize>
+                    <encoding>UTF8</encoding>
+                </configuration>
+                <version>2.3.2</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*TestCase.java</exclude>
+                        <exclude>**/*Tests.java</exclude>
+                    </excludes>
+                </configuration>
+                <version>2.11</version>
+            </plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-deploy-plugin</artifactId>
+	            <version>2.5</version>
+	            <dependencies>
+	                <dependency>
+	                    <groupId>com.google.code.maven-svn-wagon</groupId>
+	                    <artifactId>maven-svn-wagon</artifactId>
+	                    <version>1.4</version>
+	                </dependency>
+            </dependencies>
+            </plugin>
+        </plugins>
+        <extensions>
+        	<extension>
+        		<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>1.0-beta-7</version>
+        	</extension>
+        	<extension>
+                <groupId>com.google.code.maven-svn-wagon</groupId>
+                <artifactId>maven-svn-wagon</artifactId>
+                <version>1.4</version>
+            </extension>
+        </extensions>
+    </build>
+    
+    <url>http://code.google.com/p/rill-bpm-api/</url>
+    <licenses>
+        <license>
+            <name>Apache v2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
+  
+    <developers>
+        <developer>
+            <name>Rill Meng</name>
+            <organization>Baidu</organization>
+            <url>http://www.baidu.com</url>
+        </developer>
+    </developers>
+    
+    <distributionManagement>
+    	<repository>  
+	        <id>googlecode-repo-releases</id>  
+	        <name>googlecode Maven Repository Releases</name>  
+	        <url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/releases</url>  
+	        <uniqueVersion>false</uniqueVersion>  
+	    </repository>
+	    <snapshotRepository>  
+	        <id>googlecode-repo-snapshots</id>  
+	        <name>googlecode Maven Repository Snapshots</name>  
+	        <url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/snapshots</url>  
+	        <uniqueVersion>false</uniqueVersion>  
+	    </snapshotRepository>
+    </distributionManagement>
+  
+</project>
