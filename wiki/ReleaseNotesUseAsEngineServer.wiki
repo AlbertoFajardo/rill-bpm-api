@@ -52,7 +52,8 @@ metro.auth.password=web-bpm-rill
 
 = Cluster =
   * *Client*: Provide load balance invoking feature in rill-bpm-ws stub.jar, and it's strategy is transaction-binding.
-  * *Server*: Add {{{-Djgroups.tcpping.initial_hosts=server1 ip[port1],server2 ip[port2]}}} to JVM(catalina.sh/bat) start command-line.
+  * *Server*: Add {{{-Djgroups.tcpping.initial_hosts=server1.ip[port1],server2.ip[port2] -Djgroups.bind_addr=serverN.ip}}} to JVM(catalina.sh/bat) start command-line.
+  * *Server* configure jgroups.bing_addr only if jgroups.tcpping.initial_hosts is not *localhost*
 
 = Congratulations =
 Just enjoy it.
