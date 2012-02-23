@@ -63,6 +63,13 @@ public class HelloController {
 		getHelloService().sayHello(new Integer(new Random().nextInt()).toString());
 		
 	}
+	// For apache AB batch
+	@RequestMapping(value={"/new_ab_batch"}, method=RequestMethod.GET)
+	public void _sayHelloBatch(HttpServletRequest request, HttpServletResponse response) {
+		
+		getHelloService().batchSayHello(new String[] {new Integer(new Random().nextInt()).toString(), new Integer(new Random().nextInt()).toString()});
+	}
+	
 	// For apache AB roll back
 	@RequestMapping(value={"/new_ab_rollback"}, method=RequestMethod.GET)
 	public void _sayHelloRollback(HttpServletRequest request, HttpServletResponse response) {

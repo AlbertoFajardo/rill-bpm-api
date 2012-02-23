@@ -114,6 +114,8 @@ public class ProcessManagerConsoleController {
 		final boolean sord = "asc".equals(request.getParameter("sord")) ? true : false;
 		final ProcessDefinitionQueryProperty pdqp = ProcessDefinitionQueryProperty.findByName(request.getParameter("sidx")) == null ? 
 				ProcessDefinitionQueryProperty.PROCESS_DEFINITION_KEY : ProcessDefinitionQueryProperty.findByName(request.getParameter("sidx"));
+		// FIXME: MENGRAN. Need wrap a search operations
+		final String searchKey = "true".equals(request.getParameter("_search")) ? request.getParameter("PD.KEY_") : null;
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 
 			@Override
@@ -125,8 +127,12 @@ public class ProcessManagerConsoleController {
 				} else {
 					pdq.desc();
 				}
+				// Search operation 
+				if (searchKey != null) {
+					pdq.processDefinitionKey(searchKey);
+				}
 				List<ProcessDefinition> processDefList = pdq.listPage((page - 1) * rows, rows);
-				long totalCnt = new ProcessDefinitionQueryImpl(commandContext).count();
+				long totalCnt = pdq.count();
 				
 				List<Map<String, Object>> processDefMap = new ArrayList<Map<String,Object>>(processDefList.size());
 				for (int i = 0; i < processDefList.size(); i++) {
@@ -188,6 +194,8 @@ public class ProcessManagerConsoleController {
 		final boolean sord = "asc".equals(request.getParameter("sord")) ? true : false;
 		final HistoricProcessInstanceQueryProperty hpiqp = HistoricProcessInstanceQueryProperty.findByName(request.getParameter("sidx")) == null ? 
 				HistoricProcessInstanceQueryProperty.PROCESS_INSTANCE_ID_ : HistoricProcessInstanceQueryProperty.findByName(request.getParameter("sidx"));
+		// FIXME: MENGRAN. Need wrap a search operations
+		final String searchKey = "true".equals(request.getParameter("_search")) ? request.getParameter("BUSINESS_KEY_") : null;
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 
 			@Override
@@ -207,8 +215,12 @@ public class ProcessManagerConsoleController {
 				if (!"-1".equals(processDefinitionId)) {
 					 hpiq.processDefinitionId(processDefinitionId);
 				}
+				// Search operation 
+				if (searchKey != null) {
+					hpiq.processInstanceBusinessKey(searchKey);
+				}
 				List<HistoricProcessInstance> processInstanceList = hpiq.listPage((page - 1) * rows, rows);
-				long totalCnt = new HistoricProcessInstanceQueryImpl(commandContext).processDefinitionId(processDefinitionId).count();
+				long totalCnt = hpiq.count();
 				
 				List<Map<String, Object>> processInstanceMap = new ArrayList<Map<String,Object>>(processInstanceList.size());
 				for (int i = 0; i < processInstanceList.size(); i++) {

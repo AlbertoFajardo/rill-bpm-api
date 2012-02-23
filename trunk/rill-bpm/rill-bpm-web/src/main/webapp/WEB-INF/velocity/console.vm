@@ -58,12 +58,12 @@ $(document).ready(function() {
 		mtype : 'GET',
 		colNames:['流程定义ID','运行中', '已结束', '版本','最新上传时间', '动作'],
 		colModel :[ 
-	      {name:'procDefKey', index:'PD.KEY_', width:120}, 
-	      {name:'procDefRunning', index:'procDefRunning', width:20, sortable: false},
-	      {name:'procDefEnd', index:'procDefEnd', width:20, sortable: false}, 
-	      {name:'procDefVersion', index:'procDefVersion', width:20, sortable: false}, 
-	      {name:'procDefLastedTime', index:'procDefLastedTime', width:60, align:'center', sortable: false},
-	      {name:'procDefAction', index:'procDefAction', width:15, align:'center', sortable: false}
+	      {name:'procDefKey', index:'PD.KEY_', width:120, search:true}, 
+	      {name:'procDefRunning', index:'procDefRunning', width:20, sortable: false, search:false},
+	      {name:'procDefEnd', index:'procDefEnd', width:20, sortable: false, search:false}, 
+	      {name:'procDefVersion', index:'procDefVersion', width:20, sortable: false, search:false}, 
+	      {name:'procDefLastedTime', index:'procDefLastedTime', width:60, align:'center', sortable: false, search:false},
+	      {name:'procDefAction', index:'procDefAction', width:15, align:'center', sortable: false, search:false}
 	    ],
 	    jsonReader : {
 	    	repeatitems: true,
@@ -107,8 +107,15 @@ $(document).ready(function() {
 		pager: '#jqGridPager',
 		height: 'auto',
 	    rowNum:10,
-	    rowList:[10]
-    });
+	    rowList:[10],
+	    emptyrecords: "Nothing to display"
+    }).navGrid('#jqGridPager',{view:false, del:false, add:false, edit:false, search:false}, 
+		{}, // use default settings for edit
+		{}, // use default settings for add
+		{},  // delete instead that del:false we need this
+		{}, // enable the advanced searching
+		{closeOnEscape:true} /* allow the view dialog to be closed when user press ESC key*/
+		).filterToolbar();
     
     // Process instance
 	$('#pijqGrid').jqGrid({ 
@@ -117,12 +124,12 @@ $(document).ready(function() {
 		mtype : 'GET',
 		colNames:['ID','业务对象KEY', '流程定义KEY', '启动人', '启动时间', '结束时间'],
 		colModel :[ 
-	      {name:'procInstanceId', index:'PROC_INST_ID_', width:20, sortable: true}, 
-	      {name:'businessKey', index:'BUSINESS_KEY_', width:50, sortable: true},
-	      {name:'procDefKey', index:'procDefKey', width:100, sortable: false}, 
-	      {name:'startUser', index:'startUser', width:20, align:'left', sortable: false},
-	      {name:'startTime', index:'START_TIME_', width:60, align:'center', sortable: true}, 
-	      {name:'endTime', index:'END_TIME_', width:60, align:'center', sortable: true}
+	      {name:'procInstanceId', index:'PROC_INST_ID_', width:20, sortable: true,search:false}, 
+	      {name:'businessKey', index:'BUSINESS_KEY_', width:50, sortable: true,search:true},
+	      {name:'procDefKey', index:'procDefKey', width:100, sortable: false,search:false}, 
+	      {name:'startUser', index:'startUser', width:20, align:'left', sortable: false,search:false},
+	      {name:'startTime', index:'START_TIME_', width:60, align:'center', sortable: true,search:false}, 
+	      {name:'endTime', index:'END_TIME_', width:60, align:'center', sortable: true,search:false}
 	    ],
 	    jsonReader : {
 	    	repeatitems: true,
@@ -153,8 +160,15 @@ $(document).ready(function() {
 		pager: '#pijqGridPager',
 		height: 'auto',
 	    rowNum:10,
-	    rowList:[10]
-    });
+	    rowList:[10],
+	    emptyrecords: "Nothing to display"
+    }).navGrid('#pijqGridPager',{view:false, del:false, add:false, edit:false, search:false}, 
+		{}, // use default settings for edit
+		{}, // use default settings for add
+		{},  // delete instead that del:false we need this
+		{}, // enable the advanced searching
+		{closeOnEscape:true} /* allow the view dialog to be closed when user press ESC key*/
+		).filterToolbar();
 	
 });
 
@@ -214,7 +228,7 @@ function drawChart() {
 		<div id="menu">
 			<ul>
 				<li><a href="#springUrl("")" class="first">主页</a></li>
-				<li class="current_page_item"><a href="javascript:void(0);">流程管理</a></li>
+				<li class="current_page_item"><a href="#springUrl("")/web/console/">流程管理</a></li>
 				<li><a href="#">流程分析</a></li>
 				<li><a href="#">关于</a></li>
 			</ul>

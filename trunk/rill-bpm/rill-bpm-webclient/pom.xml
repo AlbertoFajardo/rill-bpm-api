@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-api</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.infinispan</groupId>
@@ -80,7 +80,7 @@
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-ws</artifactId>
 			<classifier>stub</classifier>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		
 		<!-- Embedded GF -->
@@ -139,4 +139,5 @@
 		    <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/snapshots</url>
 	   </repository>
 	</repositories>
+	<version>1.0.1</version>
 </project>

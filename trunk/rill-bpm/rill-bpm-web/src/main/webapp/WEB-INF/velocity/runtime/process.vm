@@ -48,7 +48,7 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 						// Multiple callActivity processes
 						var genLink = "<div id='genLink'>";
 						$(val).each(function(index, pi) {
-							var d = new Date(pi.startTime).format("Y-m-d h:i:s");
+							var d = new Date(pi.startTime).toCST().format("Y-m-d h:i:s A");
 							genLink = genLink + "<a href='" + pi.id + "'>" + d + "</a><br />"
 						});
 						// alert(genLink);
@@ -80,9 +80,9 @@ function handleMapAreaClick(processInstanceId, taskDefinitionKey, type) {
 						var taskInfo = "<div id='taskInfo'>";
 						hasTaskInfo = 0;
 						$(val).each(function(index, ti) {
-							var s = new Date(ti.startTime).format("Y-m-d h:i:s");
-							var e = ti.endTime === null ? "" : new Date(ti.endTime).format("Y-m-d h:i:s");
-							taskInfo = taskInfo + "任务名称:" + ti.name + "<br /> 开始时间:" + s + "<br /> 结束时间:" + e;
+							var s = new Date(ti.startTime).toCST().format("Y-m-d h:i:s A");
+							var e = ti.endTime === null ? "" : new Date(ti.endTime).toCST().format("Y-m-d h:i:s A");
+							taskInfo = taskInfo + "任务ID:" + ti.id + "<br /> 任务名称:" + ti.name + "<br /> 开始时间:" + s + "<br /> 结束时间:" + e + "<br /> 操作人:" + (ti.assignee === null ? "" : ti.assignee);
 							hasTaskInfo = 1;
 						});
 						// alert(taskInfo);
