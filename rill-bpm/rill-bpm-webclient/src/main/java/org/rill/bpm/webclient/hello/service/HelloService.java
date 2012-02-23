@@ -6,5 +6,7 @@ public interface HelloService {
 
 	void sayHello(String name);
 	
+	void batchSayHello(String[] names);
+	
 	List<String> whoSaid();
 }

@@ -73,12 +73,12 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-api</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-ws</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		
 		<!-- Embedded GF -->
@@ -152,4 +152,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<version>1.0.1</version>
 </project>

@@ -1,69 +1,11 @@
-// http://jacwright.com/projects/javascript/date_format/
-// Simulates PHP's date function
-Date.prototype.format = function(format) {
-    var returnStr = '';
-    var replace = Date.replaceChars;
-    for (var i = 0; i < format.length; i++) {       var curChar = format.charAt(i);         if (i - 1 >= 0 && format.charAt(i - 1) == "\\") {
-            returnStr += curChar;
-        }
-        else if (replace[curChar]) {
-            returnStr += replace[curChar].call(this);
-        } else if (curChar != "\\"){
-            returnStr += curChar;
-        }
-    }
-    return returnStr;
-};
+// Date Format Method
+// copyright Stephen Chapman, 20th November 2007, 19 January 2011
+// http://javascript.about.com
+// permission to use this JavaScript on your web page is granted
+// provided that all of the code below in this script (including these
+// comments) is used without any alteration
 
-Date.replaceChars = {
-    shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    longMonths: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    shortDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    longDays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+Date.prototype.getMDay = function() {return (this.getDay() + 6) %7;};Date.prototype.getISOYear = function() {var thu = new Date(this.getFullYear(),this.getMonth(),this.getDate()+3-this.getMDay());return thu.getFullYear();};Date.prototype.getISOWeek = function() {var onejan = new Date(this.getISOYear(),0,1);var wk = Math.ceil((((this - onejan) / 86400000) + onejan.getMDay()+1)/7);if (onejan.getMDay() > 3) wk--;return wk;};Date.prototype.getJulian = function() {return Math.floor((this / 86400000) - (this.getTimezoneOffset()/1440) + 2440587.5);};Date.prototype.getMonthName = function() {var m = ['January','February','March','April','May','June','July','August','September','October','November','December'];return m[this.getMonth()];};Date.prototype.getMonthShort = function() {var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[this.getMonth()];};Date.prototype.getDayName = function() {var d = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];return d[this.getDay()];};Date.prototype.getDayShort = function() {var d = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];return d[this.getDay()];};Date.prototype.getOrdinal = function() {var d = this.getDate();switch(d) {case 1: case 21: case 31: return 'st'; case 2: case 22: return 'nd'; case 3: case 23: return 'rd'; default: return 'th';}};Date.prototype.getDOY = function() {var onejan = new Date(this.getFullYear(),0,1); if (onejan.getDST()) onejan.addHours(1); if (this.getDST()) onejan.addHours(-1); return Math.ceil((this - onejan + 1) / 86400000);}; Date.prototype.getWeek = function() {var onejan = new Date(this.getFullYear(),0,1); return Math.ceil((((this - onejan) / 86400000) + onejan.getDay()+1)/7);};Date.prototype.getStdTimezoneOffset = function() {var jan = new Date(this.getFullYear(), 0, 1); var jul = new Date(this.getFullYear(), 6, 1); return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());}; Date.prototype.getDST = function() {return this.getTimezoneOffset() < this.getStdTimezoneOffset();};Date.prototype.getSwatch = function() {var swatch = ((this.getUTCHours() + 1)%24) + this.getUTCMinutes()/60 +  this.getUTCSeconds()/3600; return Math.floor(swatch*1000/24);};function _daysInMonth(month,year) {var dd = new Date(year, month, 0);return dd.getDate();};Date.prototype.format = function(f) {var fmt = f.split(''); var res = ''; for (var i = 0, l = fmt.length; i < l; i++) {switch(fmt[i]) {case '^':  res += fmt[++i]; break;  case 'd': var d = this.getDate();  res += ((d<10)?'0':'')+d;  break; case 'D': res += this.getDayShort(); break; case 'j': res += this.getDate(); break; case 'l': res += this.getDayName(); break; case 'S': res += this.getOrdinal(); break; case 'w': res += this.getDay(); break; case 'z': res += this.getDOY() - 1; break;  case 'R': var dy = this.getDOY(); if (dy<9) dy = '0'+dy; res += (dy > 99)? dy : '0'+dy; break; case 'F': res += this.getMonthName(); break; case 'm': var m = this.getMonth()+1; res += ((m<10)?'0':'')+m;  break; case 'M': res += this.getMonthShort(); break; case 'n': res += (this.getMonth()+1); break; case 't': res += _daysInMonth(this.getMonth()+1, this.getFullYear()); break; case 'L': res += (_daysInMonth(2, this.getFullYear()) == 29)? 1:0; break; case 'Y': res += this.getFullYear(); break; case 'y': var y = this.getFullYear().toString().substr(3); res += ((y<10)?'0':'')+y; break; case 'a': res += (this.getHours()>11)?'pm':'am'; break; case 'A': res += (this.getHours()>11)?'PM':'AM'; break; case 'g': var h = this.getHours()%12; res += (h==0)?12:h; break; case 'G': res += this.getHours(); break; case 'h': var h = this.getHours()%12; res += (h==0)?12:(h>9)?h:'0'+h; break; case 'H': var h = this.getHours(); res += (h>9)?h:'0'+h; break; case 'i': var m = this.getMinutes(); res += (m>9)?m:'0'+m; break; case 's': var s = this.getSeconds(); res += (s>9)?s:'0'+s; break; case 'O': var m = this.getTimezoneOffset(); var s = (m<0)?'+':'-'; m = Math.abs(m); var h = Math.floor(m/60); m = m%60; res += s + ((h>9)?h:'0'+h) + ((m>9)?m:'0'+m); break; case 'P': var m = this.getTimezoneOffset(); var s = (m<0)?'+':'-'; m = Math.abs(m); var h = Math.floor(m/60); m = m%60; res += s + ((h>9)?h:'0'+h) + ':' + ((m>9)?m:'0'+m); break; case 'U': res += Math.floor(this.getTime()/1000); break; case 'I': res += this.getDST() ? 1:0; break; case 'K': res += this.getDST() ? 'DST':'Std'; break; case 'c': res += this.format('Y-m-d^TH:i:sP'); break; case 'r': res += this.format('D, j M Y H:i:s P'); break; case 'Z': var tz = this.getTimezoneOffset() * -60; res += tz; break; case 'W': res += this.getISOWeek(); break; case 'X': res += this.getWeek(); break;  case 'x': var w = this.getWeek();res += ((w<10)?'0':'')+w; break;  case 'B': res += this.getSwatch(); break;  case 'N':  var d = this.getDay(); res += d?d:7; break; case 'u': res += this.getMilliseconds()*1000; break; case 'o':  res += this.getISOYear(); break; case 'J': res += this.getJulian(); break; case 'e': case 'T': break;  default: res += fmt[i];}}return res;}
 
-    // Day
-    d: function() { return (this.getDate() < 10 ? '0' : '') + this.getDate(); },
-    D: function() { return Date.replaceChars.shortDays[this.getDay()]; },
-    j: function() { return this.getDate(); },
-    l: function() { return Date.replaceChars.longDays[this.getDay()]; },
-    N: function() { return this.getDay() + 1; },
-    S: function() { return (this.getDate() % 10 == 1 && this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 && this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 && this.getDate() != 13 ? 'rd' : 'th'))); },
-    w: function() { return this.getDay(); },
-    z: function() { var d = new Date(this.getFullYear(),0,1); return Math.ceil((this - d) / 86400000); }, // Fixed now
-    // Week
-    W: function() { var d = new Date(this.getFullYear(), 0, 1); return Math.ceil((((this - d) / 86400000) + d.getDay() + 1) / 7); }, // Fixed now
-    // Month
-    F: function() { return Date.replaceChars.longMonths[this.getMonth()]; },
-    m: function() { return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1); },
-    M: function() { return Date.replaceChars.shortMonths[this.getMonth()]; },
-    n: function() { return this.getMonth() + 1; },
-    t: function() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 0).getDate() }, // Fixed now, gets #days of date
-    // Year
-    L: function() { var year = this.getFullYear(); return (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)); },   // Fixed now
-    o: function() { var d  = new Date(this.valueOf());  d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3); return d.getFullYear();}, //Fixed now
-    Y: function() { return this.getFullYear(); },
-    y: function() { return ('' + this.getFullYear()).substr(2); },
-    // Time
-    a: function() { return this.getHours() < 12 ? 'am' : 'pm'; },
-    A: function() { return this.getHours() < 12 ? 'AM' : 'PM'; },
-    B: function() { return Math.floor((((this.getUTCHours() + 1) % 24) + this.getUTCMinutes() / 60 + this.getUTCSeconds() / 3600) * 1000 / 24); }, // Fixed now
-    g: function() { return this.getHours() % 12 || 12; },
-    G: function() { return this.getHours(); },
-    h: function() { return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + (this.getHours() % 12 || 12); },
-    H: function() { return (this.getHours() < 10 ? '0' : '') + this.getHours(); },
-    i: function() { return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes(); },
-    s: function() { return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds(); },
-    u: function() { var m = this.getMilliseconds(); return (m < 10 ? '00' : (m < 100 ?
-'0' : '')) + m; },
-    // Timezone
-    e: function() { return "Not Yet Supported"; },
-    I: function() { return "Not Yet Supported"; },
-    O: function() { return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + (Math.abs(this.getTimezoneOffset() / 60)) + '00'; },
-    P: function() { return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + (Math.abs(this.getTimezoneOffset() / 60)) + ':00'; }, // Fixed now
-    T: function() { var m = this.getMonth(); this.setMonth(0); var result = this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1'); this.setMonth(m); return result;},
-    Z: function() { return -this.getTimezoneOffset() * 60; },
-    // Full Date/Time
-    c: function() { return this.format("Y-m-d\\TH:i:sP"); }, // Fixed now
-    r: function() { return this.toString(); },
-    U: function() { return this.getTime() / 1000; }
-};
+var LOCAL_TO_CST = 1000 * (new Number(new Date().format("Z")) + 6 * 60 * 60);
+Date.prototype.toCST = function() {return new Date(this.getTime() - LOCAL_TO_CST);};

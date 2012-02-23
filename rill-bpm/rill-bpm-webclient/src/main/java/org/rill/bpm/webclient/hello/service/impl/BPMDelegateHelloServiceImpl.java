@@ -1,12 +1,16 @@
 package org.rill.bpm.webclient.hello.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.webclient.hello.service.HelloService;
+import org.rill.bpm.ws.client.CompleteTaskInstanceDto;
 import org.rill.bpm.ws.client.CreateProcessInstanceDto;
 import org.rill.bpm.ws.client.MapElements;
 import org.rill.bpm.ws.client.MapElementsArray;
@@ -21,6 +25,8 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	public static final String PROCESS_DEFINITION_KEY = "Sp-ms-ws";
+	
+	private ConcurrentHashMap<String, String> taskIdProcessIdMap = new ConcurrentHashMap<String, String>();
 	
 	private HelloService localDBHelloService;
 	
@@ -83,6 +89,9 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 		
 		// Finally do local logic
 		getLocalDBHelloService().sayHello(name + " " + response.getEngineProcessInstanceId());
+		
+		// Put into map.
+		taskIdProcessIdMap.put(response.getEngineTaskInstanceIds().get(0), response.getRootEngineProcessInstanceId());
 	}
 
 	@Override
@@ -90,6 +99,35 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 
 		// Finally do local logic
 		return getLocalDBHelloService().whoSaid();
+	}
+
+	@Override
+	public void batchSayHello(String[] names) {
+		
+		Assert.notEmpty(names);
+		
+		List<CompleteTaskInstanceDto> list = new ArrayList<CompleteTaskInstanceDto>(names.length);
+		for (String name : names) {
+			Entry<String, String> entry = taskIdProcessIdMap.entrySet().iterator().next();
+			CompleteTaskInstanceDto dto = new CompleteTaskInstanceDto();
+			dto.setEngineTaskInstanceId(entry.getKey());
+			dto.setOperator("batchSayHello");
+			MapElementsArray mea = new MapElementsArray();
+			MapElements me = new MapElements();
+			me.setKey("__audit_action");
+			me.setValue("1");
+			mea.getItem().add(me);
+			dto.setWorkflowParams(mea);
+			list.add(dto);
+			logger.info("Batch sayHello: " + name);
+			// Remove from map
+			taskIdProcessIdMap.remove(entry.getKey());
+		}
+		List<RemoteWorkflowResponse> response = remoteActivitiTemplate.batchCompleteTaskInstance(list);
+		for (RemoteWorkflowResponse res : response) {
+			logger.info("Batch sayHello: " + res.getBusinessObjectId());
+			logger.info("Batch sayHello: " + ObjectUtils.getDisplayString(res.getEngineTaskInstanceIds()));
+		}
 	}
 
 }

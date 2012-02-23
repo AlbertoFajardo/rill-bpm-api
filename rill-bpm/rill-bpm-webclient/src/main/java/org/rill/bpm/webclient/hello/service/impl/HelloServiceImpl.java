@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.webclient.hello.dao.HelloDao;
 import org.rill.bpm.webclient.hello.service.HelloService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 public class HelloServiceImpl implements HelloService {
 
@@ -38,6 +39,18 @@ public class HelloServiceImpl implements HelloService {
 	public List<String> whoSaid() {
 		
 		return getHelloDao().whoSaid();
+	}
+
+	@Override
+	@Transactional
+	public void batchSayHello(String[] names) {
+		
+		Assert.notEmpty(names);
+		
+		for (String name : names) {
+			logger.info("Batch say hello: " + name);
+			this.sayHello(name);
+		}
 	}
 
 }
