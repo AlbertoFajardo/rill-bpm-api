@@ -15,12 +15,17 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
+import org.glassfish.embeddable.CommandResult;
+import org.glassfish.embeddable.CommandResult.ExitStatus;
 import org.glassfish.embeddable.GlassFish;
 import org.glassfish.embeddable.GlassFish.Status;
 import org.glassfish.embeddable.GlassFishException;
 import org.glassfish.embeddable.GlassFishProperties;
 import org.glassfish.embeddable.GlassFishRuntime;
+import org.springframework.util.ResourceUtils;
 
+import com.sun.enterprise.glassfish.bootstrap.Constants;
+import com.sun.enterprise.glassfish.bootstrap.JarUtil;
 import com.sun.enterprise.util.StringUtils;
 
 /**
@@ -40,7 +45,16 @@ public class EmbeddedGlassfishLifecycle {
 	private Map<String, List<String>> initCommand;
 	private boolean transferStringTypeOnly = true;
 	private boolean keepAlive = false;
+	private boolean enableBTrace = false;
 	
+	public final boolean isEnableBTrace() {
+		return enableBTrace;
+	}
+
+	public final void setEnableBTrace(boolean enableBTrace) {
+		this.enableBTrace = enableBTrace;
+	}
+
 	public final boolean isKeepAlive() {
 		return keepAlive;
 	}
@@ -75,8 +89,13 @@ public class EmbeddedGlassfishLifecycle {
 		return properties;
 	}
 
-	public void setProperties(Properties properties) {
+	public void setProperties(Properties properties) throws Exception {
 		this.properties = properties;
+		for (Entry<Object, Object> entry : this.properties.entrySet()) {
+			if (ResourceUtils.isUrl(entry.getValue().toString())) {
+				entry.setValue(ResourceUtils.getFile(entry.getValue().toString()).toURI().toString());
+			}
+		}
 	}
 
 	public final GlassFish getGlassfish() {
@@ -184,6 +203,13 @@ public class EmbeddedGlassfishLifecycle {
 				gfProperties = new GlassFishProperties();
 			}
 			_glassfish = GlassFishRuntime.bootstrap().newGlassFish(gfProperties);
+			
+			if (isEnableBTrace()) {
+				logger.info("Extract btract-agent rar to enable monitor feature");
+				// Add by MENGRAN at 2012-02-28 for enable monitor feature
+				JarUtil.extractRar(System.getProperty(Constants.INSTALL_ROOT_PROP_NAME), "monitor");
+			}
+			
 			_glassfish.start();
 			logger.info("Started embedded GF successfully.");
 			
@@ -191,8 +217,13 @@ public class EmbeddedGlassfishLifecycle {
 			if (getInitCommand() != null && !getInitCommand().isEmpty()) {
 				for (Entry<String, List<String>> entry : getInitCommand().entrySet()) {
 					logger.info("Run pre-config command " + entry.getKey() + " " + entry.getValue());
-					_glassfish.getCommandRunner().run(entry.getKey(), 
+					CommandResult commandResult = _glassfish.getCommandRunner().run(entry.getKey(), 
 							entry.getValue().toArray(new String[entry.getValue().size()]));
+					if (commandResult.getExitStatus().equals(ExitStatus.FAILURE)) {
+						logger.log(Level.SEVERE, "Run command fail. " + commandResult.getOutput(), commandResult.getFailureCause());
+					} else {
+						logger.info("Run command successfully. " + commandResult.getOutput());
+					}
 				}
 			}
 			
