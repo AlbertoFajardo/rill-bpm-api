@@ -128,6 +128,45 @@
 							</artifactItems>
 						</configuration>
 					</execution>
+					<execution>
+						<id>unpack-management-api-sources</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.glassfish.external</groupId>
+									<artifactId>management-api-sources</artifactId>
+									<version>3.1.0-b001</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/sources</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-flashlight-sources</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.glassfish.flashlight</groupId>
+									<artifactId>flashlight-framework</artifactId>
+									<version>3.1</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<classifier>sources</classifier>
+									<outputDirectory>${project.build.directory}/sources</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -213,7 +252,7 @@
 				<executions>
 					<execution>
 						<id>deploy-jar-sources</id>
-						<phase>process-sources</phase>
+						<phase>deploy</phase>
 						<goals>
 							<goal>deploy-file</goal>
 						</goals>
