@@ -15,6 +15,9 @@
     <!-- ##Embedded GF configuration## start  -->
     <bean id="embeddedGlassfish" class="org.rill.bpm.ws.metro.EmbeddedGlassfishLifecycle" 
     	init-method="start" destroy-method="stop">
+    	<property name="enableBTrace">
+    		<value>${glassfish.enableBtrace}</value>
+    	</property>
     	<property name="properties">
     		<props>
     			<!-- Specify embedded install root DIR, 
@@ -24,6 +27,8 @@
     			<!-- Specify embedded install root DIR
     			<prop key="glassfish.embedded.tmpdir">some DIR</prop>
     			 -->
+    			<!-- Specify configuration file DIR --> 
+    			<prop key="org.glassfish.embeddable.configFileURI">classpath:domain.xml</prop>
     			<!-- Specify auto delete embedded install root DIR --> 
     			<prop key="org.glassfish.embeddable.autoDelete">false</prop>
     		</props>
@@ -70,6 +75,19 @@
     					<value>jdbc/rilldb</value>
     				</list>
     			</entry>
+    			<entry key="enable-monitoring">
+    				<list>
+    					<value>--modules</value>
+    					<value>transaction-service=HIGH</value>
+    				</list>
+    			</entry>
+    			<!-- Enable monitor service
+    			<entry key="set">
+    				<list>
+    					<value>server.monitoring-service.module-monitoring-levels.transaction-service=HIGH</value>
+    				</list>
+    			</entry>
+    			 -->
     		</map>
     	</property>
     </bean>
