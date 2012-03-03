@@ -56,7 +56,7 @@ metro.auth.password=web-bpm-rill
     # Configure jgroups.bing_addr only if jgroups.tcpping.initial_hosts is not *localhost*
 
 = Monitoring =
-  * *!!!KEEP IT AS FALSE WHEN DEBUG MODE!!!* Add {{{glassfish.enableBtrace=true}}} in your context.xml
+  * *!!!KEEP IT AS false WHEN DEBUG MODE!!!* Add {{{glassfish.enableBtrace=true}}} in your context.xml
   * Append log configurations(see below) to $CATALINA_BASE/conf/logging.properties
   {{{
 com.sun.enterprise.server.logging.GFFileHandler.file=${com.sun.aas.instanceRoot}/logs/server.log
