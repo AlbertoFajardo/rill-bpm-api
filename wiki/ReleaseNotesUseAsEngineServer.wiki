@@ -71,6 +71,7 @@ com.sun.enterprise.server.logging.SyslogHandler.useSystemLogging=false
 
 javax.enterprise.resource.sqltrace.level=FINE
 }}}
+`*`_ add {{{-Djava.util.logging.config.file="<your's $CALTALINA_BASE dict>\conf\logging.properties"}}} if you use Eclipse/WTP _
 
 = Congratulations =
 Just enjoy it.
