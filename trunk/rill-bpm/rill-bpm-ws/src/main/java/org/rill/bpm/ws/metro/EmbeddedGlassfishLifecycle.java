@@ -204,6 +204,17 @@ public class EmbeddedGlassfishLifecycle {
 			}
 			_glassfish = GlassFishRuntime.bootstrap().newGlassFish(gfProperties);
 			
+//			logger.info("Extract logging.properties for GFFileHandler");
+//			// Add by MENGRAN at 2012-02-29 for GFFileHandler
+//			File configFileDir = new File(System.getProperty(Constants.INSTALL_ROOT_PROP_NAME));
+//			for (File f : configFileDir.listFiles()) {
+//				if (f.isDirectory() && f.getName().startsWith("config")) {
+//					configFileDir = f;
+//					break;
+//				}
+//			}
+//			StaticGlassFishRuntime.copy(getClass().getClassLoader().getResource("logging.properties"), configFileDir, true);
+			
 			if (isEnableBTrace()) {
 				logger.info("Extract btract-agent rar to enable monitor feature");
 				// Add by MENGRAN at 2012-02-28 for enable monitor feature

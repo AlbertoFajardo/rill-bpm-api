@@ -33,6 +33,7 @@ import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.ws.api.RemoteWorkflowOperations;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.sun.xml.ws.api.tx.at.Transactional;
@@ -100,7 +101,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 		// Directly use create process instance API means root process
 		return new RemoteWorkflowResponse(engineProcessInstanceId,
 				createProcessInstanceDto.getBusinessObjectId(),
-				createProcessInstanceDto.getProcessDefinitionKey(), tasks, engineProcessInstanceId, false);
+				createProcessInstanceDto.getProcessDefinitionKey(), tasks, engineProcessInstanceId, (engineProcessInstanceId == null));
 	}
 
 	@Transactional(version = Version.WSAT10)
@@ -175,6 +176,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 		}
 		RuntimeService runtimeService = activitiTemplate.getRuntimeService();
 		// Do delete operation
+		logger.info("Call Activiti API to delete process instance: " + engineProcessInstanceId + " for " + ObjectUtils.getDisplayString(reason));
 		runtimeService.deleteProcessInstance(engineProcessInstanceId, reason);
 	}
 	
@@ -245,6 +247,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 		
 		try {
 			Set<String> processInstanceNames = activitiTemplate.getProcessInstanceVariableNames(engineProcessInstanceId);
+			logger.debug("Retrieve process instance variable names: " + ObjectUtils.getDisplayString(processInstanceNames));
 			return processInstanceNames == null ? null : processInstanceNames.toArray(new String[processInstanceNames.size()]); 
 		} catch (Exception e) {
 			throw new ProcessException("Maybe process" + engineProcessInstanceId + "is ended.", e);
@@ -263,6 +266,7 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 		
 		try {
 			Set<String> processInstanceNames = activitiTemplate.getLastedVersionProcessDefinitionVariableNames(processDefinitionKey);
+			logger.debug("Retrieve process definition variable names: " + ObjectUtils.getDisplayString(processInstanceNames));
 			return processInstanceNames == null ? null : processInstanceNames.toArray(new String[processInstanceNames.size()]); 
 		} catch (Exception e) {
 			throw new ProcessException("Can not get variables by process definition key " + processDefinitionKey, e);
@@ -280,12 +284,15 @@ public class RemoteActivitiTemplate implements RemoteWorkflowOperations {
 			return null;
 		}
 		
+		logger.info("Batch complete task instances start...");
+		
 		List<RemoteWorkflowResponse> batchResult = new ArrayList<RemoteWorkflowOperations.RemoteWorkflowResponse>();
 		// Delegate this operation
 		for (CompleteTaskInstanceDto dto : completeTaskInstanceDtos) {
 			RemoteWorkflowResponse response = this.completeTaskInstance(dto);
 			batchResult.add(response);
 		}
+		logger.info("Batch complete task instances end, and responses is: " + ObjectUtils.getDisplayString(batchResult));
 		
 		return batchResult.toArray(new RemoteWorkflowResponse[batchResult.size()]);
 	}
