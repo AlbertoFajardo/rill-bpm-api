@@ -81,6 +81,11 @@
     					<value>transaction-service=HIGH</value>
     				</list>
     			</entry>
+    			<entry key="set-log-levels">
+    				<list>
+    					<value>com.sun.enterprise.server.logging.GFFileHandler=INFO</value>
+    				</list>
+    			</entry>
     			<!-- Enable monitor service
     			<entry key="set">
     				<list>

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.rill</groupId>
     <artifactId>rill-bpm</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>pom</packaging>
     <name>rill - bpm</name>
   
@@ -14,6 +14,7 @@
     <properties>
         <spring.framework.version>3.1.0.RELEASE</spring.framework.version>
         <activiti.engine.version>5.7</activiti.engine.version>
+        <rill.bpm.embeddedgf.version>3.1.1</rill.bpm.embeddedgf.version>
     </properties>
 
     <dependencies>

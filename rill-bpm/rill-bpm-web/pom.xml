@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>rill-bpm</artifactId>
 		<groupId>org.rill</groupId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<packaging>war</packaging>
@@ -85,7 +85,7 @@
         <dependency>
             <artifactId>rill-bpm-embeddedgf</artifactId>
             <groupId>org.rill</groupId>
-            <version>3.1</version>
+            <version>${rill.bpm.embeddedgf.version}</version>
             <exclusions>
             	<exclusion>
             		<groupId>org.glassfish.extras</groupId>
@@ -152,5 +152,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<version>1.0.1</version>
 </project>

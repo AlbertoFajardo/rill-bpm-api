@@ -68,7 +68,6 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 			String processDefinitionKey, String processStarter, String businessObjectId,
 			Map<String, Object> workflowParams) {
 		
-		logger.info(processStarter + " try to create a process instance of key " + processDefinitionKey + " businessObjectId " + businessObjectId);
 		boolean haveSetAuthenticatedUser = false;
 		try {
 			// Do create process instance of work flow engine
@@ -90,8 +89,17 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	        haveSetAuthenticatedUser = true;
 	        
 	        // Do engine operation
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("Call activiti API for start process instance. ");
+	        sb.append(" Params: ");
+	        sb.append(ObjectUtils.getDisplayString(passToEngine));
+	        logger.info(sb.toString());
+	        long startCompleteTime = System.currentTimeMillis();
 	        ProcessInstance response = getRuntimeService().startProcessInstanceByKey(processDefinitionKey, businessObjectId, passToEngine);
+	        long endCompleteTime = System.currentTimeMillis();
+	        logger.info("Activiti response process instance: " + ObjectUtils.getDisplayString(response) + ", createTimeCost: " + (endCompleteTime - startCompleteTime) + " ms]");
 	        List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(taskRetrieveUUID.toString());
+	        logger.info("Activiti response task instances: " + ObjectUtils.getDisplayString(taskIds));
 	        
 			return new WorkflowResponse(response.getProcessInstanceId(), businessObjectId, processDefinitionKey, taskIds, obtainRootProcess(response.getProcessInstanceId(), true));
 		} catch (Exception e) {
@@ -113,7 +121,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
         for (String taskId : taskListIds) {
             taskList.add(getTaskService().createTaskQuery().taskId(taskId).singleResult());
         }
-        logger.debug("Retrieve generated-task" +  ObjectUtils.getDisplayString(taskList));
+        logger.info("Init generated-task" +  ObjectUtils.getDisplayString(taskList));
 		
         // Means process will end
         ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
@@ -385,11 +393,18 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 					        Map<String, Object> passToEngine = XpathVarConvertTaskLifecycleInterceptor.convertAndFilter(engineRelateDatanames, workflowParams);
 					        workflowParams.putAll(passToEngine);
 					        
+					        StringBuilder sb = new StringBuilder();
+					        sb.append("Call activiti API for complete task instance: ");
+					        sb.append(engineTaskInstanceId);
+					        sb.append(" Params: ");
+					        sb.append(ObjectUtils.getDisplayString(passToEngine));
+					        logger.info(sb.toString());
 					        getTaskService().claim(engineTaskInstanceId, operator);
 					        getTaskService().complete(engineTaskInstanceId, passToEngine);
 					        final List<String> taskIds = RetrieveNextTasksHelper.popTaskScope(uuid.toString());
 					        long endCompleteTime = System.currentTimeMillis();
-					        logger.info("Complete task operation done. [taskInstanceid: " + engineTaskInstanceId + ", operator: " + operator + ", timeCost: " + (endCompleteTime - startCompleteTime) + " ms]");
+					        logger.info("Complete task operation done. [taskInstanceid: " + engineTaskInstanceId + ", operator: " + operator + ", completeTimeCost: " + (endCompleteTime - startCompleteTime) + " ms]");
+					        logger.info("Generated tasks: " + ObjectUtils.getDisplayString(taskIds));
 					        
 							return new WorkflowResponse(
 									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),

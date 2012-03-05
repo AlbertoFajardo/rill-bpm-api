@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.rill.bpm.api.WorkflowTemplate.WorkflowResponse;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.util.Assert;
@@ -124,6 +125,12 @@ public interface RemoteWorkflowOperations {
 		public final RemoteWorkflowResponse setRobustReturn(boolean robustReturn) {
 			this.robustReturn = robustReturn;
 			return this;
+		}
+
+		@Override
+		public String toString() {
+			
+			return ToStringBuilder.reflectionToString(this);
 		}
 		
     }

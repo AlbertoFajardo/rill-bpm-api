@@ -11,7 +11,7 @@
         <groupId>org.rill</groupId>
         <artifactId>rill-bpm</artifactId>
         <relativePath>../</relativePath>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
     
     <properties>
@@ -38,6 +38,11 @@
         <dependency>
            <groupId>org.infinispan</groupId>
            <artifactId>infinispan-core</artifactId>
+           <version>${infinispan.version}</version>
+        </dependency>
+        <dependency>
+           <groupId>org.infinispan</groupId>
+           <artifactId>infinispan-query</artifactId>
            <version>${infinispan.version}</version>
         </dependency>
         <dependency>

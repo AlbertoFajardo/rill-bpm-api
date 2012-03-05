@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>rill-bpm</artifactId>
 		<groupId>org.rill</groupId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<packaging>war</packaging>
@@ -16,6 +16,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<infinispan.version>5.1.0.CR1</infinispan.version>
+		<rill.bpm.ws.stub.version>1.0.0</rill.bpm.ws.stub.version>
 	</properties>
 	<dependencies>
 		<!-- provided -->
@@ -80,14 +81,14 @@
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-ws</artifactId>
 			<classifier>stub</classifier>
-			<version>${project.parent.version}</version>
+			<version>${rill.bpm.ws.stub.version}</version>
 		</dependency>
 		
 		<!-- Embedded GF -->
         <dependency>
             <artifactId>rill-bpm-embeddedgf</artifactId>
             <groupId>org.rill</groupId>
-            <version>3.1</version>
+            <version>${rill.bpm.embeddedgf.version}</version>
             <exclusions>
             	<exclusion>
             		<groupId>org.glassfish.extras</groupId>
@@ -139,5 +140,4 @@
 		    <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/snapshots</url>
 	   </repository>
 	</repositories>
-	<version>1.0.1</version>
 </project>

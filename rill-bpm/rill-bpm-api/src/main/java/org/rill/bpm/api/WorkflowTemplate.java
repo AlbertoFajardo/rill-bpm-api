@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
@@ -110,6 +111,13 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 		public final void setEngineTaskInstanceIds(List<String> engineTaskInstanceIds) {
 			this.engineTaskInstanceIds = engineTaskInstanceIds;
 		}
+
+		@Override
+		public String toString() {
+			
+			return ToStringBuilder.reflectionToString(this);
+		}
+		
     }
 	
 	/** Logger available to subclasses */
@@ -255,6 +263,17 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         if (!StringUtils.hasText(businessObjectId)) {
             throw new ProcessException("Parameter[businessObjectId] is null.").setProcessInterceptorPhase(ProcessException.PROCESS_PHASE.BEFORE_CREATE);
         }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(processStarter);
+        sb.append(" try to create a process instance of ");
+        sb.append(processDefinitionKey);
+        sb.append(" with BO key:");
+        sb.append(businessObjectId);
+        sb.append(" and params: ");
+        sb.append(ObjectUtils.getDisplayString(startParams));
+        logger.info(sb.toString());
+        
         if (startParams == null) {
         	startParams = new HashMap<String, Object>();
         }
@@ -285,6 +304,11 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         WorkflowResponse response = null;
         try {
             response = doCreateProcessInstance(processDefinitionKey, processStarter, businessObjectId, startParams);
+            sb = new StringBuilder();
+            sb.append(processStarter);
+            sb.append(" created process instance response: ");
+            sb.append(ObjectUtils.getDisplayString(response));
+            logger.info(sb.toString());
 
             // Call post operation
             if (getProcessCreateInteceptor() != null && !getProcessCreateInteceptor().isEmpty()) {
@@ -349,6 +373,15 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             String operator, String reason, ProcessInstanceOperationCallBack callback) throws ProcessException {
 
         UUID uuid = obtainAccessUUID();
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(operator);
+        sb.append(" try to " + callback.operationType().name() + " a process instance of ");
+        sb.append(engineProcessInstanceId);
+        sb.append(" with reason:");
+        sb.append(ObjectUtils.getDisplayString(reason));
+        logger.info(sb.toString());
+        
         // Call previous operation
         if (getProcessOperationInteceptor() != null && !getProcessOperationInteceptor().isEmpty()) {
             for (ProcessOperationInteceptor poi : getProcessOperationInteceptor()) {
@@ -463,6 +496,14 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     	Assert.notNull(engineTaskInstanceId);
     	
+    	StringBuilder sb = new StringBuilder();
+        sb.append(operator);
+        sb.append(" try to complete a task instance of ");
+        sb.append(engineTaskInstanceId);
+        sb.append(" with params: ");
+        sb.append(ObjectUtils.getDisplayString(workflowParams));
+        logger.info(sb.toString());
+    	
         UUID uuid = obtainAccessUUID();
         try {
             // Delegate this operation
@@ -476,8 +517,6 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     protected List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
             String operator, Map<String, Object> workflowParams) throws ProcessException {
-
-        logger.info("Complete task instance. Params:" + ObjectUtils.getDisplayString(workflowParams));
             
         // Build task execution context
         Object taskExecutionContext = buildTaskExecuteContext(null, engineTaskInstanceId, operator, workflowParams);
@@ -511,6 +550,11 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         try {
         	// Do engine complete task instance
         	response = doCompleteTaskInstance(engineTaskInstanceId, operator, workflowParamsDynamic);
+        	StringBuilder sb = new StringBuilder();
+            sb.append(operator);
+            sb.append(" completed task instance response: ");
+            sb.append(ObjectUtils.getDisplayString(response));
+            logger.info(sb.toString());
             // Analyze process status, and inject into context
             injectProcessStatus(taskExecutionContext, response.getEngineTaskInstanceIds());
 
@@ -575,10 +619,16 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
 
         logger.info("Batch complete task instance. Params:" + ObjectUtils.getDisplayString(batchDTO));
-        for (Entry<String, Map<String, Object>> element : batchDTO.entrySet()) {
+        UUID uuid = obtainAccessUUID();
+        try {
+        	for (Entry<String, Map<String, Object>> element : batchDTO.entrySet()) {
 
-            // Delegate to single-task operation
-        	returnTasks.put(element.getKey(), this.handleCompleteTaskInstance(element.getKey(), operator, element.getValue()));
+                // Delegate to single-task operation
+            	returnTasks.put(element.getKey(), this.handleCompleteTaskInstance(element.getKey(), operator, element.getValue()));
+            }
+        } finally {
+            // Release resource
+            releaseThreadLocalResource(uuid);
         }
         
         return returnTasks;
@@ -587,7 +637,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     
     protected void publishProcessEndEvent(String processInstanceId, String triggerTaskInstanceId, Object triggerTaskExecutionContext, boolean hasParentProcess) {
 
-        logger.info("Process instance[" + processInstanceId + "] end. Trigger task[" + triggerTaskInstanceId + "]");
+        logger.info("Process instance[" + processInstanceId + "] end. Trigger task[" + triggerTaskInstanceId + "]. Has parent process: " + hasParentProcess);
         this.applicationEventPublisher.publishEvent(new ProcessInstanceEndEvent(processInstanceId,
                 triggerTaskInstanceId, hasParentProcess, triggerTaskExecutionContext));
     }
