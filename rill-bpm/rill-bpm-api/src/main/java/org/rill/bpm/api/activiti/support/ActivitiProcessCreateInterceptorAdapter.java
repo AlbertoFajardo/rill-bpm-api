@@ -21,8 +21,7 @@ import org.rill.bpm.api.ProcessCreateInterceptorAdapter;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.exception.ProcessException;
-import org.springframework.aop.SpringProxy;
-import org.springframework.aop.framework.Advised;
+import org.rill.bpm.api.scaleout.ScaleoutHelper;
 
 
 /**
@@ -30,31 +29,11 @@ import org.springframework.aop.framework.Advised;
  * @author mengran
  */
 public abstract class ActivitiProcessCreateInterceptorAdapter extends ProcessCreateInterceptorAdapter implements ProcessCreateInteceptor {
-    
-    private ActivitiAccessor activitiAccessor;
 
-    public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
-		if (workflowAccessor instanceof SpringProxy) {
-			Object targetSource;
-			try {
-				targetSource = ((Advised) workflowAccessor)
-						.getTargetSource().getTarget();
-				while (targetSource instanceof SpringProxy) {
-					targetSource = ((Advised) targetSource)
-							.getTargetSource().getTarget();
-				}
-			} catch (Exception e) {
-				throw new ProcessException(e);
-			}
+	protected final void doPostOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) {
 
-			activitiAccessor = ((ActivitiAccessor) (targetSource));
-		} else {
-			activitiAccessor = ((ActivitiAccessor) workflowAccessor);
-		}
-	}
-
-    protected final void doPostOperation(String processDefinitionKey, String engineProcessInstanceId, String businessObjectId, String processStarter) {
-
+		WorkflowOperations impl = ScaleoutHelper.determineImpl(getWorkflowCache(), getWorkflowAccessor(), ScaleoutHelper.generateScaloutKey(businessObjectId));
+		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
     	// Check context parameter
         final ProcessInstance processInstance = activitiAccessor.getRuntimeService().createProcessInstanceQuery().processInstanceId(engineProcessInstanceId).singleResult();
         if (!(processInstance instanceof ProcessInstance)) {

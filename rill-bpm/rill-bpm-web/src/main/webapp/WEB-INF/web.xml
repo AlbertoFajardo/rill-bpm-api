@@ -6,7 +6,7 @@
     <context-param>
         <description>Spring Application Context</description>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:conf/applicationContext*.xml</param-value>
+        <param-value>classpath*:conf/applicationContext-server.xml</param-value>
     </context-param>
     
     <listener>

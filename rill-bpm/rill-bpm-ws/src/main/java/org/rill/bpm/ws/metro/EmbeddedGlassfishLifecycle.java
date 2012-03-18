@@ -42,7 +42,7 @@ public class EmbeddedGlassfishLifecycle {
 	
 	private GlassFish _glassfish;
 	private Properties properties;
-	private Map<String, List<String>> initCommand;
+	private List<Map<String, List<String>>> initCommand;
 	private boolean transferStringTypeOnly = true;
 	private boolean keepAlive = false;
 	private boolean enableBTrace = false;
@@ -77,11 +77,11 @@ public class EmbeddedGlassfishLifecycle {
 		throw new UnsupportedOperationException("This version not support this property's configuration");
 	}
 
-	public final Map<String, List<String>> getInitCommand() {
+	public final List<Map<String, List<String>>> getInitCommand() {
 		return initCommand;
 	}
 
-	public final void setInitCommand(Map<String, List<String>> initCommand) {
+	public final void setInitCommand(List<Map<String, List<String>>> initCommand) {
 		this.initCommand = initCommand;
 	}
 
@@ -226,14 +226,16 @@ public class EmbeddedGlassfishLifecycle {
 			
 			// Run initialize command.
 			if (getInitCommand() != null && !getInitCommand().isEmpty()) {
-				for (Entry<String, List<String>> entry : getInitCommand().entrySet()) {
-					logger.info("Run pre-config command " + entry.getKey() + " " + entry.getValue());
-					CommandResult commandResult = _glassfish.getCommandRunner().run(entry.getKey(), 
-							entry.getValue().toArray(new String[entry.getValue().size()]));
-					if (commandResult.getExitStatus().equals(ExitStatus.FAILURE)) {
-						logger.log(Level.SEVERE, "Run command fail. " + commandResult.getOutput(), commandResult.getFailureCause());
-					} else {
-						logger.info("Run command successfully. " + commandResult.getOutput());
+				for (Map<String, List<String>> element : getInitCommand()) {
+					for (Entry<String, List<String>> entry : element.entrySet()) {
+						logger.info("Run pre-config command " + entry.getKey() + " " + entry.getValue());
+						CommandResult commandResult = _glassfish.getCommandRunner().run(entry.getKey(), 
+								entry.getValue().toArray(new String[entry.getValue().size()]));
+						if (commandResult.getExitStatus().equals(ExitStatus.FAILURE)) {
+							logger.log(Level.SEVERE, "Run command fail. " + commandResult.getOutput(), commandResult.getFailureCause());
+						} else {
+							logger.info("Run command successfully. " + commandResult.getOutput());
+						}
 					}
 				}
 			}

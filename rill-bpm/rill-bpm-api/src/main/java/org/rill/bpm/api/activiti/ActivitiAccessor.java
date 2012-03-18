@@ -12,7 +12,9 @@
  */
 package org.rill.bpm.api.activiti;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
@@ -23,14 +25,18 @@ import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.ServiceImpl;
 import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
+import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.rill.bpm.api.ProcessOperationInteceptor;
 import org.rill.bpm.api.ThreadLocalResourceHolder;
-import org.rill.bpm.api.WorkflowCache;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.WorkflowTemplate;
 import org.rill.bpm.api.exception.ProcessException;
@@ -43,6 +49,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -64,16 +71,6 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
     private ActivitiExtraService extraService;
     private ProcessEngine processEngine;
     private ProcessEngineConfiguration processEngineConfiguration;
-    
-    private WorkflowCache workflowCache;
-
-    public final WorkflowCache getCache() {
-		return workflowCache;
-	}
-
-	public final void setCache(WorkflowCache cache) {
-		this.workflowCache = cache;
-	}
 	
 	public final HistoryService getHistoryService() {
 		return historyService;
@@ -176,6 +173,11 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
 			try {
 				targetSource = ((Advised) workflowAccessor)
 						.getTargetSource().getTarget();
+				
+				if (targetSource == null && ((Advised) workflowAccessor).getAdvisors().length > 0) {
+					// Maybe load balance proxy
+					throw new UnsupportedOperationException();
+				}
 				while (targetSource instanceof SpringProxy) {
 					targetSource = ((Advised) targetSource)
 							.getTargetSource().getTarget();
@@ -207,7 +209,17 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
     	}
     }
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+	public String getName() {
+		return getProcessEngine().getName();
+	}
+
+	@Override
+	public int hashCode() {
+		return getProcessEngine().getName().hashCode();
+	}
+
+	public void afterPropertiesSet() throws Exception {
     	
     	// Do super's logic first.
     	super.afterPropertiesSet();
@@ -258,12 +270,6 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
         this.extraService = new ActivitiExtraService();
         BeanUtils.copyProperties(this.getRuntimeService(), this.extraService);
 
-        // Handle cache service
-        if (workflowCache == null) {
-        	workflowCache = getBeanFactory().getBean("workflowCache", WorkflowCache.class);
-        }
-        Assert.notNull(workflowCache, "Can not find " + WorkflowCache.class + " implementation in application context.");
-
     }
 
     private class ActivitiExtraService extends ServiceImpl {
@@ -274,27 +280,252 @@ public abstract class ActivitiAccessor extends WorkflowTemplate implements Initi
             return getCommandExecutor().execute(command);
         }
     }
+    
+	@Override
+	public HashMap<String, String> getProcessInstanceInformations(
+			final String engineProcessInstanceId) {
+		
+		try {
+            HashMap<String, String> extendAttrsMap = new HashMap<String, String>();
+            
+            // Put informations into extend attributes map
+            for (ProcessInformations key : ProcessInformations.values()) {
+            	ProcessInstance rootProcessInstance = null;
+                String rootProcessInstanceId = null;
+                try {
+                	rootProcessInstanceId = obtainRootProcess(engineProcessInstanceId, true);
+                	rootProcessInstance = (ProcessInstance) getRuntimeService().createProcessInstanceQuery().processInstanceId(rootProcessInstanceId).singleResult();
+                } catch (Exception e) {
+                    throw new ProcessException("Can't get process instance by giving ID" + engineProcessInstanceId, e);
+                }
+                if (WorkflowOperations.ProcessInformations.P_ROOT_PROCESS_INSTANCE_ID.equals(key)) {
+                	logger.debug("NOT HIT: method[getProcessRelatedInfo] cache key:" + engineProcessInstanceId + "," + key + "; value:" + rootProcessInstanceId);
+                	extendAttrsMap.put(ProcessInformations.P_ROOT_PROCESS_INSTANCE_ID.name(), rootProcessInstanceId);
+                }
+                if (WorkflowOperations.ProcessInformations.P_BUSINESS_OBJECT_ID.equals(key)) {
+                	logger.debug("NOT HIT: method[getProcessRelatedInfo] cache key:" + engineProcessInstanceId + "," + key + "; value:" + rootProcessInstance.getBusinessKey());
+                	extendAttrsMap.put(ProcessInformations.P_BUSINESS_OBJECT_ID.name(), rootProcessInstance.getBusinessKey());
+                }
+                if (WorkflowOperations.ProcessInformations.P_PROCESS_DEFINE_KEY.equals(key)) {
+                	String processDefinitionKey = runExtraCommand(new Command<String>() {
 
-    /**
-     * Obtain cache informations from cache. Cache data will fill in every node in cluster.
-     *
-     * <p>
-     *  For work fine, we first find from external cache. Fall back to original cache(JVM cache) if any exception occurred.
-     * 
-     * @param taskInstanceId task instance's ID
-     * @return cache information specify by enum given
-     */
-    protected String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo) {
+        				@Override
+        				public String execute(CommandContext commandContext) {
+        					ExecutionEntity ee = commandContext.getExecutionManager().findExecutionById(engineProcessInstanceId);
+        					ProcessDefinitionEntity pde = commandContext.getProcessDefinitionManager().findLatestProcessDefinitionById(ee.getProcessDefinitionId());
+        					return pde.getKey();
+        				}
+                		
+                    });
+                	logger.debug("NOT HIT: method[getProcessRelatedInfo] cache key:" + engineProcessInstanceId + "," + key + "; value:" + processDefinitionKey);
+                	extendAttrsMap.put(ProcessInformations.P_PROCESS_DEFINE_KEY.name(), processDefinitionKey);
+                }
+            }
+            return extendAttrsMap;
+        } catch (Exception e) {
+            throw new ProcessException("Can not obtain process[" + engineProcessInstanceId + "] extension attribute", e);
+        }
+	}
 
-        Assert.hasText(taskInstanceId, "taskInstanceId pass in must not empty");
-        Assert.notNull(cacheInfo, "taskInformations must not null");
+	/* (non-Javadoc)
+	 * @see org.rill.bpm.api.WorkflowOperations#getTaskInstanceInformations(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	public HashMap<String, String> getTaskInstanceInformations(String taskInstanceId) {
 
-        String cacheHit = null;
-        logger.debug("get Task related informations of taskInstanceId: " + taskInstanceId + ", key is " + cacheInfo);
-        cacheHit = workflowCache.getTaskRelatedInfo(taskInstanceId, cacheInfo.name());
+        try {
+            Map<String, String> extendAttrsMap = new HashMap<String, String>();
+            
+            // Put informations into extend attributes map
+            for (TaskInformations ti : TaskInformations.values()) {
+            	extendAttrsMap.put(ti.name(), getTaskRelatedInfo(taskInstanceId, ti));
+            }
+            String extendAttrs = extendAttrsMap.get(TaskInformations.EXTEND_ATTRIBUTES.name());
+            if (StringUtils.hasText(extendAttrs)) {
+	            Map<String, String> deserializeMap = XStreamSerializeHelper.deserializeObject(extendAttrs, "extendAttrs", Map.class);
+	            extendAttrsMap.putAll(deserializeMap);
+            }
+            
+            HashMap<String, String> forReturn = new HashMap<String, String>();
 
-        return cacheHit;
+            forReturn.putAll(extendAttrsMap);
+            logger.debug("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description/Extend attributes holder result:" + ObjectUtils.getDisplayString(forReturn));
+            return forReturn;
+
+        } catch (Exception e) {
+            throw new ProcessException("Can not obtain task[" + taskInstanceId + "] extension attribute", e);
+        }
+
     }
+
+	private final String getTaskRelatedInfo(String taskInstanceId, TaskInformations taskInfo) {
+		
+		TaskInformations key = taskInfo;
+		TaskEntity task = null;
+        try {
+            task = (TaskEntity) getTaskService().createTaskQuery().taskId(taskInstanceId).singleResult();
+        } catch (ActivitiException e) {
+            throw new ProcessException("Can't get task instance by giving ID" + taskInstanceId, e);
+        }
+        final TaskEntity taskEntity = task;
+        // Reason may two: one is task ID is invalid, other is task information value is null so not cache it.
+        if (taskEntity == null) {
+        	logger.info("Task[" + taskInstanceId +"] isn't exists, throw exception.");
+        	throw new ProcessException("Can't get task instance by giving ID" + taskInstanceId);
+        }
+
+        if (WorkflowOperations.TaskInformations.PROCESS_INSTANCE_ID.equals(key)) {
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getProcessInstanceId());
+        	return task.getProcessInstanceId();
+        }
+        if (WorkflowOperations.TaskInformations.TASK_TAG.equals(key)) {
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getTaskDefinitionKey());
+        	return task.getTaskDefinitionKey();
+        }
+        if (WorkflowOperations.TaskInformations.TASK_ROLE_TAG.equals(key)) {
+        	String taskRoleTag = runExtraCommand(new Command<String>() {
+
+				@Override
+				public String execute(CommandContext commandContext) {
+					TaskDefinition td = taskEntity.getTaskDefinition();
+					return td.getCandidateGroupIdExpressions().iterator().next().getExpressionText();
+				}
+        		
+            });
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + taskRoleTag);
+        	return taskRoleTag;
+        }
+        if (WorkflowOperations.TaskInformations.BUSINESS_OBJECT_ID.equals(key)) {
+        	// Adapt call activity/sub-process/two combination case
+            String rootProcessInstanceId = obtainRootProcess(task.getProcessInstanceId(), true);
+            ProcessInstance rootPi = getRuntimeService().createProcessInstanceQuery().processInstanceId(rootProcessInstanceId).singleResult();
+            Assert.notNull(rootPi.getBusinessKey(), "Business key must not be null, so this means we need upgrade this code to fix it.");
+            logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + rootPi.getBusinessKey());
+            return rootPi.getBusinessKey();
+        }
+        if (WorkflowOperations.TaskInformations.CLASSDELEGATE_ADAPTER_TLI.equals(key)) {
+        	String classDelegateTli = runExtraCommand(new Command<String>() {
+
+				@Override
+				public String execute(CommandContext commandContext) {
+					TaskDefinition td = taskEntity.getTaskDefinition();
+					if (td.getTaskListeners() != null && td.getTaskListeners().size() > 0) {
+                        for (List<TaskListener> value : td.getTaskListeners().values()) {
+                            if (value != null && !value.isEmpty()) {
+                                for (TaskListener tl : value) {
+                                    if (ExtendAttrsClassDelegateAdapter.class.isInstance(tl)) {
+                                    	// FIXME: Support single extend attributes holder temporarily
+                                    	String tlis = ((ExtendAttrsClassDelegateAdapter) tl).getExtendAttrs().get(ActivitiAccessor.TASK_LIFECYCLE_INTERCEPTOR);
+                                        return tlis == null ? "" : tlis;
+                                    }
+                                }
+                            }
+                        }
+                    }
+					// Not found
+					return "";
+				}
+        		
+            });
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + classDelegateTli);
+        	return classDelegateTli;
+        }
+        
+        if (WorkflowOperations.TaskInformations.CLASSDELEGATE_ADAPTER_TOI.equals(key)) {
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + "empty string");
+        	return "";
+        }
+        
+        if (WorkflowOperations.TaskInformations.FORM_KEY.equals(key)) {
+        	
+        	String formKey = getFormService().getTaskFormData(taskInstanceId).getFormKey();
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + formKey);
+        	return formKey == null ? "" : formKey;
+        }
+        
+        if (WorkflowOperations.TaskInformations.TASK_SERVICE_INVOKE_EXPRESSION.equals(key)) {
+        	String taskServiceInvokeExp = runExtraCommand(new Command<String>() {
+
+				@Override
+				public String execute(CommandContext commandContext) {
+					TaskDefinition td = taskEntity.getTaskDefinition();
+					if (td.getTaskListeners() != null && td.getTaskListeners().size() > 0) {
+                        for (List<TaskListener> value : td.getTaskListeners().values()) {
+                            if (value != null && !value.isEmpty()) {
+                                for (TaskListener tl : value) {
+                                    if (ExtendAttrsClassDelegateAdapter.class.isInstance(tl)) {
+                                    	// FIXME: Support single extend attributes holder temporarily
+                                    	String values = ((ExtendAttrsClassDelegateAdapter) tl).getExtendAttrs().get(ActivitiAccessor.TASK_SERVICE_INVOKE_EXPRESSION);
+                                        return values == null ? "" : values;
+                                    }
+                                }
+                            }
+                        }
+                    }
+					// Not found
+					return "";
+				}
+        		
+            });
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + taskServiceInvokeExp);
+        	return taskServiceInvokeExp;
+        }
+        
+        if (WorkflowOperations.TaskInformations.EXTEND_ATTRIBUTES.equals(key)) {
+        	String extendAttributes = runExtraCommand(new Command<String>() {
+
+				@Override
+				public String execute(CommandContext commandContext) {
+					TaskDefinition td = taskEntity.getTaskDefinition();
+					if (td.getTaskListeners() != null && td.getTaskListeners().size() > 0) {
+                        for (List<TaskListener> value : td.getTaskListeners().values()) {
+                            if (value != null && !value.isEmpty()) {
+                                for (TaskListener tl : value) {
+                                    if (ExtendAttrsClassDelegateAdapter.class.isInstance(tl)) {
+                                    	// FIXME: Support single extend attributes holder temporarily
+                                    	String values = XStreamSerializeHelper.serializeXml("extendAttrs", ((ExtendAttrsClassDelegateAdapter) tl).getExtendAttrs());
+                                        return values == null ? "" : values;
+                                    }
+                                }
+                            }
+                        }
+                    }
+					// Not found
+					return "";
+				}
+        		
+            });
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + extendAttributes);
+        	return extendAttributes;
+        }
+        
+        if (WorkflowOperations.TaskInformations.TASK_DEFINE_NAME.equals(key)) {
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + task.getName());
+        	return task.getName() == null ? "" : task.getName();
+        }
+        
+        if (WorkflowOperations.TaskInformations.ROOT_PROCESS_INSTANCE_ID.equals(key)) {
+        	String rootProcessInstanceId = obtainRootProcess(task.getProcessInstanceId(), true);
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + rootProcessInstanceId);
+        	return rootProcessInstanceId;
+        }
+        
+        if (WorkflowOperations.TaskInformations.PROCESS_DEFINE_KEY.equals(key)) {
+        	String processDefinitionKey = runExtraCommand(new Command<String>() {
+
+				@Override
+				public String execute(CommandContext commandContext) {
+					ProcessDefinitionEntity pde = commandContext.getProcessDefinitionManager().findLatestProcessDefinitionById(taskEntity.getProcessDefinitionId());
+					return pde.getKey();
+				}
+        		
+            });
+        	logger.debug("NOT HIT: method[getTaskRelatedInfo] cache key:" + taskInstanceId + "," + key + "; value:" + processDefinitionKey);
+        	return processDefinitionKey;
+        }
+        
+        throw new UnsupportedOperationException("Unsupported key: " + key);
+	}
 
     public final String obtainRootProcess(String processInstanceId, boolean includeCallActivity) {
     	

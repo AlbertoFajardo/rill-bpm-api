@@ -12,23 +12,62 @@
  */
 package org.rill.bpm.api;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.api.exception.TaskInitialException;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 public class TaskLifecycleInteceptorAdapter implements
-        TaskLifecycleInteceptor {
+        TaskLifecycleInteceptor, BeanFactoryAware {
 
     /** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass().getName());
+	
+	protected AtomicReference<WorkflowOperations> workflowAccessor = new AtomicReference<WorkflowOperations>();
+	private BeanFactory heldBeanFactory;
+	@Resource(name="workflowCache")
+	private WorkflowCache<HashMap<String, String>> workflowCache;
+	
+	public final WorkflowCache<HashMap<String, String>> getWorkflowCache() {
+		return workflowCache;
+	}
+
+	public final void setWorkflowCache(WorkflowCache<HashMap<String, String>> workflowCache) {
+		this.workflowCache = workflowCache;
+	}
+
+	public final WorkflowOperations getWorkflowAccessor() {
+		return workflowAccessor.get();
+	}
+	
+	// Use by jUnit
+	public final void setWorkflowOperations(WorkflowOperations workflowOperations) {
+		this.workflowAccessor.compareAndSet(null, workflowOperations);
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		heldBeanFactory = beanFactory;
+	}
 
     private void checkTaskExecutionContext(Object taskContext) {
 
         if (!(taskContext instanceof TaskExecutionContext)) {
             throw new TaskInitialException("Task execution context must instanceof " + TaskExecutionContext.class.getName());
+        }
+        
+        // bean factory maybe null when jUnit
+        if (workflowAccessor.get() == null) {
+        	workflowAccessor.compareAndSet(null, heldBeanFactory.getBean("workflowAccessor", WorkflowOperations.class));
         }
     }
 

@@ -28,8 +28,10 @@ import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.task.Task;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rill.bpm.api.WorkflowCache;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
+import org.rill.bpm.api.scaleout.ScaleoutHelper;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -50,6 +52,16 @@ public class ProcessMonitorChartInfoHelper {
     private WorkflowOperations workflowAccessor;
 	@Resource
     private RillWfTransitionTraceListener rillWfTransitionTraceListener;
+	@Resource(name="workflowCache")
+	private WorkflowCache<HashMap<String, String>> workflowCache;
+	
+	public final WorkflowCache<HashMap<String, String>> getWorkflowCache() {
+		return workflowCache;
+	}
+
+	public final void setWorkflowCache(WorkflowCache<HashMap<String, String>> workflowCache) {
+		this.workflowCache = workflowCache;
+	}
 	
     public final RillWfTransitionTraceListener getRillWfTransitionTraceListener() {
 		return rillWfTransitionTraceListener;
@@ -60,18 +72,13 @@ public class ProcessMonitorChartInfoHelper {
 		this.rillWfTransitionTraceListener = rillWfTransitionTraceListener;
 	}
 
-	private ActivitiAccessor activitiAccessor;
-
-    public final WorkflowOperations getWorkflowAccessor() {
+	public final WorkflowOperations getWorkflowAccessor() {
 		return workflowAccessor;
 	}
 
 	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
 		this.workflowAccessor = workflowAccessor;
-		
-		activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
 	}
-
 
 	public static class ChartInfo {
 
@@ -130,6 +137,10 @@ public class ProcessMonitorChartInfoHelper {
     	for (Entry<String, List<String[]>> entry : takedTransitions.entrySet()) {
     		
     		// Process is not exists.
+        	WorkflowOperations impl = workflowAccessor;
+        	impl = ScaleoutHelper.determineImplWithProcessInstanceId(workflowCache, impl, processInstanceId);
+        	final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
+        	
             HistoricProcessInstance processInstance = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(entry.getKey()).singleResult();
             if (processInstance == null) {
             	logger.warn("Can not get process instance by given id " + entry.getKey());

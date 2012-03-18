@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.TaskExecutionContext;
 import org.rill.bpm.api.TaskLifecycleInteceptorAdapter;
-import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.WorkflowOperations.XStreamSerializeHelper;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.util.ClassUtils;
@@ -56,15 +55,6 @@ public class XpathVarConvertTaskLifecycleInterceptor extends TaskLifecycleIntece
     private static final String ENGINE_VARIABLE_DEFINITION_PREFIX = "__";
     private static final String ENGINE_VARIABLE_DEFINITION_SPLIT = "_";
 //    private String engineVariableDefinitionSplit = ENGINE_VARIABLE_DEFINITION_SPLIT;
-    private WorkflowOperations workflowAccessor;
-
-    public WorkflowOperations getWorkflowAccessor() {
-        return workflowAccessor;
-    }
-
-    public void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
-        this.workflowAccessor = workflowAccessor;
-    }
 
 //    /**
 //     * @return the engineVariableDefinitionSplit

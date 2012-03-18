@@ -13,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-@ContextConfiguration(value="classpath:activiti.cfg.xml")
+@ContextConfiguration(value="classpath:spmstests.cfg.xml")
 @TestExecutionListeners({PeerMethodTestHelperTaskExecutionListener.class})
 public class SpmsTests extends AbstractJUnit4SpringContextTests {
 

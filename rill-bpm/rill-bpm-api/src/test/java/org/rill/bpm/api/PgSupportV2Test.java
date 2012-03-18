@@ -100,6 +100,9 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 		
 		// Check process starter info at 2012-02-07
 		String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
+		for (int i = 0; i < 2; i++) {
+			processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(orderId.toString(), null);
+		}
 		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
 		HistoricProcessInstance hisPi = activitiAccessor.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
 		Assert.assertEquals(processStarter, hisPi.getStartUserId());

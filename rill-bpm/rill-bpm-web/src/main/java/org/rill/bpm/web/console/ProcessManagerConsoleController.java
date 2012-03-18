@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.impl.HistoricProcessInstanceQueryImpl;
@@ -26,15 +28,17 @@ import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
+import org.rill.bpm.web.ScaleoutControllerSupport;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -42,28 +46,20 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/console")
-public class ProcessManagerConsoleController {
-	
-	private static final Log LOGGER = LogFactory.getLog(ProcessManagerConsoleController.class);
-	
-	@Resource
-	private WorkflowOperations workflowAccessor;
-	private ActivitiAccessor activitiAccessor;
-
-	public final WorkflowOperations getWorkflowAccessor() {
-		return workflowAccessor;
-	}
-
-	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
-		this.workflowAccessor = workflowAccessor;
-		activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(
-				workflowAccessor, ActivitiAccessor.class);
-	}
+@SessionAttributes(value=ScaleoutControllerSupport.SCALE_OUT_TARGET, types=String.class)
+public class ProcessManagerConsoleController extends ScaleoutControllerSupport {
 
 	@RequestMapping(value = { "/" }, method = RequestMethod.GET)
-	public ModelAndView console() {
-
-		return new ModelAndView("/console");
+	public ModelAndView console(@RequestParam(value="selectedScaleoutTarget", required=false) String selectedScaleoutTarget, ModelMap model) {
+		
+		if (!model.containsAttribute(ScaleoutControllerSupport.SCALE_OUT_TARGET)) {
+			model.addAttribute(SCALE_OUT_TARGET, ProcessEngines.NAME_DEFAULT);
+		}
+		if (selectedScaleoutTarget != null) {
+			model.addAttribute(SCALE_OUT_TARGET, selectedScaleoutTarget);
+		}
+		
+		return new ModelAndView("/console", "scaleoutTarget", scaleoutTarget);
 	}
 
 	@RequestMapping(value = { "/deploy" }, method = RequestMethod.POST)
@@ -77,17 +73,20 @@ public class ProcessManagerConsoleController {
 			if (deployFile.isEmpty()) {
 				throw new IllegalArgumentException("Deployed file is empty." + deployFile.getOriginalFilename());
 			}
-			DeploymentBuilder deploymentBuilder = activitiAccessor
-					.getRepositoryService().createDeployment().name(deployFile.getOriginalFilename());
-			if(deployFile.getOriginalFilename().toUpperCase().endsWith("ZIP")) {
-				deploymentBuilder.addZipInputStream(new ZipInputStream(deployFile.getInputStream()));
-			} else if (deployFile.getOriginalFilename().toUpperCase().endsWith("BPMN20\\.XML")) {
-				deploymentBuilder.addInputStream(deployFile.getOriginalFilename(), deployFile.getInputStream());
-			} else {
-				throw new IllegalArgumentException("Support zip/bpmn20.xml file only. " + deployFile.getOriginalFilename());
+			StringBuilder deploymentId = new StringBuilder();
+			for (Entry<String, ProcessEngine> entry : ProcessEngines.getProcessEngines().entrySet()) {
+				
+				DeploymentBuilder deploymentBuilder = entry.getValue()
+						.getRepositoryService().createDeployment().name(deployFile.getOriginalFilename());
+				if(deployFile.getOriginalFilename().toUpperCase().endsWith("ZIP")) {
+					deploymentBuilder.addZipInputStream(new ZipInputStream(deployFile.getInputStream()));
+				} else if (deployFile.getOriginalFilename().toUpperCase().endsWith("BPMN20\\.XML")) {
+					deploymentBuilder.addInputStream(deployFile.getOriginalFilename(), deployFile.getInputStream());
+				} else {
+					throw new IllegalArgumentException("Support zip/bpmn20.xml file only. " + deployFile.getOriginalFilename());
+				}
+				deploymentId.append(entry.getKey() + ":" + deploymentBuilder.deploy().getId());
 			}
-			String deploymentId = deploymentBuilder.deploy().getId();
-			
 			// Return and call method
 			response.getWriter().println("<script>parent." + afterDeploy + "('" + deploymentId  
 	                + "', '')</script>"); 
@@ -104,7 +103,7 @@ public class ProcessManagerConsoleController {
 	
 	@RequestMapping(value = { "/processDefList" }, method = RequestMethod.GET)
 	public void processDefList(HttpServletRequest request,
-			final HttpServletResponse response) throws Exception {
+			final HttpServletResponse response, @ModelAttribute(SCALE_OUT_TARGET) String selectedScaleoutTarget) throws Exception {
 		
 		response.setContentType("application/json;charset=UTF-8");
 		final PrintWriter out = response.getWriter();
@@ -116,6 +115,9 @@ public class ProcessManagerConsoleController {
 				ProcessDefinitionQueryProperty.PROCESS_DEFINITION_KEY : ProcessDefinitionQueryProperty.findByName(request.getParameter("sidx"));
 		// FIXME: MENGRAN. Need wrap a search operations
 		final String searchKey = "true".equals(request.getParameter("_search")) ? request.getParameter("PD.KEY_") : null;
+		
+		WorkflowOperations workflowOperations = scaleoutTarget.get(selectedScaleoutTarget);
+		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 
 			@Override
@@ -184,7 +186,7 @@ public class ProcessManagerConsoleController {
 	@RequestMapping(value = { "/processInstanceList/{running}/{processDefinitionId}" }, method = RequestMethod.GET)
 	public void processInstanceList(@PathVariable(value="running") final boolean running, 
 			@PathVariable(value="processDefinitionId") final String processDefinitionId, HttpServletRequest request,
-			final HttpServletResponse response) throws Exception {
+			final HttpServletResponse response, @ModelAttribute(SCALE_OUT_TARGET) String selectedScaleoutTarget) throws Exception {
 		
 		response.setContentType("application/json;charset=UTF-8");
 		final PrintWriter out = response.getWriter();
@@ -196,6 +198,9 @@ public class ProcessManagerConsoleController {
 				HistoricProcessInstanceQueryProperty.PROCESS_INSTANCE_ID_ : HistoricProcessInstanceQueryProperty.findByName(request.getParameter("sidx"));
 		// FIXME: MENGRAN. Need wrap a search operations
 		final String searchKey = "true".equals(request.getParameter("_search")) ? request.getParameter("BUSINESS_KEY_") : null;
+		
+		WorkflowOperations workflowOperations = scaleoutTarget.get(selectedScaleoutTarget);
+		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 
 			@Override

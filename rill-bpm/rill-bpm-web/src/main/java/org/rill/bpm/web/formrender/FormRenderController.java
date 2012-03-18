@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.form.StartFormData;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.interceptor.Command;
@@ -17,7 +17,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
+import org.rill.bpm.api.scaleout.ScaleoutHelper;
+import org.rill.bpm.web.ScaleoutControllerSupport;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,26 +32,16 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/formrender")
-public class FormRenderController {
+public class FormRenderController extends ScaleoutControllerSupport {
 
 	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
-	@Resource
-	private WorkflowOperations workflowAccessor;
-	private ActivitiAccessor activitiAccessor;
-	
-	public final WorkflowOperations getWorkflowAccessor() {
-		return workflowAccessor;
-	}
-
-	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
-		this.workflowAccessor = workflowAccessor;
-		activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
-	}
-
 	@RequestMapping(value = { "/process/{processDefinitionId}" }, method = RequestMethod.GET)
-	public ModelAndView process(@PathVariable("processDefinitionId") final String processDefinitionId) {
+	public ModelAndView process(HttpServletRequest request, final HttpServletResponse response, @PathVariable("processDefinitionId") final String processDefinitionId) {
 		
+		final String scaleoutName = request.getParameter("scaleoutName") == null ? ProcessEngines.NAME_DEFAULT : request.getParameter("scaleoutName"); 
+		WorkflowOperations workflowOperations = scaleoutTarget.get(scaleoutName);
+		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		StartFormData startFormData = activitiAccessor.runExtraCommand(new Command<StartFormData>() {
 
 			@Override
@@ -70,12 +63,16 @@ public class FormRenderController {
 	public void start(HttpServletRequest request, final HttpServletResponse response, WebRequest webRequest,
 			@PathVariable("processDefinitionId") final String processDefinitionId, 
 			@RequestParam("businessObjectId") String businessObjectId, 
-			@RequestParam("afterStart") String afterStart) throws Exception {
+			@RequestParam("afterStart") String afterStart, ModelMap model) throws Exception {
 		
 		// FIXME Cross browser issue. IE8 work OK.
 		response.setContentType("application/octet-stream; charset=UTF-8");
 		try {
 			Assert.notNull(businessObjectId, "Please passin businessObjectId using [businessObjectId].");
+			
+			final String scaleoutName = model.containsAttribute(SCALE_OUT_TARGET) ? model.get(SCALE_OUT_TARGET).toString() : ProcessEngines.NAME_DEFAULT; 
+			WorkflowOperations workflowOperations = scaleoutTarget.get(scaleoutName);
+			ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 			String processDefinitionKey = activitiAccessor.runExtraCommand(new Command<String>() {
 
 				@Override
@@ -94,8 +91,8 @@ public class FormRenderController {
 				Assert.isTrue(entry.getValue() != null && entry.getValue().length == 1, "Supported one value only at current version. " + entry);
 				startParams.put(entry.getKey(), entry.getValue()[0]);
 			}
-			workflowAccessor.createProcessInstance(processDefinitionKey, "FIXME", businessObjectId, startParams);
-			String processInstanceId = workflowAccessor.getEngineProcessInstanceIdByBOId(businessObjectId, processDefinitionKey);
+			getWorkflowAccessor().createProcessInstance(processDefinitionKey, "FIXME", businessObjectId, startParams);
+			String processInstanceId = getWorkflowAccessor().getEngineProcessInstanceIdByBOId(businessObjectId, processDefinitionKey);
 			
 			// Return and call method
 			response.getWriter().println("<script>parent." + afterStart + "('" + processInstanceId  
@@ -111,7 +108,11 @@ public class FormRenderController {
 	}
 	
 	@RequestMapping(value = { "/task/{taskInstanceId}" }, method = RequestMethod.GET)
-	public ModelAndView task(@PathVariable("taskInstanceId") final String taskInstanceId) {
+	public ModelAndView task(HttpServletRequest request, final HttpServletResponse response, @PathVariable("taskInstanceId") final String taskInstanceId) {
+		
+		WorkflowOperations impl = ScaleoutHelper.determineImplWithTaskInstanceId(getWorkflowCache(), 
+				getWorkflowAccessor(), taskInstanceId);
+		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
 		
 		TaskFormData taskFormData = activitiAccessor.runExtraCommand(new Command<TaskFormData>() {
 
@@ -129,7 +130,11 @@ public class FormRenderController {
 	}
 	
 	@RequestMapping(value = { "/task/{taskInstanceId}/complete" }, method = RequestMethod.POST)
-	public ModelAndView complete(@PathVariable("taskInstanceId") final String taskInstanceId) {
+	public ModelAndView complete(HttpServletRequest request, final HttpServletResponse response, @PathVariable("taskInstanceId") final String taskInstanceId) {
+		
+		WorkflowOperations impl = ScaleoutHelper.determineImplWithTaskInstanceId(getWorkflowCache(), 
+				getWorkflowAccessor(), taskInstanceId);
+		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
 		
 		TaskFormData taskFormData = activitiAccessor.runExtraCommand(new Command<TaskFormData>() {
 

@@ -17,26 +17,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rill.bpm.api.WorkflowCache;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.activiti.RetrieveNextTasksHelper.TransitionTakeEventListener;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
+import org.rill.bpm.api.scaleout.ScaleoutHelper;
 import org.springframework.util.CollectionUtils;
 
 
@@ -44,22 +47,38 @@ import org.springframework.util.CollectionUtils;
  * Record taked transition into [RILL_WF_TRANSITION_TAKE_TRACE] table.
  * @author mengran
  */
-public class RillWfTransitionTraceListener extends TransitionTakeEventListener implements BeanFactoryAware {
+public class RillWfTransitionTraceListener extends TransitionTakeEventListener {
 
 	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
-    private BeanFactory beanFactory;
+    private WorkflowOperations workflowAccessor;
+    @Resource(name="workflowCache")
+	private WorkflowCache<HashMap<String, String>> workflowCache;
+	
+	public final WorkflowCache<HashMap<String, String>> getWorkflowCache() {
+		return workflowCache;
+	}
 
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
+	public final void setWorkflowCache(WorkflowCache<HashMap<String, String>> workflowCache) {
+		this.workflowCache = workflowCache;
+	}
+
+	public final WorkflowOperations getWorkflowAccessor() {
+		return workflowAccessor;
+	}
+
+	public final void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
+		this.workflowAccessor = workflowAccessor;
+	}
 
     @Override
     public void onTransitionTake(DelegateExecution execution, final String processInstanceId, final TransitionImpl transition) {
     	
-    	WorkflowOperations workflowAccessor =  beanFactory.getBean("workflowAccessor", WorkflowOperations.class);
+    	WorkflowOperations impl = ScaleoutHelper.getScaleoutTarget(workflowAccessor).get(Context.getProcessEngineConfiguration().getProcessEngineName());
+    	ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
+    	
         // Do insert
-        ReflectUtil.invoke(ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class), "runExtraCommand",
+        ReflectUtil.invoke(activitiAccessor, "runExtraCommand",
                 new Object[] {new Command<Void>(){
 
             public Void execute(CommandContext commandContext) {
@@ -94,8 +113,9 @@ public class RillWfTransitionTraceListener extends TransitionTakeEventListener i
     @SuppressWarnings("unchecked")
 	public Map<String, List<String[]>> getTakedTransitions(final String processInstanceId) {
 
-    	WorkflowOperations workflowAccessor =  beanFactory.getBean("workflowAccessor", WorkflowOperations.class);
-    	final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowAccessor, ActivitiAccessor.class);
+    	WorkflowOperations impl = workflowAccessor;
+    	impl = ScaleoutHelper.determineImplWithProcessInstanceId(workflowCache, impl, processInstanceId);
+    	final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
     	
         // Do Search
         return (Map<String, List<String[]>>) ReflectUtil.invoke(activitiAccessor, "runExtraCommand",

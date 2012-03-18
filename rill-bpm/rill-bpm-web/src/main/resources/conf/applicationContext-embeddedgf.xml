@@ -34,76 +34,107 @@
     		</props>
     	</property>
     	<property name="initCommand">
-    		<map>
-    			<entry key="create-jdbc-connection-pool">
-    				<list>
-    					<value>--datasourceclassname</value>
-    					<value>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</value>
-    					<value>--restype</value>
-    					<value>javax.sql.XADataSource</value>
-    					<value>--steadypoolsize</value>
-    					<value>${jdbc.minPoolSize}</value>
-    					<value>--maxpoolsize</value>
-    					<value>${jdbc.maxPoolSize}</value>
-    					<value>--idletimeout</value>
-    					<value>${jdbc.maxIdleTime}</value>
-    					<!-- re-connect when DB restarted. -->
-    					<value>--isconnectvalidatereq</value>
-    					<value>true</value>
-    					<value>--validationmethod</value>
-    					<value>custom-validation</value>
-    					<value>--validationclassname</value>
-    					<value>org.glassfish.api.jdbc.validation.MySQLConnectionValidation</value>
-    					
-    					<value>--sqltracelisteners</value>
-    					<value>org.rill.bpm.web.sqltrace.SQLTraceListenerImpl</value>
-    					<value>--property</value>
-    					<value>User=${jdbc.username}:Password=${jdbc.password}:${jdbcpool.property}</value>
-    					<value>rilldb_pool</value>
-    				</list>
-    			</entry>
-    			<!-- 
-    			<entry key="ping-connection-pool">
-    				<list>
-    					<value>rilldb_pool</value>
-    				</list>
-    			</entry>
-    			 -->
-    			<entry key="create-jdbc-resource">
-    				<list>
-    					<value>--connectionpoolid=rilldb_pool</value>
-    					<value>jdbc/rilldb</value>
-    				</list>
-    			</entry>
-    			<entry key="enable-monitoring">
-    				<list>
-    					<value>--modules</value>
-    					<value>transaction-service=HIGH</value>
-    				</list>
-    			</entry>
-    			<entry key="set-log-levels">
-    				<list>
-    					<value>com.sun.enterprise.server.logging.GFFileHandler=INFO</value>
-    				</list>
-    			</entry>
-    			<!-- Enable monitor service
-    			<entry key="set">
-    				<list>
-    					<value>server.monitoring-service.module-monitoring-levels.transaction-service=HIGH</value>
-    				</list>
-    			</entry>
-    			 -->
-    		</map>
+    		<list>
+    			<map>
+    				<entry key="enable-monitoring">
+	    				<list>
+	    					<value>--modules</value>
+	    					<value>transaction-service=HIGH</value>
+	    				</list>
+	    			</entry>
+	    			<entry key="set-log-levels">
+	    				<list>
+	    					<value>com.sun.enterprise.server.logging.GFFileHandler=INFO</value>
+	    				</list>
+	    			</entry>
+    			</map>
+	    		<map>
+	    			<entry key="create-jdbc-connection-pool">
+	    				<list>
+	    					<value>--datasourceclassname</value>
+	    					<value>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</value>
+	    					<value>--restype</value>
+	    					<value>javax.sql.XADataSource</value>
+	    					<value>--steadypoolsize</value>
+	    					<value>${jdbc.minPoolSize}</value>
+	    					<value>--maxpoolsize</value>
+	    					<value>${jdbc.maxPoolSize}</value>
+	    					<value>--idletimeout</value>
+	    					<value>${jdbc.maxIdleTime}</value>
+	    					<!-- re-connect when DB restarted. -->
+	    					<value>--isconnectvalidatereq</value>
+	    					<value>true</value>
+	    					<value>--validationmethod</value>
+	    					<value>custom-validation</value>
+	    					<value>--validationclassname</value>
+	    					<value>org.glassfish.api.jdbc.validation.MySQLConnectionValidation</value>
+	    					
+	    					<value>--sqltracelisteners</value>
+	    					<value>org.rill.bpm.web.sqltrace.SQLTraceListenerImpl</value>
+	    					<value>--property</value>
+	    					<value>User=${jdbc1.username}:Password=${jdbc1.password}:${jdbcpool1.property}</value>
+	    					<value>rilldb_pool1</value>
+	    				</list>
+	    			</entry>
+	    			<entry key="create-jdbc-resource">
+	    				<list>
+	    					<value>--connectionpoolid=rilldb_pool1</value>
+	    					<value>jdbc/rilldb1</value>
+	    				</list>
+	    			</entry>
+	    		</map>
+	    		<map>
+	    			<entry key="create-jdbc-connection-pool">
+	    				<list>
+	    					<value>--datasourceclassname</value>
+	    					<value>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</value>
+	    					<value>--restype</value>
+	    					<value>javax.sql.XADataSource</value>
+	    					<value>--steadypoolsize</value>
+	    					<value>${jdbc.minPoolSize}</value>
+	    					<value>--maxpoolsize</value>
+	    					<value>${jdbc.maxPoolSize}</value>
+	    					<value>--idletimeout</value>
+	    					<value>${jdbc.maxIdleTime}</value>
+	    					<!-- re-connect when DB restarted. -->
+	    					<value>--isconnectvalidatereq</value>
+	    					<value>true</value>
+	    					<value>--validationmethod</value>
+	    					<value>custom-validation</value>
+	    					<value>--validationclassname</value>
+	    					<value>org.glassfish.api.jdbc.validation.MySQLConnectionValidation</value>
+	    					
+	    					<value>--sqltracelisteners</value>
+	    					<value>org.rill.bpm.web.sqltrace.SQLTraceListenerImpl</value>
+	    					<value>--property</value>
+	    					<value>User=${jdbc2.username}:Password=${jdbc2.password}:${jdbcpool2.property}</value>
+	    					<value>rilldb_pool2</value>
+	    				</list>
+	    			</entry>
+	    			<entry key="create-jdbc-resource">
+	    				<list>
+	    					<value>--connectionpoolid=rilldb_pool2</value>
+	    					<value>jdbc/rilldb2</value>
+	    				</list>
+	    			</entry>
+	    		</map>
+    		</list>
     	</property>
     </bean>
 
-	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean" depends-on="embeddedGlassfish">
+	<bean id="dataSource1" class="org.springframework.jndi.JndiObjectFactoryBean" depends-on="embeddedGlassfish">
 		<property name="jndiName">
-			<value>jdbc/rilldb</value>
+			<value>jdbc/rilldb1</value>
+		</property>
+	</bean>
+	
+	<bean id="dataSource2" class="org.springframework.jndi.JndiObjectFactoryBean" depends-on="embeddedGlassfish">
+		<property name="jndiName">
+			<value>jdbc/rilldb2</value>
 		</property>
 	</bean>
   
-    <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+    <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager" depends-on="embeddedGlassfish">
     </bean>
     <!-- ##Embedded GF configuration## end  -->
   

@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.rill.bpm.api.TaskExecutionContext;
 import org.rill.bpm.api.WorkflowOperations;
+import org.rill.bpm.api.activiti.ActivitiTemplate;
 import org.rill.bpm.api.processvar.DummyReceiptInfo;
 
 
@@ -51,6 +52,7 @@ public class EngineDrivenTLIAdapterTest {
     public void engineDrivenGeneric() {
 
         ReceiptInfoEngineDrivenTLIAdapter adapter = new ReceiptInfoEngineDrivenTLIAdapter();
+        adapter.setWorkflowOperations(new ActivitiTemplate());
         TaskExecutionContext taskContext = new TaskExecutionContext();
         taskContext.getOtherInfos().put(WorkflowOperations.ENGINE_DRIVEN_TASK_FORM_DATA_KEY, new DummyReceiptInfo());
         adapter.preComplete(taskContext);

@@ -40,11 +40,6 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/apache/avro/avro/1.5.1/avro-1.5.1.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
@@ -121,12 +116,7 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/com/h2database/h2/1.2.132/h2-1.2.132.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-search-engine/4.1.0.Beta1/hibernate-search-engine-4.1.0.Beta1.jar">
+  <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-cachestore-jdbc/5.1.1.FINAL/infinispan-cachestore-jdbc-5.1.1.FINAL.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -136,22 +126,7 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-query/5.1.1.FINAL/infinispan-query-5.1.1.FINAL.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/org/infinispan/infinispan-spring/5.1.1.FINAL/infinispan-spring-5.1.1.FINAL.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-core-asl/1.7.3/jackson-core-asl-1.7.3.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-mapper-asl/1.7.3/jackson-mapper-asl-1.7.3.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -187,17 +162,7 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.1/junit-4.8.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/livetribe/livetribe-jsr223/2.0.6/livetribe-jsr223-2.0.6.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-core/3.5.0/lucene-core-3.5.0.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -213,11 +178,6 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/oro/oro/2.0.8/oro-2.0.8.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/thoughtworks/paranamer/paranamer/2.3/paranamer-2.3.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
@@ -238,16 +198,6 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/org/rill/rill-bpm-ws/1.0.1/rill-bpm-ws-1.0.1.jar" sourcepath="M2_REPO/org/rill/rill-bpm-ws/1.0.1/rill-bpm-ws-1.0.1-sources.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.6.1/slf4j-api-1.6.1.jar">
-    <attributes>
-      <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/xerial/snappy/snappy-java/1.0.1-rc3/snappy-java-1.0.1-rc3.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>

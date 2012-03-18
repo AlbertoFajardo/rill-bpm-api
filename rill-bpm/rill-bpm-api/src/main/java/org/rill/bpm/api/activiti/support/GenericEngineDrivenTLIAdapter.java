@@ -16,7 +16,6 @@ import java.lang.reflect.Method;
 
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.rill.bpm.api.TaskExecutionContext;
-import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.exception.ProcessException;
 import org.springframework.beans.BeansException;
@@ -44,7 +43,6 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
 
     private static final String UNKNOWN = GenericEngineDrivenTLIAdapter.class.getName() + ".UNKNOWN";
 
-    private WorkflowOperations workflowAccessor;
     private BeanFactory beanFactory;
 
     private boolean javaEE6CWE = false;
@@ -55,15 +53,6 @@ public class GenericEngineDrivenTLIAdapter extends EngineDrivenTLIAdapter<Object
 
     public void setJavaEE6CWE(boolean javaEE6CWE) {
         this.javaEE6CWE = javaEE6CWE;
-    }
-    
-
-    public WorkflowOperations getWorkflowAccessor() {
-        return workflowAccessor;
-    }
-
-    public void setWorkflowAccessor(WorkflowOperations workflowAccessor) {
-        this.workflowAccessor = workflowAccessor;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
