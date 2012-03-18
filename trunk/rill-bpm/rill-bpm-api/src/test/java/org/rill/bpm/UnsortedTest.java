@@ -5,7 +5,6 @@
 
 package org.rill.bpm;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -112,6 +111,15 @@ public class UnsortedTest {
     	Base64Encoder decoder = new Base64Encoder();
     	String afterDecode = new String(decoder.decode(authorization));
     	Assert.assertEquals("activiti:itivitca", afterDecode);
+    }
+    
+    @Test
+    public void processEngineHashcode() {
+    	
+    	String defaultEngine = "default";
+    	String datasource2Engine = "dataSource2";
+    	Assert.assertEquals(1544803905, defaultEngine.hashCode());
+    	Assert.assertEquals(791883885, datasource2Engine.hashCode());
     }
 
 }

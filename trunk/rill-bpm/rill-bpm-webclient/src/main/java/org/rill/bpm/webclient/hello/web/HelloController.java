@@ -39,10 +39,27 @@ public class HelloController {
         return mav;
 	}
 	
+	@RequestMapping(value={"/delete"}, method=RequestMethod.GET)
+	public ModelAndView _delete(HttpServletRequest request, HttpServletResponse response, HelloVO command) {
+		
+		ModelAndView mav = new ModelAndView();
+		command.setWhoSay("");
+		mav.addObject("command", command);
+        mav.setViewName("/hello/delete");
+        return mav;
+	}
+	
 	@RequestMapping(method=RequestMethod.POST)
 	public ModelAndView sayHello(HttpServletRequest request, HttpServletResponse response, HelloVO command) {
 		
 		getHelloService().sayHello(command.getWhoSay());
+        return new ModelAndView(LIST_ACTION);
+	}
+	
+	@RequestMapping(value={"/delete"}, method=RequestMethod.POST)
+	public ModelAndView delete(HttpServletRequest request, HttpServletResponse response, HelloVO command) {
+		
+		getHelloService().deleteSayHello(command.getWhoSay());
         return new ModelAndView(LIST_ACTION);
 	}
 	

@@ -235,9 +235,18 @@ function drawChart() {
 		</div>
 		<!-- end #menu -->
 		<div id="search">
-			<form method="get" action="">
-				<input type="text" name="s" id="search-text" size="15" />
-				<input type="submit" id="search-submit" value="搜索" />
+			<form method="get" action="#springUrl("")/web/console/">
+				<select id="search-text" name="selectedScaleoutTarget">
+					#foreach($tdpEntry in $scaleoutTarget.entrySet())
+						#if ($tdpEntry.key == $selectedScaleoutTarget)
+			          		<option value="$!{tdpEntry.key}" selected="selected">$!{tdpEntry.key}</option>
+			            #end
+			            #if ($tdpEntry.key != $selectedScaleoutTarget)
+			          		<option value="$!{tdpEntry.key}">$!{tdpEntry.key}</option>
+			            #end
+					#end
+				</select>
+				<input type="submit" id="scaleout-submit" value="切换" />
 			</form>
 		</div>
 		<!-- end #search -->

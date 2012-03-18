@@ -103,11 +103,24 @@ public class XpathVarConvertTLITest {
 					String processDefinitionKey) {
 				return null;
 			}
+
+			@Override
+			public HashMap<String, String> getProcessInstanceInformations(
+					String engineProcessInstanceId) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getName() {
+				// TODO Auto-generated method stub
+				return null;
+			}
             
         }
         
         XpathWorkflowAccessor xpathWA = new XpathWorkflowAccessor();
-        tli.setWorkflowAccessor(xpathWA);
+        tli.setWorkflowOperations(xpathWA);
         
         String xml = "<orderAudit><auditAction>1</auditAction><auditorName>mengran</auditorName></orderAudit>";
         DummyOrderAudit orderAudit = new DummyOrderAudit();

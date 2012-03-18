@@ -22,10 +22,12 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
+<!-- 
+      xsi:schemaLocation="urn:infinispan:config:5.1 http://www.infinispan.org/schemas/infinispan-config-5.1.xsd"
+       -->
 <infinispan
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:infinispan:config:5.0 http://www.infinispan.org/schemas/infinispan-config-5.0.xsd"
-      xmlns="urn:infinispan:config:5.0">
+      xmlns="urn:infinispan:config:5.1">
 
    <!--
       ******************************************************************************************************************
@@ -135,17 +137,13 @@
 
       -->
       <!-- Use the property below to point to a specific JGroups configuration file on your classpath -->
-         <!-- 
-            machineId="m1" 
-            rackId="r1" nodeName="Node-A"
-             -->
-      <transport 
-            clusterName="workflowCache-cluster" 
-            >
-            <properties>
-            <property name="configurationFile" value="conf/jgroups-tcp-static.xml" />
-         </properties>
-      </transport>
+	<!-- machineId="m1" rackId="r1" nodeName="Node-A" -->
+	<transport clusterName="workflowCache-cluster">
+		<properties>
+			<property name="configurationFile" value="conf/jgroups-tcp-static.xml" />
+		</properties>
+	</transport>
+
 
       <!--
          Used to customize the marshaller used to serialize objects and deserialize byte streams.  Also allows you to
@@ -182,6 +180,7 @@
    -->
 
    <default>
+      <lazyDeserialization />
       <!--
          Tunes the locking and concurrency characteristics of the cache.
 
@@ -209,9 +208,13 @@
             transactionManagerLookupClass="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
             syncRollbackPhase="false"
             syncCommitPhase="false"
-            useEagerLocking="false"
-            eagerLockSingleNode="false"
-            cacheStopTimeout="30000" />
+            cacheStopTimeout="30000"
+            use1PcForAutoCommitTransactions="false"
+            autoCommit="true"
+            lockingMode="OPTIMISTIC"
+            useSynchronization="false"
+            transactionMode="TRANSACTIONAL"
+            />
       -->
       <!--
          Enables deadlock detection.  See:
@@ -257,16 +260,14 @@
             fetchInMemoryState="false"
             alwaysProvideInMemoryState="false"
          />
-		-->
+         -->
 
          <!--
             Network calls are synchronous.
-         
-         <sync replTimeout="20000"/>
          -->
-         <sync/>
+         <sync replTimeout="20000"/>
          <hash
-            numOwners="2"
+            numOwners="3"
             rehashWait="120000"
             rehashRpcTimeout="600000"
          />
@@ -282,6 +283,8 @@
          />
          -->
       </clustering>
+      
+      <eviction maxEntries="5000" strategy="LRU" />
 
    </default>
 
@@ -294,6 +297,31 @@
 
       ******************************************************************************************************************
    -->
+
+	<namedCache name="PERSISTENT_CACHE">
+
+		<loaders>
+			<loader class="org.infinispan.loaders.jdbc.stringbased.JdbcStringBasedCacheStore" fetchPersistentState="false" 
+				ignoreModifications="false" purgeOnStartup="false">
+				<properties>
+					<property name="stringsTableNamePrefix" value="RILL_WF" />
+					<property name="idColumnName" value="ID_COLUMN" />
+					<property name="dataColumnName" value="DATA_COLUMN" />
+					<property name="timestampColumnName" value="TIMESTAMP_COLUMN" />
+					<property name="idColumnType" value="VARCHAR(255)" />
+					<property name="dataColumnType" value="BINARY" />
+					<property name="timestampColumnType" value="BIGINT" />
+					<property name="connectionFactoryClass"
+						value="org.infinispan.loaders.jdbc.connectionfactory.ManagedConnectionFactory" />
+					<property name="datasourceJndiLocation"
+						value="jdbc/rilldb1" />
+					<property name="dropTableOnExit" value="false" />
+					<property name="createTableOnStart" value="false" />
+				</properties>
+			</loader>
+		</loaders>
+
+	</namedCache>
 
    <!-- A typical, asynchronously replicated, clustered cache -->
    <!--
@@ -560,6 +588,27 @@
             class="com.mycompany.CustomInterceptor1"
          />
       </customInterceptors>
+   </namedCache>
+   -->
+
+   <!--
+      A transactional cache configured to run in pessimistic mode.
+      See:
+         http://community.jboss.org/wiki/Infinispantransactions
+   -->
+   <!--
+   <namedCache name="pessimisticCache">
+
+      <transaction
+            transactionManagerLookupClass="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
+            syncCommitPhase="false"
+            cacheStopTimeout="30000"
+            use1PcForAutoCommitTransactions="false"
+            autoCommit="true"
+            lockingMode="PESSIMISTIC"
+            useSynchronization="false"
+            transactionMode="TRANSACTIONAL"/>
+
    </namedCache>
    -->
 

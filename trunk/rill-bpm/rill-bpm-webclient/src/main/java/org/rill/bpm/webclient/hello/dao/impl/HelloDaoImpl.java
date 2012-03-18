@@ -82,4 +82,34 @@ public class HelloDaoImpl extends JdbcDaoSupport implements HelloDao {
 		return getJdbcTemplate().query("select whosay from hello", new SingleColumnRowMapper<String>());
 	}
 
+	@Override
+	public void deleteHello(String name) {
+		
+		Assert.isTrue(StringUtils.hasText(name), "Delete who? Empty is not permitted.");
+		
+		final String nameAfterTrim = StringUtils.trimWhitespace(name);
+		
+		int cnt = getJdbcTemplate().execute(new PreparedStatementCreator() {
+			
+			@Override
+			public PreparedStatement createPreparedStatement(Connection con)
+					throws SQLException {
+				
+				return con.prepareStatement("update hello set whosay = 'deleted " + nameAfterTrim + "' where whosay ='" + nameAfterTrim + "'");
+			}
+		}, new PreparedStatementCallback<Integer>() {
+
+			@Override
+			public Integer doInPreparedStatement(PreparedStatement ps)
+					throws SQLException, DataAccessException {
+				
+				logger.info(nameAfterTrim + " has marked deleted.");
+				return ps.executeUpdate();
+			}
+		});
+		
+		Assert.isTrue(cnt == 1, "Update failed. SQL return:" + cnt);
+		
+	}
+
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 
 public abstract class DateUtils {
 
+	// FIXME MENGRAN. Not thread-safe
 	public static final DateFormat DATE_FORMAT_YYYYMMDD = new SimpleDateFormat("yyyy-MM-dd");
 	/**
 	 * Get start time / end time of some day.

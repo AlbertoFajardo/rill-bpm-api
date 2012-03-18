@@ -80,11 +80,19 @@ public class WSATContextListener implements ServletContextListener {
             }
         };
         
+        String host = pickHost();
         WSATRuntimeConfig.initializer()
         		.httpPort(pickPort(sce.getServletContext()))
                 .txLogLocation(txlogLocationProvider)
-                .hostName(pickHost())
+                .hostName(host)
                 .done();
+        
+        // Handle infinispan cluster settings. Add by MENGRAN at 2012-03-05
+        if (System.getProperty("jgroups.tcpping.initial_hosts") != null && 
+        		System.getProperty("jgroups.bind_addr") == null ) {
+        	logger.info("Add system property:jgroups.bind_addr=" + host);
+			System.setProperty("jgroups.bind_addr", host);
+        }
 	}
 	
 	/**

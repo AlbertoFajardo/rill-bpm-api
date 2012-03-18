@@ -9,4 +9,6 @@ public interface HelloService {
 	void batchSayHello(String[] names);
 	
 	List<String> whoSaid();
+	
+	void deleteSayHello(String name);
 }

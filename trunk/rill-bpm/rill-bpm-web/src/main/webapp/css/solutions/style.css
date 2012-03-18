@@ -154,14 +154,12 @@ hr { display: none; }
 }
 
 #search input {
-	float: left;
 	font: 12px Georgia, "Times New Roman", Times, serif;
 	border: none;
 }
 
 #search-text {
 	width: 200px;
-	height: 18px;
 	padding: 3px 0 0 5px;
 	border: 1px solid #333333;
 	background: #ECF9E4;

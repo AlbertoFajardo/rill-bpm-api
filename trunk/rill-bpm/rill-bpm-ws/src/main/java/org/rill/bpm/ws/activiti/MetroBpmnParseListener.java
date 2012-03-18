@@ -6,6 +6,7 @@ import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.BpmnParser;
 import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.el.FixedValue;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
@@ -16,9 +17,6 @@ import org.activiti.engine.impl.variable.VariableDeclaration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.ws.metro.MetroWSActivityBehavior;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -28,7 +26,7 @@ import org.springframework.util.ObjectUtils;
  * @author mengran
  *
  */
-public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAware {
+public class MetroBpmnParseListener implements BpmnParseListener {
 
 	public static final String METRO_WEB_SERVICE = "MetroWebService";
 	
@@ -138,7 +136,7 @@ public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAwa
 		// Handle METRO_WEB_SERVICE configuration
 		if (expression != null && expression.trim().length() > 0 && expression.equals(METRO_WEB_SERVICE)) {
 			
-			WSProcessEngineConfiguration configuration = internalBeanFactory.getBean(WSProcessEngineConfiguration.class);
+			WSProcessEngineConfiguration configuration = (WSProcessEngineConfiguration) Context.getProcessEngineConfiguration();
 			List<FieldDeclaration> fieldDeclarations = configuration.getBpmnParser().createParse().parseFieldDeclarations(serviceTaskElement);
 			String location = null, operationQName = null, xsdIndex = null, username=null, password=null, portQName=null;
 			for (FieldDeclaration fd : fieldDeclarations) {
@@ -186,13 +184,5 @@ public class MetroBpmnParseListener implements BpmnParseListener, BeanFactoryAwa
 			activity.setActivityBehavior(webServiceActivityBehavior);
 		}
 	}
-
-	private BeanFactory internalBeanFactory;
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-	
-		this.internalBeanFactory = beanFactory;
-	}
-
 	
 }

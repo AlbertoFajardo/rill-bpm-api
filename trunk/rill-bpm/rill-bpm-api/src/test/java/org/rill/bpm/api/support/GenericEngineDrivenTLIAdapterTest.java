@@ -267,6 +267,19 @@ public class GenericEngineDrivenTLIAdapterTest {
 			return null;
 		}
 
+		@Override
+		public HashMap<String, String> getProcessInstanceInformations(
+				String engineProcessInstanceId) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
         
 
     }
@@ -280,7 +293,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         adapter.preComplete(context);
@@ -292,7 +305,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
@@ -306,7 +319,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
@@ -323,7 +336,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyProxyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("have parameter");
@@ -337,7 +350,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyProxyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("primitive");
@@ -351,7 +364,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyProxyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("primitiveOrWrapper");
@@ -365,7 +378,7 @@ public class GenericEngineDrivenTLIAdapterTest {
 
         GenericEngineDrivenTLIAdapter adapter = new GenericEngineDrivenTLIAdapter();
         adapter.setBeanFactory(new MyProxyBeanFactory());
-        adapter.setWorkflowAccessor(new MyWorkflowAccessor());
+        adapter.setWorkflowOperations(new MyWorkflowAccessor());
 
         TaskExecutionContext context = new TaskExecutionContext();
         context.setTaskInstanceId("compsite");

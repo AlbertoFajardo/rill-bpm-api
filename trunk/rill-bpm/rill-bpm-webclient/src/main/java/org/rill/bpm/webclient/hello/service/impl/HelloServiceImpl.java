@@ -53,4 +53,19 @@ public class HelloServiceImpl implements HelloService {
 		}
 	}
 
+	@Override
+	@Transactional
+	public void deleteSayHello(String name) {
+		
+		List<String> whoSaid = whoSaid();
+		for (String who : whoSaid) {
+			if (who.startsWith(name)) {
+				logger.info("delete " + who);
+				getHelloDao().deleteHello(who);
+				break;
+			}
+		}
+		
+	}
+
 }

@@ -21,10 +21,13 @@ import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.json.JSONWriter;
+import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper;
 import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.ChartInfo;
 import org.rill.bpm.api.exception.ProcessException;
+import org.rill.bpm.api.scaleout.ScaleoutHelper;
+import org.rill.bpm.web.ScaleoutControllerSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -37,7 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/runtime/process")
-public class ProcessController {
+public class ProcessController extends ScaleoutControllerSupport {
 
 	@Resource
 	private ProcessMonitorChartInfoHelper processMonitorChartInfoHelper;
@@ -88,8 +91,9 @@ public class ProcessController {
 			HttpServletResponse response, @PathVariable("processInstanceId") final String processInstanceId,
 			@PathVariable("callActivityId") final String callActivityId) throws Exception {
 		
-		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(
-				processMonitorChartInfoHelper.getWorkflowAccessor(), ActivitiAccessor.class);
+		WorkflowOperations impl = ScaleoutHelper.determineImplWithProcessInstanceId(getWorkflowCache(), 
+				processMonitorChartInfoHelper.getWorkflowAccessor(), processInstanceId);
+		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
 		
 		List<HistoricProcessInstance> callActivityProcessList = activitiAccessor.runExtraCommand(new Command<List<HistoricProcessInstance>>() {
 
@@ -179,8 +183,9 @@ public class ProcessController {
 		}
 		
 		// FIXME: Dirty code, but because BPMN activity type isn't change frequently.
-		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(
-				processMonitorChartInfoHelper.getWorkflowAccessor(), ActivitiAccessor.class);
+		WorkflowOperations impl = ScaleoutHelper.determineImplWithProcessInstanceId(getWorkflowCache(), 
+				processMonitorChartInfoHelper.getWorkflowAccessor(), processInstanceId);
+		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(impl, ActivitiAccessor.class);
 		if (chartInfo.getTaskDefinitionKeyType().get(activityId).equals("userTask")) {
 			// User task
 			List<HistoricTaskInstance> historicTaskList = null;

@@ -68,6 +68,8 @@
 		<property name="wsXmlImporter">
 			<bean class="org.rill.bpm.ws.metro.WSImportToolImporterImpl"></bean>
 		</property>
+		
+		<property name="processEngineName" value="activiti.cfg.xml"/>
 	</bean>
 	<!-- ##Activiti5 configuration## end -->
 

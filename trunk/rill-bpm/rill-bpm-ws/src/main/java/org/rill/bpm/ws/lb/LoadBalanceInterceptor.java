@@ -2,11 +2,8 @@ package org.rill.bpm.ws.lb;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,12 +15,9 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.support.AopUtils;
+import org.rill.bpm.api.scaleout.ScaleoutInterceptor;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.sun.xml.ws.tx.at.common.TransactionManagerImpl;
 
@@ -31,36 +25,13 @@ import com.sun.xml.ws.tx.at.common.TransactionManagerImpl;
  * @author mengran
  *
  */
-public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBean {
+public class LoadBalanceInterceptor extends ScaleoutInterceptor implements MethodInterceptor, InitializingBean {
 
 	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
-	private Class<?> serviceInterface;
-	private CopyOnWriteArrayList<Object> targets;
-	private List<Class<?>> failOverExceptions;
 	private ConcurrentHashMap<Integer, Object> jtaTransactionBindingMap = new ConcurrentHashMap<Integer, Object>();
 
-	public final List<Class<?>> getFailOverExceptions() {
-		return failOverExceptions;
-	}
-
-	public final void setFailOverExceptions(List<Class<?>> failOverExceptions) {
-		this.failOverExceptions = failOverExceptions;
-	}
-
-	public final Class<?> getServiceInterface() {
-		return serviceInterface;
-	}
-
-	public final void setServiceInterface(Class<?> serviceInterface) {
-		this.serviceInterface = serviceInterface;
-	}
-
-	public final void setTargets(List<Object> targets) {
-		this.targets = new CopyOnWriteArrayList<Object>(targets);
-	}
-
-	protected Object retrieveExecuteTarget() throws Throwable {
+	protected Object retrieveExecuteTarget(MethodInvocation invocation) throws Throwable {
 		
 		Object transactionAssociationTarget = null;
 		// Process JTA Transaction Binding feature
@@ -72,7 +43,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 				logger.debug("Use LB target:" + transactionAssociationTarget + " for transaction:" + jtaTransaction);
 			} else {
 				// Have not associate with transaction
-				transactionAssociationTarget = randomRetrieveExecuteTarget();
+				transactionAssociationTarget = super.retrieveExecuteTarget(invocation);
 				Object putResult = jtaTransactionBindingMap.putIfAbsent(hash, transactionAssociationTarget);
 				if (putResult == null) {
 					logger.info("Associate transaction:" + jtaTransaction + " with LB target:" + transactionAssociationTarget);
@@ -82,78 +53,19 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 			}
 		} else {
 			// Maybe not in JTA environment
-			transactionAssociationTarget = randomRetrieveExecuteTarget();
+			transactionAssociationTarget = super.retrieveExecuteTarget(invocation);
 		}
 		
 		return transactionAssociationTarget;
 	}
 	
-	private Object randomRetrieveExecuteTarget() {
-		
-		// Maybe throw NullPointerException
-		return this.targets.get(new Random().nextInt(this.targets.size()));
-	}
-	
 	protected void doFailOverExecuteTarget(Object failTarget) {
 		
 		// Remove from service list
-		targets.remove(failTarget);
+		getTargetsHashMap().remove(new Integer(failTarget.hashCode()).toString());
 		
 		// Record fail time
 		SIMPLE_FAIL_OVER.addFailOverTarget(failTarget);
-	}
-	
-	protected boolean needFailOverException(Throwable t) {
-		
-		if (CollectionUtils.isEmpty(failOverExceptions)) {
-			return false;
-		}
-		
-		for (Class<?> clazz : failOverExceptions) {
-			if (clazz.equals(t.getClass()) || (t.getCause() != null && clazz.equals(t.getCause().getClass()))) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	private void exceptionHandler(Object failTarget, Throwable t) throws Throwable {
-		
-		if (needFailOverException(t)) {
-			doFailOverExecuteTarget(failTarget);
-		}
-		
-		throw t;
-	}
-
-	@Override
-	public Object invoke(MethodInvocation invocation) throws Throwable {
-
-		if (AopUtils.isToStringMethod(invocation.getMethod())) {
-			return "Load balance for " + serviceInterface.getName() + ", targets:" + ObjectUtils.getDisplayString(targets);
-		}
-		
-		if (this.targets.isEmpty()) {
-			throw new IllegalStateException("No target is available, Please wait a moment.");
-		}
-		
-		Object result = null;
-		Object executeTarget = null;
-		try {
-			executeTarget = retrieveExecuteTarget();
-			result = ReflectionUtils.invokeMethod(invocation.getMethod(), executeTarget, invocation.getArguments());
-		} catch (Throwable e) {
-			exceptionHandler(executeTarget, e);
-		}
-		
-		return result;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		
-		Assert.notEmpty(this.targets, "No any target to load balance.");
 	}
 	
 	private final SimpleFailOver SIMPLE_FAIL_OVER = new SimpleFailOver(); 
@@ -168,7 +80,7 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 		public void addFailOverTarget(Object failTarget) {
 			
 			// For first time
-			boolean isFirstTime = ses.compareAndSet(null, Executors.newScheduledThreadPool(1));
+			boolean isFirstTime = ses.compareAndSet(null, Executors.newScheduledThreadPool(1, new CustomizableThreadFactory("SIMPLE_FAIL_OVER")));
 			if (isFirstTime) {
 				// Start release thread...
 				logger.info("Start fail over thread...");
@@ -197,10 +109,9 @@ public class LoadBalanceInterceptor implements MethodInterceptor, InitializingBe
 			Object releaseTarget = releaseEntry.getKey();
 			// Release it
 			failTimeMap.remove(releaseTarget);
-			boolean addSuccessfully = targets.addIfAbsent(releaseTarget);
+			Object addSuccessfully = getTargetsHashMap().putIfAbsent(new Integer(releaseTarget.hashCode()).toString(), releaseTarget);
 			logger.info("Add releaseTarget to service list " + addSuccessfully);
 		}
-		
 		
 	}
 

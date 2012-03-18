@@ -16,11 +16,16 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.Resource;
 
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.User;
@@ -46,6 +51,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.rill.bpm.api.TaskExecutionContext;
 import org.rill.bpm.api.TaskLifecycleInteceptor;
+import org.rill.bpm.api.WorkflowCache;
+import org.rill.bpm.api.WorkflowCache.CacheTargetRetriever;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor;
@@ -62,7 +69,47 @@ import org.springframework.util.StringUtils;
  */
 public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperations {
 	
-    // --------------------------------------- Implementation --------------------------//
+	@Resource(name="workflowCache")
+	private WorkflowCache<HashMap<String, String>> workflowCache;
+	
+	public final WorkflowCache<HashMap<String, String>> getWorkflowCache() {
+		return workflowCache;
+	}
+
+	public final void setWorkflowCache(WorkflowCache<HashMap<String, String>> workflowCache) {
+		this.workflowCache = workflowCache;
+	}
+	
+    @Override
+	public HashMap<String, String> getTaskInstanceInformations(
+			final String taskInstanceId) {
+		// Delegate to cache
+    	return getWorkflowCache().getTaskRelatedInfo(taskInstanceId, new CacheTargetRetriever<HashMap<String, String>>() {
+
+			@Override
+			public HashMap<String, String> getCacheTarget(String key) {
+				return ActivitiTemplate.super.getTaskInstanceInformations(taskInstanceId);
+			}
+    		
+		});
+	}
+
+	@Override
+	public HashMap<String, String> getProcessInstanceInformations(
+			final String engineProcessInstanceId) {
+		// Delegate to cache
+		// Delegate to cache
+    	return getWorkflowCache().getProcessRelatedInfo(engineProcessInstanceId, new CacheTargetRetriever<HashMap<String, String>>() {
+
+			@Override
+			public HashMap<String, String> getCacheTarget(String key) {
+				return ActivitiTemplate.super.getProcessInstanceInformations(engineProcessInstanceId);
+			}
+    		
+		});
+	}
+
+	// --------------------------------------- Implementation --------------------------//
 	@Override
 	protected WorkflowResponse doCreateProcessInstance(
 			String processDefinitionKey, String processStarter, String businessObjectId,
@@ -372,7 +419,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 						public WorkflowResponse execute(
 								CommandContext commandContext) {
 	
-							String engineProcessInstanceId = obtainProcessInstanceId(engineTaskInstanceId);
+							String engineProcessInstanceId = getTaskInstanceInformations(engineTaskInstanceId).get(TaskInformations.PROCESS_INSTANCE_ID.name());
 							ExecutionEntity ee = commandContext
 									.getExecutionManager().findExecutionById(
 											engineProcessInstanceId);
@@ -407,7 +454,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 					        logger.info("Generated tasks: " + ObjectUtils.getDisplayString(taskIds));
 					        
 							return new WorkflowResponse(
-									engineProcessInstanceId, obtainBusinessObjectId(engineTaskInstanceId),
+									engineProcessInstanceId, getTaskInstanceInformations(engineTaskInstanceId).get(TaskInformations.BUSINESS_OBJECT_ID.name()),
 									processDefinitionKey, taskIds, rootProcessInstanceId);
 						}
 	
@@ -435,7 +482,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 
     public String obtainTaskRole(String engineTaskInstanceId) throws ProcessException {
 
-        return obtainTaskRoleTag(engineTaskInstanceId);
+        return getTaskInstanceInformations(engineTaskInstanceId).get(TaskInformations.TASK_ROLE_TAG.name());
     }
 
     
@@ -456,10 +503,68 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
             throw new ProcessException(e);
         }
     }
+    
+    private AtomicReference<WorkflowOperations> delegate = new AtomicReference<WorkflowOperations>();
+    private String delegateBeanName = "workflowAccessor";
 
-    public HashMap<String, String> getTaskInstanceInformations(String engineTaskInstanceId) {
+	public final String getDelegateBeanName() {
+		return delegateBeanName;
+	}
 
-        return getTaskInformations(engineTaskInstanceId);
-    }
+	public final void setDelegateBeanName(String delegateBeanName) {
+		this.delegateBeanName = delegateBeanName;
+	}
+
+	/**
+	 * Add by MENGRAN at 2012-03-09 for delegate batch operations.
+	 */
+	@Override
+	public Map<String, List<String>> batchCompleteTaskIntances(
+			Map<String, Map<String, Object>> batchDTO, String operator)
+			throws ProcessException {
+		
+		Assert.notEmpty(batchDTO);
+        Map<String, List<String>> returnTasks = new LinkedHashMap<String, List<String>>();
+
+        logger.info("Batch complete task instance. Params:" + ObjectUtils.getDisplayString(batchDTO));
+        UUID uuid = obtainAccessUUID();
+        try {
+        	for (Entry<String, Map<String, Object>> element : batchDTO.entrySet()) {
+
+                // Delegate to single-task operation
+        		delegate.compareAndSet(null, getBeanFactory().getBean(delegateBeanName, WorkflowOperations.class));
+            	returnTasks.put(element.getKey(), delegate.get().completeTaskInstance(element.getKey(), operator, element.getValue()));
+            }
+        } finally {
+            // Release resource
+            releaseThreadLocalResource(uuid);
+        }
+        
+        return returnTasks;
+		
+	}
+
+	@Override
+	public int hashCode() {
+		
+		return getProcessEngine().getName().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		
+		if (!(obj instanceof ActivitiTemplate)) {
+			return false;
+		}
+		
+		// FIXME MENGRAN it's OK?
+		return this.equals(obj);
+	}
+
+	@Override
+	public String toString() {
+		return "ActivitiTemplate [" + getProcessEngine().getName() + "]";
+	}
+
 
 }

@@ -38,7 +38,7 @@ public class RobustActivitiTemplate extends ActivitiTemplate {
 			Map<String, Object> passToEngine, List<String> taskIds) {
 				
 		// Put it into cache.
-		String fromCache = getCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), XStreamSerializeHelper.serializeXml(NEXT_TASK_IDS_KEY, taskIds));
+		String fromCache = getWorkflowCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), XStreamSerializeHelper.serializeXml(NEXT_TASK_IDS_KEY, taskIds));
 		logger.info("Put next task ids " + ObjectUtils.getDisplayString(taskIds) + " into cache, return from cache is " + fromCache);
 	}
 	
@@ -52,7 +52,7 @@ public class RobustActivitiTemplate extends ActivitiTemplate {
 		String rootProcessInstanceId = extendAttrs.get(TaskInformations.ROOT_PROCESS_INSTANCE_ID.name());
 		String processDefinitionKey = extendAttrs.get(TaskInformations.PROCESS_DEFINE_KEY.name());
 		
-		String nextTaskIds = getCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), "");
+		String nextTaskIds = getWorkflowCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), null);
 		if ("".equals(nextTaskIds)) {
 			throw new ProcessException("Can not find next task IDs cache by key " + generateNextTaskInsKey(engineTaskInstanceId) + ", maybe wrong retrieve timing or cache expired.");
 		}

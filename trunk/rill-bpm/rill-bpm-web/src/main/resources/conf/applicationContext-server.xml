@@ -12,27 +12,67 @@
           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 " default-autowire="byName">
     
+    <import resource="applicationContext-properties.xml"/>
+    <import resource="applicationContext-embeddedgf.xml"/>
+    <import resource="applicationContext-cache.xml"/>
+    <import resource="applicationContext-activiti.xml"/>
+    
     <!-- Exporting web services using JAX-WS. Use sun-jaxws.xml for WS publish
     <bean class="org.springframework.remoting.jaxws.SimpleJaxWsServiceExporter">
         <property name="baseAddress" value="http://localhost:8084/"/>
     </bean>
      -->
+     
+    <!-- Load balance feature -->
+    <bean id="workflowAccessor" class="org.rill.bpm.api.scaleout.ScaleoutProxyFactoryBean">
+	    <property name="serviceInterface" value="org.rill.bpm.api.WorkflowOperations"/>
+	    <property name="targets">
+	    	<list>
+	    		<ref local="activitiTemplate1"/>
+	    		<ref local="activitiTemplate2"/>
+	    	</list>
+	    </property>
+	    <!-- 
+	    <property name="failOverExceptions">
+	    	<list>
+	    		<value>com.sun.xml.ws.client.ClientTransportException</value>
+	    	</list>
+	    </property>
+	     -->
+	</bean>
     
     <!-- Work bean below -->
-    <bean id="workflowAccessor" class="org.rill.bpm.ws.api.activiti.RobustActivitiTemplate">
-        <!-- open comment when you want to integrate with spring.
-        <property name="processEngine" ref="processEngine" />
-         -->
-        <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+    <bean id="activitiTemplate1" class="org.rill.bpm.ws.api.activiti.RobustActivitiTemplate">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration1" />
+        <property name="processCreateInteceptor">
+        	<list>
+        		<bean class="org.rill.bpm.api.scaleout.ScaleoutProcessCreateInterceptor"/>
+        	</list>
+        </property>
         <property name="commonTaskLifecycleInterceptor">
             <list>
                 <bean class="org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor" />
+                <bean class="org.rill.bpm.api.scaleout.ScaleoutTaskLifecycleInterceptor" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="activitiTemplate2" class="org.rill.bpm.ws.api.activiti.RobustActivitiTemplate">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration2" />
+        <property name="processCreateInteceptor">
+        	<list>
+        		<bean class="org.rill.bpm.api.scaleout.ScaleoutProcessCreateInterceptor"/>
+        	</list>
+        </property>
+        <property name="commonTaskLifecycleInterceptor">
+            <list>
+                <bean class="org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor" />
+                <bean class="org.rill.bpm.api.scaleout.ScaleoutTaskLifecycleInterceptor" />
             </list>
         </property>
     </bean>
 
 	<bean id="processMonitorChartInfoHelper" class="org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
-    <bean id="rillWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
     <bean id="rillWfTransitionTraceSchemaListener"
 		class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceSchemaListener">
 	</bean>
@@ -51,7 +91,7 @@
 	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
 		<property name="beanNames">
 			<list>
-				<value>workflowAccessor</value>
+				<value>activitiTemplate*</value>
 			</list>
 		</property>
 		<property name="interceptorNames">

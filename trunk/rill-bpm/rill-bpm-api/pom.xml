@@ -40,11 +40,13 @@
            <artifactId>infinispan-core</artifactId>
            <version>${infinispan.version}</version>
         </dependency>
+        <!-- 
         <dependency>
            <groupId>org.infinispan</groupId>
            <artifactId>infinispan-query</artifactId>
            <version>${infinispan.version}</version>
         </dependency>
+         -->
         <dependency>
            <groupId>org.infinispan</groupId>
            <artifactId>infinispan-spring</artifactId>
@@ -65,6 +67,12 @@
            	</exclusion>
            </exclusions>
         </dependency>
+        <dependency>
+           <groupId>org.infinispan</groupId>
+           <artifactId>infinispan-cachestore-jdbc</artifactId>
+           <version>${infinispan.version}</version>
+        </dependency>
+        
         <dependency>
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>

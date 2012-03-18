@@ -140,7 +140,7 @@
             clusterName="test-workflowCache-cluster"
             >
          <properties>
-            <property name="configurationFile" value="jgroups-tcp.xml" />
+            <property name="configurationFile" value="org/rill/bpm/api/infinispan-d/jgroups-tcp-static-d.xml" />
          </properties>
       </transport>
 

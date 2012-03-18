@@ -44,6 +44,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -60,7 +61,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  *  Add schema check listener mechanism, use Observer and Proxy Pattern.
  *
  */
-public class RillProcessEngineConfiguration extends SpringProcessEngineConfiguration implements BeanFactoryAware {
+public class RillProcessEngineConfiguration extends SpringProcessEngineConfiguration implements BeanFactoryAware, ApplicationEventPublisherAware {
 
 	protected final Log log = LogFactory.getLog(getClass().getName());
 	
@@ -72,6 +73,12 @@ public class RillProcessEngineConfiguration extends SpringProcessEngineConfigura
 		this.beanFactory = beanFactory; 
 	}
 	
+	@Override
+	public void setApplicationEventPublisher(
+			ApplicationEventPublisher applicationEventPublisher) {
+		heldApplicationEventPublisher = applicationEventPublisher;
+	}
+
 	@Override
 	public ProcessEngine buildProcessEngine() {
 		

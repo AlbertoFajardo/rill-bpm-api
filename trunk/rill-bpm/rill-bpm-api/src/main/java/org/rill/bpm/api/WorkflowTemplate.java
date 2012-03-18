@@ -173,7 +173,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
         private SimpleApplicationEventMulticaster saemc;
 
-        public ApplicationEventPublisherAdapter(SimpleApplicationEventMulticaster aemc) {
+        @SuppressWarnings("rawtypes")
+		public ApplicationEventPublisherAdapter(SimpleApplicationEventMulticaster aemc) {
             this.saemc = aemc;
 //            this.saemc.setBeanFactory(getBeanFactory());
             String[] listenerNames = ((ListableBeanFactory) beanFactory).getBeanNamesForType(ApplicationListener.class);
@@ -187,7 +188,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
         public void publishEvent(ApplicationEvent event) {
 
-            // Delegate operatoin
+            // Delegate operation
             this.saemc.multicastEvent(event);
         }
     }
@@ -201,6 +202,12 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
             logger.info("Adapt external environment[Not ApplicationContext]." + beanFactory + ".");
             this.applicationEventPublisher = new ApplicationEventPublisherAdapter(new SimpleApplicationEventMulticaster());
         }
+	}
+
+	@Override
+	public String getName() {
+		
+		return null;
 	}
 
 	/**
@@ -439,24 +446,26 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         TaskExecutionContext taskExecutionContext = new TaskExecutionContext();
 
         // Set properties
-        taskExecutionContext.setProcessInstanceId(obtainProcessInstanceId(engineTaskInstanceId));
+        HashMap<String, String> extendAttrs = getTaskInstanceInformations(engineTaskInstanceId);
+        
+        taskExecutionContext.setProcessInstanceId(extendAttrs.get(TaskInformations.PROCESS_INSTANCE_ID.name()));
         taskExecutionContext.setTaskInstanceId(engineTaskInstanceId);
 //        taskExecutionContext.setCurrentTask(getTaskService().createTaskQuery().taskId(engineTaskInstanceId).singleResult());
-        taskExecutionContext.setTaskExtendAttributes(getTaskInformations(engineTaskInstanceId));
+        taskExecutionContext.setTaskExtendAttributes(extendAttrs);
         taskExecutionContext.setWorkflowParams(workflowParams);
         taskExecutionContext.setOperator(operator);
         taskExecutionContext.setPreTaskInstanceId(triggerTaskInstanceId);
-        taskExecutionContext.setTaskDefineName(taskExecutionContext.getTaskExtendAttributes().get(TaskInformations.TASK_DEFINE_NAME.name()));
+        taskExecutionContext.setTaskDefineName(extendAttrs.get(TaskInformations.TASK_DEFINE_NAME.name()));
         // Set BO ID
-        taskExecutionContext.setBusinessObjectId(obtainBusinessObjectId(engineTaskInstanceId));
+        taskExecutionContext.setBusinessObjectId(extendAttrs.get(TaskInformations.BUSINESS_OBJECT_ID.name()));
 
         // Set task related informations
-        taskExecutionContext.setTaskTag(obtainTaskTag(engineTaskInstanceId));
-        taskExecutionContext.setTaskRoleTag(obtainTaskRoleTag(engineTaskInstanceId));
+        taskExecutionContext.setTaskTag(extendAttrs.get(TaskInformations.TASK_TAG.name()));
+        taskExecutionContext.setTaskRoleTag(extendAttrs.get(TaskInformations.TASK_ROLE_TAG.name()));
 
 //        // Set sub process flag
 //        taskExecutionContext.setSubProcess(hasParentProcess(taskExecutionContext.getProcessInstanceId()));
-        taskExecutionContext.setRootProcessInstanceId(taskExecutionContext.getTaskExtendAttributes().get(TaskInformations.ROOT_PROCESS_INSTANCE_ID.name()));
+        taskExecutionContext.setRootProcessInstanceId(extendAttrs.get(TaskInformations.ROOT_PROCESS_INSTANCE_ID.name()));
         
 //        // Set process instance end flag
 //        ProcessInstance pi = getRuntimeService().createProcessInstanceQuery().processInstanceId(taskExecutionContext.getProcessInstanceId()).singleResult();
@@ -515,7 +524,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     }
 
-    protected List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
+    private List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
             String operator, Map<String, Object> workflowParams) throws ProcessException {
             
         // Build task execution context
@@ -577,7 +586,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
             // Handle task initialize event
             try {
-                handleTaskInit(response.getEngineTaskInstanceIds(), obtainProcessInstanceId(engineTaskInstanceId), 
+                handleTaskInit(response.getEngineTaskInstanceIds(), response.getEngineProcessInstanceId(), 
                 		engineTaskInstanceId, taskExecutionContext, !response.getEngineProcessInstanceId().equals(response.getRootEngineProcessInstanceId()),
                 		workflowParamsDynamic, operator);
             } catch (ProcessException pe) {
@@ -644,7 +653,7 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
     
     protected final String[] obtainCommaSplitSpecifyValues(String taskInstanceId, String extendsAttributeKey, String delim) {
 
-        Map<String, String> adArray = getTaskInformations(taskInstanceId);
+        Map<String, String> adArray = getTaskInstanceInformations(taskInstanceId);
         if (adArray == null || adArray.isEmpty()) {
             logger.debug("Return empty array because extend attribute is empty.");
             return new String[0];
@@ -664,58 +673,9 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
         logger.debug("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] extension attribute key[" + extendsAttributeKey + "]:" + ObjectUtils.getDisplayString(valueSet));
         return valueSet.toArray(new String[valueSet.size()]);
     }
-    
-    protected abstract String obtainCacheInfos(String taskInstanceId, TaskInformations cacheInfo);
-    
-    @SuppressWarnings("unchecked")
-	protected HashMap<String, String> getTaskInformations(String taskInstanceId) {
-
-        try {
-            Map<String, String> extendAttrsMap = new HashMap<String, String>();
-            
-            // Put cache informations into extend attributes map
-            for (TaskInformations ti : TaskInformations.values()) {
-            	extendAttrsMap.put(ti.name(), obtainCacheInfos(taskInstanceId, ti));
-            }
-            String extendAttrs = extendAttrsMap.get(TaskInformations.EXTEND_ATTRIBUTES.name());
-            if (StringUtils.hasText(extendAttrs)) {
-	            Map<String, String> deserializeMap = XStreamSerializeHelper.deserializeObject(extendAttrs, "extendAttrs", Map.class);
-	            extendAttrsMap.putAll(deserializeMap);
-            }
-            
-            HashMap<String, String> forReturn = new HashMap<String, String>();
-
-            forReturn.putAll(extendAttrsMap);
-            logger.debug("PARSING EXTEND ATTRS--Task[" + taskInstanceId + "] description/Extend attributes holder result:" + ObjectUtils.getDisplayString(forReturn));
-            return forReturn;
-
-        } catch (Exception e) {
-            throw new ProcessException("Can not obtain task[" + taskInstanceId + "] extension attribute", e);
-        }
-
-    }
-    
-    protected String obtainProcessInstanceId(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.PROCESS_INSTANCE_ID);
-    }
-
-    protected String obtainTaskTag(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.TASK_TAG);
-    }
-
-    protected String obtainTaskRoleTag(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.TASK_ROLE_TAG);
-    }
-
-    protected String obtainBusinessObjectId(String taskInstanceId) {
-
-        return obtainCacheInfos(taskInstanceId, TaskInformations.BUSINESS_OBJECT_ID);
-    }
-    
-    protected final TaskLifecycleInteceptor[] obtainTaskLifecycleInterceptors(String taskInstanceId) {
+        
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	protected final TaskLifecycleInteceptor[] obtainTaskLifecycleInterceptors(String taskInstanceId) {
 
         Collection<TaskLifecycleInteceptor> taskLifecycleInterceptors = new LinkedHashSet<TaskLifecycleInteceptor>();
         

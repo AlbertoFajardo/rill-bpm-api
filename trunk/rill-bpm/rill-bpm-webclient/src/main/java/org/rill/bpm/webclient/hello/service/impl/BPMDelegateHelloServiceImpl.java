@@ -130,4 +130,18 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 		}
 	}
 
+	@Override
+	public void deleteSayHello(String name) {
+		
+		List<String> whoSaid = whoSaid();
+		for (String who : whoSaid) {
+			if (who.startsWith(name)) {
+				logger.info("Delete sayHello process: " + who);
+				remoteActivitiTemplate.deleteProcessInstance(who.split(" ")[1], name);
+				localDBHelloService.deleteSayHello(who);
+				break;
+			}
+		}
+	}
+
 }

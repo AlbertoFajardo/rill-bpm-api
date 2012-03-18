@@ -13,4 +13,6 @@ public interface HelloDao {
 	void createHello(String name);
 	
 	List<String> whoSaid();
+	
+	void deleteHello(String name);
 }
