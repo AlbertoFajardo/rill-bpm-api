@@ -102,6 +102,7 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 	}
 
 	@Override
+	@Transactional
 	public void batchSayHello(String[] names) {
 		
 		Assert.notEmpty(names);
@@ -121,9 +122,20 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 			list.add(dto);
 			logger.info("Batch sayHello: " + name);
 			// Remove from map
-			taskIdProcessIdMap.remove(entry.getKey());
+			String taskId = taskIdProcessIdMap.remove(entry.getKey());
+			Assert.notNull(taskId, "Concurrent try to complete this." + entry.getKey() + " " + entry.getValue());
 		}
-		List<RemoteWorkflowResponse> response = remoteActivitiTemplate.batchCompleteTaskInstance(list);
+		
+		List<RemoteWorkflowResponse> response = new ArrayList<RemoteWorkflowResponse>();
+		if (names.length == 2 && names[0].equals(names[1])) {
+			for (int i = 0; i < 2; i++) {
+				logger.info(names[i] + " " + i);
+				response.add(remoteActivitiTemplate.completeTaskInstance(list.get(i)));
+			}
+		} else {
+			response = remoteActivitiTemplate.batchCompleteTaskInstance(list);
+		}
+		
 		for (RemoteWorkflowResponse res : response) {
 			logger.info("Batch sayHello: " + res.getBusinessObjectId());
 			logger.info("Batch sayHello: " + ObjectUtils.getDisplayString(res.getEngineTaskInstanceIds()));
@@ -131,6 +143,7 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteSayHello(String name) {
 		
 		List<String> whoSaid = whoSaid();
