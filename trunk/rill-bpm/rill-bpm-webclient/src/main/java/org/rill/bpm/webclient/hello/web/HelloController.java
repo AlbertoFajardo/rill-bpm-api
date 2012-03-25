@@ -1,5 +1,7 @@
 package org.rill.bpm.webclient.hello.web;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
@@ -84,7 +86,20 @@ public class HelloController {
 	@RequestMapping(value={"/new_ab_batch"}, method=RequestMethod.GET)
 	public void _sayHelloBatch(HttpServletRequest request, HttpServletResponse response) {
 		
-		getHelloService().batchSayHello(new String[] {new Integer(new Random().nextInt()).toString(), new Integer(new Random().nextInt()).toString()});
+		int random = new Random().nextInt(10);
+		random++;
+		List<String> randomList = new ArrayList<String>(random);
+		for (int i = 0; i < random; i++) {
+			randomList.add("RandomList_" + i);
+		}
+		getHelloService().batchSayHello(randomList.toArray(new String[random]));
+	}
+	
+	// For apache AB batch
+	@RequestMapping(value={"/new_ab_2"}, method=RequestMethod.GET)
+	public void _sayHello2(HttpServletRequest request, HttpServletResponse response) {
+		
+		getHelloService().batchSayHello(new String[] {"new_ab_2", "new_ab_2"});
 	}
 	
 	// For apache AB roll back
