@@ -177,7 +177,7 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 		this.executorServiceThreadPoolSize = executorServiceThreadPoolSize;
 	}
 
-	private ExecutorService activitiTempalteExecutorService = Executors.newFixedThreadPool(executorServiceThreadPoolSize, new CustomizableThreadFactory("ActivitiTemplate"));
+	private ExecutorService activitiTempalteExecutorService = null;
 	
 	private User getOrSaveProcessStarter(final String processStarter) {
 		
@@ -639,6 +639,8 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 		
 		// Initialize cache
 		getCacheManager().getCache("default");
+		
+		activitiTempalteExecutorService = Executors.newFixedThreadPool(executorServiceThreadPoolSize, new CustomizableThreadFactory(this.toString()));
 	}
 
 }
