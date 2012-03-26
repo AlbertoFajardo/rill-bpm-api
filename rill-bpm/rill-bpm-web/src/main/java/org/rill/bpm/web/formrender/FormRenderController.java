@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.form.StartFormData;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.interceptor.Command;
@@ -22,6 +21,7 @@ import org.rill.bpm.web.ScaleoutControllerSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,10 +37,11 @@ public class FormRenderController extends ScaleoutControllerSupport {
 	protected final Log logger = LogFactory.getLog(getClass().getName());
 	
 	@RequestMapping(value = { "/process/{processDefinitionId}" }, method = RequestMethod.GET)
-	public ModelAndView process(HttpServletRequest request, final HttpServletResponse response, @PathVariable("processDefinitionId") final String processDefinitionId) {
+	public ModelAndView process(HttpServletRequest request, final HttpServletResponse response, 
+			@CookieValue(value=SCALE_OUT_TARGET, required=true) String fromCookie, 
+			@PathVariable("processDefinitionId") final String processDefinitionId) {
 		
-		final String scaleoutName = request.getParameter("scaleoutName") == null ? ProcessEngines.NAME_DEFAULT : request.getParameter("scaleoutName"); 
-		WorkflowOperations workflowOperations = scaleoutTarget.get(scaleoutName);
+		WorkflowOperations workflowOperations = scaleoutTarget.get(fromCookie);
 		final ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		StartFormData startFormData = activitiAccessor.runExtraCommand(new Command<StartFormData>() {
 
@@ -60,7 +61,9 @@ public class FormRenderController extends ScaleoutControllerSupport {
 	}
 	
 	@RequestMapping(value = { "/process/{processDefinitionId}/start" }, method = RequestMethod.POST)
-	public void start(HttpServletRequest request, final HttpServletResponse response, WebRequest webRequest,
+	public void start(HttpServletRequest request, final HttpServletResponse response, 
+			WebRequest webRequest,
+			@CookieValue(value=SCALE_OUT_TARGET, required=true) String fromCookie,
 			@PathVariable("processDefinitionId") final String processDefinitionId, 
 			@RequestParam("businessObjectId") String businessObjectId, 
 			@RequestParam("afterStart") String afterStart, ModelMap model) throws Exception {
@@ -70,8 +73,7 @@ public class FormRenderController extends ScaleoutControllerSupport {
 		try {
 			Assert.notNull(businessObjectId, "Please passin businessObjectId using [businessObjectId].");
 			
-			final String scaleoutName = model.containsAttribute(SCALE_OUT_TARGET) ? model.get(SCALE_OUT_TARGET).toString() : ProcessEngines.NAME_DEFAULT; 
-			WorkflowOperations workflowOperations = scaleoutTarget.get(scaleoutName);
+			WorkflowOperations workflowOperations = scaleoutTarget.get(fromCookie);
 			ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 			String processDefinitionKey = activitiAccessor.runExtraCommand(new Command<String>() {
 

@@ -33,12 +33,11 @@ import org.rill.bpm.api.activiti.ActivitiAccessor;
 import org.rill.bpm.web.ScaleoutControllerSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -46,19 +45,32 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/console")
-@SessionAttributes(value=ScaleoutControllerSupport.SCALE_OUT_TARGET, types=String.class)
 public class ProcessManagerConsoleController extends ScaleoutControllerSupport {
-
+	
 	@RequestMapping(value = { "/" }, method = RequestMethod.GET)
-	public ModelAndView console(@RequestParam(value="selectedScaleoutTarget", required=false) String selectedScaleoutTarget, ModelMap model) {
+	public synchronized ModelAndView console(HttpServletRequest request,HttpServletResponse response, 
+			@RequestParam(value=SCALE_OUT_TARGET, required=false) String fromRequest,
+			@CookieValue(value=SCALE_OUT_TARGET, required=false) String fromCookie, ModelMap model) {
 		
-		if (!model.containsAttribute(ScaleoutControllerSupport.SCALE_OUT_TARGET)) {
-			model.addAttribute(SCALE_OUT_TARGET, ProcessEngines.NAME_DEFAULT);
-		}
-		if (selectedScaleoutTarget != null) {
-			model.addAttribute(SCALE_OUT_TARGET, selectedScaleoutTarget);
+		String forReturn = null;
+		if (fromRequest != null) {
+			// Mean need change cookie value
+			scaleoutTargetCookie.removeCookie(response);
+			scaleoutTargetCookie.addCookie(response, fromRequest);
+			
+			forReturn = fromRequest;
+		} else {
+			// First check cookie value
+			if (fromCookie != null) {
+				forReturn = fromCookie;
+			} else {
+				// May first access time
+				forReturn = ProcessEngines.NAME_DEFAULT;
+				scaleoutTargetCookie.addCookie(response, forReturn);
+			}
 		}
 		
+		model.addAttribute(SCALE_OUT_TARGET, forReturn);
 		return new ModelAndView("/console", "scaleoutTarget", scaleoutTarget);
 	}
 
@@ -103,7 +115,7 @@ public class ProcessManagerConsoleController extends ScaleoutControllerSupport {
 	
 	@RequestMapping(value = { "/processDefList" }, method = RequestMethod.GET)
 	public void processDefList(HttpServletRequest request,
-			final HttpServletResponse response, @ModelAttribute(SCALE_OUT_TARGET) String selectedScaleoutTarget) throws Exception {
+			final HttpServletResponse response, @CookieValue(value=SCALE_OUT_TARGET, required=true) String fromCookie) throws Exception {
 		
 		response.setContentType("application/json;charset=UTF-8");
 		final PrintWriter out = response.getWriter();
@@ -116,7 +128,7 @@ public class ProcessManagerConsoleController extends ScaleoutControllerSupport {
 		// FIXME: MENGRAN. Need wrap a search operations
 		final String searchKey = "true".equals(request.getParameter("_search")) ? request.getParameter("PD.KEY_") : null;
 		
-		WorkflowOperations workflowOperations = scaleoutTarget.get(selectedScaleoutTarget);
+		WorkflowOperations workflowOperations = scaleoutTarget.get(fromCookie);
 		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 
@@ -186,7 +198,7 @@ public class ProcessManagerConsoleController extends ScaleoutControllerSupport {
 	@RequestMapping(value = { "/processInstanceList/{running}/{processDefinitionId}" }, method = RequestMethod.GET)
 	public void processInstanceList(@PathVariable(value="running") final boolean running, 
 			@PathVariable(value="processDefinitionId") final String processDefinitionId, HttpServletRequest request,
-			final HttpServletResponse response, @ModelAttribute(SCALE_OUT_TARGET) String selectedScaleoutTarget) throws Exception {
+			final HttpServletResponse response, @CookieValue(value=SCALE_OUT_TARGET, required=true) String fromCookie) throws Exception {
 		
 		response.setContentType("application/json;charset=UTF-8");
 		final PrintWriter out = response.getWriter();
@@ -199,7 +211,7 @@ public class ProcessManagerConsoleController extends ScaleoutControllerSupport {
 		// FIXME: MENGRAN. Need wrap a search operations
 		final String searchKey = "true".equals(request.getParameter("_search")) ? request.getParameter("BUSINESS_KEY_") : null;
 		
-		WorkflowOperations workflowOperations = scaleoutTarget.get(selectedScaleoutTarget);
+		WorkflowOperations workflowOperations = scaleoutTarget.get(fromCookie);
 		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 

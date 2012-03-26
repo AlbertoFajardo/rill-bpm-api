@@ -11,6 +11,7 @@ import org.rill.bpm.api.WorkflowCache;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.scaleout.ScaleoutHelper;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.web.util.CookieGenerator;
 
 public class ScaleoutControllerSupport implements InitializingBean {
 
@@ -41,11 +42,16 @@ public class ScaleoutControllerSupport implements InitializingBean {
 	}
 	
 	protected volatile ConcurrentHashMap<String, WorkflowOperations> scaleoutTarget = new ConcurrentHashMap<String, WorkflowOperations>();
+	protected final CookieGenerator scaleoutTargetCookie = new CookieGenerator();
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		
 		scaleoutTarget = ScaleoutHelper.getScaleoutTarget(getWorkflowAccessor());
+		
+		// Initialize
+		scaleoutTargetCookie.setCookieName(SCALE_OUT_TARGET);
+		scaleoutTargetCookie.setCookieMaxAge(Integer.MAX_VALUE);
 	}
-
+	
 }
