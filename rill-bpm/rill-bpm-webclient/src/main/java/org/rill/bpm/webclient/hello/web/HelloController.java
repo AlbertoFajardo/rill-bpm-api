@@ -75,14 +75,27 @@ public class HelloController {
         return mav;
 	}
 	
-	// For apache AB 
+	// For apache AB create process instance.
+	@RequestMapping(value={"/new_ab_rollback"}, method=RequestMethod.GET)
+	public void _sayHelloRollback(HttpServletRequest request, HttpServletResponse response) {
+		
+		getHelloService().sayHello(new Integer(new Random().nextInt()).toString() + "_rollback");
+		
+	}
 	@RequestMapping(value={"/new_ab"}, method=RequestMethod.GET)
 	public void _sayHello(HttpServletRequest request, HttpServletResponse response) {
 		
 		getHelloService().sayHello(new Integer(new Random().nextInt()).toString());
 		
 	}
-	// For apache AB batch
+	@RequestMapping(value={"/new_ab_twice"}, method=RequestMethod.GET)
+	public void _sayHelloTwice(HttpServletRequest request, HttpServletResponse response) {
+		
+		getHelloService().sayHello(new Integer(new Random().nextInt()).toString(), 2);
+		
+	}
+	
+	// For apache AB batch complete task instance.
 	@RequestMapping(value={"/new_ab_batch"}, method=RequestMethod.GET)
 	public void _sayHelloBatch(HttpServletRequest request, HttpServletResponse response) {
 		
@@ -95,18 +108,10 @@ public class HelloController {
 		getHelloService().batchSayHello(randomList.toArray(new String[random]));
 	}
 	
-	// For apache AB batch
 	@RequestMapping(value={"/new_ab_2"}, method=RequestMethod.GET)
 	public void _sayHello2(HttpServletRequest request, HttpServletResponse response) {
 		
 		getHelloService().batchSayHello(new String[] {"new_ab_2", "new_ab_2"});
 	}
 	
-	// For apache AB roll back
-	@RequestMapping(value={"/new_ab_rollback"}, method=RequestMethod.GET)
-	public void _sayHelloRollback(HttpServletRequest request, HttpServletResponse response) {
-		
-		getHelloService().sayHello(new Integer(new Random().nextInt()).toString() + "_rollback");
-		
-	}
 }

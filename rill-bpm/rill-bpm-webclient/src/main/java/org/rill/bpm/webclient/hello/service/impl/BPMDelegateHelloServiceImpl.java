@@ -43,6 +43,16 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
 
 	@Override
 	@Transactional
+	public void sayHello(String name, int cnt) {
+		
+		Assert.isTrue(cnt > 1, "Invalid say hello cnt.");
+		for (int i = 0; i < cnt; i++) {
+			this.sayHello(name + "_" + i);
+		}
+	}
+	
+	@Override
+	@Transactional
 	public void sayHello(String name) {
 
 		String businessObjectId = PROCESS_DEFINITION_KEY + "_" + name;
@@ -51,7 +61,7 @@ public class BPMDelegateHelloServiceImpl implements HelloService {
         CreateProcessInstanceDto dto = new CreateProcessInstanceDto();
         dto.setBusinessObjectId(businessObjectId);
         dto.setProcessDefinitionKey(PROCESS_DEFINITION_KEY);
-        dto.setProcessStarter(name);
+        dto.setProcessStarter(name.split("_")[0]);
         MapElementsArray mea = new MapElementsArray();
         dto.setStartParams(mea);
         

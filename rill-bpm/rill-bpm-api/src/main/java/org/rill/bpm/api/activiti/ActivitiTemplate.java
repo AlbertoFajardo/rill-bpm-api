@@ -23,6 +23,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Resource;
@@ -56,6 +63,8 @@ import org.rill.bpm.api.WorkflowCache.CacheTargetRetriever;
 import org.rill.bpm.api.WorkflowOperations;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor;
+import org.springframework.cache.CacheManager;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -127,11 +136,9 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	        workflowParams.putAll(passToEngine);
 	        
 	        // Record start user information at 2012-02-07.
-	        User processStarterUser = getIdentityService().createUserQuery().userId(processStarter).singleResult();
-	        if (processStarterUser == null) {
-	        	processStarterUser = getIdentityService().newUser(processStarter);
-	        	getIdentityService().saveUser(processStarterUser);
-	        }
+	        // Refactor by MENGRAN at 2012-03-26 for lock wait timeout exception.
+	        User processStarterUser = getOrSaveProcessStarter(processStarter);
+	        
 	        getIdentityService().setAuthenticatedUserId(processStarterUser.getId());
 	        haveSetAuthenticatedUser = true;
 	        
@@ -158,6 +165,55 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 				getIdentityService().setAuthenticatedUserId(null);
 			}
 		}
+	}
+	
+	private int executorServiceThreadPoolSize = 2;
+	public final int getExecutorServiceThreadPoolSize() {
+		return executorServiceThreadPoolSize;
+	}
+
+	public final void setExecutorServiceThreadPoolSize(
+			int executorServiceThreadPoolSize) {
+		this.executorServiceThreadPoolSize = executorServiceThreadPoolSize;
+	}
+
+	private ExecutorService activitiTempalteExecutorService = Executors.newFixedThreadPool(executorServiceThreadPoolSize, new CustomizableThreadFactory("ActivitiTemplate"));
+	
+	private User getOrSaveProcessStarter(final String processStarter) {
+		
+		User processStarterUser = getIdentityService().createUserQuery().userId(processStarter).singleResult();
+		int tryCnt = executorServiceThreadPoolSize;
+		while (processStarterUser == null && tryCnt > 0) {
+			logger.info("Try to persist process starter " + processStarter);
+        	Future<User> fUser = activitiTempalteExecutorService.submit(new Callable<User>() {
+
+				@Override
+				public User call() throws Exception {
+					User processStarterUser = getIdentityService().createUserQuery().userId(processStarter).singleResult();
+					if (processStarterUser == null) {
+						processStarterUser = getIdentityService().newUser(processStarter);
+			        	getIdentityService().saveUser(processStarterUser);
+					}
+					return processStarterUser;
+				}
+        		
+			});
+        	try {
+				processStarterUser = fUser.get(executorServiceThreadPoolSize, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				logger.warn("Interrupted exception for retrieve process starter." + processStarter, e);
+			} catch (ExecutionException e) {
+				logger.warn("Execute exception for retrieve process starter." + processStarter, e);
+			} catch (TimeoutException e) {
+				logger.warn("Wait timeout for retrieve process starter." + processStarter, e);
+			} finally {
+				tryCnt--;
+			}
+	        	
+		}
+        
+		Assert.notNull(processStarterUser, "Can not do saveOrUpdate process starter operation." + processStarter);
+        return processStarterUser;
 	}
 
 	@Override
@@ -566,5 +622,23 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 		return "ActivitiTemplate [" + getProcessEngine().getName() + "]";
 	}
 
+	@Resource(name="cacheManager")
+	private CacheManager cacheManager;
+	
+	public final CacheManager getCacheManager() {
+		return cacheManager;
+	}
+
+	public final void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
+		
+		// Initialize cache
+		getCacheManager().getCache("default");
+	}
 
 }

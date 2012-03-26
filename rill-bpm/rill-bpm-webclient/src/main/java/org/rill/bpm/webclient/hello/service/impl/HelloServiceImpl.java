@@ -34,6 +34,16 @@ public class HelloServiceImpl implements HelloService {
 			throw new RuntimeException("Exception when try to persist who say hello.", e);
 		}
 	}
+	
+	@Override
+	@Transactional
+	public void sayHello(String name, int cnt) {
+		
+		Assert.isTrue(cnt > 1, "Invalid say hello cnt.");
+		for (int i = 0; i < cnt; i++) {
+			this.sayHello(name + "_" + i);
+		}
+	}
 
 	@Override
 	public List<String> whoSaid() {
