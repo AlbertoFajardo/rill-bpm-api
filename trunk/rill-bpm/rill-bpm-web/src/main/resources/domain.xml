@@ -151,7 +151,7 @@
 	<property value="SHA-256" name="default-digest-algorithm" />
       </security-service>
       <monitoring-service monitoring-enabled="false">
-        <module-monitoring-levels />
+        <module-monitoring-levels transaction-service="OFF"/>
       </monitoring-service>      
       <transaction-service tx-log-dir="${com.sun.aas.instanceRoot}/logs" >
       </transaction-service>
