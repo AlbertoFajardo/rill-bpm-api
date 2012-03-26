@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.util.json.JSONArray;
@@ -21,6 +20,7 @@ import org.rill.bpm.web.ScaleoutControllerSupport;
 import org.rill.utils.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,14 +30,15 @@ import org.springframework.web.servlet.ModelAndView;
 public class ProcessStatisticsController extends ScaleoutControllerSupport {
 	
 	@RequestMapping(value = { "/3days" }, method = RequestMethod.GET)
-	public ModelAndView console(HttpServletRequest request,
-			final HttpServletResponse response, ModelMap model) throws Exception {
+	public ModelAndView threadDays(HttpServletRequest request,
+			final HttpServletResponse response,
+			@CookieValue(value=SCALE_OUT_TARGET, required=true) String fromCookie, 
+			ModelMap model) throws Exception {
 		
 		response.setContentType("application/json;charset=UTF-8");
 		final PrintWriter out = response.getWriter();
 		
-		final String scaleoutName = model.containsAttribute(SCALE_OUT_TARGET) ? model.get(SCALE_OUT_TARGET).toString() : ProcessEngines.NAME_DEFAULT;
-		WorkflowOperations workflowOperations = scaleoutTarget.get(scaleoutName);
+		WorkflowOperations workflowOperations = scaleoutTarget.get(fromCookie);
 		ActivitiAccessor activitiAccessor = ActivitiAccessor.retrieveActivitiAccessorImpl(workflowOperations, ActivitiAccessor.class);
 		activitiAccessor.runExtraCommand(new Command<Void>() {
 
