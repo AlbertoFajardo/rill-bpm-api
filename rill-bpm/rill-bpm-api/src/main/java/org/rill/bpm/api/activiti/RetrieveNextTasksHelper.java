@@ -34,6 +34,7 @@ import org.activiti.engine.impl.bpmn.parser.BpmnParse;
 import org.activiti.engine.impl.bpmn.parser.BpmnParseListener;
 import org.activiti.engine.impl.bpmn.parser.FieldDeclaration;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.context.Context;
 import org.activiti.engine.impl.el.UelExpressionCondition;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
@@ -397,8 +398,9 @@ public class RetrieveNextTasksHelper implements BpmnParseListener, InitializingB
 	        gobackTransition.setProperty("documentation", __go_back);
 	        gobackTransition.setDestination(sourceActivity);
 	        String expression = "${" + __go_back + "==true}";
-	
-	        ProcessEngineConfigurationImpl processEngineConfiguration = cacheBeanFactory.getBean(ProcessEngineConfigurationImpl.class);
+	        
+	        // Bugfix for scale-out feature. Add test-case ScaleoutTest to prevent same bug. Add by MENGRAN at 2012-03-28
+	        ProcessEngineConfigurationImpl processEngineConfiguration = Context.getProcessEngineConfiguration();
 	        Condition expressionCondition = new UelExpressionCondition(processEngineConfiguration.getExpressionManager().createExpression(expression));
 	        gobackTransition.setProperty(BpmnParse.PROPERTYNAME_CONDITION_TEXT, expression);
 	        gobackTransition.setProperty(BpmnParse.PROPERTYNAME_CONDITION, expressionCondition);
