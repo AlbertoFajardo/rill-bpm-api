@@ -297,7 +297,12 @@
 
       ******************************************************************************************************************
    -->
-
+	
+	<namedCache name="taskCache">
+	</namedCache>
+	<namedCache name="processCache">
+	</namedCache>
+	
 	<namedCache name="PERSISTENT_CACHE">
 
 		<loaders passivation="false" shared="true">
