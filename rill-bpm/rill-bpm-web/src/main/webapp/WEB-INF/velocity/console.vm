@@ -311,7 +311,7 @@ function drawChart() {
 								      contentType:  'application/x-www-form-urlencoded',
 								      success:      function(data, textStatus, jqXHR) {
 								      if (data.cacheNames) {
-								      	$( "#cacheResult" ).html(data.cacheNames);
+								      	$( "#cacheResult" ).html('cache names:' + data.cacheNames);
 								      } else {
 								      	$( "#cacheResult" ).html('type:' + data.type + '<br />'
 								      							+ 'name:' + data.cacheName + '<br />'
@@ -332,18 +332,20 @@ function drawChart() {
 						#cache-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
 						#cache-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
 					</style>
-					<select id="cacheType" name="cacheType">
-						<option value='GET'>GET</option>
-						<!-- unsupport update cache values at 2012-04-09 
-						<option value='PUT'>PUT</option>
-						 -->
-						<option value='DELETE'>DELETE</option>
-					</select>
-					<textarea id="cacheUrl" name="cacheUrl" size="40"></textarea>
-					<a href="javascript:void(0);" id="cache-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-disk"></span>提交</a>
-					<br />
-					<div id="cacheResult" title="Cache Result">
-					</div>
+					<p>
+						<select id="cacheType" name="cacheType">
+							<option value='GET'>GET</option>
+							<!-- unsupport update cache values at 2012-04-09 
+							<option value='PUT'>PUT</option>
+							 -->
+							<option value='DELETE'>DELETE</option>
+						</select>
+						<textarea id="cacheUrl" name="cacheUrl" size="40"></textarea>
+						<a href="javascript:void(0);" id="cache-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-disk"></span>提交</a>
+						<br />
+						<div id="cacheResult" title="Cache Result">
+						</div>
+					</p>
 				</li>
 			</ul>
 		</div>
