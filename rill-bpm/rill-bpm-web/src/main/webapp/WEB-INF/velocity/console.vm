@@ -298,19 +298,52 @@ function drawChart() {
 					</ul>
 				</li>
 				<li>
-					<h2>Turpis nulla</h2>
-					<ul>
-						<li><a href="#">Nec metus sed donec</a></li>
-						<li><a href="#">Magna lacus bibendum mauris</a></li>
-						<li><a href="#">Velit semper nisi molestie</a></li>
-						<li><a href="#">Eget tempor eget nonummy</a></li>
-						<li><a href="#">Nec metus sed donec</a></li>
-						<li><a href="#">Nec metus sed donec</a></li>
-						<li><a href="#">Magna lacus bibendum mauris</a></li>
-						<li><a href="#">Velit semper nisi molestie</a></li>
-						<li><a href="#">Eget tempor eget nonummy</a></li>
-						<li><a href="#">Nec metus sed donec</a></li>
-					</ul>
+					<h2>流程缓存管理</h2>
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$( "#cacheResult" ).hide();
+							$("#cache-submit").click(function() {
+								params = {
+								      url:          '#springUrl("")/web/cachemgr/' + $('#cacheUrl').val(),
+								      type:         $('#cacheType').val(),
+								      cache:        false,
+								      dataType:     'json',
+								      contentType:  'application/x-www-form-urlencoded',
+								      success:      function(data, textStatus, jqXHR) {
+								      if (data.cacheNames) {
+								      	$( "#cacheResult" ).html(data.cacheNames);
+								      } else {
+								      	$( "#cacheResult" ).html('type:' + data.type + '<br />'
+								      							+ 'name:' + data.cacheName + '<br />'
+								      							+ 'key:' + data.cacheKey + '<br />'
+								      							+ 'value:' + data.cacheValue + '<br />');
+								      }
+								      	$( "#cacheResult" ).dialog({
+								      		modal: true
+								      	});
+								      }
+								    };
+								jQuery.ajax(params);
+							});
+						});
+					</script>
+					<style type="text/css">
+						#cacheUrl {width: 99%; margin: 10px 10px 10px 0px;}
+						#cache-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
+						#cache-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+					</style>
+					<select id="cacheType" name="cacheType">
+						<option value='GET'>GET</option>
+						<!-- unsupport update cache values at 2012-04-09 
+						<option value='PUT'>PUT</option>
+						 -->
+						<option value='DELETE'>DELETE</option>
+					</select>
+					<textarea id="cacheUrl" name="cacheUrl" size="40"></textarea>
+					<a href="javascript:void(0);" id="cache-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-disk"></span>提交</a>
+					<br />
+					<div id="cacheResult" title="Cache Result">
+					</div>
 				</li>
 			</ul>
 		</div>
