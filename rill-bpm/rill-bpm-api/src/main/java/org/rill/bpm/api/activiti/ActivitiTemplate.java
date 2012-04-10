@@ -278,10 +278,17 @@ public class ActivitiTemplate extends ActivitiAccessor implements WorkflowOperat
 	public String getEngineProcessInstanceIdByBOId(String businessObjectId, String processDefinitionKey)
 			throws ProcessException {
 		
-		ProcessInstance pi = getRuntimeService().createProcessInstanceQuery()
-				.processInstanceBusinessKey(businessObjectId, processDefinitionKey).singleResult();
-		
-		return pi == null ? null : pi.getProcessInstanceId();
+		if (processDefinitionKey != null) {
+			ProcessInstance pi = getRuntimeService().createProcessInstanceQuery()
+					.processInstanceBusinessKey(businessObjectId, processDefinitionKey).singleResult();
+			
+			return pi == null ? null : pi.getProcessInstanceId();
+		} else {
+			List<ProcessInstance> piList = getRuntimeService().createProcessInstanceQuery()
+					.processInstanceBusinessKey(businessObjectId, processDefinitionKey).orderByProcessInstanceId().asc().list();
+			
+			return CollectionUtils.isEmpty(piList) ? null : piList.get(0).getProcessInstanceId();
+		}
 	}
 
     private Set<String> getProcessInstanceVariableNames(final ProcessDefinitionEntity pd) {

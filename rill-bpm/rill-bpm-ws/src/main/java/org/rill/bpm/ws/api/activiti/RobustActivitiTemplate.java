@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.rill.bpm.api.WorkflowCache.CacheTargetRetriever;
 import org.rill.bpm.api.activiti.ActivitiTemplate;
 import org.rill.bpm.api.exception.ProcessException;
 import org.rill.bpm.ws.api.RemoteWorkflowOperations.RemoteWorkflowResponse;
@@ -43,7 +44,7 @@ public class RobustActivitiTemplate extends ActivitiTemplate {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public RemoteWorkflowResponse handleTaskInstanceHasEnd(String engineTaskInstanceId, CommandContext commandContext) {
+	public RemoteWorkflowResponse handleTaskInstanceHasEnd(final String engineTaskInstanceId, CommandContext commandContext) {
 		
 		HashMap<String, String> extendAttrs = getTaskInstanceInformations(engineTaskInstanceId);
 		
@@ -52,7 +53,16 @@ public class RobustActivitiTemplate extends ActivitiTemplate {
 		String rootProcessInstanceId = extendAttrs.get(TaskInformations.ROOT_PROCESS_INSTANCE_ID.name());
 		String processDefinitionKey = extendAttrs.get(TaskInformations.PROCESS_DEFINE_KEY.name());
 		
-		String nextTaskIds = getWorkflowCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), null);
+		String nextTaskIds = getWorkflowCache().getOrSetUserInfo(generateNextTaskInsKey(engineTaskInstanceId), new CacheTargetRetriever<String>() {
+
+			@Override
+			public String getCacheTarget(String key) throws Throwable {
+				logger.warn("Why lose next task ids of " + engineTaskInstanceId);
+				return null;
+			}
+			
+		});
+		
 		if ("".equals(nextTaskIds)) {
 			throw new ProcessException("Can not find next task IDs cache by key " + generateNextTaskInsKey(engineTaskInstanceId) + ", maybe wrong retrieve timing or cache expired.");
 		}

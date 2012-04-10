@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.activiti.engine.impl.util.ReflectUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.api.WorkflowCache;
 import org.rill.bpm.api.WorkflowCache.CacheTargetRetriever;
 import org.rill.bpm.api.WorkflowOperations;
@@ -21,6 +23,7 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.aop.target.EmptyTargetSource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 /**
  * SPI helper and for internal usage only.
@@ -39,6 +42,49 @@ public abstract class ScaleoutHelper {
 	
 	// For cache retrieve. FIXME Need retrieve size from environment
 	private static ExecutorService scaleoutFailOver = Executors.newFixedThreadPool(30, new CustomizableThreadFactory("ScaleoutHelper"));
+	
+	private static final Log LOGGER = LogFactory.getLog(ScaleoutHelper.class);
+	
+	static class BlindScaleoutKeyRetriever implements CacheTargetRetriever<String>, Callable<String> {
+		
+		private Object[] arguments;
+		private String methodName;
+		private ConcurrentHashMap<String, Object> scaleoutTargets;
+		
+		public BlindScaleoutKeyRetriever(Object[] arguments, String methodName, ConcurrentHashMap<String, Object> scaleoutTargets) {
+			super();
+			this.arguments = arguments;
+			this.methodName = methodName;
+			this.scaleoutTargets = scaleoutTargets;
+		}
+
+		@Override
+		public String getCacheTarget(String key) throws Throwable {
+			
+			LOGGER.warn("BLIND_RETRIEVE_SCALEOUT_KEY: " + key);
+			Future<String> futureResult = scaleoutFailOver.submit(this);
+			return futureResult.get(scaleoutTargets.size(), TimeUnit.SECONDS);
+		}
+
+		@Override
+		public String call() throws Exception {
+			
+			for (Entry<String, Object> entry : scaleoutTargets.entrySet()) {
+				try {
+					String result = (String) ReflectUtil.invoke(entry.getValue(), methodName, arguments);
+					if (result != null) {
+						return entry.getKey();
+					}
+				} catch (Exception e) {
+					// Ignore
+				}
+			}
+			
+			LOGGER.error("Even blind, not found scale-out key by " + ObjectUtils.getDisplayString(arguments));
+			return null;
+		}
+		
+	}
 
 	static class BlindRetriever implements CacheTargetRetriever<HashMap<String, String>>, Callable<HashMap<String, String>> {
 		
@@ -116,8 +162,8 @@ public abstract class ScaleoutHelper {
 		WorkflowOperations impl = scaleout;
 		if (isScaleout(scaleout)) {
 			ScaleoutInterceptor scaleoutInterceptor = (ScaleoutInterceptor) ((Advised) scaleout).getAdvisors()[0].getAdvice();
-			
-			String implHash = cache.getOrSetUserInfo(scaloutKey, null);
+			// Warning!!! Blind retrieve
+			String implHash = cache.getOrSetUserInfo(scaloutKey, new BlindScaleoutKeyRetriever(new Object[]{deGenerateScaloutKey(scaloutKey), null}, "getEngineProcessInstanceIdByBOId", scaleoutInterceptor.getTargetsHashMap()));
 			impl = (WorkflowOperations) scaleoutInterceptor.getTargetsHashMap().get(implHash);
 		}
 		
@@ -168,6 +214,11 @@ public abstract class ScaleoutHelper {
 	public static String generateScaloutKey(String businessKey) {
 		
 		return SCALEOUT_KEY + businessKey;
+	}
+	
+	public static String deGenerateScaloutKey(String scaleoutKey) {
+		
+		return scaleoutKey.substring(SCALEOUT_KEY.length());
 	}
 	
 }

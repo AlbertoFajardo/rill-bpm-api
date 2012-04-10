@@ -14,4 +14,6 @@ public interface WorkflowCache<T> {
 	
 	String getOrSetUserInfo(String key, String value);
 	
+	String getOrSetUserInfo(String key, CacheTargetRetriever<String> valueRetriever);
+	
 }

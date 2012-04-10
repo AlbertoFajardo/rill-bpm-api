@@ -19,10 +19,29 @@ public class WorkflowCacheImpl implements WorkflowCache<HashMap<String, String>>
 	public String getOrSetUserInfo(String key, String value) {
 		
 		Assert.notNull(key, "Unsupported null key");
-		Assert.notNull(value, "Unsupported null value");
+		Assert.notNull(value, "Unsupported null value of key " + key);
 		
 		logger.debug("NOT HIT: method[getOrSetUserInfo] cache key:" + key + ", value:" + value);
 		return value;
+	}
+	
+	@Override
+	@Cacheable(value = { "PERSISTENT_CACHE" }, key="#key")
+	public String getOrSetUserInfo(
+			String key,
+			org.rill.bpm.api.WorkflowCache.CacheTargetRetriever<String> valueRetriever) {
+		
+		Assert.notNull(key, "Unsupported null key");
+		Assert.notNull(valueRetriever, "Unsupported null valueRetriever of key " + key);
+		
+		logger.debug("NOT HIT: method[getOrSetUserInfo] cache key:" + key);
+		try {
+			return valueRetriever.getCacheTarget(key);
+		} catch (Throwable e) {
+			logger.error("Can not retrieve user info cache." + key, e);
+			throw new ProcessException(e);
+		}
+		
 	}
 	
 	@Override
