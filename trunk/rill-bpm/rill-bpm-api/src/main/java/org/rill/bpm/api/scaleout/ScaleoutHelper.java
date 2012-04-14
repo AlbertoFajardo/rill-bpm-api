@@ -179,8 +179,7 @@ public abstract class ScaleoutHelper {
 					LOGGER.info("Not found even BLIND_RETRIEVE_SCALEOUT. May be new scaleout key: " + scaloutKey);
 					return randomRetrieveExecuteTargetHashcode(scaleoutTargets);
 				}
-				LOGGER.warn("Not found even BLIND_RETRIEVE_SCALEOUT and random retrieve. Scaleout key: " + scaloutKey);
-				return null;
+				return blindRetrieve;
 			}
 			
 		});
