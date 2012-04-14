@@ -1,7 +1,9 @@
 package org.rill.bpm.api.scaleout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -155,6 +157,33 @@ public abstract class ScaleoutHelper {
 		return scaleout instanceof SpringProxy && 
 				((Advised) scaleout).getTargetSource().equals(EmptyTargetSource.INSTANCE) && 
 				((Advised) scaleout).getAdvisors().length == 1 && ((Advised) scaleout).getAdvisors()[0].getAdvice() instanceof ScaleoutInterceptor;
+	}
+	
+	static String randomRetrieveExecuteTargetHashcode(ConcurrentHashMap<String, Object> scaleoutTargets) {
+		
+		// Maybe throw NullPointerException
+		int randomIndex = new Random().nextInt(scaleoutTargets.size());
+		Object randomTarget = new ArrayList<Object>(scaleoutTargets.values()).get(randomIndex);
+		return new Integer(randomTarget.hashCode()).toString();
+	}
+	
+	static String retrieveScaleoutTargetHashcode(WorkflowCache<HashMap<String, String>> cache, final ConcurrentHashMap<String, Object> scaleoutTargets, final String scaloutKey) {
+		
+		// Warning!!! Blind retrieve
+		return cache.getOrSetUserInfo(scaloutKey, new BlindScaleoutKeyRetriever(new Object[]{deGenerateScaloutKey(scaloutKey), null}, "getEngineProcessInstanceIdByBOId", scaleoutTargets) {
+
+			@Override
+			public String getCacheTarget(String key) throws Throwable {
+				String blindRetrieve = super.getCacheTarget(key);
+				if (blindRetrieve == null) {
+					LOGGER.info("Not found even BLIND_RETRIEVE_SCALEOUT. May be new scaleout key: " + scaloutKey);
+					return randomRetrieveExecuteTargetHashcode(scaleoutTargets);
+				}
+				LOGGER.warn("Not found even BLIND_RETRIEVE_SCALEOUT and random retrieve. Scaleout key: " + scaloutKey);
+				return null;
+			}
+			
+		});
 	}
 	
 	public static WorkflowOperations determineImpl(WorkflowCache<HashMap<String, String>> cache, WorkflowOperations scaleout, String scaloutKey) {

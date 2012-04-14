@@ -1,10 +1,8 @@
 package org.rill.bpm.api.scaleout;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
@@ -88,7 +86,8 @@ public class ScaleoutInterceptor implements MethodInterceptor, InitializingBean 
 		Method method = invocation.getMethod();
 		ScaleoutKeySource source = AnnotationUtils.findAnnotation(method, ScaleoutKeySource.class);
 		if (source == null) {
-			return randomRetrieveExecuteTarget();
+			String randomHashcode = ScaleoutHelper.randomRetrieveExecuteTargetHashcode(targets);
+			return targets.get(randomHashcode);
 		}
 		
 		String businessKey = null;
@@ -108,7 +107,7 @@ public class ScaleoutInterceptor implements MethodInterceptor, InitializingBean 
 		// FIXME MENGRAN. Need test if targetHashcode is null and cache is exists.
 		String targetHashcode = null;
 		try {
-			targetHashcode = new Integer(randomRetrieveExecuteTarget().hashCode()).toString();
+			targetHashcode = ScaleoutHelper.retrieveScaleoutTargetHashcode(workflowCache, this.targets, ScaleoutHelper.generateScaloutKey(businessKey));
 		} catch (Exception e) {
 			logger.warn("Can not retrieve execute target. We pray that have cached.");
 		}
@@ -118,13 +117,6 @@ public class ScaleoutInterceptor implements MethodInterceptor, InitializingBean 
 		logger.debug("cachedTargetHashcode:" + cachedTargetHashcode + ", targetHashcode:" + targetHashcode);
 		
 		return targets.get(cachedTargetHashcode);
-	}
-	
-	private Object randomRetrieveExecuteTarget() {
-		
-		// Maybe throw NullPointerException
-		int randomIndex = new Random().nextInt(this.targets.size());
-		return new ArrayList<Object>(this.targets.values()).get(randomIndex);
 	}
 	
 	protected void doFailOverExecuteTarget(Object failTarget) {
@@ -174,6 +166,7 @@ public class ScaleoutInterceptor implements MethodInterceptor, InitializingBean 
 			// Binding execute target to thread
 			EXECUTE_TARGET.set(executeTarget);
 			// Do execute
+			logger.info("Use " + executeTarget + " for " + invocation);
 			result = ReflectionUtils.invokeMethod(invocation.getMethod(), executeTarget, invocation.getArguments());
 		} catch (Throwable e) {
 			exceptionHandler(executeTarget, e);
