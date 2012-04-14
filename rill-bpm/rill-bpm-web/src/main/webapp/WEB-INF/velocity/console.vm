@@ -310,13 +310,28 @@ function drawChart() {
 								      dataType:     'json',
 								      contentType:  'application/x-www-form-urlencoded',
 								      success:      function(data, textStatus, jqXHR) {
-								      if (data.cacheNames) {
-								      	$( "#cacheResult" ).html('cache names:' + data.cacheNames);
+								      if (data.type && data.type === "MIX") {
+								     	  rebuildResult = '';
+									      if (data.add && data.add.length) {
+									      	rebuildResult = rebuildResult + 'add:' + data.add + '<br />';
+									      }
+									      if (data.update && data.update.length) {
+									      	rebuildResult = rebuildResult + 'update:' + data.update + '<br />';
+									      }
+									      if (rebuildResult === '') {
+									      	$( "#cacheResult" ).html('No-op any cache entry.');
+									      } else {
+									      	$( "#cacheResult" ).html(rebuildResult);
+									      }
 								      } else {
-								      	$( "#cacheResult" ).html('type:' + data.type + '<br />'
-								      							+ 'name:' + data.cacheName + '<br />'
-								      							+ 'key:' + data.cacheKey + '<br />'
-								      							+ 'value:' + data.cacheValue + '<br />');
+									      if (data.cacheNames) {
+									      	$( "#cacheResult" ).html('cache names:' + data.cacheNames);
+									      } else {
+									      	$( "#cacheResult" ).html('type:' + data.type + '<br />'
+									      							+ 'name:' + data.cacheName + '<br />'
+									      							+ 'key:' + data.cacheKey + '<br />'
+									      							+ 'value:' + data.cacheValue + '<br />');
+									      }
 								      }
 								      	$( "#cacheResult" ).dialog({
 								      		modal: true
@@ -325,6 +340,7 @@ function drawChart() {
 								    };
 								jQuery.ajax(params);
 							});
+							
 						});
 					</script>
 					<style type="text/css">
@@ -335,9 +351,8 @@ function drawChart() {
 					<p>
 						<select id="cacheType" name="cacheType">
 							<option value='GET'>GET</option>
-							<!-- unsupport update cache values at 2012-04-09 
+							<!-- unsupport update cache values at 2012-04-09  --> 
 							<option value='PUT'>PUT</option>
-							 -->
 							<option value='DELETE'>DELETE</option>
 						</select>
 						<textarea id="cacheUrl" name="cacheUrl" size="40"></textarea>
