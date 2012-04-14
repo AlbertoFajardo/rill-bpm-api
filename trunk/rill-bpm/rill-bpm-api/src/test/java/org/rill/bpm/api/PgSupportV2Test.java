@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.imageio.stream.FileImageOutputStream;
@@ -17,6 +18,7 @@ import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.identity.Authentication;
 import org.activiti.engine.impl.interceptor.Command;
 import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.task.Task;
 import org.activiti.engine.test.Deployment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -199,6 +201,12 @@ public class PgSupportV2Test extends AbstractJUnit4SpringContextTests {
 						.get(WorkflowTemplate.TASK_DEFINE_ID));
 		String preaudit = manageraudit2Result.get(0);
 
+		// Check preaudit call activity process is process or not.
+		Task preauditTask = activitiAccessor.getTaskService().createTaskQuery().taskId(preaudit).singleResult();
+		String preauditTaskProcessId = preauditTask.getProcessInstanceId();
+		Set<String> preauditTaskProcessVarNames = activitiAccessor.getProcessInstanceVariableNames(preauditTaskProcessId);
+		Assert.assertTrue(!preauditTaskProcessVarNames.isEmpty());
+		
 		// Complete preaudit
 		List<String> preauditResult = workflowAccessor.completeTaskInstance(
 				preaudit, "preaudit", null);
