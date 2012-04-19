@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+probe-provider-class-names: com.sun.enterprise.transaction.monitoring.
+ TransactionServiceProbeProvider
+Built-By: mengran
+Build-Jdk: 1.6.0_23
+Created-By: Apache Maven
+Archiver-Version: Plexus Archiver

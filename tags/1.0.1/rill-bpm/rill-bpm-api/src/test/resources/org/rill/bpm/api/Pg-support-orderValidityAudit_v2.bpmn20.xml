@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://pangu.baidu.com">
+  <process id="Pg-support-orderValidityAudit_v2" name="Pg-support-orderValidityAudit_v2">
+    <documentation>Pangu process for order validity audit.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <callActivity id="callactivity1" name="管理层审核" calledElement="Pg-support-managerAudit_v2">
+      <extensionElements>
+        <activiti:in source="biz_mode" target="biz_mode"></activiti:in>
+        <activiti:out source="__orderAudit_auditAction" target="manager_audit_order_result"></activiti:out>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="flow2" name="分公司" sourceRef="exclusivegateway1" targetRef="callactivity1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${biz_mode==0}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="flow4"></exclusiveGateway>
+    <sequenceFlow id="flow3" name="" sourceRef="callactivity1" targetRef="exclusivegateway2"></sequenceFlow>
+    <userTask id="preaudit" name="预审核" default="flow7" activiti:candidateGroups="ht_support_fgsywzc_order_supporter" activiti:formKey="preaudit/preAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>preAuditTaskLifecycleInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=15</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>22</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow4" name="" sourceRef="exclusivegateway2" targetRef="preaudit"></sequenceFlow>
+    <userTask id="modorder" name="修改订单" activiti:candidateGroups="ht_support_khfz_staff" activiti:formKey="manageraudit/rejectinit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=3</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>33</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow5" name="管理层驳回" sourceRef="exclusivegateway2" targetRef="modorder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${manager_audit_order_result==1}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow7" name="" sourceRef="preaudit" targetRef="exclusivegateway3"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow8" name="" sourceRef="exclusivegateway3" targetRef="endevent1"></sequenceFlow>
+    <userTask id="preaudit_mod" name="预审核驳回修改" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="preaudit/preAuditRejectModInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>orderInfoChangeTaskLifecycleInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=41</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>433</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow9" name="驳回" sourceRef="preaudit" targetRef="preaudit_mod">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway" default="flow12"></exclusiveGateway>
+    <sequenceFlow id="flow10" name="" sourceRef="preaudit_mod" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow11" name="需再审" sourceRef="exclusivegateway4" targetRef="exclusivegateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${change==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow12" name="" sourceRef="exclusivegateway4" targetRef="preaudit"></sequenceFlow>
+    <userTask id="agtmanageraudit" name="代理商模式:一线经理审核" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="manageraudit/frontManagerAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>newOrderAuditLevelInterceptor,disAllowTransferToOutInterceptor,allowTransferToOutInterceptor</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>status=2</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>12</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow13" name="" sourceRef="modorder" targetRef="exclusivegateway5"></sequenceFlow>
+    <sequenceFlow id="flow14" name="分公司" sourceRef="exclusivegateway5" targetRef="callactivity1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${biz_mode==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow15" name="代理商" sourceRef="exclusivegateway5" targetRef="agtmanageraudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${biz_mode==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow16" name="代理商" sourceRef="exclusivegateway1" targetRef="agtmanageraudit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${biz_mode==1}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow17" name="" sourceRef="agtmanageraudit" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="flow18" name="agt一线经理驳回" sourceRef="exclusivegateway6" targetRef="modorder">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow19" name="" sourceRef="exclusivegateway6" targetRef="preaudit"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-orderValidityAudit_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-orderValidityAudit_v2" id="BPMNPlane_Pg-support-orderValidityAudit_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="-12" y="245"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="110" y="242"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
+        <omgdc:Bounds height="55" width="105" x="175" y="350"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="614" y="227"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="preaudit" id="BPMNShape_preaudit">
+        <omgdc:Bounds height="55" width="105" x="840" y="222"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="modorder" id="BPMNShape_modorder">
+        <omgdc:Bounds height="55" width="105" x="379" y="221"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40" width="40" x="1000" y="229"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="1085" y="232"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="preaudit_mod" id="BPMNShape_preaudit_mod">
+        <omgdc:Bounds height="55" width="105" x="840" y="12"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40" width="40" x="411" y="17"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="agtmanageraudit" id="BPMNShape_agtmanageraudit">
+        <omgdc:Bounds height="55" width="105" x="175" y="142"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40" width="40" x="320" y="228"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40" width="40" x="614" y="149"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="23" y="262"></omgdi:waypoint>
+        <omgdi:waypoint x="130" y="282"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="130" y="282"></omgdi:waypoint>
+        <omgdi:waypoint x="227" y="350"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="280" y="377"></omgdi:waypoint>
+        <omgdi:waypoint x="570" y="377"></omgdi:waypoint>
+        <omgdi:waypoint x="634" y="267"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="654" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="892" y="277"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="654" y="247"></omgdi:waypoint>
+        <omgdi:waypoint x="431" y="276"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="945" y="249"></omgdi:waypoint>
+        <omgdi:waypoint x="1000" y="249"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="1040" y="249"></omgdi:waypoint>
+        <omgdi:waypoint x="1085" y="249"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="945" y="249"></omgdi:waypoint>
+        <omgdi:waypoint x="892" y="67"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="840" y="39"></omgdi:waypoint>
+        <omgdi:waypoint x="431" y="57"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="411" y="37"></omgdi:waypoint>
+        <omgdi:waypoint x="130" y="37"></omgdi:waypoint>
+        <omgdi:waypoint x="130" y="242"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="431" y="57"></omgdi:waypoint>
+        <omgdi:waypoint x="892" y="222"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="379" y="248"></omgdi:waypoint>
+        <omgdi:waypoint x="360" y="248"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="340" y="268"></omgdi:waypoint>
+        <omgdi:waypoint x="227" y="350"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="340" y="228"></omgdi:waypoint>
+        <omgdi:waypoint x="227" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="130" y="242"></omgdi:waypoint>
+        <omgdi:waypoint x="227" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="280" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="614" y="169"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="634" y="189"></omgdi:waypoint>
+        <omgdi:waypoint x="484" y="248"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="634" y="189"></omgdi:waypoint>
+        <omgdi:waypoint x="840" y="249"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
