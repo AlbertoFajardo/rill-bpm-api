@@ -524,7 +524,8 @@ public abstract class WorkflowTemplate implements WorkflowOperations, BeanFactor
 
     }
 
-    private List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
+    // Change private to protected by MENGRAN at 2012-04-19
+    protected List<String> handleCompleteTaskInstance(String engineTaskInstanceId,
             String operator, Map<String, Object> workflowParams) throws ProcessException {
             
         // Build task execution context
