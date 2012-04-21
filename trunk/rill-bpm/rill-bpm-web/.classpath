@@ -192,7 +192,7 @@
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/rill/rill-bpm-embeddedgf/3.1.1/rill-bpm-embeddedgf-3.1.1.jar" sourcepath="M2_REPO/org/rill/rill-bpm-embeddedgf/3.1.1/rill-bpm-embeddedgf-3.1.1-sources.jar">
+  <classpathentry kind="var" path="M2_REPO/org/rill/rill-bpm-embeddedgf/3.1.2/rill-bpm-embeddedgf-3.1.2.jar" sourcepath="M2_REPO/org/rill/rill-bpm-embeddedgf/3.1.2/rill-bpm-embeddedgf-3.1.2-sources.jar">
     <attributes>
       <attribute value="/WEB-INF/lib" name="org.eclipse.jst.component.dependency"/>
     </attributes>
