@@ -4,7 +4,7 @@
 
 	<groupId>org.rill</groupId>
 	<artifactId>rill-bpm-embeddedgf</artifactId>
-	<version>3.1.1</version>
+	<version>3.1.2</version>
 	<packaging>jar</packaging>
 
 	<name>rill-bpm-embeddedgf</name>
@@ -50,7 +50,7 @@
 							<goal>unpack-dependencies</goal>
 						</goals>
 						<configuration>
-							<excludes>org/apache/catalina/**,com/sun/xml/ws/tx/at/policy/spi_impl/AtFeatureConfigurator.class,org/apache/naming/**,javax/servlet/**,com/sun/xml/ws/tx/at/WSATConstants.class,com/sun/xml/ws/tx/at/WSATHelper*.class,com/sun/xml/ws/tx/coord/common/client/RegistrationProxyBuilder*.class,com/sun/xml/ws/tx/coord/v10/client/RegistrationProxyBuilderImpl*.class,com/sun/xml/ws/tx/at/tube/WSATClientHelper.class</excludes>
+							<excludes>com/sun/xml/ws/tx/coord/common/PendingRequestManager*.class,org/apache/catalina/**,com/sun/xml/ws/tx/at/policy/spi_impl/AtFeatureConfigurator.class,org/apache/naming/**,javax/servlet/**,com/sun/xml/ws/tx/at/WSATConstants.class,com/sun/xml/ws/tx/at/WSATHelper*.class,com/sun/xml/ws/tx/coord/common/client/RegistrationProxyBuilder*.class,com/sun/xml/ws/tx/coord/v10/client/RegistrationProxyBuilderImpl*.class,com/sun/xml/ws/tx/at/tube/WSATClientHelper.class</excludes>
 							<outputDirectory>${project.build.classes.dir}</outputDirectory>
 						</configuration>
 					</execution>

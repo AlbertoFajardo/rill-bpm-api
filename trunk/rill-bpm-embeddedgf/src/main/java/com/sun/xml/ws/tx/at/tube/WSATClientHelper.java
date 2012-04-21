@@ -40,11 +40,10 @@
 
 package com.sun.xml.ws.tx.at.tube;
 
-import java.net.NetworkInterface;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
@@ -170,39 +169,24 @@ public class WSATClientHelper implements WSATClient {
        }
    }
    
-	static long ethernetAddress = 0L;
+	public static String GLOBAL_TXID_PREFIX = null;
+	public static final int MAX_GLOBAL_TXID_BYTELEN = 64;
+	
 	static {
-		try {
-			Enumeration<NetworkInterface> en = NetworkInterface
-					.getNetworkInterfaces();
-			while (en.hasMoreElements()) {
-				NetworkInterface nint = en.nextElement();
-				if (!nint.isLoopback()) {
-					byte[] data = nint.getHardwareAddress();
-					if (data != null && data.length == 6) {
-						if (data.length != 6) {
-				            throw new NumberFormatException("Ethernet address has to consist of 6 bytes");
-				        }
-				        long l = data[0] & 0xFF;
-				        for (int i = 1; i < 6; ++i) {
-				            l = (l << 8) | (data[i] & 0xFF); 
-				        }
-				        ethernetAddress = l;
-						break;
-					}
-				}
-			}
-		} catch (java.net.SocketException e) {
-			// fine, let's take is as signal of not having any interfaces
+		int randomInt = new Random().nextInt(new Integer(System.getProperty("wsat_global_txid_prefix_random_range", "1000")));
+		String defaultGTP = Integer.toString(randomInt);
+		String useGTP = System.getProperty("wsat_global_txid_prefix");
+		if (useGTP == null) {
+			useGTP = defaultGTP;
 		}
-
-		LOGGER.info("Retrieve ethernet address asLong: " + ethernetAddress);
+		GLOBAL_TXID_PREFIX = useGTP;
+		LOGGER.info("Retrieve global txid prefix: " + GLOBAL_TXID_PREFIX);
 	}
    
-   private byte[] globalTransactionId() {
+   public final byte[] globalTransactionId() {
 	   
 	   // Add by MENGRAN for cluster-wide
-	   byte[] originalBytes = new String(ethernetAddress + "-" + System.currentTimeMillis() + "-" + counter.incrementAndGet()).getBytes();
+	   byte[] originalBytes = new String(GLOBAL_TXID_PREFIX + "-" + System.currentTimeMillis() + "-" + counter.incrementAndGet()).getBytes();
 	   return originalBytes;
 	   
    }
@@ -231,6 +215,11 @@ public class WSATClientHelper implements WSATClient {
         // Modified by MENGRAN at 2011-12-22 for change counter++ to AtomicInteger.incrementAndGet()
         Xid xid = new XidImpl(1234, globalTransactionId(), new byte[]{});
         txId = TransactionIdHelper.getInstance().xid2wsatid(xid);
+        if (txId.getBytes().length >= MAX_GLOBAL_TXID_BYTELEN) {
+        	LOGGER.warning("Global tx id bytes has up to fix length. we need reset[" + counter.get() + "] suffix to 0");
+        	counter.set(0);
+        }
+        
         long ttl = 0;
         try {
             ttl = TransactionImportManager.getInstance().getTransactionRemainingTimeout();
