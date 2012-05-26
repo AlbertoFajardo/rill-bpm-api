@@ -45,6 +45,8 @@ public abstract class ScaleoutHelper {
 	// For cache retrieve. FIXME Need retrieve size from environment
 	private static ExecutorService scaleoutFailOver = Executors.newFixedThreadPool(30, new CustomizableThreadFactory("ScaleoutHelper"));
 	
+	// Add by MENGRAN at 2012-05-23
+	public static final long BLIND_RETRIEVE_TIMEOUT = new Long(System.getProperty("activiti.blindRetrieveTimeout", "30"));
 	private static final Log LOGGER = LogFactory.getLog(ScaleoutHelper.class);
 	
 	static class BlindScaleoutKeyRetriever implements CacheTargetRetriever<String>, Callable<String> {
@@ -65,7 +67,7 @@ public abstract class ScaleoutHelper {
 			
 			LOGGER.warn("BLIND_RETRIEVE_SCALEOUT_KEY: " + key);
 			Future<String> futureResult = scaleoutFailOver.submit(this);
-			return futureResult.get(scaleoutTargets.size(), TimeUnit.SECONDS);
+			return futureResult.get(BLIND_RETRIEVE_TIMEOUT, TimeUnit.SECONDS);
 		}
 
 		@Override
@@ -106,7 +108,7 @@ public abstract class ScaleoutHelper {
 		public HashMap<String, String> getCacheTarget(String key) throws Throwable {
 			
 			Future<HashMap<String, String>> futureResult = scaleoutFailOver.submit(this);
-			return futureResult.get(scaleoutTargets.size(), TimeUnit.SECONDS);
+			return futureResult.get(BLIND_RETRIEVE_TIMEOUT, TimeUnit.SECONDS);
 		}
 
 		@SuppressWarnings("unchecked")

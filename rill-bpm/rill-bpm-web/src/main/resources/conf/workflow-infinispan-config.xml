@@ -284,7 +284,8 @@
          -->
       </clustering>
       
-      <eviction maxEntries="2000" strategy="LRU" />
+      <!-- Change to 20000 from 2000 by MENGRAN at 2012-05-24 -->
+      <eviction maxEntries="20000" strategy="LRU" />
 
    </default>
 
