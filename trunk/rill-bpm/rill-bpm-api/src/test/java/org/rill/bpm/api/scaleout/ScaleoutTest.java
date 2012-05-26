@@ -85,9 +85,9 @@ public class ScaleoutTest extends AbstractJUnit4SpringContextTests {
 	public void testPgSupportV2() {
 		
 		// Add by MENGRAN at 2012-05-25
-		System.setProperty("activiti.blindRetrieveTimeout", "60");
+		//System.setProperty("activiti.blindRetrieveTimeout", "60");
 		Number number = new Constants(ScaleoutHelper.class).asNumber("BLIND_RETRIEVE_TIMEOUT");
-		Assert.assertEquals(60L, number.longValue());
+		Assert.assertEquals(30L, number.longValue());
 		
 		String processDefinitionKey = "Pg-support_v2";
 		Integer orderId = new Random().nextInt();
