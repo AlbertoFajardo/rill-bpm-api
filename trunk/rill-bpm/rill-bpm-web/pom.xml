@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>org.rill</groupId>
 			<artifactId>rill-bpm-api</artifactId>
-			<version>${project.parent.version}</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rill</groupId>
@@ -152,4 +152,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<version>1.0.2</version>
 </project>

@@ -31,6 +31,7 @@ import org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper.Chart
 import org.rill.bpm.api.processvar.DummyOrder;
 import org.rill.bpm.api.processvar.DummyOrderAudit;
 import org.rill.bpm.api.processvar.DummyReceiptInfo;
+import org.springframework.core.Constants;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -82,7 +83,12 @@ public class ScaleoutTest extends AbstractJUnit4SpringContextTests {
 			 })
 	@Test
 	public void testPgSupportV2() {
-
+		
+		// Add by MENGRAN at 2012-05-25
+		System.setProperty("activiti.blindRetrieveTimeout", "60");
+		Number number = new Constants(ScaleoutHelper.class).asNumber("BLIND_RETRIEVE_TIMEOUT");
+		Assert.assertEquals(60L, number.longValue());
+		
 		String processDefinitionKey = "Pg-support_v2";
 		Integer orderId = new Random().nextInt();
 		String processStarter = "Rill Meng";
