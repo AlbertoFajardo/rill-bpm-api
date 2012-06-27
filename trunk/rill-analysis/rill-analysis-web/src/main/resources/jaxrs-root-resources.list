@@ -1,0 +1,6 @@
+org.saiku.web.rest.resources.OlapDiscoverResource
+org.saiku.web.rest.resources.SessionResource
+org.saiku.web.rest.resources.QueryResource
+org.saiku.web.rest.resources.BasicTagRepositoryResource
+org.saiku.web.rest.resources.DataSourceResource
+org.saiku.web.rest.resources.BasicRepositoryResource
