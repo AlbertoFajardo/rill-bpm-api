@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:hdp="http://www.springframework.org/schema/hadoop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+
+
+	<context:property-placeholder location="hadoop.properties"/>
+
+	<hdp:configuration>
+		hadoop.job.ugi=${job.ugi}
+		fs.default.name=${hd.fs}
+		mapred.job.tracker=${mapred.job.tracker}
+	</hdp:configuration>
+
+	<hdp:job id="wordcount-job" validate-paths="false"
+	    input-path="${wordcount.input.path}" output-path="${wordcount.output.path}" 
+		mapper="org.springframework.data.hadoop.samples.wordcount.Main.MapClass"
+		reducer="org.springframework.data.hadoop.samples.wordcount.Main.Reduce" 
+		jar-by-class="org.springframework.data.hadoop.samples.wordcount.Main" 
+		key="org.apache.hadoop.io.Text" value="org.apache.hadoop.io.IntWritable"/>
+
+  	<hdp:script id="clean-script" language="groovy">
+  	   	// 'hack' default permissions to make Hadoop work on Windows
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			// 0655 = -rwxr-xr-x
+			 org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort((short) 0655);
+			 org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0655);
+		}
+  	   
+		inputPath = "${wordcount.input.path:/app/ecom/rigelip/samples/input/word/}"
+		outputPath = "${wordcount.output.path:/app/ecom/rigelip/samples/output/word/}"
+		if (fsh.test(inputPath)) { fsh.rmr(inputPath) }
+		if (fsh.test(outputPath)) { fsh.rmr(outputPath) }
+		fsh.mkdir(inputPath)
+		// fsh.mkdir(outputPath)
+		
+		targetFile = "${wordcount.targetFile:/home/work/samples/nietzsche-chapter-1.txt}"
+		// copy using the streams directly (to be portable across envs)
+		fsh.put(targetFile, inputPath + "wordcount.txt")
+  	</hdp:script>
+	
+	<!-- simple job runner -->
+	<bean id="runner" class="org.springframework.data.hadoop.mapreduce.JobRunner" depends-on="clean-script" p:jobs-ref="wordcount-job" p:run-at-startup="${jobRunner.runOnStartup}" />
+	
+	<!-- hive integration -->
+	<hdp:hive-server />
+	
+	<!-- basic Hive driver bean -->
+    <bean id="hive-driver" class="org.apache.hadoop.hive.jdbc.HiveDriver"/>
+
+    <!-- wrapping a basic datasource around the driver -->
+    <!-- notice the 'c:' namespace (available in Spring 3.1+) for inlining constructor arguments, 
+         in this case the url (default is 'jdbc:hive://localhost:10000/default') -->
+    <bean id="hive-ds" class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
+       c:driver-ref="hive-driver" c:url="${hive.url}"/>
+
+    <!-- standard JdbcTemplate declaration -->
+    <bean id="hive-template" class="org.springframework.jdbc.core.JdbcTemplate" c:data-source-ref="hive-ds"/>
+	
+</beans>
