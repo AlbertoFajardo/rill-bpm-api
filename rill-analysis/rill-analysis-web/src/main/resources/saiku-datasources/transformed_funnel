@@ -1,0 +1,19 @@
+type=OLAP
+name=transformed_funnel
+driver=mondrian.olap4j.MondrianOlap4jDriver
+location=jdbc:mondrian:Jdbc=jdbc:hive://10.23.245.26:8888/default;Catalog=D:\\06RillDev2\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\transformed_funnel\\transformed_funnel.mondrian.xml;JdbcDrivers=nu.com.rill.analysis.data.hive.HiveDriver;
+username=
+password=
+
+# some security configuration for roles, first enable it
+# security.enabled=true
+
+# there are 3 different types of security:
+# "one2one" (try and map spring user roles to mondrian roles), 
+# "mapping" (define the mapping of spring and mondrian roles manually) 
+# "passthrough" (will pass username + password of logged in user to connection, e.g. jdbc user + password)
+
+# security.type=one2one
+
+# security.type=mapping
+# security.mapping=springRole=mondrianRole1;springRole2=mondrianRole2
