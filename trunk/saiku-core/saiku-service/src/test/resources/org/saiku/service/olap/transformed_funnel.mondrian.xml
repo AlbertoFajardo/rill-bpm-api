@@ -1,0 +1,64 @@
+<Schema name="transformed_funnel">
+  <Cube name="TF_CUBE" visible="true" cache="true" enabled="true">
+    <Table name="transformed_funnel_fact">
+    </Table>
+    <Dimension type="TimeDimension" visible="true" foreignKey="fk_time_id" highCardinality="false" name="Time">
+      <Hierarchy visible="true" hasAll="true" allMemberName="All Periods" primaryKey="time_id" defaultMember="All Periods">
+        <Table name="dim_time_by_hour">
+        </Table>
+        <Level name="Year" visible="true" column="the_year" type="String" uniqueMembers="true" levelType="TimeYears" hideMemberIf="Never">
+        </Level>
+        <Level name="Quarter" visible="true" column="the_quarter" type="String" uniqueMembers="false" levelType="TimeQuarters" hideMemberIf="Never">
+        </Level>
+        <Level name="Month" visible="true" column="the_month" type="Numeric" uniqueMembers="false" levelType="TimeMonths" hideMemberIf="Never">
+        </Level>
+        <Level name="Week" visible="true" column="the_week" type="Numeric" uniqueMembers="false" levelType="TimeWeeks" hideMemberIf="Never">
+        </Level>
+        <Level name="Day" visible="true" column="the_day" type="String" uniqueMembers="false" levelType="TimeDays" hideMemberIf="Never">
+        </Level>
+        <Level name="AMPM" visible="true" column="the_ampm" type="String" uniqueMembers="false" levelType="TimeUndefined" hideMemberIf="Never">
+        </Level>
+        <Level name="Hour" visible="true" column="the_hour" type="String" uniqueMembers="false" levelType="TimeHours" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="fk_show_region_id" highCardinality="false" name="Regions">
+      <Hierarchy visible="true" hasAll="true" allMemberName="All Region" primaryKey="region_id" defaultMember="All Region">
+        <Table name="dim_region">
+        </Table>
+        <Level name="Region" visible="true" column="the_region" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+        <Level name="Province" visible="true" column="the_province" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+        <Level name="City" visible="true" column="the_city" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="winfo_id" highCardinality="false" name="WInfo">
+      <Hierarchy visible="true" hasAll="true" allMemberName="All WInfo" primaryKey="winfo_id" defaultMember="All WInfo">
+        <Table name="dim_winfo">
+        </Table>
+        <Level name="Account" visible="true" column="account" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+        </Level>
+        <Level name="Plan" visible="true" column="plan" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+        <Level name="Unit" visible="true" column="unit" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+        <Level name="Word" visible="true" column="word" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Measure name="Show Cnt" column="show_cnt" formatString="Standard" aggregator="sum" caption="&#23637;&#29616;&#37327;">
+    </Measure>
+    <Measure name="Click Cnt" column="click_cnt" formatString="Standard" aggregator="sum" caption="&#28857;&#20987;&#37327;">
+    </Measure>
+    <Measure name="Access Cnt" column="access_cnt" formatString="Standard" aggregator="sum" caption="&#35775;&#38382;&#37327;">
+    </Measure>
+    <Measure name="Ask Cnt" column="ask_cnt" formatString="Standard" aggregator="sum" caption="&#21672;&#35810;&#37327;">
+    </Measure>
+    <Measure name="Visitor Cnt" column="visitor_cnt" formatString="Standard" aggregator="sum" caption="&#29420;&#31435;&#29992;&#25143;&#21672;&#35810;&#37327;">
+    </Measure>
+    <Measure name="Order Cnt" column="order_cnt" formatString="Standard" aggregator="sum" caption="&#35746;&#21333;&#37327;">
+    </Measure>
+  </Cube>
+</Schema>
