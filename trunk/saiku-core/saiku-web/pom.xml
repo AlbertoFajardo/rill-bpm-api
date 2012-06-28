@@ -285,7 +285,7 @@
 		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth</artifactId>
-			<version>1.0.0.BUILD-SNAPSHOT</version>
+			<version>1.0.0.M4</version>
 		</dependency>
 
 		<dependency>
@@ -323,4 +323,12 @@
 		</plugins>
 	</reporting>
 	 -->
+	 
+	<repositories>
+		<repository>
+		    <id>spring-milestone</id>
+		    <name>Spring Maven MILESTONE Repository</name>
+		    <url>http://maven.springframework.org/milestone</url>
+		</repository>
+	</repositories> 
 </project>
