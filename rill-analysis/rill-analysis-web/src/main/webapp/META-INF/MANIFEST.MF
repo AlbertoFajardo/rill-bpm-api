@@ -18,40 +18,40 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar antlr-2.7.7.jar
  ar hive-builtins-0.9.0.jar hive-common-1.1.5.jar hive-exec-1.1.5.jar 
  hive-jdbc-1.1.5.jar hive-metastore-1.1.5.jar hive-serde-1.1.5.jar hiv
  e-service-1.1.5.jar hive-shims-1.1.5.jar hsqldb-1.8.0.10.jar httpclie
- nt-4.0.1.jar httpcore-4.0.1.jar infinispan-core-5.1.1.FINAL.jar infin
- ispan-spring-5.1.1.FINAL.jar jackson-core-asl-1.7.4.jar jackson-jaxrs
- -1.7.4.jar jackson-mapper-asl-1.7.4.jar jackson-xc-1.7.4.jar javacc-5
- .0.jar javacup-10k.jar JavaEWAH-0.3.2.jar jaxb-api-2.1.jar jaxb-impl-
- 2.1.13.jar jaxws-api-2.1.jar jaxws-rt-2.1.7.jar jaxws-spring-1.8.jar 
- jboss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.GA.jar jboss-mars
- halling-river-1.3.6.GA.jar jboss-transaction-api-1.0.1.GA.jar jdo2-ap
- i-2.3-ec.jar jdom-1.1.jar jersey-core-1.8.jar jersey-server-1.8.jar j
- ersey-spring-1.5.jar jettison-1.2.jar jgroups-3.0.4.Final.jar jlfgr-1
- .0.jar jline-0.9.94.jar json-20090211.jar jsr181-api-1.0-MR1.jar jsr2
- 50-api-1.0.jar jsr311-api-1.1.1.jar jstl-1.2.jar jta-1.1.jar jxl-2.6.
- 10.jar libfb303-0.5.0.jar libthrift-0.5.0.jar log4j-1.2.14.jar mail-1
- .4.1.jar mimepull-1.3.jar mockito-all-1.8.2.jar mondrian-3.4.4.jar my
- batis-3.0.4.jar mysql-connector-java-5.1.18.jar netty-3.2.2.Final.jar
-  olap4j-1.0.1.500.jar olap4j-xmla-1.0.1.500.jar resolver-20050927.jar
-  rhq-pluginAnnotations-3.0.4.jar rill-analysis-data-0.0.1-SNAPSHOT.ja
- r rill-analysis-mondrian-0.0.1-SNAPSHOT.jar saaj-api-1.3.jar saaj-imp
- l-1.3.3.jar saiku-service-2.3.jar saiku-web-2.3.jar servlet-api-2.5.j
- ar slf4j-api-1.6.1.jar slf4j-log4j12-1.6.1.jar spring-aop-3.0.0.RC3.j
- ar spring-asm-3.1.0.RELEASE.jar spring-beans-3.1.0.RELEASE.jar spring
- -context-3.1.0.RELEASE.jar spring-context-support-3.1.0.RELEASE.jar s
- pring-core-3.1.0.RELEASE.jar spring-data-hadoop-1.0.0.M1.jar spring-e
- xpression-3.1.0.RELEASE.jar spring-jdbc-3.1.0.RELEASE.jar spring-ldap
- -core-1.3.1.RELEASE.jar spring-orm-3.1.0.RELEASE.jar spring-security-
- acl-3.1.0.RELEASE.jar spring-security-config-3.1.0.RELEASE.jar spring
- -security-core-3.1.0.RELEASE.jar spring-security-core-tiger-2.0.6.REL
- EASE.jar spring-security-crypto-3.1.0.RELEASE.jar spring-security-lda
- p-3.1.0.RELEASE.jar spring-security-oauth-1.0.0.BUILD-SNAPSHOT.jar sp
- ring-security-taglibs-3.1.0.RELEASE.jar spring-security-web-3.1.0.REL
- EASE.jar spring-test-3.1.0.RELEASE.jar spring-tx-3.1.0.RELEASE.jar sp
- ring-web-3.0.2.RELEASE.jar spring-webmvc-3.0.2.RELEASE.jar stax-api-1
- .0-2.jar stax-api-1.0.1.jar stax-ex-1.2.jar stax2-api-3.1.1.jar staxm
- apper-1.0.0.Final.jar streambuffer-0.9.jar stringtemplate-3.1-b1.jar 
- swt-3.3.0-v3346.jar validation-api-1.0.0.GA.jar woodstox-core-asl-4.1
- .1.jar xalan-2.4.1.jar xbean-spring-2.7.jar xercesImpl-2.6.0.jar xpp3
- _min-1.1.3.4.O.jar xstream-1.2.2.jar zookeeper-3.4.3.jar
+ nt-4.1.1.jar httpcore-4.1.jar infinispan-core-5.1.1.FINAL.jar infinis
+ pan-spring-5.1.1.FINAL.jar jackson-core-asl-1.7.4.jar jackson-jaxrs-1
+ .7.4.jar jackson-mapper-asl-1.7.4.jar jackson-xc-1.7.4.jar javacc-5.0
+ .jar javacup-10k.jar JavaEWAH-0.3.2.jar jaxb-api-2.1.jar jaxb-impl-2.
+ 1.13.jar jaxws-api-2.1.jar jaxws-rt-2.1.7.jar jaxws-spring-1.8.jar jb
+ oss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.GA.jar jboss-marsha
+ lling-river-1.3.6.GA.jar jboss-transaction-api-1.0.1.GA.jar jdo2-api-
+ 2.3-ec.jar jdom-1.1.jar jersey-core-1.8.jar jersey-server-1.8.jar jer
+ sey-spring-1.5.jar jettison-1.2.jar jgroups-3.0.4.Final.jar jlfgr-1.0
+ .jar jline-0.9.94.jar json-20090211.jar jsr181-api-1.0-MR1.jar jsr250
+ -api-1.0.jar jsr311-api-1.1.1.jar jstl-1.2.jar jta-1.1.jar jxl-2.6.10
+ .jar libfb303-0.5.0.jar libthrift-0.5.0.jar log4j-1.2.14.jar mail-1.4
+ .1.jar mimepull-1.3.jar mockito-all-1.8.2.jar mondrian-3.4.4.jar myba
+ tis-3.0.4.jar mysql-connector-java-5.1.18.jar netty-3.2.2.Final.jar o
+ lap4j-1.0.1.500.jar olap4j-xmla-1.0.1.500.jar resolver-20050927.jar r
+ hq-pluginAnnotations-3.0.4.jar rill-analysis-data-0.0.1-SNAPSHOT.jar 
+ rill-analysis-mondrian-0.0.1-SNAPSHOT.jar saaj-api-1.3.jar saaj-impl-
+ 1.3.3.jar saiku-service-2.3.jar saiku-web-2.3.jar servlet-api-2.5.jar
+  slf4j-api-1.6.1.jar slf4j-log4j12-1.6.1.jar spring-aop-3.0.0.RC3.jar
+  spring-asm-3.1.0.RELEASE.jar spring-beans-3.1.0.RELEASE.jar spring-c
+ ontext-3.1.0.RELEASE.jar spring-context-support-3.1.0.RELEASE.jar spr
+ ing-core-3.1.0.RELEASE.jar spring-data-hadoop-1.0.0.M1.jar spring-exp
+ ression-3.1.0.RELEASE.jar spring-jdbc-3.1.0.RELEASE.jar spring-ldap-c
+ ore-1.3.1.RELEASE.jar spring-orm-3.1.0.RELEASE.jar spring-security-ac
+ l-3.1.0.RELEASE.jar spring-security-config-3.1.0.RELEASE.jar spring-s
+ ecurity-core-3.1.0.RELEASE.jar spring-security-core-tiger-2.0.6.RELEA
+ SE.jar spring-security-crypto-3.1.0.RELEASE.jar spring-security-ldap-
+ 3.1.0.RELEASE.jar spring-security-oauth-1.0.0.M4.jar spring-security-
+ taglibs-3.1.0.RELEASE.jar spring-security-web-3.1.0.RC3.jar spring-te
+ st-3.1.0.RELEASE.jar spring-tx-3.1.0.RELEASE.jar spring-web-3.0.2.REL
+ EASE.jar spring-webmvc-3.0.2.RELEASE.jar stax-api-1.0-2.jar stax-api-
+ 1.0.1.jar stax-ex-1.2.jar stax2-api-3.1.1.jar staxmapper-1.0.0.Final.
+ jar streambuffer-0.9.jar stringtemplate-3.1-b1.jar swt-3.3.0-v3346.ja
+ r validation-api-1.0.0.GA.jar woodstox-core-asl-4.1.1.jar xalan-2.4.1
+ .jar xbean-spring-2.7.jar xercesImpl-2.6.0.jar xpp3_min-1.1.3.4.O.jar
+  xstream-1.2.2.jar zookeeper-3.4.3.jar
 
