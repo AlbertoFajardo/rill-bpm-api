@@ -687,6 +687,9 @@ public class SqlQuery {
         		Set<String> discardWhere = new HashSet<String>();
 	        	for (String w : where) {
 	        		String[] two = w.split(" = ");
+	        		if (two[0].split("\\.").length < 2 || two[1].split("\\.").length < 2) {
+	        			continue;
+	        		}
 	        		FromClauseList fc = new FromClauseList(false);
 	        		int left = matchIndex(two[0].split("\\.")[0], fromAliases);
 	        		int right = matchIndex(two[1].split("\\.")[0], fromAliases);
