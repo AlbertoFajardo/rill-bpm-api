@@ -19,8 +19,15 @@
  */
 package org.saiku.olap.dto;
 
-public  class AbstractSaikuObject implements ISaikuObject,Comparable<ISaikuObject>  {
+import java.io.Serializable;
 
+public  class AbstractSaikuObject implements ISaikuObject,Comparable<ISaikuObject>, Serializable  {
+
+	/**
+	 * Add serialize by MENGRAN at 2012-07-17
+	 */
+	private static final long serialVersionUID = -8080496369177697986L;
+	
 	private String uniqueName;
 	private String name;
 	
