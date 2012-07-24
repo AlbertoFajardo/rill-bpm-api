@@ -121,6 +121,11 @@
 		    <name>Spring Maven MILESTONE Repository</name>
 		    <url>http://maven.springframework.org/milestone</url>
 		</repository>
+		<repository>
+			<id>Baidu_Local</id>
+			<name>Baidu local maven server</name>
+			<url>http://maven.scm.baidu.com:8081/nexus/content/repositories/Baidu_Local</url>
+		</repository>
 	</repositories>
 
 </project>

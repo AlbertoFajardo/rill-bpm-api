@@ -20,7 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
@@ -123,9 +122,7 @@ public class FileHelper {
 		try {
 			input = new FileInputStream(getSpreadsheetStorageFolderPath() + info.getHashFileName());
 			// FIXME: Add by MENGRAN for report engine
-			Map<String, String> reportParams = new HashMap<String, String>();
-			reportParams.put("[Time].[2011]", "[Time].[2010]");
-			Workbook wb = ReportEngine.INSTANCE.generateReport(input, info.getFileName(), reportParams);
+			Workbook wb = ReportEngine.INSTANCE.generateReport(input, info.getFileName(), info.getReportParams());
 //			ss.setBookFromStream(input, info.getFileName());
 			ss.setBook((Book) wb);
 			return true;

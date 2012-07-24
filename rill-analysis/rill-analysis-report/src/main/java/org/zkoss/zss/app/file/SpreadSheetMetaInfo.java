@@ -17,6 +17,7 @@ package org.zkoss.zss.app.file;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -25,9 +26,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import nu.com.rill.analysis.report.excel.ReportEngine;
 
 /**
  * @author Sam
@@ -41,6 +45,7 @@ public class SpreadSheetMetaInfo {
 	
 	//TODO: store author, not implement yet
 	private String author;
+	private Map<String, String> reportParams = new HashMap<String, String>(2);
 	
 	private SpreadSheetMetaInfo(){}
 	
@@ -62,8 +67,20 @@ public class SpreadSheetMetaInfo {
 		importDate = formatter.format(calendar.getTime());
 	}
 
+	public final Map<String, String> getReportParams() {
+		return reportParams;
+	}
+
+	public final void setReportParams(Map<String, String> reportParams) {
+		this.reportParams = reportParams;
+	}
+
 	public String getSrc() {
 		return FileHelper.getSpreadsheetStorageFolderPath() + fileName;
+	}
+	
+	public String getHashFileSrc() {
+		return FileHelper.getSpreadsheetStorageFolderPath() + hashFileName;
 	}
 
 	public String getFileName() {
@@ -74,7 +91,7 @@ public class SpreadSheetMetaInfo {
 		return timeInMillis;
 	}
 
-	public String getHashFileName() {
+	/*package*/ String getHashFileName() {
 		return hashFileName;
 	}
 
@@ -117,6 +134,29 @@ public class SpreadSheetMetaInfo {
 		String fileName = info.getFileName();
 		String hashFilename = info.getHashFileName();
 		
+		String reportParams = "";
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(new File(info.getHashFileSrc()));
+			List<String> reportParamNames = ReportEngine.INSTANCE.retrieveReportParams(fis, info.getFileName());
+			for (String key : reportParamNames) {
+				reportParams = reportParams + " " + key;
+			}
+			if (reportParams.length() > 0) {
+				reportParams = reportParams.substring(1);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (fis != null) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
 		BufferedReader reader = null;
 		BufferedWriter writer = null;
 		//TODO: replace Properties with json format, to provide version control 
@@ -125,7 +165,7 @@ public class SpreadSheetMetaInfo {
 			reader = new BufferedReader(new FileReader(FileHelper.getSpreadsheetStorageFolderPath() + "metaFile"));
 			prop.load(reader);
 			
-			prop.put(fileName,  timeInMillis + "," + fileName + ","	+ hashFilename);
+			prop.put(fileName,  timeInMillis + "," + fileName + ","	+ hashFilename + "," + reportParams);
 			writer = new BufferedWriter(new FileWriter(FileHelper.getSpreadsheetStorageFolderPath() + "metaFile", false));
 			prop.store(writer, null);
 			
@@ -203,6 +243,12 @@ public class SpreadSheetMetaInfo {
 
 			SpreadSheetMetaInfo metaInfo = new SpreadSheetMetaInfo(fileName,
 					time, hashFileName);
+			if (setting.length > 3) {
+				String reportParams = setting[3].trim();
+				for (String param : reportParams.split(" ")) {
+					metaInfo.getReportParams().put(param, null);
+				}
+			}
 
 			SpreadSheetMetaInfo exist = map.get(fileName);
 			if (exist == null

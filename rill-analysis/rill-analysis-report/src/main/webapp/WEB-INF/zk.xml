@@ -118,4 +118,11 @@
 		Any number of preferences. <preference> <name></name> <value></value>
 		</preference>
 	-->
+	<client-config>
+		<debug-js>true</debug-js>
+	</client-config>
+	<library-property>
+		<name>org.zkoss.web.classWebResource.cache</name>
+		<value>false</value>
+	</library-property>
 </zk>

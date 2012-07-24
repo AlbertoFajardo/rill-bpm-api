@@ -2,6 +2,7 @@ package nu.com.rill.analysis.report.excel;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,31 @@ public class ReportEngine {
 		// Singleton
 	}
 	
+	public List<String> retrieveReportParams(InputStream is, String bookName) {
+		
+		Assert.notNull(is);
+		Assert.notNull(bookName);
+		
+		Book book = new ExcelImporter().imports(is, bookName);
+		// 1. Validate
+		boolean isValid = validateReportTemplate(book);
+		
+		if (isValid) {
+			// 2. Handle #_SETTINGS_SHEET
+			List<String> reportParams = new ArrayList<String>(2);
+			for (Row row : book.getSheet(_SETTINGS_SHEET)) {
+				if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue()) 
+						&& ("?".equals(row.getCell(4).getStringCellValue()) 
+								|| String.valueOf(FULL_LENGTH_QUESTING).equals(row.getCell(4).getStringCellValue()))) {
+					reportParams.add(row.getCell(3).getStringCellValue());
+				}
+			}
+			return reportParams;
+		}
+		
+		return new ArrayList<String>(0);
+	}
+	
 	public Workbook generateReport(InputStream is, String bookName, Map<String, String> reportParams) {
 		
 		Assert.notNull(is);
@@ -80,17 +106,19 @@ public class ReportEngine {
 		
 		try {
 			// 1. Validate
-			validateReportTemplate(book);
+			boolean isValid = validateReportTemplate(book);
 			
-			// 2. Handle #_SETTINGS_SHEET
-			processSettings(book.getWorksheet(_SETTINGS_SHEET), reportParams);
-			
-			// 3. Handle #_INPUT_SHEET sheet
-			processInput(book.getWorksheet(_INPUT_SHEET), reportParams);
-			
-			// 4. Formula evaluate
-//			bookAfterProcess.setForceFormulaRecalculation(true);
-			book.getCreationHelper().createFormulaEvaluator().evaluateAll();
+			if (isValid) {
+				// 2. Handle #_SETTINGS_SHEET
+				processSettings(book.getWorksheet(_SETTINGS_SHEET), reportParams);
+				
+				// 3. Handle #_INPUT_SHEET sheet
+				processInput(book.getWorksheet(_INPUT_SHEET), reportParams);
+				
+				// 4. Formula evaluate
+//				bookAfterProcess.setForceFormulaRecalculation(true);
+				book.getCreationHelper().createFormulaEvaluator().evaluateAll();
+			}
 			
 			// 5. Clone book
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -326,20 +354,23 @@ public class ReportEngine {
 		
 	}
 	
-	protected void validateReportTemplate(Book book) {
+	protected boolean validateReportTemplate(Book book) {
 		
 		Worksheet sheet = book.getWorksheet(_SETTINGS_SHEET);
 		if (sheet == null) {
-			throw new IllegalArgumentException(book.getBookName() + " not contains sheet: " + _SETTINGS_SHEET);
+			LOG.info(book.getBookName() + " not contains sheet: " + _SETTINGS_SHEET);
+			return false;
 		}
 		sheet = book.getWorksheet(_INPUT_SHEET);
 		if (sheet == null) {
-			throw new IllegalArgumentException(book.getBookName() + " not contains sheet: " + _INPUT_SHEET);
+			LOG.info(book.getBookName() + " not contains sheet: " + _INPUT_SHEET);
+			return false;
 		}
 		
 		if (!(book instanceof XSSFWorkbook)) {
 			throw new UnsupportedOperationException("Only support Excel 2007~. " + book.getBookName());
 		}
 		
+		return true;
 	}
 }

@@ -20,9 +20,6 @@ import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zk.ui.UiException;
-import org.zkoss.zk.ui.WebApps;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zss.app.Consts;
 import org.zkoss.zss.app.file.FileHelper;
 import org.zkoss.zss.app.zul.ctrl.DesktopWorkbenchContext;
@@ -65,9 +62,9 @@ public class FileMenu extends Menu implements IdSpace {
 
 		importFile.setDisabled(!FileHelper.hasImportPermission());
 		
-		boolean saveDisabled = !FileHelper.hasSavePermission();
-		saveFile.setDisabled(saveDisabled);
-		saveFileAndClose.setDisabled(saveDisabled);
+//		boolean saveDisabled = !FileHelper.hasSavePermission();
+//		saveFile.setDisabled(saveDisabled);
+//		saveFileAndClose.setDisabled(saveDisabled);
 	}
 	
 	public void setSaveFileDisabled(boolean disabled) {
@@ -146,8 +143,12 @@ public class FileMenu extends Menu implements IdSpace {
 		workbench.fireWorkbookChanged();
 	}
 	
+	Dialog _importFileDialog;
+	
 	public void onClick$importFile() {
-		getDesktopWorkbenchContext().getWorkbenchCtrl().openImportFileDialog();
+		if (_importFileDialog == null || _importFileDialog.isInvalidated())
+			_importFileDialog = (Dialog) Executions.createComponents(Consts._ImportFile_zul, getRoot(), null);
+		_importFileDialog.fireOnOpen(null);
 	}
 	
 	public void onClick$exportPdf() {
@@ -173,37 +174,10 @@ public class FileMenu extends Menu implements IdSpace {
 	}
 	
 	public void onOpen$fileMenupopup() {
-		getDesktopWorkbenchContext().getWorkbookCtrl().reGainFocus();
+//		getDesktopWorkbenchContext().getWorkbookCtrl().reGainFocus();
 	}
 	
 	protected DesktopWorkbenchContext getDesktopWorkbenchContext() {
 		return Zssapp.getDesktopWorkbenchContext(this);
-	}
-	
-	public void onCreate() {
-        final DesktopWorkbenchContext workbenchCtrl = getDesktopWorkbenchContext();
-        getDesktopWorkbenchContext().addEventListener(Consts.ON_WORKBOOK_CHANGED, new EventListener() {
-            public void onEvent(Event event) throws Exception {
-                boolean isOpen = workbenchCtrl.getWorkbookCtrl().hasBook();
-                boolean savePermission = FileHelper.hasSavePermission();
-                
-    			if (isOpen) {
-    				boolean isPE = WebApps.getFeature("pe");
-	    			deleteFile.setDisabled(false);
-	    			exportPdf.setDisabled(_exportToPdfDisabled | !isPE | false );
-	    			exportHtml.setDisabled(_exportToHtmlDisabled | !isPE | false);
-	    			exportExcel.setDisabled(_exportToExcelDisabled | !isPE | false);
-	    			saveFile.setDisabled(!savePermission);
-	    			saveFileAndClose.setDisabled(!savePermission);
-    			} else {
-	    			deleteFile.setDisabled(true);
-	    			exportPdf.setDisabled(true);
-	    			exportHtml.setDisabled(true);
-	    			exportExcel.setDisabled(true);
-	    			saveFile.setDisabled(true);
-	    			saveFileAndClose.setDisabled(true);
-    			}
-            }
-        });
 	}
 }

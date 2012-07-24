@@ -16,11 +16,13 @@ package org.zkoss.zss.app.zul;
 
 import java.util.ArrayList;
 
+import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zss.app.Consts;
+import org.zkoss.zss.app.file.SpreadSheetMetaInfo;
 import org.zkoss.zss.app.zul.ctrl.DesktopCellStyleContext;
 import org.zkoss.zss.app.zul.ctrl.DesktopWorkbenchContext;
 import org.zkoss.zss.model.Book;
@@ -55,8 +57,14 @@ public class Zssapp extends Div implements IdSpace  {
 		Components.addForwards(this, this, '$');
 		
 		spreadsheet = (Spreadsheet)mainWin.getFellow("spreadsheet");
-		Menubar bar = (Menubar) mainWin.getFellow("menubar");
-		_appmenubar = new Appmenubar(bar);
+//		Menubar bar = (Menubar) mainWin.getFellow("menubar");
+//		_appmenubar = new Appmenubar(bar);
+		
+		// set src from request parameters
+		String fileName = Executions.getCurrent().getParameter("fileName");
+		SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
+		
+		this.setSrc(ssmi.getSrc());
 	}
 	
 	public void setSrc(String src) {
