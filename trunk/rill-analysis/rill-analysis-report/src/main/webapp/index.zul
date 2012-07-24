@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?page id="p1" title="ZK Spreadsheet App"?>
-<?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
+<?page id="p1" title="Report Service"?>
 
 <zk>
-	<zssapp width="100%" height="100%" src="/xls/ZSS-demo_sample.xlsx"></zssapp>
+	<style>
+        tr.z-row td.z-row-inner { 
+            padding: 5px 
+        }
+    </style>
+	<div width="100%" height="100%" apply="nu.com.rill.analysis.report.explorer.ReportListComposer">
+		<menubar id="menubar" width="100%" style="border-bottom:0;border-right:1px solid #D8D8D8;border-left:1px solid #D8D8D8;">
+			<filemenu id="fileMenu" label="文件"></filemenu>
+		</menubar>
+		<grid id="reportGrid">
+			<columns>
+				<column hflex="1">序列</column>
+				<column hflex="5">报表名称</column>
+				<column hflex="1">生成日期</column>
+				<column hflex="1">动作</column>
+			</columns>
+		</grid>
+	</div>
 </zk>

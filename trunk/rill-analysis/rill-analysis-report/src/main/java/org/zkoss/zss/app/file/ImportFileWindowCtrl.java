@@ -73,8 +73,8 @@ public class ImportFileWindowCtrl extends GenericForwardComposer  {
 	public void doAfterCompose(Component comp) throws Exception {
 		super.doAfterCompose(comp);
 		initSupportFormat();
-		initImportOption();
-		initFileListbox();
+//		initImportOption();
+//		initFileListbox();
 	}
 	
 	public void onOpen$_importFileDialog() {
@@ -85,7 +85,7 @@ public class ImportFileWindowCtrl extends GenericForwardComposer  {
 		Map<String, SpreadSheetMetaInfo> metaInfos = SpreadSheetMetaInfo.getMetaInfos();
 		if (metaInfos == null || metaInfos.isEmpty())
 			return;
-		allFilesListbox.setModel(new ListModelList(metaInfos.values()));
+//		allFilesListbox.setModel(new ListModelList(metaInfos.values()));
 	}
 
 	private void initSupportFormat() {	
@@ -163,7 +163,7 @@ public class ImportFileWindowCtrl extends GenericForwardComposer  {
 			}
 			
 		}
-		allFilesListbox.setModel(new ListModelList(SpreadSheetMetaInfo.getMetaInfos().values()));	
+//		allFilesListbox.setModel(new ListModelList(SpreadSheetMetaInfo.getMetaInfos().values()));	
 	}
 	
 	private DesktopWorkbenchContext getDesktopWorkbenchContext() {
