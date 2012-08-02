@@ -49,7 +49,7 @@ public class FileHelper {
 	private final static String[] SUPPORTED_FORMAT = new String[]{"xls", "xlsx"};
 	
 	/*current opening file name*/
-	private final static String KEY_OPENING_FILE = "org.zkoss.zss.app.file.fileHelper.openingFile";
+//	private final static String KEY_OPENING_FILE = "org.zkoss.zss.app.file.fileHelper.openingFile";
 	
 	/*has import permission or not, default is false*/
 	public final static String KEY_IMPORT_PERMISSION = "org.zkoss.zss.app.file.fileHelper.importPermission";
@@ -95,8 +95,9 @@ public class FileHelper {
 					throw new RuntimeException(e);
 				}
 			}
-			return info;
 		}
+		
+		return info;
 	}
 	
 	public static boolean openSrc(String src, Spreadsheet spreadsheet) {
@@ -121,7 +122,7 @@ public class FileHelper {
 		FileInputStream input = null;
 		try {
 			input = new FileInputStream(getSpreadsheetStorageFolderPath() + info.getHashFileName());
-			// FIXME: Add by MENGRAN for report engine
+			// Add by MENGRAN for report engine
 			Workbook wb = ReportEngine.INSTANCE.generateReport(input, info.getFileName(), info.getReportParams());
 //			ss.setBookFromStream(input, info.getFileName());
 			ss.setBook((Book) wb);

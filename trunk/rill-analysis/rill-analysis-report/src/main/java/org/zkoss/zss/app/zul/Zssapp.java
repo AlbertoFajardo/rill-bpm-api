@@ -15,8 +15,8 @@ Copyright (C) 2009 Potix Corporation. All Rights Reserved.
 package org.zkoss.zss.app.zul;
 
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
-import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -37,6 +37,11 @@ import org.zkoss.zul.Menubar;
  */
 public class Zssapp extends Div implements IdSpace  {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private final static String KEY_ZSSAPP = "org.zkoss.zss.app.zul.zssApp";
 	/*Default spreadsheet*/
 	//TODO: in mainWin id space, move to here
@@ -52,7 +57,13 @@ public class Zssapp extends Div implements IdSpace  {
 	DesktopCellStyleContext cellStyleContext = new DesktopCellStyleContext();
 	
 	public Zssapp() {
-		Executions.createComponents(Consts._Zssapp_zul, this, null);
+		
+		if (Executions.getCurrent().getParameter("edit") != null) {
+			Executions.createComponents("~./zssapp/html/zssappEdit.zul", this, null);
+		} else {
+			Executions.createComponents(Consts._Zssapp_zul, this, null);
+		}
+//		Executions.createComponents(Consts._Zssapp_zul, this, null);
 		Components.wireVariables(this, this, '$', true, true);
 		Components.addForwards(this, this, '$');
 		
@@ -63,6 +74,14 @@ public class Zssapp extends Div implements IdSpace  {
 		// set src from request parameters
 		String fileName = Executions.getCurrent().getParameter("fileName");
 		SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
+		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
+			@SuppressWarnings("unchecked")
+			Entry<String, String[]> e = (Entry<String, String[]>) entry;
+			// Update report parameters only. Don't support new parameters. 
+			if (ssmi.getReportParams().containsKey(e.getKey())) {
+				ssmi.getReportParams().put(e.getKey(), e.getValue()[0]);
+			}
+		}
 		
 		this.setSrc(ssmi.getSrc());
 	}

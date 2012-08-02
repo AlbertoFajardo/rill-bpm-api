@@ -3,7 +3,6 @@ package nu.com.rill.analysis.report.excel;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -20,7 +19,7 @@ public class ReportEngineTests {
 		
 		ReportEngine re = ReportEngine.INSTANCE;
 		Map<String, String> reportParams = new HashMap<String, String>();
-		reportParams.put("[Time].[2011]", "[Time].[2012]");
+		reportParams.put("[Time].[2011]", "[Time].[2010]");
 		
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/Report Desinger_20120715.xlsx");
 		try {
@@ -42,9 +41,9 @@ public class ReportEngineTests {
 		
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/Report Desinger_20120715.xlsx");
 		try {
-			List<String> list = re.retrieveReportParams(cpr.getInputStream(), "Report Desinger_20120715.xlsx");
+			Map<String, String> list = re.retrieveReportParams(cpr.getInputStream(), "Report Desinger_20120715.xlsx");
 			Assert.assertTrue(list.size() == 1);
-			Assert.assertTrue(list.get(0).equals("[Time].[2011]"));
+			Assert.assertTrue(list.get("时间").equals("[Time].[2011]"));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
