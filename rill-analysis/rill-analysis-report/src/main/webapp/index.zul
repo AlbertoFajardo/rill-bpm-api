@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?page id="p1" title="Report Service"?>
 
-<zk>
+<zk xmlns:h="xhtml">
 	<style>
         tr.z-row td.z-row-inner { 
             padding: 5px 
@@ -14,10 +14,37 @@
 		<grid id="reportGrid">
 			<columns>
 				<column hflex="1">序列</column>
-				<column hflex="5">报表名称</column>
+				<column hflex="4">报表名称</column>
+				<column hflex="1">调度表达式</column>
 				<column hflex="1">生成日期</column>
 				<column hflex="1">动作</column>
 			</columns>
 		</grid>
+		
+		<window id="reportParamDialog" title="报表参数窗口" border="normal" mode="modal"
+			width="580px" height="200px" closable="true" position="center" use="org.zkoss.zss.app.zul.Dialog" >
+			<h:form id="reportParamForm" method="POST" action="view.zul">
+				<h:input type="hidden" id="fileName" name="fileName" value=""/>
+				<div style="padding: 7px;">
+					<vlayout width="98%" height="95%" spacing="100">
+						<!--  panel -->
+						<div hflex="1" vflex="1">
+							<!-- 
+							<label value="调度表达式"/> : <textbox name="cronExpression" />
+							 -->
+							<grid id="configGrid" style="padding-top: 2px">
+								<columns>
+									<column label="参数名" />
+									<column label="参数值" />
+								</columns>
+							</grid>
+						</div>
+						
+						<button type="submit" id="submitBtn" 
+								label="提交" mold="trendy" style="float: right; maggin-left:20px"></button>
+					</vlayout>
+				</div>
+			</h:form>
+		</window>
 	</div>
 </zk>

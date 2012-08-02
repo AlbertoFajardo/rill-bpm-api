@@ -26,10 +26,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang.StringUtils;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
@@ -46,7 +48,17 @@ public class SpreadSheetMetaInfo {
 	//TODO: store author, not implement yet
 	private String author;
 	private Map<String, String> reportParams = new HashMap<String, String>(2);
+	private String cronExpression = "";
+
+	public final String getCronExpression() {
+		return cronExpression;
+	}
+
+	public final void setCronExpression(String cronExpression) {
+		this.cronExpression = cronExpression;
+	}
 	
+
 	private SpreadSheetMetaInfo(){}
 	
 	/**
@@ -138,9 +150,9 @@ public class SpreadSheetMetaInfo {
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(new File(info.getHashFileSrc()));
-			List<String> reportParamNames = ReportEngine.INSTANCE.retrieveReportParams(fis, info.getFileName());
-			for (String key : reportParamNames) {
-				reportParams = reportParams + " " + key;
+			Map<String, String> reportParamNames = ReportEngine.INSTANCE.retrieveReportParams(fis, info.getFileName());
+			for (Entry<String, String> entry : reportParamNames.entrySet()) {
+				reportParams = reportParams + " " + entry.getKey() + ":" + entry.getValue();
 			}
 			if (reportParams.length() > 0) {
 				reportParams = reportParams.substring(1);
@@ -165,7 +177,7 @@ public class SpreadSheetMetaInfo {
 			reader = new BufferedReader(new FileReader(FileHelper.getSpreadsheetStorageFolderPath() + "metaFile"));
 			prop.load(reader);
 			
-			prop.put(fileName,  timeInMillis + "," + fileName + ","	+ hashFilename + "," + reportParams);
+			prop.put(fileName,  timeInMillis + "," + fileName + ","	+ hashFilename + "," + reportParams + "," + info.getCronExpression());
 			writer = new BufferedWriter(new FileWriter(FileHelper.getSpreadsheetStorageFolderPath() + "metaFile", false));
 			prop.store(writer, null);
 			
@@ -245,9 +257,15 @@ public class SpreadSheetMetaInfo {
 					time, hashFileName);
 			if (setting.length > 3) {
 				String reportParams = setting[3].trim();
-				for (String param : reportParams.split(" ")) {
-					metaInfo.getReportParams().put(param, null);
+				if (!StringUtils.isEmpty(reportParams)) {
+					for (String param : reportParams.split(" ")) {
+						metaInfo.getReportParams().put(param.split(":")[0], param.split(":")[1]);
+					}
 				}
+			}
+			if (setting.length > 4) {
+				String expression = setting[4].trim();
+				metaInfo.setCronExpression(expression);
 			}
 
 			SpreadSheetMetaInfo exist = map.get(fileName);

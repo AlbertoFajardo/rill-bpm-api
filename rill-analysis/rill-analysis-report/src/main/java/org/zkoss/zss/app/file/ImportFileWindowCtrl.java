@@ -17,6 +17,7 @@ package org.zkoss.zss.app.file;
 import java.util.Map;
 
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -163,6 +164,8 @@ public class ImportFileWindowCtrl extends GenericForwardComposer  {
 			}
 			
 		}
+		_importFileDialog.fireOnClose(null);
+		Executions.getCurrent().postEvent(0, new Event("onUser", event.getTarget().getRoot().getFellow("reportGrid")));
 //		allFilesListbox.setModel(new ListModelList(SpreadSheetMetaInfo.getMetaInfos().values()));	
 	}
 	

@@ -24,15 +24,14 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
 	</icon>
 	-->
 	<!-- Spring ApplicationContext -->
-	<!-- 
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/spring-config.xml</param-value>
+		<param-value>classpath:/conf/applicationContext-*.xml</param-value>
 	</context-param>
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-	 -->
+	
 	<!-- //// -->
 	<!-- ZK -->
 	<listener>

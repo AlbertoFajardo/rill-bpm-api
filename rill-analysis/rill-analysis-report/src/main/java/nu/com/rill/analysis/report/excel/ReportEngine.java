@@ -1,16 +1,22 @@
 package nu.com.rill.analysis.report.excel;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
+
+import mondrian.util.Format;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.logging.Log;
@@ -55,6 +61,10 @@ public class ReportEngine {
 	public static final String REPORT_DISCOVERY = "REPORT_DISCOVERY";
 	public static final String REPORT_CUBE = "REPORT_CUBE";
 	
+	public static final String REPORT_SCHEDULE_MODE = "REPORT_SCHEDULE_MODE";
+	// FIXME: MENGRAN. time dimension last level is?
+	public static final String REPORT_SCHEDULE_FORMAT = "[\"Time\"]\\.[yyyy]\\.[\"Q\"q]\\.[mm]\\.[dd]";
+	
 	public static final String JSESSIONID = "JSESSIONID";
 	public static final String RELOAD = "RELOAD";
 	public static final String USERNAME = "USERNAME";
@@ -72,7 +82,7 @@ public class ReportEngine {
 		// Singleton
 	}
 	
-	public List<String> retrieveReportParams(InputStream is, String bookName) {
+	public Map<String, String> retrieveReportParams(InputStream is, String bookName) {
 		
 		Assert.notNull(is);
 		Assert.notNull(bookName);
@@ -83,24 +93,35 @@ public class ReportEngine {
 		
 		if (isValid) {
 			// 2. Handle #_SETTINGS_SHEET
-			List<String> reportParams = new ArrayList<String>(2);
-			for (Row row : book.getSheet(_SETTINGS_SHEET)) {
-				if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue()) 
-						&& ("?".equals(row.getCell(4).getStringCellValue()) 
-								|| String.valueOf(FULL_LENGTH_QUESTING).equals(row.getCell(4).getStringCellValue()))) {
-					reportParams.add(row.getCell(3).getStringCellValue());
-				}
-			}
+			Map<String, String> reportParams = retrieveReportParamsFromSettingsSheet(book.getWorksheet(_SETTINGS_SHEET));
+			
 			return reportParams;
 		}
 		
-		return new ArrayList<String>(0);
+		return Collections.emptyMap();
+	}
+	
+	private Map<String, String> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet) {
+		
+		// 2. Handle #_SETTINGS_SHEET
+		Map<String, String> reportParams = new LinkedHashMap<String, String>(2);
+		for (Row row : settingsSheet) {
+			if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue())) {
+				reportParams.put(row.getCell(3).getStringCellValue(), row.getCell(4).getStringCellValue());
+			}
+		}
+		return reportParams;
 	}
 	
 	public Workbook generateReport(InputStream is, String bookName, Map<String, String> reportParams) {
 		
 		Assert.notNull(is);
 		Assert.notNull(bookName);
+		
+		Map<String, String> useReportParams = new HashMap<String, String>();
+		if (!CollectionUtils.isEmpty(reportParams)) {
+			useReportParams.putAll(reportParams);
+		}
 		
 		Book book = new ExcelImporter().imports(is, bookName);
 		
@@ -110,10 +131,10 @@ public class ReportEngine {
 			
 			if (isValid) {
 				// 2. Handle #_SETTINGS_SHEET
-				processSettings(book.getWorksheet(_SETTINGS_SHEET), reportParams);
+				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams);
 				
 				// 3. Handle #_INPUT_SHEET sheet
-				processInput(book.getWorksheet(_INPUT_SHEET), reportParams);
+				processInput(book.getWorksheet(_INPUT_SHEET), useReportParams);
 				
 				// 4. Formula evaluate
 //				bookAfterProcess.setForceFormulaRecalculation(true);
@@ -129,6 +150,12 @@ public class ReportEngine {
 			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				LOG.warn("Ignore exception of is.close. " + bookName, e);
+			}
 		}
 		
 	}
@@ -140,6 +167,10 @@ public class ReportEngine {
 			LOG.info("Disable reload feature: " + reportParams);
 			return; 
 		}
+		
+		final Locale locale = Locale.getDefault();
+        final Format format = new Format(REPORT_SCHEDULE_FORMAT, locale);
+        String currDateStr = format.format(new Date());
 		
 		// 2. Reload data
 		@SuppressWarnings("unchecked")
@@ -203,8 +234,20 @@ public class ReportEngine {
 					@SuppressWarnings("unchecked")
 					Map<String, String> parameters = WorkflowOperations.XStreamSerializeHelper.deserializeObject(reportParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, Map.class);
 					for (Entry<String, String> entry : parameters.entrySet()) {
-						LOG.debug("Replace " + entry.getKey() + " report parameters using " + entry.getValue());
-						mdx = StringUtils.replace(mdx, entry.getKey(), entry.getValue());
+						
+						String replacedValue = null;
+						// Value in report parameters is high-priority 
+						replacedValue = reportParams.containsKey(entry.getKey()) ? reportParams.get(entry.getKey()) : replacedValue;
+						// Schedule model, then use current date to change report parameters
+						if (reportParams.get(REPORT_SCHEDULE_MODE) != null) {
+							// 1. Check parameter names is time dimension
+							if (entry.getValue().split("\\.").length > 0 && currDateStr.startsWith(entry.getValue().split("\\.")[0])) {
+								replacedValue = currDateStr.substring(0, entry.getValue().length());
+							}
+						}
+						
+						LOG.debug("Replace " + entry.getValue() + " report parameters using " + replacedValue);
+						mdx = StringUtils.replace(mdx, entry.getValue(), replacedValue);
 					}
 				}
 				LOG.debug("Execute mdx " + mdx);
@@ -309,7 +352,6 @@ public class ReportEngine {
 			if ("url".equals(row.getCell(0).getStringCellValue())) {
 				url = row.getCell(1).getStringCellValue();
 			}
-			// FIXME: User name and password need retrieve from report parameter???
 			if ("username".equals(row.getCell(0).getStringCellValue())) {
 				username = row.getCell(1).getStringCellValue();
 			}
@@ -325,8 +367,13 @@ public class ReportEngine {
 		}
 		reportParams.put(RELOAD, reload.toString());
 		reportParams.put(URL, url);
-		reportParams.put(USERNAME, username);
-		reportParams.put(PASSWORD, PASSWORD);
+		// Report parameter's value is high-priority
+		if (reportParams.containsKey(USERNAME) && reportParams.get(USERNAME) != null && !reportParams.get(USERNAME).equals(username)) {
+			reportParams.put(USERNAME, username);
+		}
+		if (reportParams.containsKey(PASSWORD) && reportParams.get(PASSWORD) != null && !reportParams.get(PASSWORD).equals(username)) {
+			reportParams.put(PASSWORD, password);
+		}
 		
 		// Connect to server
 		try {
@@ -336,17 +383,7 @@ public class ReportEngine {
 			throw new RuntimeException(e);
 		}
 		
-		Map<String, String> parameters = new HashMap<String, String>();
-		for (Row row : settingsSheet) {
-			if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue()) 
-					&& ("?".equals(row.getCell(4).getStringCellValue()) 
-							|| String.valueOf(FULL_LENGTH_QUESTING).equals(row.getCell(4).getStringCellValue()))) {
-				if (!reportParams.containsKey(row.getCell(3).getStringCellValue())) {
-					throw new IllegalArgumentException(row.getCell(3).getStringCellValue() + " is a report parameter, but pass-in actual value in report parameters: " + reportParams);
-				}
-				parameters.put(row.getCell(3).getStringCellValue(), reportParams.get(row.getCell(3).getStringCellValue()));
-			}
-		}
+		Map<String, String> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet);
 		if (!CollectionUtils.isEmpty(parameters)) {
 			reportParams.put(REPORT_PARAMETERS, WorkflowOperations.XStreamSerializeHelper.serializeXml(REPORT_PARAMETERS, parameters));
 			LOG.info("Have added " + REPORT_PARAMETERS + " to report params: " + reportParams);
