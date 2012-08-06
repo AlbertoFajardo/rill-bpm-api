@@ -19,6 +19,9 @@
  */
 package org.saiku.service.olap;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -28,11 +31,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.concurrent.Executor;
 
+import nu.com.rill.analysis.report.excel.ReportEngine;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.olap4j.AllocationPolicy;
 import org.olap4j.Axis;
@@ -64,25 +71,31 @@ import org.saiku.olap.dto.SaikuSelection;
 import org.saiku.olap.dto.SaikuTag;
 import org.saiku.olap.dto.SaikuTuple;
 import org.saiku.olap.dto.SaikuTupleDimension;
+import org.saiku.olap.dto.resultset.AbstractBaseCell;
 import org.saiku.olap.dto.resultset.CellDataSet;
+import org.saiku.olap.dto.resultset.DataCell;
 import org.saiku.olap.query.IQuery;
 import org.saiku.olap.query.MdxQuery;
 import org.saiku.olap.query.OlapQuery;
 import org.saiku.olap.query.QueryDeserializer;
 import org.saiku.olap.util.ObjectUtil;
 import org.saiku.olap.util.OlapResultSetUtil;
+import org.saiku.olap.util.SaikuProperties;
 import org.saiku.olap.util.exception.SaikuOlapException;
 import org.saiku.olap.util.formatter.CellSetFormatter;
 import org.saiku.olap.util.formatter.FlattenedCellSetFormatter;
 import org.saiku.olap.util.formatter.HierarchicalCellSetFormatter;
 import org.saiku.olap.util.formatter.ICellSetFormatter;
 import org.saiku.service.util.KeyValue;
-import org.saiku.service.util.ObjectHolder;
 import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.service.util.export.CsvExporter;
 import org.saiku.service.util.export.ExcelExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
+import org.zkoss.poi.ss.usermodel.Cell;
+import org.zkoss.poi.ss.usermodel.Workbook;
 
 public class OlapQueryService implements Serializable {
 
@@ -96,6 +109,8 @@ public class OlapQueryService implements Serializable {
 	private OlapDiscoverService olapDiscoverService;
 
 	private Map<String, IQuery> queries = new HashMap<String, IQuery>(); 
+	
+	private Map<String, LinkedHashMap<String, CellSet>> markedQueryResults = new HashMap<String, LinkedHashMap<String, CellSet>>();
 
 	public void setOlapDiscoverService(OlapDiscoverService os) {
 		olapDiscoverService = os;
@@ -223,6 +238,50 @@ public class OlapQueryService implements Serializable {
 			result.setRuntime(new Double(format - start).intValue());
 			getIQuery(queryName).storeCellset(cellSet);
 			return result;
+		} catch (Exception e) {
+			throw new SaikuServiceException("Can't execute query: " + queryName,e);
+		} catch (Error e) {
+			throw new SaikuServiceException("Can't execute query: " + queryName,e);
+		}
+	}
+
+	public CellSet markQuery(String queryName) {
+		try {
+//			System.out.println("Execute: ID " + Thread.currentThread().getId() + " Name: " + Thread.currentThread().getName());
+			IQuery query = getIQuery(queryName);
+			OlapConnection con = olapDiscoverService.getNativeConnection(query.getSaikuCube().getConnectionName());
+			Long start = (new Date()).getTime();
+			if (query.getScenario() != null) {
+				log.info("Query (" + queryName + ") Setting scenario:" + query.getScenario().getId());
+				con.setScenario(query.getScenario());
+			}
+
+			if (query.getTag() != null) {
+				query = applyTag(query, con, query.getTag());
+			}
+			
+			CellSet cellSet =  query.execute();
+			String mdx = query.getMdx();
+			
+			// add to mark map
+			LinkedHashMap<String, CellSet> markMap = this.markedQueryResults.get(queryName);
+			if (markMap == null) {
+				this.markedQueryResults.put(queryName, markMap = new LinkedHashMap<String, CellSet>());
+			}
+			markMap.put(mdx, cellSet);
+			
+			Long exec = (new Date()).getTime();
+			
+			if (query.getScenario() != null) {
+				log.info("Query (" + queryName + ") removing scenario:" + query.getScenario().getId());
+				con.setScenario(null);
+			}
+
+			Long format = (new Date()).getTime();
+			log.info("Execute:\t" + (exec - start)
+					+ "ms\tFormat:\t" + (format - exec) + "ms\t Total: " + (format - start) + "ms");
+			getIQuery(queryName).storeCellset(cellSet);
+			return cellSet;
 		} catch (Exception e) {
 			throw new SaikuServiceException("Can't execute query: " + queryName,e);
 		} catch (Error e) {
@@ -808,5 +867,79 @@ public class OlapQueryService implements Serializable {
 	private Map<String, IQuery> getIQueryMap() {
 		return queries;
 	}
+
+	public Map<String, LinkedHashMap<String, CellSet>> getMarkedQueryResults() {
+		return markedQueryResults;
+	}
+	
+	private byte[] marktdTemplateByte;
+	
+	public final void setMarkedTemplate(Resource markedTemplate) {
+		try {
+			marktdTemplateByte = FileUtils.readFileToByteArray(markedTemplate.getFile());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public byte[] getMarkedData(String queryName, String formatter) {
+		
+		ICellSetFormatter csf = null;
+		if (formatter.equals("flattened")) {
+			csf = new FlattenedCellSetFormatter();
+		}
+		Assert.notNull("Not support " + formatter);
+		
+		List<String[]> data = new ArrayList<String[]>();
+		List<int[]> dataType = new ArrayList<int[]>();
+		for (Entry<String, CellSet> entry : markedQueryResults.get(queryName).entrySet()) {
+			CellDataSet table = OlapResultSetUtil.cellSet2Matrix(entry.getValue(), csf);
+			String mdx = entry.getKey();
+			mdx = mdx.replaceAll("(\r\n|\n)", " ");
+			data.add(new String[] {mdx});
+			dataType.add(new int[] {Cell.CELL_TYPE_STRING});
+			
+			for (AbstractBaseCell[] row : table.getCellSetHeaders()) {
+				String[] headers = new String[row.length];
+				int [] headersType = new int[row.length];
+				for (int i = 0; i < row.length; i++) {
+					headers[i] = row[i].getFormattedValue();
+					headersType[i] = Cell.CELL_TYPE_STRING;
+				}
+				data.add(headers);
+				dataType.add(headersType);
+			}
+			for (AbstractBaseCell[] row : table.getCellSetBody()) {
+				String[] bodys = new String[row.length];
+				int [] bodysType = new int[row.length];
+				for (int i = 0; i < row.length; i++) {
+					if (row[i] instanceof DataCell) {
+						bodys[i] = ((DataCell) row[i]).getRawNumber().toString();
+						bodysType[i] = Cell.CELL_TYPE_NUMERIC;
+					} else {
+						bodys[i] = row[i].getFormattedValue();
+						bodysType[i] = Cell.CELL_TYPE_STRING;
+					}
+				}
+				data.add(bodys);
+				dataType.add(bodysType);
+			}
+			
+			data.add(new String[0]);
+			dataType.add(new int[0]);
+		}
+		
+		try {
+			Workbook result = ReportEngine.INSTANCE.generateReportTemplate(new ByteArrayInputStream(marktdTemplateByte), data.toArray(new String[0][]), dataType.toArray(new int[0][]), SaikuProperties.webExportExcelName);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			result.write(baos);
+			return baos.toByteArray();
+		} catch (IOException e) {
+			log.error("Can not generate report Template. " + queryName, e);
+		}
+		
+		return new byte[0];
+	}
+	
 
 }

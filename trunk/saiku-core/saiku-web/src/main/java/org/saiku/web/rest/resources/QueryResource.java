@@ -68,6 +68,7 @@ import org.saiku.service.util.exception.SaikuServiceException;
 import org.saiku.web.rest.objects.MdxQueryObject;
 import org.saiku.web.rest.objects.SavedQuery;
 import org.saiku.web.rest.objects.SelectionRestObject;
+import org.saiku.web.rest.objects.resultset.MarkResult;
 import org.saiku.web.rest.objects.resultset.QueryResult;
 import org.saiku.web.rest.util.RestUtil;
 import org.slf4j.Logger;
@@ -265,6 +266,27 @@ public class QueryResource {
 			return null; 
 		}
 
+	}
+	
+	@GET
+	@Produces({"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
+	@Path("/{queryname}/export/draft")
+	public Response getDraftExcelExport(@PathParam("queryname") String queryName){
+		if (log.isDebugEnabled()) {
+			log.debug("TRACK\t"  + "\t/query/" + queryName + "/export/draft/\tGET");
+		}
+		try {
+			byte[] doc = olapQueryService.getMarkedData(queryName, "flattened");
+			String name = SaikuProperties.webExportExcelName;
+			return Response.ok(doc, MediaType.APPLICATION_OCTET_STREAM).header(
+					"content-disposition",
+					"attachment; filename = " + name + ".xlsx").header(
+							"content-length",doc.length).build();
+		}
+		catch (Exception e) {
+			log.error("Cannot get excel for query (" + queryName + ")",e);
+			return Response.serverError().build();
+		}
 	}
 
 	@GET
@@ -581,6 +603,25 @@ public class QueryResource {
 		}
 	}
 
+	@GET
+	@Produces({"application/json" })
+	@Path("/{queryname}/mark")
+	public MarkResult markQuery(
+			@PathParam("queryname") String queryName){
+		if (log.isDebugEnabled()) {
+			log.debug("TRACK\t"  + "\t/query/" + queryName + "\tGET");
+		}
+		try {
+			olapQueryService.markQuery(queryName);
+			return new MarkResult("Mark query OK.", true);
+		}
+		catch (Exception e) {
+			log.error("Cannot execute query (" + queryName + ")",e);
+//			String error = ExceptionUtils.getRootCauseMessage(e);
+			return new MarkResult(e.getMessage(), false);
+		}
+	}
+	
 	/*
 	 * Axis Methods.
 	 */

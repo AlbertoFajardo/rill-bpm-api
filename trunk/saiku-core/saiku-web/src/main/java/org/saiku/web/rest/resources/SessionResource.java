@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Path("/saiku/session")
-public class SessionResource  {
+public class SessionResource  { 
 
 
 	private static final Logger log = LoggerFactory.getLogger(SessionResource.class);
