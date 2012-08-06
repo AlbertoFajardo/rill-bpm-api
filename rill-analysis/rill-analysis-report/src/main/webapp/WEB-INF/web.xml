@@ -26,7 +26,7 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
 	<!-- Spring ApplicationContext -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:/conf/applicationContext-*.xml</param-value>
+		<param-value>classpath*:/conf/applicationContext-*.xml</param-value>
 	</context-param>
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
