@@ -27,7 +27,7 @@ var Query = Backbone.Model.extend({
         _.extend(this, options);
         
         // Bind `this`
-        _.bindAll(this, "run", "move_dimension", "reflect_properties");
+        _.bindAll(this, "run", "mark_query", "move_dimension", "reflect_properties");
         
         // Generate a unique query id
         this.uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, 
@@ -40,6 +40,7 @@ var Query = Backbone.Model.extend({
         // Initialize properties, action handler, and result handler
         this.action = new QueryAction({}, { query: this });
         this.result = new Result({}, { query: this });
+        this.mark = new Mark({}, { query: this});
         this.scenario = new QueryScenario({}, { query: this });
     },
     
@@ -125,7 +126,21 @@ var Query = Backbone.Model.extend({
             this.result.fetch();
         }
     },
-    
+
+    mark_query: function(mdx) {
+        
+        Saiku.ui.block('Marking query...');
+
+        //$(this.workspace.table.el)
+        //    .html('<tr><td>Marking query...</td></tr>');
+            
+        if (this.get('type')  == "MDX" && mdx != null) {
+            this.mark.save({ mdx: mdx });
+        } else {
+            this.mark.fetch();
+        }
+    },
+        
     move_dimension: function(dimension, target, index) {
         $(this.workspace.el).find('.run').removeClass('disabled_toolbar');
         var url = "/axis/" + target + "/dimension/" + dimension;

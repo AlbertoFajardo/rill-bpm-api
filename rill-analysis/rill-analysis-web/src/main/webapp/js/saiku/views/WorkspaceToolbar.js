@@ -32,7 +32,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         this.workspace = args.workspace;
         
         // Maintain `this` in callbacks
-        _.bindAll(this, "call", "reflect_properties", "run_query",
+        _.bindAll(this, "call", "reflect_properties", "run_query", "mark_query", "export_draft", 
             "swap_axes_on_dropzones", "display_drillthrough","clicked_cell_drillthrough_export",
             "clicked_cell_drillthrough","activate_buttons", "switch_to_mdx","post_mdx_transform");
         
@@ -129,6 +129,16 @@ var WorkspaceToolbar = Backbone.View.extend({
     
     run_query: function(event) {
         this.workspace.query.run(true);
+    },
+    
+    mark_query: function(event) {
+        this.workspace.query.mark_query();
+    },
+    
+    export_draft: function(event) {
+        window.location = Settings.REST_URL +
+            Saiku.session.username + "/query/" + 
+            this.workspace.query.id + "/export/draft";        
     },
     
     automatic_execution: function(event) {

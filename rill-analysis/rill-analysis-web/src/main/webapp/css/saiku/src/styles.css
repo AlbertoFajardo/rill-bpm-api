@@ -1089,6 +1089,12 @@ background: url("../../../images/src/sort_none.png") no-repeat;
 .workspace_toolbar .run {
     background-position: -123px -90px;
 }
+.workspace_toolbar .mark {
+    background-position: -1164px -96px;
+}
+.workspace_toolbar .export_draft {
+    background-position: -326px -96px;
+}
 .workspace_toolbar .auto {
     background-position: 7px 7px;
 }

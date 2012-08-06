@@ -1,9 +1,9 @@
 type=OLAP
 name=transformed_funnel
 driver=mondrian.olap4j.MondrianOlap4jDriver
-location=jdbc:mondrian:Jdbc=jdbc:hive://10.23.245.26:8888/default;Catalog=D:\\06RillDev2\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\transformed_funnel\\transformed_funnel.mondrian.xml;JdbcDrivers=nu.com.rill.analysis.data.hive.HiveDriver;
-username=
-password=
+location=jdbc:mondrian:Jdbc=jdbc:mysql://10.26.212.12:8306/transformed_funnel;Catalog=D:\\06RillDev2\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\transformed_funnel\\transformed_funnel.mondrian.xml;JdbcDrivers=com.mysql.jdbc.Driver;
+username=rigelip
+password=rigelip
 
 # some security configuration for roles, first enable it
 # security.enabled=true
