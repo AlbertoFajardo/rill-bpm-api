@@ -29,6 +29,9 @@
 	
 	<bean id="olapQueryBean" scope="session" class="org.saiku.service.olap.OlapQueryService">
 		<property name="olapDiscoverService" ref="olapDiscoverServiceBean" />
+		<property name="markedTemplate">
+			<value>classpath:/template.xlsx</value>
+		</property>
 	</bean>
 
 
