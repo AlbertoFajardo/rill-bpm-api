@@ -10,8 +10,6 @@ import nu.com.rill.analysis.report.excel.ReportEngine;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.quartz.CronTrigger;
-import org.quartz.JobDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,7 +22,7 @@ public class DynamicScheduleServiceTest extends AbstractJUnit4SpringContextTests
 	public static class NoValidate extends DynamicScheduleService {
 
 		@Override
-		protected boolean validate(JobDetail job, CronTrigger trigger) {
+		protected boolean validate(String cronExpression, Runnable job) {
 			
 			// Do nothing
 			return true;
@@ -72,7 +70,7 @@ public class DynamicScheduleServiceTest extends AbstractJUnit4SpringContextTests
 	public void submitReportJob() {
 		
 		for (int i = 0; i < 10 ; i++) {
-			dynamicScheduleService.submitReportJob("0/2 * * * * ?", new TestJob("submitReportJob"));
+			dynamicScheduleService.submitJob("0/2 * * * * ?", new TestJob("submitReportJob"));
 		}
 		
 		try {

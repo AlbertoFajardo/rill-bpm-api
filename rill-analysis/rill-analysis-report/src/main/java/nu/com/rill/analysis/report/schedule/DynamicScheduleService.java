@@ -4,7 +4,6 @@ import java.text.ParseException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -27,16 +26,31 @@ public class DynamicScheduleService implements InitializingBean {
 		this.dynamicScheduler = dynamicScheduler;
 	}
 	
-	public void submitReportJob(String cronExpression, Runnable reportJob) {
+	public void deleteJob(Runnable job) {
 		
-		Assert.notNull(reportJob);
-		Assert.notNull(cronExpression);
+		Assert.notNull(job);
+		
+		JobDetail jd = createScheduleJob(job);
+		try {
+			if (getDynamicScheduler().getJobDetail(jd.getName(), jd.getGroup()) == null) {
+				LOG.info("Do nothing because job not exists. " + job);
+				return;
+			}
+			LOG.info("Delete job " + job);
+			getDynamicScheduler().deleteJob(jd.getName(), jd.getGroup());
+		} catch (SchedulerException e) {
+			LOG.error("Do nothing because exception. " + e.getMessage(), e);
+		}
+		
+	}
+	
+	private JobDetail createScheduleJob(Runnable job) {
 		
 		// 2. Create job
 		MethodInvokingJobDetailFactoryBean jdb = new MethodInvokingJobDetailFactoryBean();
-		jdb.setTargetObject(reportJob);
+		jdb.setTargetObject(job);
 		jdb.setTargetMethod("run");
-		jdb.setName("job - " + reportJob.toString());
+		jdb.setName("job - " + job.toString());
 		try {
 			jdb.afterPropertiesSet();
 		} catch (ClassNotFoundException e1) {
@@ -45,55 +59,68 @@ public class DynamicScheduleService implements InitializingBean {
 			throw new RuntimeException(e1);
 		}
 		
+		return jdb.getObject();
+	}
+	
+	public void submitJob(String cronExpression, Runnable job) {
+		
+		Assert.notNull(job);
+		
+		// 1. Validate report file
+		boolean isValid = validate(cronExpression, job);
+		if (!isValid) {
+			return;
+		}
+				
+		// 2. Create job
+		JobDetail jd = createScheduleJob(job);
+		
 		// 3. Create trigger
 		CronTriggerBean ctb = new CronTriggerBean();
-		ctb.setName("trigger - " + reportJob.toString());
+		ctb.setName("trigger - " + job.toString());
 		try {
 			ctb.setCronExpression(cronExpression);
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
-		ctb.setJobDetail(jdb.getObject());
+		ctb.setJobDetail(jd);
 		try {
 			ctb.afterPropertiesSet();
 		} catch (Exception e1) {
 			throw new RuntimeException(e1);
 		}
-				
-		// 1. Validate report file
-		boolean isValid = validate(jdb.getObject(), ctb);
-		if (!isValid) {
-			return;
-		}
 		
 		// 4. Register
 		try {
-			getDynamicScheduler().addJob(jdb.getObject(), true);
+			getDynamicScheduler().addJob(jd, true);
 			getDynamicScheduler().scheduleJob(ctb);
 		} catch (SchedulerException e) {
 			throw new RuntimeException(e);
 		}
 		
 		// 5. Persist
-		persistReportJob(ctb);
+		persistJob(ctb);
 		
 	}
 	
-	protected boolean validate(JobDetail job, CronTrigger trigger) {
+	protected boolean validate(String cronExpression, Runnable job) {
 		
+		Assert.hasText(cronExpression);
+		
+		JobDetail jd = createScheduleJob(job);
 		try {
-			if (getDynamicScheduler().getJobDetail(job.getName(), job.getGroup()) != null) {
-				// FIXME: MENGRAN. Need handle job exists case.
+			if (getDynamicScheduler().getJobDetail(jd.getName(), jd.getGroup()) != null) {
+				LOG.error("Job is exists. " + job);
 				return false;
 			}
 		} catch (SchedulerException e) {
-			LOG.error("Can not get jobdetail. " + job, e);
+			LOG.error(e);
 		}
 		
 		return true;
 	}
 	
-	protected void persistReportJob(CronTriggerBean ctb) {
+	protected void persistJob(CronTriggerBean ctb) {
 		
 		// FIXME: MENGRAN.
 	}
@@ -101,8 +128,7 @@ public class DynamicScheduleService implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		
-		// Read jobs and register
-		// FIXME: MENGRAN.
+		// FIXME: MENGRAN. Read jobs and publish schedule event
 	}
 	
 	

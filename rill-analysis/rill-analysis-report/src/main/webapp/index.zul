@@ -15,7 +15,8 @@
 			<columns>
 				<column hflex="1">序列</column>
 				<column hflex="4">报表名称</column>
-				<column hflex="1">调度表达式</column>
+				<column hflex="2">调度表达式</column>
+				<column hflex="1">查看调度结果</column>
 				<column hflex="1">生成日期</column>
 				<column hflex="1">动作</column>
 			</columns>
@@ -29,9 +30,6 @@
 					<vlayout width="98%" height="95%" spacing="100">
 						<!--  panel -->
 						<div hflex="1" vflex="1">
-							<!-- 
-							<label value="调度表达式"/> : <textbox name="cronExpression" />
-							 -->
 							<grid id="configGrid" style="padding-top: 2px">
 								<columns>
 									<column label="参数名" />
@@ -45,6 +43,16 @@
 					</vlayout>
 				</div>
 			</h:form>
+		</window>
+		
+		<window id="reportScheduleDialog" title="调度结果窗口" border="normal" mode="modal"
+			width="580px" height="300px" closable="true" position="center" use="org.zkoss.zss.app.zul.Dialog" >
+			<grid id="reportScheduleGrid" height="260px">
+				<columns>
+					<column hflex="1">序列</column>
+					<column hflex="4">报表名称</column>
+				</columns>
+			</grid>
 		</window>
 	</div>
 </zk>
