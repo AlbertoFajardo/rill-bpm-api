@@ -11,7 +11,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.saiku.AbstractServiceUtils;
 import org.saiku.TConnectionManager;
 import org.saiku.datasources.connection.IConnectionManager;
 import org.saiku.datasources.datasource.SaikuDatasource;
@@ -62,6 +61,16 @@ public class OlapQueryServiceMySQLTests {
 		olapDiscoverService.setDatasourceService(dsService);
 		olapQueryService.setOlapDiscoverService(olapDiscoverService);
 	}
+	
+	private void sleep(long sleep) {
+		
+		try {
+			LOGGER.info("Sleep " + sleep);
+			Thread.sleep(sleep);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Test
 	public void testQuery() {
@@ -77,14 +86,58 @@ public class OlapQueryServiceMySQLTests {
 		final UUID query = UUID.randomUUID();
 		olapQueryService.createNewOlapQuery(query.toString(), salesCube);
 		
-		final String mdx = "SELECT {Hierarchize({[Measures].[Show Cnt]})} ON COLUMNS, " + 
-				"CrossJoin([Time].[Year].Members, " +
-				"CrossJoin([Regions].[Region].Members, " +
-				"[WInfo].[Account].Members)) ON ROWS " + 
+//		final String mdx = "SELECT {Hierarchize({[Measures].[Show Cnt]})} ON COLUMNS, " + 
+//				"CrossJoin([Time].[Year].Members, " +
+//				"CrossJoin([Regions].[Region].Members, " +
+//				"[WInfo].[Account].Members)) ON ROWS " + 
+//				"FROM [TF_CUBE]";
+		
+		final String mdx = "SELECT {Hierarchize({[Measures].[Show Cnt]})} ON COLUMNS," +
+				"Hierarchize(Union(CrossJoin({[Time].[2011]}, CrossJoin([Regions].[Region].Members, " +
+				"{[WInfo].[张三的帐户].[张三的计划A].[张三的单元A].[张三买的关键词A2]})), CrossJoin({[Time].[2011]}, " +
+				"CrossJoin([Regions].[Region].Members, {[WInfo].[张三的帐户].[张三的计划A].[张三的单元B].[张三买的关键词B1]})))) ON ROWS " +
 				"FROM [TF_CUBE]";
 		
 		CellDataSet cds = olapQueryService.executeMdx(query.toString(), mdx);
 		LOGGER.info("Execute MDX[" + mdx + "] result : " + ToStringBuilder.reflectionToString(cds));
+		
+		sleep(2000L);
+		
+		cds = olapQueryService.executeMdx(query.toString(), mdx);
+		LOGGER.info("Execute MDX[" + mdx + "] result : " + ToStringBuilder.reflectionToString(cds));
+		
+		final String mdx2 = "SELECT {Hierarchize({[Measures].[Show Cnt]})} ON COLUMNS," +
+				"Hierarchize(CrossJoin({[Time].[2011]}, CrossJoin([Regions].[东北], " +
+				"{[WInfo].[张三的帐户].[张三的计划A].[张三的单元A].[张三买的关键词A2]}))) ON ROWS " +
+				"FROM [TF_CUBE]";
+		
+		cds = olapQueryService.executeMdx(query.toString(), mdx2);
+		LOGGER.info("Execute MDX[" + mdx2 + "] result : " + ToStringBuilder.reflectionToString(cds));
+		
+		sleep(2000L);
+		
+		cds = olapQueryService.executeMdx(query.toString(), mdx2);
+		LOGGER.info("Execute MDX[" + mdx2 + "] result : " + ToStringBuilder.reflectionToString(cds));
+		
+//		sleep(2000L);
+//		
+//		// Concurrent execute
+//		int threadPoolSize = 10;
+//		ScheduledExecutorService ses = Executors.newScheduledThreadPool(threadPoolSize);
+//		for (int i = 0; i < threadPoolSize; i++) {
+//			ses.scheduleAtFixedRate(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					CellDataSet scheduleCds = olapQueryService.executeMdx(query.toString(), mdx);
+//					LOGGER.info("Schedule execute MDX[" + mdx + "] result : " + ToStringBuilder.reflectionToString(scheduleCds));
+//				}
+//
+//			}, 1000, executeCostTime + 1000, TimeUnit.MILLISECONDS);
+//		}
+//		
+//		sleep(10000L);
+//		ses.shutdown();
 		
 	}
 
