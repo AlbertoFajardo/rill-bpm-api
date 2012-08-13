@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Assert;
@@ -14,6 +16,26 @@ import org.zkoss.poi.ss.usermodel.Workbook;
 
 public class ReportEngineTests {
 
+	@Test
+	public void generateReportSaiku6() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("[Time].[2011]", "[Time].[2010]");
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/saiku-export (6).xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "saiku-export (6).xlsx", reportParams);
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			wb.write(baos);
+			File tmpImage = File.createTempFile("saiku-export (6).xlsx_" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	@Test
 	public void generateReport() {
 		
@@ -41,9 +63,24 @@ public class ReportEngineTests {
 		
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/Report Desinger_20120715.xlsx");
 		try {
-			Map<String, String> list = re.retrieveReportParams(cpr.getInputStream(), "Report Desinger_20120715.xlsx");
+			Map<String, Map<PARAM_CONFIG, String>> list = re.retrieveReportParams(cpr.getInputStream(), "Report Desinger_20120715.xlsx");
 			Assert.assertTrue(list.size() == 1);
-			Assert.assertTrue(list.get("时间").equals("[Time].[2011]"));
+			Assert.assertTrue(list.get("时间").get(PARAM_CONFIG.VALUE).equals("[Time].[2011]"));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void retrieveReportParamsLuopan() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan.xlsx");
+		try {
+			Map<String, Map<PARAM_CONFIG, String>> list = re.retrieveReportParams(cpr.getInputStream(), "luopan.xlsx");
+			Assert.assertTrue(list.size() == 5);
+			Assert.assertTrue(list.get("商业产品线").get(PARAM_CONFIG.FETCH_URL).equals("line.action"));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
