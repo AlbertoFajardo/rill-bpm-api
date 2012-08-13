@@ -83,7 +83,8 @@ public class ReportEngine {
 		// Singleton
 	}
 	
-	public Map<String, String> retrieveReportParams(InputStream is, String bookName) {
+	// API -------------------
+	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(InputStream is, String bookName) {
 		
 		Assert.notNull(is);
 		Assert.notNull(bookName);
@@ -94,24 +95,12 @@ public class ReportEngine {
 		
 		if (isValid) {
 			// 2. Handle #_SETTINGS_SHEET
-			Map<String, String> reportParams = retrieveReportParamsFromSettingsSheet(book.getWorksheet(_SETTINGS_SHEET));
+			Map<String, Map<PARAM_CONFIG, String>> reportParams = retrieveReportParamsFromSettingsSheet(book.getWorksheet(_SETTINGS_SHEET));
 			
 			return reportParams;
 		}
 		
 		return Collections.emptyMap();
-	}
-	
-	private Map<String, String> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet) {
-		
-		// 2. Handle #_SETTINGS_SHEET
-		Map<String, String> reportParams = new LinkedHashMap<String, String>(2);
-		for (Row row : settingsSheet) {
-			if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue())) {
-				reportParams.put(row.getCell(3).getStringCellValue(), row.getCell(4).getStringCellValue());
-			}
-		}
-		return reportParams;
 	}
 	
 	public Workbook generateReportTemplate(InputStream is, String[][] data, int[][] dataType, String bookName) {
@@ -152,6 +141,79 @@ public class ReportEngine {
 			}
 		}
 	}
+
+	public Workbook generateReport(InputStream is, String bookName, Map<String, String> reportParams) {
+		
+		Assert.notNull(is);
+		Assert.notNull(bookName);
+		
+		Map<String, String> useReportParams = new HashMap<String, String>();
+		if (!CollectionUtils.isEmpty(reportParams)) {
+			useReportParams.putAll(reportParams);
+		}
+		
+		Book book = new ExcelImporter().imports(is, bookName);
+		
+		try {
+			// 1. Validate
+			boolean isValid = validateReportTemplate(book);
+			
+			if (isValid) {
+				// 2. Handle #_SETTINGS_SHEET
+				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams);
+				
+				// 3. Handle #_INPUT_SHEET sheet
+				processInput(book.getWorksheet(_INPUT_SHEET), useReportParams);
+				
+				// 4. Formula evaluate
+//				bookAfterProcess.setForceFormulaRecalculation(true);
+				book.getCreationHelper().createFormulaEvaluator().evaluateAll();
+				
+				// 5. Processor invoke
+				
+			}
+			
+			// 5. Clone book
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			book.write(baos);
+			Workbook bookAfterProcess = new ExcelImporter().imports(new ByteArrayInputStream(baos.toByteArray()), bookName);
+			
+			return bookAfterProcess;
+			
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				LOG.warn("Ignore exception of is.close. " + bookName, e);
+			}
+		}
+		
+	}
+	// API ------------------- END
+	public enum PARAM_CONFIG {
+		VALUE, RENDER_TYPE, DEPENDENCIES, FETCH_URL
+	}
+	
+	private Map<String, Map<PARAM_CONFIG, String>> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet) {
+		
+		// 2. Handle #_SETTINGS_SHEET
+		Map<String, Map<PARAM_CONFIG, String>> reportParams = new LinkedHashMap<String, Map<PARAM_CONFIG, String>>(2);
+		for (Row row : settingsSheet) {
+			if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue())) {
+				Map<PARAM_CONFIG, String> paramConfig = new HashMap<PARAM_CONFIG, String>(4);
+				for (PARAM_CONFIG pc : PARAM_CONFIG.values()) {
+					int i = pc.ordinal() + 4;
+					if (i < row.getLastCellNum()) {
+						paramConfig.put(pc, row.getCell(i).getStringCellValue());
+					}
+				}
+				reportParams.put(row.getCell(3).getStringCellValue(), paramConfig);
+			}
+		}
+		return reportParams;
+	}
 	
 	private void generateInput(Worksheet worksheet, String[][] data, int[][] dataType) {
 		
@@ -187,53 +249,6 @@ public class ReportEngine {
 			}
 		}
 	}
-
-	public Workbook generateReport(InputStream is, String bookName, Map<String, String> reportParams) {
-		
-		Assert.notNull(is);
-		Assert.notNull(bookName);
-		
-		Map<String, String> useReportParams = new HashMap<String, String>();
-		if (!CollectionUtils.isEmpty(reportParams)) {
-			useReportParams.putAll(reportParams);
-		}
-		
-		Book book = new ExcelImporter().imports(is, bookName);
-		
-		try {
-			// 1. Validate
-			boolean isValid = validateReportTemplate(book);
-			
-			if (isValid) {
-				// 2. Handle #_SETTINGS_SHEET
-				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams);
-				
-				// 3. Handle #_INPUT_SHEET sheet
-				processInput(book.getWorksheet(_INPUT_SHEET), useReportParams);
-				
-				// 4. Formula evaluate
-//				bookAfterProcess.setForceFormulaRecalculation(true);
-				book.getCreationHelper().createFormulaEvaluator().evaluateAll();
-			}
-			
-			// 5. Clone book
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			book.write(baos);
-			Workbook bookAfterProcess = new ExcelImporter().imports(new ByteArrayInputStream(baos.toByteArray()), bookName);
-			
-			return bookAfterProcess;
-			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-				LOG.warn("Ignore exception of is.close. " + bookName, e);
-			}
-		}
-		
-	}
 	
 	protected void processInput(Worksheet inputSheet, Map<String, String> reportParams) throws Exception {
 		
@@ -252,7 +267,7 @@ public class ReportEngine {
 		List<Map<String, Object>> saikuConnections = mapper.readValue(reportParams.get(REPORT_DISCOVERY), List.class);
 		
 		for (Row row : inputSheet) {
-			if (row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING && row.getCell(0).getStringCellValue().startsWith("SELECT")) {
+			if (row.getCell(0) != null && row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING && row.getCell(0).getStringCellValue().startsWith("SELECT")) {
 				LOG.debug("Replace data begin with next row using " + row.getCell(0).getStringCellValue());
 				// Determine if need delete query or not
 				if (reportParams.containsKey(REPORT_CUBE) && !row.getCell(0).getStringCellValue().contains("[" + reportParams.containsKey(REPORT_CUBE) + "]")) {
@@ -307,8 +322,8 @@ public class ReportEngine {
 				String mdx = row.getCell(0).getStringCellValue();
 				if (reportParams.containsKey(REPORT_PARAMETERS)) {
 					@SuppressWarnings("unchecked")
-					Map<String, String> parameters = WorkflowOperations.XStreamSerializeHelper.deserializeObject(reportParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, Map.class);
-					for (Entry<String, String> entry : parameters.entrySet()) {
+					Map<String, Map<PARAM_CONFIG, String>> parameters = WorkflowOperations.XStreamSerializeHelper.deserializeObject(reportParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, Map.class);
+					for (Entry<String, Map<PARAM_CONFIG, String>> entry : parameters.entrySet()) {
 						
 						String replacedValue = null;
 						// Value in report parameters is high-priority 
@@ -316,13 +331,14 @@ public class ReportEngine {
 						// Schedule model, then use current date to change report parameters
 						if (reportParams.get(REPORT_SCHEDULE_MODE) != null) {
 							// 1. Check parameter names is time dimension
-							if (entry.getValue().split("\\.").length > 0 && currDateStr.startsWith(entry.getValue().split("\\.")[0])) {
-								replacedValue = currDateStr.substring(0, entry.getValue().length());
+							if (entry.getValue() != null && entry.getValue().get(PARAM_CONFIG.VALUE) != null 
+									&& entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.").length > 0 && currDateStr.startsWith(entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.")[0])) {
+								replacedValue = currDateStr.substring(0, entry.getValue().get(PARAM_CONFIG.VALUE).length());
 							}
 						}
 						
 						LOG.debug("Replace " + entry.getValue() + " report parameters using " + replacedValue);
-						mdx = StringUtils.replace(mdx, entry.getValue(), replacedValue);
+						mdx = StringUtils.replace(mdx, entry.getValue().get(PARAM_CONFIG.VALUE), replacedValue);
 					}
 				}
 				LOG.debug("Execute mdx " + mdx);
@@ -458,7 +474,7 @@ public class ReportEngine {
 			throw new RuntimeException(e);
 		}
 		
-		Map<String, String> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet);
+		Map<String, Map<PARAM_CONFIG, String>> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet);
 		if (!CollectionUtils.isEmpty(parameters)) {
 			reportParams.put(REPORT_PARAMETERS, WorkflowOperations.XStreamSerializeHelper.serializeXml(REPORT_PARAMETERS, parameters));
 			LOG.info("Have added " + REPORT_PARAMETERS + " to report params: " + reportParams);
