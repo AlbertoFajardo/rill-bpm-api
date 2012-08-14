@@ -57,6 +57,25 @@ public class ReportEngineTests {
 	}
 	
 	@Test
+	public void generateReportLuopan() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan.xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan.xlsx", reportParams);
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			wb.write(baos);
+			File tmpImage = File.createTempFile("luopan.xlsx_" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
 	public void retrieveReportParams() {
 		
 		ReportEngine re = ReportEngine.INSTANCE;

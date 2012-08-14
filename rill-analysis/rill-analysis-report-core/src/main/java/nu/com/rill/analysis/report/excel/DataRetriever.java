@@ -1,5 +1,7 @@
 package nu.com.rill.analysis.report.excel;
 
+import java.util.Map;
+
 import org.zkoss.zss.model.Worksheet;
 
 public interface DataRetriever {
@@ -10,6 +12,6 @@ public interface DataRetriever {
 	
 	boolean supportType(DATA_TYPE dt);
 	
-	void retrieveData(Worksheet dataSheet);
+	void retrieveData(Worksheet dataSheet, Map<String, String> reportParams);
 	
 }

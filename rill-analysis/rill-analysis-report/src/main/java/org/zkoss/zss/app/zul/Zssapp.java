@@ -15,7 +15,10 @@ Copyright (C) 2009 Potix Corporation. All Rights Reserved.
 package org.zkoss.zss.app.zul;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Map.Entry;
+
+import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
@@ -58,18 +61,28 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	public Zssapp() {
 		
+		boolean editMode = false;
 		if (Executions.getCurrent().getParameter("edit") != null) {
-			Executions.createComponents("~./zssapp/html/zssappEdit.zul", this, null);
-		} else {
-			Executions.createComponents(Consts._Zssapp_zul, this, null);
+			editMode = true;
 		}
-//		Executions.createComponents(Consts._Zssapp_zul, this, null);
+		Executions.createComponents(Consts._Zssapp_zul, this, null);
 		Components.wireVariables(this, this, '$', true, true);
 		Components.addForwards(this, this, '$');
-		
 		spreadsheet = (Spreadsheet)mainWin.getFellow("spreadsheet");
-//		Menubar bar = (Menubar) mainWin.getFellow("menubar");
-//		_appmenubar = new Appmenubar(bar);
+		
+		// FIXME: MENGRAN. view/edit mode
+		if (!editMode) {
+			spreadsheet.setHiderowhead(true);
+			spreadsheet.setHidecolumnhead(true);
+			spreadsheet.setShowContextMenu(false);
+			spreadsheet.setShowFormulabar(false);
+			spreadsheet.setShowToolbar(false);
+			spreadsheet.setShowSheetbar(false);
+			
+			spreadsheet.setMaxrows(20);
+			spreadsheet.setMaxcolumns(10);
+		}
+		
 		
 		// set src from request parameters
 		String fileName = Executions.getCurrent().getParameter("fileName");
@@ -79,7 +92,8 @@ public class Zssapp extends Div implements IdSpace  {
 			Entry<String, String[]> e = (Entry<String, String[]>) entry;
 			// Update report parameters only. Don't support new parameters. 
 			if (ssmi.getReportParams().containsKey(e.getKey())) {
-				ssmi.getReportParams().put(e.getKey(), e.getValue()[0]);
+				Map<PARAM_CONFIG, String> config = ssmi.getReportParams().get(e.getKey());
+				config.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
 			}
 		}
 		

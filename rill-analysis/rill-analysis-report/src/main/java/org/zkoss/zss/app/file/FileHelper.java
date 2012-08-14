@@ -20,9 +20,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
+import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
 import org.zkoss.io.Files;
 import org.zkoss.lang.Library;
@@ -123,7 +126,11 @@ public class FileHelper {
 		try {
 			input = new FileInputStream(getSpreadsheetStorageFolderPath() + info.getHashFileName());
 			// Add by MENGRAN for report engine
-			Workbook wb = ReportEngine.INSTANCE.generateReport(input, info.getFileName(), info.getReportParams());
+			Map<String, String> reportParams = new HashMap<String, String>();
+			for (Entry<String, Map<PARAM_CONFIG, String>> entry : info.getReportParams().entrySet()) {
+				reportParams.put(entry.getKey(), entry.getValue().get(PARAM_CONFIG.VALUE));
+			}
+			Workbook wb = ReportEngine.INSTANCE.generateReport(input, info.getFileName(), reportParams);
 //			ss.setBookFromStream(input, info.getFileName());
 			ss.setBook((Book) wb);
 			return true;

@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
+import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 import nu.com.rill.analysis.report.schedule.DynamicScheduleService;
 
 import org.apache.commons.io.FileUtils;
@@ -43,14 +44,14 @@ import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.Textbox;
 
-public class ReportListComposer extends GenericForwardComposer {
+public class ReportExplorerCtrl extends GenericForwardComposer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public final static Log LOG = LogFactory.getLog(ReportListComposer.class);
+	public final static Log LOG = LogFactory.getLog(ReportExplorerCtrl.class);
 	
 	private Grid reportGrid;
 	private Dialog reportParamDialog;
@@ -67,7 +68,11 @@ public class ReportListComposer extends GenericForwardComposer {
 		for (Entry<String, SpreadSheetMetaInfo> entry : SpreadSheetMetaInfo.getMetaInfos().entrySet()) {
 			if (StringUtils.hasText(entry.getValue().getCronExpression())) {
 				LOG.info("Submit job and add to quartz schedule." + entry.getKey() + " " + entry.getValue().getCronExpression());
-				dynamicScheduleService.submitJob(entry.getValue().getCronExpression(), new ReportJob(entry.getValue().getFileName(), entry.getValue().getReportParams()));
+				Map<String, String> reportParams = new HashMap<String, String>();
+				for (Entry<String, Map<PARAM_CONFIG, String>> e : entry.getValue().getReportParams().entrySet()) {
+					reportParams.put(e.getKey(), e.getValue().get(PARAM_CONFIG.VALUE));
+				}
+				dynamicScheduleService.submitJob(entry.getValue().getCronExpression(), new ReportJob(entry.getValue().getFileName(), reportParams));
 			}
 		}
 		
@@ -166,10 +171,14 @@ public class ReportListComposer extends GenericForwardComposer {
 						SpreadSheetMetaInfo.add(ssmi);
 						// Process schedule
 						if (StringUtils.hasText(cronExpressionText)) {
-							dynamicScheduleService.deleteJob(new ReportJob(ssmi.getFileName(), ssmi.getReportParams()));
-							dynamicScheduleService.submitJob(ssmi.getCronExpression(), new ReportJob(ssmi.getFileName(), ssmi.getReportParams()));
+							dynamicScheduleService.deleteJob(new ReportJob(ssmi.getFileName(), null));
+							Map<String, String> reportParams = new HashMap<String, String>();
+							for (Entry<String, Map<PARAM_CONFIG, String>> e : ssmi.getReportParams().entrySet()) {
+								reportParams.put(e.getKey(), e.getValue().get(PARAM_CONFIG.VALUE));
+							}
+							dynamicScheduleService.submitJob(ssmi.getCronExpression(), new ReportJob(ssmi.getFileName(), reportParams));
 						} else {
-							dynamicScheduleService.deleteJob(new ReportJob(ssmi.getFileName(), ssmi.getReportParams()));
+							dynamicScheduleService.deleteJob(new ReportJob(ssmi.getFileName(), null));
 						}
 					}
 				});
@@ -215,6 +224,17 @@ public class ReportListComposer extends GenericForwardComposer {
 				});
 				div.appendChild(edit);
 				
+				Button open2 = new Button("打开2");
+				open2.setWidgetAttribute("fileName", ssmi.getFileName());
+				open2.addEventListener(Events.ON_CLICK, new EventListener() {
+					
+					@Override
+					public void onEvent(Event event) throws Exception {
+						Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+					}
+				});
+				div.appendChild(open2);
+				
 				row.appendChild(div);
 			}
 		});
@@ -223,23 +243,23 @@ public class ReportListComposer extends GenericForwardComposer {
 	private boolean openReportParamDialog(String fileName) {
 		
 		SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
-		Map<String, String> params = ssmi.getReportParams();
+		Map<String, Map<PARAM_CONFIG, String>> params = ssmi.getReportParams();
 		if (CollectionUtils.isEmpty(params)) {
 			return false;
 		}
 		
 		configGrid = (Grid) reportParamDialog.getFellow("configGrid");
-		configGrid.setModel(new ListModelArray(new ArrayList<Entry<String, String>>(params.entrySet())));
+		configGrid.setModel(new ListModelArray(new ArrayList<Entry<String, Map<PARAM_CONFIG, String>>>(params.entrySet())));
 		configGrid.setRowRenderer(new RowRenderer() {
 			
 			@Override
 			public void render(Row row, Object data) throws Exception {
 				@SuppressWarnings("unchecked")
-				Entry<String, String> param = (Entry<String, String>) data;
+				Entry<String, Map<PARAM_CONFIG, String>> param = (Entry<String, Map<PARAM_CONFIG, String>>) data;
 				row.appendChild(new Label(param.getKey()));
 				Textbox paramTextBox = new Textbox();
 				paramTextBox.setName(param.getKey());
-				paramTextBox.setValue(param.getValue());
+				paramTextBox.setValue(param.getValue().get(PARAM_CONFIG.VALUE));
 				row.appendChild(paramTextBox);
 			}
 		});
