@@ -1,6 +1,6 @@
-package nu.com.rill.analysis.report.excel;
+package nu.com.rill.analysis.report.excel.chart;
 
-import nu.com.rill.analysis.report.excel.chart.ArrayEvalXSSFLineChartData;
+import nu.com.rill.analysis.report.excel.BookDecorator;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
@@ -14,11 +14,11 @@ import org.zkoss.poi.xssf.usermodel.XSSFWorkbook;
 import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.impl.XSSFSheetImpl;
 
-public class ChartProcessor {
+@BookDecorator
+public class BookChartDecorator {
 
-	private static final Log LOGGER = LogFactory.getLog(ChartProcessor.class);
+	private static final Log LOGGER = LogFactory.getLog(BookChartDecorator.class);
 	
-	@ReportEngineProcessor
 	public void process(Book book) {
 		
 		for (int i = 0; i < book.getNumberOfSheets(); i++) {

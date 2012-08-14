@@ -26,14 +26,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.rill.bpm.api.WorkflowOperations;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
+import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
 /**
  * @author Sam
@@ -45,9 +48,7 @@ public class SpreadSheetMetaInfo {
 	private String hashFileName;
 	private String importDate;
 	
-	//TODO: store author, not implement yet
-	private String author;
-	private Map<String, String> reportParams = new HashMap<String, String>(2);
+	private Map<String, Map<PARAM_CONFIG, String>> reportParams = new LinkedHashMap<String, Map<PARAM_CONFIG,String>>(2);
 	private String cronExpression = "";
 
 	public final String getCronExpression() {
@@ -79,11 +80,12 @@ public class SpreadSheetMetaInfo {
 		importDate = formatter.format(calendar.getTime());
 	}
 
-	public final Map<String, String> getReportParams() {
+	public final Map<String, Map<PARAM_CONFIG, String>> getReportParams() {
 		return reportParams;
 	}
 
-	public final void setReportParams(Map<String, String> reportParams) {
+	public final void setReportParams(
+			Map<String, Map<PARAM_CONFIG, String>> reportParams) {
 		this.reportParams = reportParams;
 	}
 
@@ -150,9 +152,9 @@ public class SpreadSheetMetaInfo {
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(new File(info.getHashFileSrc()));
-			Map<String, String> reportParamNames = ReportEngine.INSTANCE.retrieveReportParams(fis, info.getFileName());
-			for (Entry<String, String> entry : reportParamNames.entrySet()) {
-				reportParams = reportParams + " " + entry.getKey() + ":" + entry.getValue();
+			Map<String, Map<PARAM_CONFIG, String>> reportParamNames = ReportEngine.INSTANCE.retrieveReportParams(fis, info.getFileName());
+			for (Entry<String, Map<PARAM_CONFIG, String>> entry : reportParamNames.entrySet()) {
+				reportParams = reportParams + "|" + entry.getKey() + ":" + WorkflowOperations.XStreamSerializeHelper.serializeXml("PARAM_CONFIG", entry.getValue());
 			}
 			if (reportParams.length() > 0) {
 				reportParams = reportParams.substring(1);
@@ -234,6 +236,7 @@ public class SpreadSheetMetaInfo {
 		return cachedMetaInfos;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static HashMap<String, SpreadSheetMetaInfo> readMetaInfos() 
 		throws FileNotFoundException, IOException {
 		HashMap<String, SpreadSheetMetaInfo> map = 
@@ -258,8 +261,8 @@ public class SpreadSheetMetaInfo {
 			if (setting.length > 3) {
 				String reportParams = setting[3].trim();
 				if (!StringUtils.isEmpty(reportParams)) {
-					for (String param : reportParams.split(" ")) {
-						metaInfo.getReportParams().put(param.split(":")[0], param.split(":")[1]);
+					for (String param : reportParams.split("\\|")) {
+						metaInfo.getReportParams().put(param.split(":")[0], WorkflowOperations.XStreamSerializeHelper.deserializeObject(param.split(":")[1].replaceAll("\n", ""), "PARAM_CONFIG", LinkedHashMap.class));
 					}
 				}
 			}

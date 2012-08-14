@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+import nu.com.rill.analysis.report.excel.chart.BookChartDecorator;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -21,7 +23,7 @@ public class SmartChartTest {
 		try {
 			Library.setProperty("org.zkoss.zss.model.impl.SheetCtrl.class", "org.zkoss.zssex.model.impl.SheetCtrlImpl");
 			Book book = new ExcelImporter().imports(cpr.getInputStream(), "luopan.xlsx");
-			ChartProcessor sc = new ChartProcessor();
+			BookChartDecorator sc = new BookChartDecorator();
 			sc.process(book);
 			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -6,12 +6,12 @@
 <zk xmlns:w="http://www.zkoss.org/2005/zk/client">
 	<div id="mainWin" use="org.zkoss.zss.app.zul.IdDiv" apply="org.zkoss.zss.app.MainWindowCtrl" height="100%" width="100%">
 		<spreadsheet id="spreadsheet"
-					showToolbar="false"
-					showFormulabar="false"
+					showToolbar="true"
+					showFormulabar="true"
 					showSheetbar="true"
-					showContextMenu="false"
+					showContextMenu="true"
 					maxrows="200"
-					maxcolumns="60" vflex="true" width="100%" ctrlKeys="^c^x^v^d^s^o^b^i^u#del^#del^z^y^e" >
+					maxcolumns="60" vflex="true" height="100%" width="100%" ctrlKeys="^c^x^v^d^s^o^b^i^u#del^#del^z^y^e" >
 		</spreadsheet>
 	</div>
 </zk>
