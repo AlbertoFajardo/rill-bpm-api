@@ -70,20 +70,6 @@ public class Zssapp extends Div implements IdSpace  {
 		Components.addForwards(this, this, '$');
 		spreadsheet = (Spreadsheet)mainWin.getFellow("spreadsheet");
 		
-		// FIXME: MENGRAN. view/edit mode
-		if (!editMode) {
-			spreadsheet.setHiderowhead(true);
-			spreadsheet.setHidecolumnhead(true);
-			spreadsheet.setShowContextMenu(false);
-			spreadsheet.setShowFormulabar(false);
-			spreadsheet.setShowToolbar(false);
-			spreadsheet.setShowSheetbar(false);
-			
-			spreadsheet.setMaxrows(20);
-			spreadsheet.setMaxcolumns(10);
-		}
-		
-		
 		// set src from request parameters
 		String fileName = Executions.getCurrent().getParameter("fileName");
 		SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
@@ -98,6 +84,16 @@ public class Zssapp extends Div implements IdSpace  {
 		}
 		
 		this.setSrc(ssmi.getSrc());
+		
+		// FIXME: MENGRAN. view/edit mode
+		if (!editMode) {
+			spreadsheet.setHiderowhead(true);
+			spreadsheet.setHidecolumnhead(true);
+			spreadsheet.setShowContextMenu(false);
+			spreadsheet.setShowFormulabar(false);
+			spreadsheet.setShowToolbar(false);
+			spreadsheet.setShowSheetbar(false);
+		}
 	}
 	
 	public void setSrc(String src) {
