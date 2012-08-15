@@ -25,6 +25,7 @@ import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zss.app.Consts;
+import org.zkoss.zss.app.file.FileHelper;
 import org.zkoss.zss.app.file.SpreadSheetMetaInfo;
 import org.zkoss.zss.app.zul.ctrl.DesktopCellStyleContext;
 import org.zkoss.zss.app.zul.ctrl.DesktopWorkbenchContext;
@@ -93,11 +94,17 @@ public class Zssapp extends Div implements IdSpace  {
 			spreadsheet.setShowFormulabar(false);
 			spreadsheet.setShowToolbar(false);
 			spreadsheet.setShowSheetbar(false);
+			spreadsheet.disableClientUpdate(true);
+			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
+			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum());
 		}
 	}
 	
 	public void setSrc(String src) {
-		getDesktopWorkbenchContext().getWorkbookCtrl().setBookSrc(src);
+//		getDesktopWorkbenchContext().getWorkbookCtrl().setBookSrc(src);
+		if (!FileHelper.openSrc(src, spreadsheet)) {
+			spreadsheet.setSrc(src);
+		}
 	}
 	
 	/**
