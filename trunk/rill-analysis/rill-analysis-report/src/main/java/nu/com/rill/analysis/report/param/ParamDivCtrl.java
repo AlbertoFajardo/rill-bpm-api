@@ -40,10 +40,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		super.doAfterCompose(comp);
 		
 		String fileName = Executions.getCurrent().getParameter("fileName");
+		// FIXME: MENGRAN. Not thread-safe.
 		final SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : ssmi.getReportParams().entrySet()) {
 			String paramName = entry.getKey();
 			final Map<PARAM_CONFIG, String> config = entry.getValue();
+			// FIXME: MENGRAN. Refactor by visitor pattern
 			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 					final Datebox db = new Datebox(new Date());
@@ -80,7 +82,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 							
 							@Override
 							public void onEvent(Event event) throws Exception {
-								// Reload content event. FIXME: MENGRAN. Deed-loop
+								// Reload content event. FIXME: MENGRAN. Deed-loop. FIXME: MENGRAN. Refactor by visitor pattern
 								// 1. Prepare fetch parameters
 								Map<String, String> fetchParams = new HashMap<String, String>();
 								String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
@@ -152,7 +154,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			@Override
 			public void onEvent(Event event) throws Exception {
 				Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
-				app.setSrc(SpreadSheetMetaInfo.getMetaInfos().get("helloworld.xlsx").getSrc());
+				app.setSrc(ssmi.getSrc());
 			}
 		});
 		paramDiv.appendChild(search);

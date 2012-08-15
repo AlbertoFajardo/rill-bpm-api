@@ -61,10 +61,13 @@ public class ReportEngineTests {
 		
 		ReportEngine re = ReportEngine.INSTANCE;
 		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("商业产品线", "网盟");
+		reportParams.put("分析指标", "点击消费");
 		
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan.xlsx");
 		try {
 			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan.xlsx", reportParams);
+			Assert.assertEquals("网盟", wb.getSheet(ReportEngine._INPUT_SHEET).getRow(1).getCell(1).getStringCellValue());
 			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			wb.write(baos);

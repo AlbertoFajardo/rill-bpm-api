@@ -7,11 +7,15 @@
        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd"
 	default-autowire="byName">
 
-	<bean id="mdxReportEngine" class="nu.com.rill.analysis.report.excel.data.MdxDataRetriever">
+	<bean id="mdxDateRetriever" class="nu.com.rill.analysis.report.excel.data.MdxDataRetriever">
 	</bean>
 
-	<bean id="jsonReportEngine"
+	<bean id="jsonDateRetriever"
 		class="nu.com.rill.analysis.report.excel.data.JsonDataRetriever">
+	</bean>
+	
+	<bean id="bookChartDecorator"
+		class="nu.com.rill.analysis.report.excel.chart.BookChartDecorator">
 	</bean>
 
 </beans>

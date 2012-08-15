@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,12 +18,15 @@ import org.rill.bpm.api.WorkflowOperations;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.CellStyle;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.poi.ss.usermodel.Workbook;
+import org.zkoss.poi.ss.util.CellRangeAddress;
 import org.zkoss.poi.xssf.usermodel.XSSFWorkbook;
 import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.Worksheet;
@@ -69,6 +73,88 @@ public final class ReportEngine {
 		BeanFactoryReference bfr = SingletonBeanFactoryLocator.getInstance().useBeanFactory(this.getClass().getSimpleName());
 		reportEngneBeanfactory = (ListableBeanFactory) bfr.getFactory();
 		drMap = reportEngneBeanfactory.getBeansOfType(DataRetriever.class);
+	}
+	
+	public static Row copyRow(Worksheet worksheet, int sourceRowNum, int destinationRowNum) {
+        // Get the source / new row
+        Row newRow = worksheet.getRow(destinationRowNum);
+        Row sourceRow = worksheet.getRow(sourceRowNum);
+
+        // If the row exist in destination, push down all rows by 1 else create a new row
+        if (newRow != null) {
+            worksheet.shiftRows(destinationRowNum, worksheet.getLastRowNum(), 1);
+        } else {
+            newRow = worksheet.createRow(destinationRowNum);
+        }
+
+        // Loop through source columns to add to new row
+        for (int i = 0; i < sourceRow.getLastCellNum(); i++) {
+            // Grab a copy of the old/new cell
+            Cell oldCell = sourceRow.getCell(i);
+            Cell newCell = newRow.createCell(i);
+
+            // If the old cell is null jump to next cell
+            if (oldCell == null) {
+                newCell = null;
+                continue;
+            }
+
+            // Copy style from old cell and apply to new cell
+            CellStyle newCellStyle = worksheet.getWorkbook().createCellStyle();
+            newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
+            newCell.setCellStyle(newCellStyle);
+
+            // If there is a cell comment, copy
+            if (newCell.getCellComment() != null) {
+                newCell.setCellComment(oldCell.getCellComment());
+            }
+
+            // If there is a cell hyperlink, copy
+            if (oldCell.getHyperlink() != null) {
+                newCell.setHyperlink(oldCell.getHyperlink());
+            }
+
+            // Set the cell data type
+            newCell.setCellType(oldCell.getCellType());
+
+            // Set the cell data value
+            switch (oldCell.getCellType()) {
+                case Cell.CELL_TYPE_BLANK:
+                    newCell.setCellValue(oldCell.getStringCellValue());
+                    break;
+                case Cell.CELL_TYPE_BOOLEAN:
+                    newCell.setCellValue(oldCell.getBooleanCellValue());
+                    break;
+                case Cell.CELL_TYPE_ERROR:
+                    newCell.setCellErrorValue(oldCell.getErrorCellValue());
+                    break;
+                case Cell.CELL_TYPE_FORMULA:
+                    newCell.setCellFormula(oldCell.getCellFormula());
+                    break;
+                case Cell.CELL_TYPE_NUMERIC:
+                    newCell.setCellValue(oldCell.getNumericCellValue());
+                    break;
+                case Cell.CELL_TYPE_STRING:
+                    newCell.setCellValue(oldCell.getRichStringCellValue());
+                    break;
+            }
+        }
+
+		// If there are are any merged regions in the source row, copy to new row
+		for (int i = 0; i < worksheet.getNumMergedRegions(); i++) {
+			CellRangeAddress cellRangeAddress = worksheet.getMergedRegion(i);
+			if (cellRangeAddress.getFirstRow() == sourceRow.getRowNum()) {
+				CellRangeAddress newCellRangeAddress = new CellRangeAddress(
+						newRow.getRowNum(),
+						(newRow.getRowNum() + (cellRangeAddress.getLastRow() - cellRangeAddress
+								.getFirstRow())), cellRangeAddress
+								.getFirstColumn(), cellRangeAddress
+								.getLastColumn());
+				worksheet.addMergedRegion(newCellRangeAddress);
+			}
+		}
+		
+		return newRow;
 	}
 	
 	// API -------------------
@@ -161,9 +247,10 @@ public final class ReportEngine {
 				Map<String, Object> decorators = reportEngneBeanfactory.getBeansWithAnnotation(BookDecorator.class);
 				for (Entry<String, Object> entry : decorators.entrySet()) {
 					LOG.info("Invoke decorator " + entry.getKey());
-//					AnnotationUtils.
-//					ReflectionUtils.findMethod(entry.getClass(), name, paramTypes);
-//					ReflectionUtils.invokeMethod(, target, args)
+					BookDecorator bd = AnnotationUtils.findAnnotation(entry.getValue().getClass(), BookDecorator.class);
+					Method m = ReflectionUtils.findMethod(entry.getValue().getClass(), bd.decoratorMethod(), Book.class);
+					Assert.notNull(m, "Can not find decorator method " + bd.decoratorMethod() + " which defined by annotation.");
+					ReflectionUtils.invokeMethod(m, entry.getValue(), book);
 				}
 			}
 			
@@ -254,7 +341,7 @@ public final class ReportEngine {
 		
 		for (Entry<String, DataRetriever> entry : drMap.entrySet()) {
 			if (entry.getValue().supportType(nu.com.rill.analysis.report.excel.DataRetriever.DATA_TYPE.valueOf(reportParams.get(DATA_TYPE)))) {
-				LOG.debug("Use data retriever: " + entry.getKey());
+				LOG.info("Use data retriever: " + entry.getKey());
 				entry.getValue().retrieveData(inputSheet, reportParams);
 				return;
 			}
@@ -279,9 +366,6 @@ public final class ReportEngine {
 			if ("password".equals(row.getCell(0).getStringCellValue())) {
 				password = row.getCell(1).getStringCellValue();
 			}
-			if (url != null && username != null && password != null) {
-				LOG.info("Retrieve datesource settings: " + url + " " + username + " " + password);
-			}
 			if ("reload".equals(row.getCell(0).getStringCellValue())) {
 				reload = row.getCell(1).getBooleanCellValue();
 			}
@@ -299,6 +383,10 @@ public final class ReportEngine {
 		}
 		if (reportParams.containsKey(PASSWORD) && reportParams.get(PASSWORD) != null && !reportParams.get(PASSWORD).equals(username)) {
 			reportParams.put(PASSWORD, password);
+		}
+		
+		if (url != null && username != null && password != null) {
+			LOG.info("Retrieve datesource settings: " + url + " " + username + " " + password);
 		}
 		
 		Map<String, Map<PARAM_CONFIG, String>> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet);
