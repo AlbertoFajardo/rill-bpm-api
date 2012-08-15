@@ -378,10 +378,10 @@ public final class ReportEngine {
 		reportParams.put(DATA_TYPE, type);
 		
 		// Report parameter's value is high-priority
-		if (reportParams.containsKey(USERNAME) && reportParams.get(USERNAME) != null && !reportParams.get(USERNAME).equals(username)) {
+		if (!reportParams.containsKey(USERNAME) || reportParams.get(USERNAME) == null) {
 			reportParams.put(USERNAME, username);
 		}
-		if (reportParams.containsKey(PASSWORD) && reportParams.get(PASSWORD) != null && !reportParams.get(PASSWORD).equals(username)) {
+		if (!reportParams.containsKey(PASSWORD) || reportParams.get(PASSWORD) == null) {
 			reportParams.put(PASSWORD, password);
 		}
 		
