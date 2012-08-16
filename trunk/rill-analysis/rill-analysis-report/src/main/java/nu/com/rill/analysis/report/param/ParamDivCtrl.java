@@ -48,17 +48,19 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			// FIXME: MENGRAN. Refactor by visitor pattern
 			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-					final Datebox db = new Datebox(new Date());
+					Date now = new Date();
+					final Datebox db = new Datebox(now);
+					config.put(PARAM_CONFIG.VALUE, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
 					db.setId(paramName);
 					db.setFormat("long");
 					db.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
-					paramDiv.appendChild(new Label(paramName));
+					paramDiv.appendChild(new Label(paramName + " ："));
 					paramDiv.appendChild(db);
 					db.addEventListener(Events.ON_CHANGE, new EventListener() {
 						
 						@Override
 						public void onEvent(Event event) throws Exception {
-							config.put(PARAM_CONFIG.VALUE, new SimpleDateFormat("yyyy-MM-dd").format(db.getValue()));
+							config.put(PARAM_CONFIG.VALUE, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
 						}
 					});
 				} else if ("provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
@@ -138,38 +140,42 @@ public class ParamDivCtrl extends GenericForwardComposer {
 							config.put(PARAM_CONFIG.VALUE, cb.getSelectedItem().getValue().toString());
 						}
 					});
-					paramDiv.appendChild(new Label(paramName));
+					paramDiv.appendChild(new Label(paramName + " ："));
 					paramDiv.appendChild(cb);
 					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
 				}
 			}
 		}
 		
-		// Append search button
-		Button search = new Button("查询");
-		search.setWidgetAttribute("fileName", ssmi.getFileName());
-		final Div tmpParamDiv = paramDiv;
-		search.addEventListener(Events.ON_CLICK, new EventListener() {
+		if (!ssmi.getReportParams().isEmpty()) {
+			// Append search button
+			Button search = new Button("查询");
+			search.setClass("paramDiv_btn");
+			search.setWidgetAttribute("fileName", ssmi.getFileName());
+			final Div tmpParamDiv = paramDiv;
+			search.addEventListener(Events.ON_CLICK, new EventListener() {
+				
+				@Override
+				public void onEvent(Event event) throws Exception {
+					Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
+					app.setSrc(ssmi.getSrc());
+				}
+			});
+			paramDiv.appendChild(search);
 			
-			@Override
-			public void onEvent(Event event) throws Exception {
-				Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
-				app.setSrc(ssmi.getSrc());
-			}
-		});
-		paramDiv.appendChild(search);
-		
-		// Append reset button
-		Button reset = new Button("重置");
-		reset.setWidgetAttribute("fileName", ssmi.getFileName());
-		reset.addEventListener(Events.ON_CLICK, new EventListener() {
-			
-			@Override
-			public void onEvent(Event event) throws Exception {
-//				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
-			}
-		});
-		paramDiv.appendChild(reset);
+			// Append reset button
+			Button reset = new Button("重置");
+			reset.setClass("paramDiv_btn");
+			reset.setWidgetAttribute("fileName", ssmi.getFileName());
+			reset.addEventListener(Events.ON_CLICK, new EventListener() {
+				
+				@Override
+				public void onEvent(Event event) throws Exception {
+	//				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+				}
+			});
+			paramDiv.appendChild(reset);
+		}
 		
 	}
 	

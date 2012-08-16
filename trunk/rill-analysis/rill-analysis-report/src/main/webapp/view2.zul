@@ -2,7 +2,12 @@
 <?page id="p1" title="Report View Page"?>
 <?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
 
-<zk>
-	<div id="paramDiv" use="org.zkoss.zss.app.zul.IdDiv" apply="nu.com.rill.analysis.report.param.ParamDivCtrl" />
+<zk xmlns:h="native">
+	<!-- 
+	<h:select>
+		<h:option>AAAAAAA</h:option>
+	</h:select>
+	 -->
+	<div id="paramDiv" style="background-color: #999; padding: 5px" use="org.zkoss.zss.app.zul.IdDiv" apply="nu.com.rill.analysis.report.param.ParamDivCtrl" />
 	<zssapp width="100%" height="100%"></zssapp>
 </zk>
