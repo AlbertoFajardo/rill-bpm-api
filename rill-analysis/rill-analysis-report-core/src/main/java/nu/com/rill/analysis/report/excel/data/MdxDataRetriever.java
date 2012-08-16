@@ -1,5 +1,6 @@
 package nu.com.rill.analysis.report.excel.data;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -191,6 +192,15 @@ public class MdxDataRetriever implements DataRetriever {
 								if (entry.getValue() != null && entry.getValue().get(PARAM_CONFIG.VALUE) != null 
 										&& entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.").length > 0 && currDateStr.startsWith(entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.")[0])) {
 									replacedValue = currDateStr.substring(0, entry.getValue().get(PARAM_CONFIG.VALUE).length());
+								}
+							} else {
+								if ("calendar".equals(entry.getValue().get(PARAM_CONFIG.RENDER_TYPE))) {
+									// 1. Check parameter names is time dimension
+									if (entry.getValue() != null && entry.getValue().get(PARAM_CONFIG.VALUE) != null 
+											&& entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.").length > 0 && currDateStr.startsWith(entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.")[0])) {
+										String tempStr = format.format(new SimpleDateFormat(entry.getValue().get(PARAM_CONFIG.FORMAT)).parseObject(reportParams.get(entry.getKey())));
+										replacedValue = tempStr.substring(0, entry.getValue().get(PARAM_CONFIG.VALUE).length());
+									}
 								}
 							}
 							

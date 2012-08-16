@@ -274,7 +274,7 @@ public final class ReportEngine {
 	}
 	// API ------------------- END
 	public enum PARAM_CONFIG {
-		VALUE, RENDER_TYPE, DEPENDENCIES, FETCH_URL
+		VALUE, RENDER_TYPE, DEPENDENCIES, FETCH_URL, FORMAT
 	}
 	
 	private Map<String, Map<PARAM_CONFIG, String>> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet) {

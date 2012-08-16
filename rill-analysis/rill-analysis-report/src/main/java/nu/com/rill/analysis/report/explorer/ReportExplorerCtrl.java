@@ -200,18 +200,29 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				
 				row.appendChild(new Label(ssmi.getFormatedImportDateString()));
 				Div div = new Div();
-				Button open = new Button("打开");
-				open.setWidgetAttribute("fileName", ssmi.getFileName());
-				open.addEventListener(Events.ON_CLICK, new EventListener() {
+//				Button open = new Button("打开");
+//				open.setWidgetAttribute("fileName", ssmi.getFileName());
+//				open.addEventListener(Events.ON_CLICK, new EventListener() {
+//					
+//					@Override
+//					public void onEvent(Event event) throws Exception {
+//						if (!openReportParamDialog(event.getTarget().getWidgetAttribute("fileName"))) {
+//							Executions.getCurrent().sendRedirect("view.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+//						}
+//					}
+//				});
+//				div.appendChild(open);
+				
+				Button open2 = new Button("打开");
+				open2.setWidgetAttribute("fileName", ssmi.getFileName());
+				open2.addEventListener(Events.ON_CLICK, new EventListener() {
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
-						if (!openReportParamDialog(event.getTarget().getWidgetAttribute("fileName"))) {
-							Executions.getCurrent().sendRedirect("view.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
-						}
+						Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
 					}
 				});
-				div.appendChild(open);
+				div.appendChild(open2);
 				
 				Button edit = new Button("编辑");
 				edit.setWidgetAttribute("fileName", ssmi.getFileName());
@@ -223,17 +234,6 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 					}
 				});
 				div.appendChild(edit);
-				
-				Button open2 = new Button("打开2");
-				open2.setWidgetAttribute("fileName", ssmi.getFileName());
-				open2.addEventListener(Events.ON_CLICK, new EventListener() {
-					
-					@Override
-					public void onEvent(Event event) throws Exception {
-						Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
-					}
-				});
-				div.appendChild(open2);
 				
 				row.appendChild(div);
 			}
