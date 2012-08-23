@@ -12,6 +12,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.zkoss.lang.Library;
 import org.zkoss.poi.ss.usermodel.Workbook;
 
 public class ReportEngineTests {
@@ -92,6 +93,50 @@ public class ReportEngineTests {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			wb.write(baos);
 			File tmpImage = File.createTempFile("luopan.xlsx_" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void generateReportLuopan_Pivottable() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("商业产品线", "网盟");
+		reportParams.put("分析指标", "点击消费");
+		
+		Library.setProperty("org.zkoss.poi.ss.usermodel.PivotTableHelper.class", "org.zkoss.zpoiex.ss.usermodel.helpers.PivotTableHelper");
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan_pivottable.xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan_pivottable.xlsx", reportParams);
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			wb.write(baos);
+			File tmpImage = File.createTempFile("luopan_pivottable.xlsx_" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void generateReportLuopan_Pivottable2() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("商业产品线", "网盟");
+		reportParams.put("分析指标", "点击消费");
+		
+		Library.setProperty("org.zkoss.poi.ss.usermodel.PivotTableHelper.class", "org.zkoss.zpoiex.ss.usermodel.helpers.PivotTableHelper");
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan_pivottable2.xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan_pivottable2.xlsx", reportParams);
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			wb.write(baos);
+			File tmpImage = File.createTempFile("luopan_pivottable2.xlsx_" + System.currentTimeMillis(), ".xlsx");
 			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
 		} catch (IOException e) {
 			throw new RuntimeException(e);

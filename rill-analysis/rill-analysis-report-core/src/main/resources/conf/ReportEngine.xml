@@ -17,5 +17,9 @@
 	<bean id="bookChartDecorator"
 		class="nu.com.rill.analysis.report.excel.chart.BookChartDecorator">
 	</bean>
+	
+	<bean id="pivotTableDecorator"
+		class="nu.com.rill.analysis.report.excel.pivottable.BookPivottableDecorator">
+	</bean>
 
 </beans>
