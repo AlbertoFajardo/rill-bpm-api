@@ -141,30 +141,10 @@
 		<!-- rill-analysis -->
 		<dependency>
 			<groupId>nu.com.rill</groupId>
-			<artifactId>rill-analysis-mondrian</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>nu.com.rill</groupId>
-			<artifactId>rill-analysis-data</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>nu.com.rill</groupId>
 			<artifactId>rill-analysis-report-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		
-		<dependency>
-		    <groupId>org.apache.thrift</groupId>
-		    <artifactId>libthrift</artifactId>
-		    <version>0.5.0</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.thrift</groupId>
-		    <artifactId>libfb303</artifactId>
-		    <version>0.5.0</version>
-		</dependency>
 		<dependency>
 		    <groupId>commons-vfs</groupId>
 		    <artifactId>commons-vfs</artifactId>
