@@ -33,6 +33,9 @@ public class UnsortedTest {
         String currDateStr = format.format(new Date());
         System.out.println(currDateStr);
         
+        String areaRefrence = "_input!A4:F7";
+        System.out.println(areaRefrence.substring(areaRefrence.indexOf("!") + 1));
+        
 	}
 
 }
