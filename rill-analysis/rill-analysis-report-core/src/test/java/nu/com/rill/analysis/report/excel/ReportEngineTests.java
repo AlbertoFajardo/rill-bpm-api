@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.zkoss.lang.Library;
 import org.zkoss.poi.ss.usermodel.Workbook;
+import org.zkoss.zss.model.Book;
+import org.zkoss.zss.model.impl.ExcelImporter;
 
 public class ReportEngineTests {
 
@@ -124,7 +126,6 @@ public class ReportEngineTests {
 	@Test
 	public void generateReportLuopan_Pivottable2() {
 		
-		ReportEngine re = ReportEngine.INSTANCE;
 		Map<String, String> reportParams = new HashMap<String, String>();
 		reportParams.put("商业产品线", "网盟");
 		reportParams.put("分析指标", "点击消费");
@@ -132,11 +133,34 @@ public class ReportEngineTests {
 		Library.setProperty("org.zkoss.poi.ss.usermodel.PivotTableHelper.class", "org.zkoss.zpoiex.ss.usermodel.helpers.PivotTableHelper");
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan_pivottable2.xlsx");
 		try {
-			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan_pivottable2.xlsx", reportParams);
+			Book book = new ExcelImporter().imports(cpr.getInputStream(), "luopan_pivottable2.xlsx");
+			
+			book.getCreationHelper().createFormulaEvaluator().evaluateAll();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			book.write(baos);
+			File tmpImage = File.createTempFile("luopan_pivottable2.xlsx_" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void generateReportLuopan_table() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("商业产品线", "网盟");
+		reportParams.put("分析指标", "点击消费");
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan_table.xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan_table.xlsx", reportParams);
+			Assert.assertEquals("网盟", wb.getSheet(ReportEngine._INPUT_SHEET).getRow(1).getCell(1).getStringCellValue());
 			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			wb.write(baos);
-			File tmpImage = File.createTempFile("luopan_pivottable2.xlsx_" + System.currentTimeMillis(), ".xlsx");
+			File tmpImage = File.createTempFile("luopan_table.xlsx_" + System.currentTimeMillis(), ".xlsx");
 			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
 		} catch (IOException e) {
 			throw new RuntimeException(e);

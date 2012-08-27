@@ -419,16 +419,20 @@ public class XSSFPivotTable extends POIXMLDocumentPart
     CTDataFields dataFields = this._pivotTableDefinition.getDataFields();
     int dataFieldsSize = dataFields.sizeOfDataFieldArray();
     Map<String, Calculation> needAddToDataField = new LinkedHashMap<String, Calculation>();
+    int rowSize = 0;
     for (int i = 0; i < this._pivotCache.getFields().size(); i++) {
     	if (i < size) {
     		CTPivotField f = pivotFields.getPivotFieldList().get(i);
     		if (STAxis.AXIS_ROW.equals(f.getAxis())) {
+    			rowSize++;
         		f.unsetItems();
         		CTItems items = f.addNewItems();
         		for (int s = 0; s < this._pivotCache.getFields().get(i).getSharedItems().size(); s++) {
         			items.addNewItem().setX(s);
         		}
         		items.setCount(this._pivotCache.getFields().get(i).getSharedItems().size());
+        	} else {
+        		this._pivotTableDefinition.getDataFields().getDataFieldArray(i - rowSize).setName(this._pivotCache.getFields().get(i).getName());
         	}
           XSSFPivotField pf = new XSSFPivotField(f, (PivotCache.CacheField)this._pivotCache.getFields().get(i), this);
           this._pivotFields.put(pf.getName(), pf);
@@ -442,7 +446,7 @@ public class XSSFPivotTable extends POIXMLDocumentPart
     		f.unsetAxis();
           XSSFPivotField pf = new XSSFPivotField(f, (PivotCache.CacheField)this._pivotCache.getFields().get(i), this);
           this._pivotFields.put(pf.getName(), pf);
-          needAddToDataField.put(pf.getName(), Calculation.valueOf(dataFields.getDataFieldArray((i-size)/dataFieldsSize).getSubtotal().toString().toUpperCase()));
+          needAddToDataField.put(pf.getName(), Calculation.valueOf(dataFields.getDataFieldArray((i-size)%dataFieldsSize).getSubtotal().toString().toUpperCase()));
     	}
     }
     // Need add to data field
