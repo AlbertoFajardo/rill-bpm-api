@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,10 +17,8 @@ import org.rill.bpm.api.WorkflowOperations;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ReflectionUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.CellStyle;
 import org.zkoss.poi.ss.usermodel.Row;
@@ -244,13 +241,10 @@ public final class ReportEngine {
 				book.getCreationHelper().createFormulaEvaluator().evaluateAll();
 				
 				// 5. Processor invoke
-				Map<String, Object> decorators = reportEngneBeanfactory.getBeansWithAnnotation(BookDecorator.class);
-				for (Entry<String, Object> entry : decorators.entrySet()) {
+				Map<String, BookDecorator> decorators = reportEngneBeanfactory.getBeansOfType(BookDecorator.class);
+				for (Entry<String, BookDecorator> entry : decorators.entrySet()) {
 					LOG.info("Invoke decorator " + entry.getKey());
-					BookDecorator bd = AnnotationUtils.findAnnotation(entry.getValue().getClass(), BookDecorator.class);
-					Method m = ReflectionUtils.findMethod(entry.getValue().getClass(), bd.decoratorMethod(), Book.class);
-					Assert.notNull(m, "Can not find decorator method " + bd.decoratorMethod() + " which defined by annotation.");
-					ReflectionUtils.invokeMethod(m, entry.getValue(), book);
+					entry.getValue().process(book);
 				}
 			}
 			

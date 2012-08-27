@@ -1,78 +1,40 @@
 package nu.com.rill.analysis.report.excel.pivottable;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import nu.com.rill.analysis.report.excel.BookDecorator;
+import nu.com.rill.analysis.report.excel.BookDecorator.RefreshDataSourceBookDecorator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.CollectionUtils;
 import org.zkoss.poi.ss.formula.eval.ArrayEval;
 import org.zkoss.poi.ss.usermodel.PivotTable;
 import org.zkoss.poi.ss.usermodel.Sheet;
 import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.poi.ss.util.AreaReference;
 import org.zkoss.poi.ss.util.CellReference;
-import org.zkoss.poi.xssf.usermodel.XSSFName;
 import org.zkoss.poi.xssf.usermodel.XSSFPivotTable;
-import org.zkoss.poi.xssf.usermodel.XSSFWorkbook;
-import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.impl.XSSFSheetImpl;
 
-@BookDecorator
-public class BookPivottableDecorator {
+public class BookPivottableDecorator extends RefreshDataSourceBookDecorator<PivotTable> {
 
-	private static final Log LOGGER = LogFactory.getLog(BookPivottableDecorator.class);
-	
-	public void process(Book book) {
+	@Override
+	protected Map<String, PivotTable> obtainRefreshTarget(XSSFSheetImpl sheet) {
 		
-		int sheetNums = book.getNumberOfSheets();
-		for (int i = 0; i < sheetNums; i++) {
-			XSSFSheetImpl sheet = (XSSFSheetImpl) book.getSheetAt(i);
-			// Find pivot table
-			List<PivotTable> pivotTables = sheet.getPivotTables();
-			if (CollectionUtils.isEmpty(pivotTables)) {
-				LOGGER.debug("Sheet do not contain any pivottable. " + sheet);
-				continue;
-			}
-			
-			// Handle pivot table one by one
-			int pivotTableSize = pivotTables.size();
-			for(int j = 0; j < pivotTableSize; j++) {
-				PivotTable pt = pivotTables.get(j);
-				// source data
-				String ptName = pt.getName();
-				
-				Object[] retrunValue = findNamedSourceData(book, ptName);
-				int nameSheetIndex = (Integer) retrunValue[0];
-				ArrayEval arrayEval = (ArrayEval) retrunValue[1];
-				if (nameSheetIndex < 0) {
-					LOGGER.debug("Can not find pivot table source XSSFName. " + ptName);
-					break;
-				}
-				
-		        pivotTableChange(book, arrayEval, book.getSheetAt(nameSheetIndex), sheet, pt);
-				
-			}
+		List<PivotTable> pivotTables = sheet.getPivotTables();
+		Map<String, PivotTable> result = new LinkedHashMap<String, PivotTable>();
+		for (PivotTable pt : pivotTables) {
+			result.put(pt.getName(), pt);
 		}
+		return result;
 	}
-	
-	// FIXME: MENGRAN. abstract to common class
-	private Object[] findNamedSourceData(Book book, String chartName) {
+
+	@Override
+	protected void doRefresh(Workbook wb, ArrayEval arrayEval,
+			Sheet cellRangeAddressSheet, Sheet refreshTargetSheet, PivotTable t) {
 		
-		int nameSheetIndex = -1;
-		ArrayEval arrayEval = null;
-		for (int j = 0; j < ((XSSFWorkbook) book).getNumberOfNames(); j++) {
-			XSSFName name = ((XSSFWorkbook) book).getNameAt(j);
-			if (name.getNameName().equals(chartName + "DataSource")) {
-				arrayEval = (ArrayEval) book.getCreationHelper().createFormulaEvaluator().evaluateFormulaValueEval(name.getSheetIndex(), name.getRefersToFormula(), false);
-				nameSheetIndex = name.getSheetIndex();
-			}
-		}
-		
-		return new Object[] {new Integer(nameSheetIndex), arrayEval};
+		this.pivotTableChange(wb, arrayEval, cellRangeAddressSheet, refreshTargetSheet, t);
 	}
-	
+
 	private void pivotTableChange(Workbook wb, ArrayEval arrayEval,
 			Sheet cellRangeAddressSheet, Sheet pivotTableSheet,
 			PivotTable pt) {
@@ -82,8 +44,6 @@ public class BookPivottableDecorator {
 		StringBuilder rightBottomCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(arrayEval.getLastRow() + 1);
 		AreaReference ar = new AreaReference(cellRangeAddressSheet.getSheetName() + "!" + leftTopCell + ":" + rightBottomCell);
 		((XSSFPivotTable) pt).setSheetSource(ar);
-//		PivotTable newPt = XSSFPivotTableHelpers.instance.getHelper().createPivotTable(new CellReference(rightBottomCell.toString()), 
-//				"new" + pt.getName(), pt.getPivotCache(), pivotTableSheet);
 		
 	}
 	
