@@ -7,6 +7,7 @@ import java.util.Random;
 import nu.com.rill.analysis.report.excel.DataRetriever;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zss.model.Worksheet;
@@ -29,57 +30,53 @@ public class JsonDataRetriever implements DataRetriever {
 			dataSheet.getRow(2).getCell(1).setCellValue(reportParams.get("分析指标"));
 			if ("点击消费".equals(reportParams.get("分析指标"))) {
 				int originalLastRowNum = dataSheet.getLastRowNum();
-				dataSheet.getRow(originalLastRowNum).getCell(2).setCellValue(1944111);
-				Row newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
-				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
-					Cell c = it.next();
-					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
-					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
-						c.setCellValue(randomNum.longValue());
-					} else {
-						c.setCellValue("高级经理A");
-					}
+				dataSheet.getRow(originalLastRowNum).getCell(1).setCellValue(1944111);
+				for (int i = 0; i < 20; i++) {
+					Row newRow = ReportEngine.copyRow(dataSheet, dataSheet.getLastRowNum(), dataSheet.getLastRowNum() + 1);
+					Integer randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
+					newRow.getCell(0).setCellValue(DateUtils.addDays(newRow.getCell(0).getDateCellValue(), 1));
+					newRow.getCell(1).setCellValue(randomNum.doubleValue());
 				}
 				originalLastRowNum = dataSheet.getLastRowNum();
-				newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
-				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
-					Cell c = it.next();
-					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
-					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
-						c.setCellValue(randomNum.longValue());
-					} else {
-						c.setCellValue("高级经理B");
+				int originalLastColNum = dataSheet.getRow(originalLastRowNum).getLastCellNum();
+				for (int index = 0; index < 3; index++) {
+					// Create new series
+					for (int i = 3; i <= originalLastRowNum; i++) {
+						Integer randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
+						Row currentRow = dataSheet.getRow(i);
+						Cell c = currentRow.createCell(originalLastColNum);
+						if (i == 3) {
+							c.setCellValue("高级经理" + randomNum);
+						} else {
+							c.setCellValue(randomNum);
+						}
 					}
-				}
-				originalLastRowNum = dataSheet.getLastRowNum();
-				newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
-				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
-					Cell c = it.next();
-					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
-					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
-						c.setCellValue(randomNum.longValue());
-					} else {
-						c.setCellValue("高级经理C");
-					}
+					originalLastColNum++;
 				}
 			}
 			if ("新客户数".equals(reportParams.get("分析指标"))) {
 				int originalLastRowNum = dataSheet.getLastRowNum();
-				for (Iterator<Cell> it = dataSheet.getRow(originalLastRowNum).cellIterator(); it.hasNext();) {
-					Cell c = it.next();
-					Integer randomNum = new Random().nextInt(100 - 50 + 1) + 50;
-					if (c.getColumnIndex() != dataSheet.getRow(originalLastRowNum).getFirstCellNum()) {
-						c.setCellValue(randomNum.longValue());
-					}
+				dataSheet.getRow(originalLastRowNum).getCell(dataSheet.getRow(originalLastRowNum).getLastCellNum()).setCellValue(121);
+				for (int i = 0; i < 20; i++) {
+					Row newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
+					Integer randomNum = new Random().nextInt(200 - 100 + 1) + 100;
+					newRow.getCell(0).setCellValue(DateUtils.addDays(newRow.getCell(0).getDateCellValue(), 1));
+					newRow.getCell(1).setCellValue(randomNum.doubleValue());
 				}
-				Row newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
-				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
-					Cell c = it.next();
-					Integer randomNum = new Random().nextInt(100 - 50 + 1) + 50;
-					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
-						c.setCellValue(randomNum.longValue());
-					} else {
-						c.setCellValue("高级经理B");
+				originalLastRowNum = dataSheet.getLastRowNum();
+				int originalLastColNum = dataSheet.getRow(originalLastRowNum).getLastCellNum();
+				for (int index = 0; index < 3; index++) {
+					originalLastColNum++;
+					// Create new series
+					for (int i = 3; i < originalLastRowNum; i++) {
+						Integer randomNum = new Random().nextInt(200 - 100 + 1) + 100;
+						Row currentRow = dataSheet.getRow(i);
+						Cell c = currentRow.createCell(originalLastColNum);
+						if (i == 3) {
+							c.setCellValue("高级经理" + randomNum);
+						} else {
+							c.setCellValue(randomNum);
+						}
 					}
 				}
 			}
