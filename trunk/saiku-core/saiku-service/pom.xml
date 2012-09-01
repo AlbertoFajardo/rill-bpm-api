@@ -60,12 +60,12 @@
                                                 <configuration>
                                                         <tasks>
                                                                 <unzip dest="target/test/">
-                                                                        <fileset dir="${basedir}/../../util/">
+                                                                        <fileset dir="${basedir}/../util/">
                                                                                 <include name="foodmart_hsql.script.zip" />
                                                                         </fileset>
                                                                 </unzip>
                                 				<copy todir="target/test/foodmart/">
-                                                                        <fileset dir="${basedir}/../../util/">
+                                                                        <fileset dir="${basedir}/../util/">
                                                                                 <include name="FoodMart.xml" />
                                                                         </fileset>
                                                                 </copy>
@@ -88,7 +88,7 @@
                                                 <configuration>
                                                         <tasks>
                                                                 <unzip dest="target/test/">
-                                                                        <fileset dir="${basedir}/../../util/">
+                                                                        <fileset dir="${basedir}/../util/">
                                                                                 <include name="foodmart_hsql.script.zip" />
                                                                         </fileset>
                                                                 </unzip>
