@@ -61,10 +61,12 @@
 	    
 	</repositories>
   <modules>
+  	<!-- 
     <module>rill-analysis-data</module>
     <module>rill-analysis-mondrian</module>
     <module>rill-analysis-web</module>
     <module>rill-analysis-report</module>
+     -->
     <module>rill-analysis-report-core</module>
   </modules>
 </project>

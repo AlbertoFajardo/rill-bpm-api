@@ -11,7 +11,6 @@ import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 import nu.com.rill.analysis.report.schedule.DynamicScheduleService;
 
-import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.springframework.util.Assert;
 
 public class ReportManagerImpl implements ReportManager {
