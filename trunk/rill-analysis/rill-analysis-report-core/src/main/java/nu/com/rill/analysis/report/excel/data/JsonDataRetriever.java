@@ -80,6 +80,72 @@ public class JsonDataRetriever implements DataRetriever {
 					}
 				}
 			}
+		} else if ("data_row.action".equals(dataSheet.getRow(dataSheet.getFirstRowNum()).getCell(0).getStringCellValue())) {
+			dataSheet.getRow(1).getCell(1).setCellValue(reportParams.get("商业产品线"));
+			dataSheet.getRow(2).getCell(1).setCellValue(reportParams.get("分析指标"));
+			if ("点击消费".equals(reportParams.get("分析指标"))) {
+				int originalLastRowNum = dataSheet.getLastRowNum();
+				dataSheet.getRow(originalLastRowNum).getCell(2).setCellValue(1944111);
+				for (int i = 0; i < 15; i++) {
+					int lcn = dataSheet.getRow(3).getLastCellNum();
+					dataSheet.getRow(3).createCell(lcn).setCellValue(DateUtils.addDays(dataSheet.getRow(3).getCell(lcn - 1).getDateCellValue(), 1));
+					dataSheet.getRow(3).getCell(lcn).setCellStyle(dataSheet.getRow(3).getCell(lcn - 1).getCellStyle());
+					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
+					dataSheet.getRow(4).createCell(lcn).setCellValue(randomNum);
+				}
+				Row newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
+				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
+					Cell c = it.next();
+					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
+					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
+						c.setCellValue(randomNum.longValue());
+					} else {
+						c.setCellValue("高级经理A");
+					}
+				}
+				originalLastRowNum = dataSheet.getLastRowNum();
+				newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
+				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
+					Cell c = it.next();
+					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
+					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
+						c.setCellValue(randomNum.longValue());
+					} else {
+						c.setCellValue("高级经理B");
+					}
+				}
+				originalLastRowNum = dataSheet.getLastRowNum();
+				newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
+				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
+					Cell c = it.next();
+					Integer randomNum = new Random().nextInt(3344110 - 2344110 + 1) + 2344110;
+					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
+						c.setCellValue(randomNum.longValue());
+					} else {
+						c.setCellValue("高级经理C");
+					}
+				}
+			}
+			if ("新客户数".equals(reportParams.get("分析指标"))) {
+				int originalLastRowNum = dataSheet.getLastRowNum();
+				for (Iterator<Cell> it = dataSheet.getRow(originalLastRowNum).cellIterator(); it.hasNext();) {
+					Cell c = it.next();
+					Integer randomNum = new Random().nextInt(100 - 50 + 1) + 50;
+					if (c.getColumnIndex() != dataSheet.getRow(originalLastRowNum).getFirstCellNum()) {
+						c.setCellValue(randomNum.longValue());
+					}
+				}
+				Row newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
+				for (Iterator<Cell> it = newRow.cellIterator(); it.hasNext();) {
+					Cell c = it.next();
+					Integer randomNum = new Random().nextInt(100 - 50 + 1) + 50;
+					if (c.getColumnIndex() != newRow.getFirstCellNum()) {
+						c.setCellValue(randomNum.longValue());
+					} else {
+						c.setCellValue("高级经理B");
+					}
+				}
+			}
 		}
 		
 		if ("pivottable.action".equals(dataSheet.getRow(dataSheet.getFirstRowNum()).getCell(0).getStringCellValue())) {

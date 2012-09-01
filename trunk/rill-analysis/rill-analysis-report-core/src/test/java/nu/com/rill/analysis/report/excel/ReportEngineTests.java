@@ -102,6 +102,28 @@ public class ReportEngineTests {
 	}
 	
 	@Test
+	public void generateReportLuopan_Row() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("商业产品线", "网盟");
+		reportParams.put("分析指标", "点击消费");
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan_row.xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "luopan_row.xlsx", reportParams);
+			Assert.assertEquals("网盟", wb.getSheet(ReportEngine._INPUT_SHEET).getRow(1).getCell(1).getStringCellValue());
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			wb.write(baos);
+			File tmpImage = File.createTempFile("luopan_row.xlsx_" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
 	public void generateReportLuopan_Pivottable() {
 		
 		ReportEngine re = ReportEngine.INSTANCE;

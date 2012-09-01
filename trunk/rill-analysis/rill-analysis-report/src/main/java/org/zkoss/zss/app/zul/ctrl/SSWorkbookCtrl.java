@@ -355,20 +355,20 @@ public class SSWorkbookCtrl implements WorkbookCtrl {
 	}
 
 	public void setBookSrc(String src) {
-		unsubscribeBookListeners();
-		final Book targetBook = getBookFromDesktop(src);
-		removeBookFromDesktopIfNeeded();
-		if (targetBook != null) {
-			spreadsheet.setBook(targetBook);
-			spreadsheet.setSrcName(src);
-		}
-		else {
-			if (!FileHelper.openSrc(src, spreadsheet)) {
-				spreadsheet.setSrc(src);
-			}
-		}
-		storeBookInDesktop(spreadsheet);
-		resubscribeBookListeners();
+//		unsubscribeBookListeners();
+//		final Book targetBook = getBookFromDesktop(src);
+//		removeBookFromDesktopIfNeeded();
+//		if (targetBook != null) {
+//			spreadsheet.setBook(targetBook);
+//			spreadsheet.setSrcName(src);
+//		}
+//		else {
+//			if (!FileHelper.openSrc(src, spreadsheet)) {
+//				spreadsheet.setSrc(src);
+//			}
+//		}
+//		storeBookInDesktop(spreadsheet);
+//		resubscribeBookListeners();
 	}
 	
 	public void setBook(Book book) {
@@ -380,17 +380,17 @@ public class SSWorkbookCtrl implements WorkbookCtrl {
 	}
 	
 	public void openBook(SpreadSheetMetaInfo info) {
-		unsubscribeBookListeners();
-		final Book targetBook = getBookFromDesktop(info.getSrc());
-		removeBookFromDesktopIfNeeded();
-		if (targetBook != null) {
-			spreadsheet.setBook(targetBook);
-			spreadsheet.setSrcName(info.getSrc());
-		} else {
-			FileHelper.openSpreadsheet(spreadsheet, info);
-		}
-		storeBookInDesktop(spreadsheet);
-		resubscribeBookListeners();
+//		unsubscribeBookListeners();
+//		final Book targetBook = getBookFromDesktop(info.getSrc());
+//		removeBookFromDesktopIfNeeded();
+//		if (targetBook != null) {
+//			spreadsheet.setBook(targetBook);
+//			spreadsheet.setSrcName(info.getSrc());
+//		} else {
+//			FileHelper.openSpreadsheet(spreadsheet, info);
+//		}
+//		storeBookInDesktop(spreadsheet);
+//		resubscribeBookListeners();
 	}
 	
 	/**

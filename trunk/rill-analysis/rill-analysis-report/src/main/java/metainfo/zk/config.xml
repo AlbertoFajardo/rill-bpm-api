@@ -24,4 +24,13 @@ Copyright (C) 2010 Potix Corporation. All Rights Reserved.
 	<listener>
 		<listener-class>org.zkoss.zss.app.init.ZssappWebInit</listener-class>
 	</listener>
+	
+	<library-property>
+		<name>org.zkoss.zss.app.file.fileHelper.importPermission</name>
+		<value>true</value>
+	</library-property>
+	<library-property>
+		<name>org.zkoss.zss.app.file.fileHelper.savePermission</name>
+		<value>true</value>
+	</library-property>
 </config>

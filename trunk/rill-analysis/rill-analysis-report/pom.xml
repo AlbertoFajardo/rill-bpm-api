@@ -31,6 +31,11 @@
 			<artifactId>zss</artifactId>
 			<version>2.3.0</version>
 		</dependency>
+	    <dependency>
+	        <groupId>org.zkoss.pivot</groupId>
+	        <artifactId>pivottable</artifactId>
+	        <version>2.0.0</version>
+	    </dependency>
 		
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
@@ -75,6 +80,11 @@
 		    <artifactId>rill-bpm-api</artifactId>
 		    <version>1.0.2</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.rill</groupId>
+		    <artifactId>rill-bpm-ws</artifactId>
+		    <version>1.0.1</version>
+		</dependency>
 		
 		<dependency>
 		    <groupId>nu.com.rill</groupId>
@@ -106,6 +116,12 @@
 		</dependency>
 		
 		<dependency>
+		    <groupId>org.zkoss.zk</groupId>
+		    <artifactId>zkspring-core</artifactId>
+		    <version>3.1</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>${spring.framework.version}</version>
@@ -122,6 +138,19 @@
 		    <artifactId>zkspring-core</artifactId>
 		    <version>3.1</version>
 		</dependency>
+		
+		<!-- Embedded GF -->
+        <dependency>
+            <artifactId>rill-bpm-embeddedgf</artifactId>
+            <groupId>org.rill</groupId>
+            <version>3.1.3</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>org.glassfish.extras</groupId>
+            		<artifactId>glassfish-embedded-all</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
 
 	</dependencies>
 
@@ -131,6 +160,11 @@
 			<name>ZK CE Repository</name>
 			<url>http://mavensync.zkoss.org/maven2</url>
 		</repository>
+		<repository>
+	      <id>ZK EVAL</id>
+	      <name>ZK Evaluation Repository</name>
+	      <url>http://mavensync.zkoss.org/eval</url>
+	    </repository>
 	</repositories>
 	<packaging>war</packaging>
 
