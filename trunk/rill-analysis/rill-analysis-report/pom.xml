@@ -133,12 +133,6 @@
 			<version>${spring.framework.version}</version>
 		</dependency>
 		
-		<dependency>
-		    <groupId>org.zkoss.zk</groupId>
-		    <artifactId>zkspring-core</artifactId>
-		    <version>3.1</version>
-		</dependency>
-		
 		<!-- Embedded GF -->
         <dependency>
             <artifactId>rill-bpm-embeddedgf</artifactId>
