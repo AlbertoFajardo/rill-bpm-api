@@ -18,15 +18,17 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import nu.com.rill.analysis.report.ReportManager;
+import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
+import org.zkoss.zkplus.spring.SpringUtil;
 import org.zkoss.zss.app.Consts;
 import org.zkoss.zss.app.file.FileHelper;
-import org.zkoss.zss.app.file.SpreadSheetMetaInfo;
 import org.zkoss.zss.app.zul.ctrl.DesktopCellStyleContext;
 import org.zkoss.zss.app.zul.ctrl.DesktopWorkbenchContext;
 import org.zkoss.zss.model.Book;
@@ -60,6 +62,8 @@ public class Zssapp extends Div implements IdSpace  {
 	DesktopWorkbenchContext workbenchContext = new DesktopWorkbenchContext();
 	DesktopCellStyleContext cellStyleContext = new DesktopCellStyleContext();
 	
+	final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
+	
 	public Zssapp() {
 		
 		boolean editMode = false;
@@ -73,18 +77,18 @@ public class Zssapp extends Div implements IdSpace  {
 		
 		// set src from request parameters
 		String fileName = Executions.getCurrent().getParameter("fileName");
-		SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
+		Report report = reportMgr.getReport(fileName);
 		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
 			@SuppressWarnings("unchecked")
 			Entry<String, String[]> e = (Entry<String, String[]>) entry;
 			// Update report parameters only. Don't support new parameters. 
-			if (ssmi.getReportParams().containsKey(e.getKey())) {
-				Map<PARAM_CONFIG, String> config = ssmi.getReportParams().get(e.getKey());
+			if (report.getParams() != null && report.getParams().containsKey(e.getKey())) {
+				Map<PARAM_CONFIG, String> config = report.getParams().get(e.getKey());
 				config.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
 			}
 		}
 		
-		this.setSrc(ssmi.getSrc());
+		this.setSrc(report.getName());
 		
 		// FIXME: MENGRAN. view/edit mode
 		if (!editMode) {
@@ -102,7 +106,7 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	public void setSrc(String src) {
 //		getDesktopWorkbenchContext().getWorkbookCtrl().setBookSrc(src);
-		if (!FileHelper.openSrc(src, spreadsheet)) {
+		if (!FileHelper.openSpreadsheet(spreadsheet, reportMgr.getReport(src))) {
 			spreadsheet.setSrc(src);
 		}
 	}

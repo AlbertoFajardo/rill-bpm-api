@@ -14,9 +14,9 @@ Copyright (C) 2009 Potix Corporation. All Rights Reserved.
 */
 package org.zkoss.zss.app.file;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
+import org.apache.commons.io.FileUtils;
+import org.springframework.util.CollectionUtils;
 import org.zkoss.io.Files;
 import org.zkoss.lang.Library;
 import org.zkoss.poi.ss.usermodel.Workbook;
@@ -49,7 +52,7 @@ import org.zkoss.zul.Messagebox;
 public class FileHelper {
 	private FileHelper(){}
 	
-	private final static String[] SUPPORTED_FORMAT = new String[]{"xls", "xlsx"};
+	private final static String[] SUPPORTED_FORMAT = new String[]{/*"xls", */ "xlsx"};
 	
 	/*current opening file name*/
 //	private final static String KEY_OPENING_FILE = "org.zkoss.zss.app.file.fileHelper.openingFile";
@@ -103,14 +106,14 @@ public class FileHelper {
 		return info;
 	}
 	
-	public static boolean openSrc(String src, Spreadsheet spreadsheet) {
-		String key = removeFolderPath(src);
-		Map<String, SpreadSheetMetaInfo> infos = SpreadSheetMetaInfo.getMetaInfos();
-		if (infos.containsKey(key)) {
-			return openSpreadsheet(spreadsheet, infos.get(key));
-		}
-		return false;
-	}
+//	public static boolean openSrc(String src, Spreadsheet spreadsheet) {
+//		String key = removeFolderPath(src);
+//		Map<String, SpreadSheetMetaInfo> infos = SpreadSheetMetaInfo.getMetaInfos();
+//		if (infos.containsKey(key)) {
+//			return openSpreadsheet(spreadsheet, infos.get(key));
+//		}
+//		return false;
+//	}
 	
 	public static String removeFolderPath(String src) {
 		int idx = -1;
@@ -121,24 +124,31 @@ public class FileHelper {
 		return fileName;
 	}
 	
-	public static boolean openSpreadsheet(Spreadsheet ss, SpreadSheetMetaInfo info) {
-		FileInputStream input = null;
+	public static boolean openSpreadsheet(Spreadsheet ss, Report report) {
+		ByteArrayInputStream input = null;
 		try {
-			input = new FileInputStream(getSpreadsheetStorageFolderPath() + info.getHashFileName());
-			// Add by MENGRAN for report engine
+			input = new ByteArrayInputStream(report.getReportContent());
+			// FIXME: MEGNRAN. Add by MENGRAN for report engine
 			Map<String, String> reportParams = new HashMap<String, String>();
-			for (Entry<String, Map<PARAM_CONFIG, String>> entry : info.getReportParams().entrySet()) {
-				reportParams.put(entry.getKey(), entry.getValue().get(PARAM_CONFIG.VALUE));
+			if (!CollectionUtils.isEmpty(report.getParams())) {
+				for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+					reportParams.put(entry.getKey(), entry.getValue().get(PARAM_CONFIG.VALUE));
+				}
 			}
-			Workbook wb = ReportEngine.INSTANCE.generateReport(input, info.getFileName(), reportParams);
+			Workbook wb = ReportEngine.INSTANCE.generateReport(input, report.getName(), reportParams);
+			
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				wb.write(baos);
+				File tmpImage = File.createTempFile(report.getName() + System.currentTimeMillis(), ".xlsx");
+				FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+			} catch (Exception e) {
+				// Ignore~~
+			}
+			
 //			ss.setBookFromStream(input, info.getFileName());
 			ss.setBook((Book) wb);
 			return true;
-		} catch (FileNotFoundException e) {
-			try {
-				Messagebox.show("Can not find file: " + info.getFileName());
-			} catch (InterruptedException e1) {
-			}
 		} finally {
 			if (input != null)
 				try {
@@ -147,7 +157,6 @@ public class FileHelper {
 					throw new RuntimeException(e);
 				}
 		}
-		return false;
 	}
 	
 	public static void openNewSpreadsheet(Spreadsheet ss) {

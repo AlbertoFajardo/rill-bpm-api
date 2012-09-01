@@ -53,31 +53,65 @@ public class BookChartDecorator extends RefreshDataSourceBookDecorator<XSSFChart
 				c.getGrouping().setVal(STGrouping.STANDARD);
 				
 				int serSize = c.getSerList().size();
-				StringBuilder catStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn() + 1)).append(arrayEval.getFirstRow() + 1);
-				StringBuilder catEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(arrayEval.getFirstRow() + 1);
-				ChartDataSource<String> cats = DataSources.fromStringCellRange(cellRangeAddressSheet, CellRangeAddress.valueOf(catStartCell + ":" + catEndCell));
-				
-				for (int i = 1; i < arrayEval.getHeight(); i++) {
-					CellReference tx = new CellReference(cellRangeAddressSheet.getSheetName(), arrayEval.getFirstRow() + i, arrayEval.getFirstColumn(), false, false);
-					StringBuilder valStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn() + 1)).append(i + 1 + arrayEval.getFirstRow());
-					StringBuilder valEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(i + 1 + arrayEval.getFirstRow());
-					ChartDataSource<Number> vals = DataSources.fromNumericCellRange(cellRangeAddressSheet, CellRangeAddress.valueOf(valStartCell + ":" + valEndCell));
+				StringBuilder catStartCell = new StringBuilder();
+				StringBuilder catEndCell = new StringBuilder();
+				ChartDataSource<String> cats = null;
+				if (arrayEval.getHeight() > arrayEval.getWidth()) {
+					// By column.
+					catStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn())).append(arrayEval.getFirstRow() + 2);
+					catEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn())).append(arrayEval.getLastRow() + 1);
+					cats = DataSources.fromStringCellRange(cellRangeAddressSheet, CellRangeAddress.valueOf(catStartCell + ":" + catEndCell));
 					
-					if ((i - 1) < serSize) {
-						c.getSerList().get(i - 1).getTx().getStrRef().setF(tx.formatAsString());
-						c.getSerList().get(i - 1).getTx().getStrRef().unsetStrCache();
-						c.getSerList().get(i - 1).getCat().unsetNumRef();
-						c.getSerList().get(i - 1).getCat().addNewStrRef().setF(cats.getFormulaString());
-						c.getSerList().get(i - 1).getVal().getNumRef().setF(vals.getFormulaString());
-						c.getSerList().get(i - 1).getVal().getNumRef().unsetNumCache();
-					} else {
-						CTLineSer ser = c.addNewSer();
-						CTSerTx newTx = ser.addNewTx();
-						newTx.addNewStrRef().setF(tx.formatAsString());
-						ser.addNewCat().addNewNumRef().setF(cats.getFormulaString());
-						ser.addNewVal().addNewNumRef().setF(vals.getFormulaString());
+					for (int i = 1; i < arrayEval.getWidth(); i++) {
+						CellReference tx = new CellReference(cellRangeAddressSheet.getSheetName(), arrayEval.getFirstRow(), arrayEval.getFirstColumn() + i, false, false);
+						StringBuilder valStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn() + i)).append(arrayEval.getFirstRow() + 2);
+						StringBuilder valEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn() + i)).append(arrayEval.getLastRow() + 1);
+						ChartDataSource<Number> vals = DataSources.fromNumericCellRange(cellRangeAddressSheet, CellRangeAddress.valueOf(valStartCell + ":" + valEndCell));
+						
+						if ((i - 1) < serSize) {
+							c.getSerList().get(i - 1).getTx().getStrRef().setF(tx.formatAsString());
+							c.getSerList().get(i - 1).getTx().getStrRef().unsetStrCache();
+							c.getSerList().get(i - 1).getCat().unsetNumRef();
+							c.getSerList().get(i - 1).getCat().addNewStrRef().setF(cats.getFormulaString());
+							c.getSerList().get(i - 1).getVal().getNumRef().setF(vals.getFormulaString());
+							c.getSerList().get(i - 1).getVal().getNumRef().unsetNumCache();
+						} else {
+							CTLineSer ser = c.addNewSer();
+							CTSerTx newTx = ser.addNewTx();
+							newTx.addNewStrRef().setF(tx.formatAsString());
+							ser.addNewCat().addNewNumRef().setF(cats.getFormulaString());
+							ser.addNewVal().addNewNumRef().setF(vals.getFormulaString());
+						}
+					}
+				} else {
+					// By row.
+					catStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn() + 1)).append(arrayEval.getFirstRow() + 1);
+					catEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(arrayEval.getFirstRow() + 1);
+					cats = DataSources.fromStringCellRange(cellRangeAddressSheet, CellRangeAddress.valueOf(catStartCell + ":" + catEndCell));
+					
+					for (int i = 1; i < arrayEval.getHeight(); i++) {
+						CellReference tx = new CellReference(cellRangeAddressSheet.getSheetName(), arrayEval.getFirstRow() + i, arrayEval.getFirstColumn(), false, false);
+						StringBuilder valStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn() + 1)).append(i + 1 + arrayEval.getFirstRow());
+						StringBuilder valEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(i + 1 + arrayEval.getFirstRow());
+						ChartDataSource<Number> vals = DataSources.fromNumericCellRange(cellRangeAddressSheet, CellRangeAddress.valueOf(valStartCell + ":" + valEndCell));
+						
+						if ((i - 1) < serSize) {
+							c.getSerList().get(i - 1).getTx().getStrRef().setF(tx.formatAsString());
+							c.getSerList().get(i - 1).getTx().getStrRef().unsetStrCache();
+							c.getSerList().get(i - 1).getCat().unsetNumRef();
+							c.getSerList().get(i - 1).getCat().addNewStrRef().setF(cats.getFormulaString());
+							c.getSerList().get(i - 1).getVal().getNumRef().setF(vals.getFormulaString());
+							c.getSerList().get(i - 1).getVal().getNumRef().unsetNumCache();
+						} else {
+							CTLineSer ser = c.addNewSer();
+							CTSerTx newTx = ser.addNewTx();
+							newTx.addNewStrRef().setF(tx.formatAsString());
+							ser.addNewCat().addNewNumRef().setF(cats.getFormulaString());
+							ser.addNewVal().addNewNumRef().setF(vals.getFormulaString());
+						}
 					}
 				}
+				
 			break;
 		}
 		

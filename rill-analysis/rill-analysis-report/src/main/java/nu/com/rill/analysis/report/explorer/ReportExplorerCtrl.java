@@ -8,24 +8,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
+import nu.com.rill.analysis.report.ReportManager;
+import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine;
-import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
-import nu.com.rill.analysis.report.schedule.DynamicScheduleService;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.poi.ss.usermodel.Workbook;
-import org.zkoss.zhtml.Input;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
@@ -54,33 +51,12 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 	public final static Log LOG = LogFactory.getLog(ReportExplorerCtrl.class);
 	
 	private Grid reportGrid;
-	private Dialog reportParamDialog;
 	private Dialog reportScheduleDialog;
-	
-	private Grid configGrid;
-	private static volatile DynamicScheduleService dynamicScheduleService = null;
-	
-	static {
-		
-		dynamicScheduleService = (DynamicScheduleService) SpringUtil.getBean("dynamicScheduleService");
-		
-		// Read jobs and register
-		for (Entry<String, SpreadSheetMetaInfo> entry : SpreadSheetMetaInfo.getMetaInfos().entrySet()) {
-			if (StringUtils.hasText(entry.getValue().getCronExpression())) {
-				LOG.info("Submit job and add to quartz schedule." + entry.getKey() + " " + entry.getValue().getCronExpression());
-				Map<String, String> reportParams = new HashMap<String, String>();
-				for (Entry<String, Map<PARAM_CONFIG, String>> e : entry.getValue().getReportParams().entrySet()) {
-					reportParams.put(e.getKey(), e.getValue().get(PARAM_CONFIG.VALUE));
-				}
-				dynamicScheduleService.submitJob(entry.getValue().getCronExpression(), new ReportJob(entry.getValue().getFileName(), reportParams));
-			}
-		}
-		
-	}
 	
 	public void onUser$reportGrid() {
 		
-		reportGrid.setModel(new ListModelArray(new ArrayList<SpreadSheetMetaInfo>(SpreadSheetMetaInfo.getMetaInfos().values())));
+		ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
+		reportGrid.setModel(new ListModelArray(reportMgr.listReport()));
 		reportGrid.invalidate();
 	}
 	
@@ -90,12 +66,11 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 		
 		static final ConcurrentMap<String, ConcurrentLinkedQueue<String>> REPORT_SCHEDULE_INFO = new ConcurrentHashMap<String, ConcurrentLinkedQueue<String>>();
 		
-		public ReportJob(String reportFileName, Map<String, String> reportParams) {
+		public ReportJob(String reportFileName) {
 			super();
 			this.reportFileName = reportFileName;
 			Assert.hasText(reportFileName);
 			
-			this.reportParams = reportParams;
 		}
 		
 		private Map<String, String> reportParams = new HashMap<String, String>();
@@ -143,50 +118,42 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 	public void doAfterCompose(Component comp) throws Exception {
 		super.doAfterCompose(comp);
 		
-		reportParamDialog.fireOnClose(null);
 		reportScheduleDialog.fireOnClose(null);
 		
-		reportGrid.setModel(new ListModelArray(new ArrayList<SpreadSheetMetaInfo>(SpreadSheetMetaInfo.getMetaInfos().values())));
+		final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
+		
+		reportGrid.setModel(new ListModelArray(reportMgr.listReport()));
 		reportGrid.setRowRenderer(new RowRenderer() {
 			
-			int index = 0;
 			@Override
 			public void render(Row row, Object data) throws Exception {
-				final SpreadSheetMetaInfo ssmi = (SpreadSheetMetaInfo) data;
-				row.appendChild(new Label(new Integer(++index).toString()));
-				row.appendChild(new Label(ssmi.getFileName()));
+				final Report report = (Report) data;
+				row.appendChild(new Label(report.getId().toString()));
+				row.appendChild(new Label(report.getName()));
 				// Use cron expression in meta info.
-				Textbox cronExpression = new Textbox(ObjectUtils.getDisplayString(ssmi.getCronExpression()));
+				Textbox cronExpression = new Textbox(ObjectUtils.getDisplayString(report.getCronExpression()));
 				cronExpression.addEventListener(Events.ON_BLUR, new EventListener() {
 					
 					@Override
 					public void onEvent(Event arg0) throws Exception {
 						String cronExpressionText = ((Textbox) arg0.getTarget()).getValue();
-						if (ssmi.getCronExpression().equals(cronExpressionText)) {
+						if (ObjectUtils.getDisplayString(report.getCronExpression()).equals(cronExpressionText)) {
 							LOG.info("Do nothing because not change cron expression.");
 							return;
 						}
-						ssmi.setCronExpression(cronExpressionText);
-						// Save meta info
-						SpreadSheetMetaInfo.add(ssmi);
-						// Process schedule
+						
+						reportMgr.unscheduleReport(report.getName());
 						if (StringUtils.hasText(cronExpressionText)) {
-							dynamicScheduleService.deleteJob(new ReportJob(ssmi.getFileName(), null));
-							Map<String, String> reportParams = new HashMap<String, String>();
-							for (Entry<String, Map<PARAM_CONFIG, String>> e : ssmi.getReportParams().entrySet()) {
-								reportParams.put(e.getKey(), e.getValue().get(PARAM_CONFIG.VALUE));
-							}
-							dynamicScheduleService.submitJob(ssmi.getCronExpression(), new ReportJob(ssmi.getFileName(), reportParams));
-						} else {
-							dynamicScheduleService.deleteJob(new ReportJob(ssmi.getFileName(), null));
+							reportMgr.scheduleReport(report.getName(), cronExpressionText, new ReportJob(report.getName()));
 						}
+						
 					}
 				});
 				
 				row.appendChild(cronExpression);
 				
 				Button scheduleResult = new Button("查看");
-				scheduleResult.setWidgetAttribute("fileName", ssmi.getFileName());
+				scheduleResult.setWidgetAttribute("fileName", report.getName());
 				scheduleResult.addEventListener(Events.ON_CLICK, new EventListener() {
 					
 					@Override
@@ -198,23 +165,10 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				});
 				row.appendChild(scheduleResult);
 				
-				row.appendChild(new Label(ssmi.getFormatedImportDateString()));
+				row.appendChild(new Label(report.getAddDateFormatString()));
 				Div div = new Div();
-//				Button open = new Button("打开");
-//				open.setWidgetAttribute("fileName", ssmi.getFileName());
-//				open.addEventListener(Events.ON_CLICK, new EventListener() {
-//					
-//					@Override
-//					public void onEvent(Event event) throws Exception {
-//						if (!openReportParamDialog(event.getTarget().getWidgetAttribute("fileName"))) {
-//							Executions.getCurrent().sendRedirect("view.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
-//						}
-//					}
-//				});
-//				div.appendChild(open);
-				
 				Button open2 = new Button("打开");
-				open2.setWidgetAttribute("fileName", ssmi.getFileName());
+				open2.setWidgetAttribute("fileName", report.getName());
 				open2.addEventListener(Events.ON_CLICK, new EventListener() {
 					
 					@Override
@@ -225,7 +179,7 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				div.appendChild(open2);
 				
 				Button edit = new Button("编辑");
-				edit.setWidgetAttribute("fileName", ssmi.getFileName());
+				edit.setWidgetAttribute("fileName", report.getName());
 				edit.addEventListener(Events.ON_CLICK, new EventListener() {
 					
 					@Override
@@ -238,36 +192,6 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				row.appendChild(div);
 			}
 		});
-	}
-	
-	private boolean openReportParamDialog(String fileName) {
-		
-		SpreadSheetMetaInfo ssmi = SpreadSheetMetaInfo.getMetaInfos().get(fileName);
-		Map<String, Map<PARAM_CONFIG, String>> params = ssmi.getReportParams();
-		if (CollectionUtils.isEmpty(params)) {
-			return false;
-		}
-		
-		configGrid = (Grid) reportParamDialog.getFellow("configGrid");
-		configGrid.setModel(new ListModelArray(new ArrayList<Entry<String, Map<PARAM_CONFIG, String>>>(params.entrySet())));
-		configGrid.setRowRenderer(new RowRenderer() {
-			
-			@Override
-			public void render(Row row, Object data) throws Exception {
-				@SuppressWarnings("unchecked")
-				Entry<String, Map<PARAM_CONFIG, String>> param = (Entry<String, Map<PARAM_CONFIG, String>>) data;
-				row.appendChild(new Label(param.getKey()));
-				Textbox paramTextBox = new Textbox();
-				paramTextBox.setName(param.getKey());
-				paramTextBox.setValue(param.getValue().get(PARAM_CONFIG.VALUE));
-				row.appendChild(paramTextBox);
-			}
-		});
-		Input fileNameInput = (Input) reportParamDialog.getFellow("reportParamForm").getFellow("fileName");
-		fileNameInput.setValue(fileName);
-		
-		reportParamDialog.fireOnOpen(null);
-		return true;
 	}
 	
 	private boolean openReportScheduleDialog(String fileName) {
