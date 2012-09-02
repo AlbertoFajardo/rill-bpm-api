@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS report;
 CREATE TABLE report (
   id INT(10) NOT NULL AUTO_INCREMENT COMMENT 'id，递增主键',
   name VARCHAR(128) NOT NULL DEFAULT '' COMMENT 'report名称',
-  paramsXStrem VARCHAR(1024) DEFAULT NULL COMMENT 'report参数',
+  paramsXStrem TEXT DEFAULT NULL COMMENT 'report参数',
   cronExpression VARCHAR(200) DEFAULT NULL COMMENT 'report调度参数',
   addDate timestamp default CURRENT_TIMESTAMP COMMENT '保存时间',
   PRIMARY KEY  (id)

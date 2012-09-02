@@ -1,16 +1,29 @@
 package nu.com.rill.analysis.report.param;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
+import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.zhtml.Input;
@@ -51,101 +64,23 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			return;
 		}
 		
-		final Div userParamDiv = paramDiv;
-		
-		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
-			final String paramName = entry.getKey();
-			final Map<PARAM_CONFIG, String> config = entry.getValue();
-			// FIXME: MENGRAN. Refactor by visitor pattern
-			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
-				if ("provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-					Input input = new Input();
-					input.setId(paramName);
-					input.setVisible(false);
-					input.setValue(fetchProvided(paramName));
-					paramDiv.appendChild(input);
-					userParamDiv.setWidgetAttribute(paramName, input.getValue());
-				} else if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-					Date now = new Date();
-					final Datebox db = new Datebox(now);
-					userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
-					db.setId(paramName);
-					db.setFormat("long");
-					db.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
-					paramDiv.appendChild(new Label(paramName + " ："));
-					paramDiv.appendChild(db);
-					db.addEventListener(Events.ON_CHANGE, new EventListener() {
-						
-						@Override
-						public void onEvent(Event event) throws Exception {
-							userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
-						}
-					});
-				} else if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) || "select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-					final Combobox cb = new Combobox();
-					cb.setId(paramName);
-					cb.setMold("rounded");
-					cb.setWidgetAttribute(PARAM_CONFIG.DEPENDENCIES.name(), config.get(PARAM_CONFIG.DEPENDENCIES));
-					cb.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
-					if (config.containsKey(PARAM_CONFIG.FETCH_URL)) {
-						// Fetch content
-						cb.addEventListener(Events.ON_CREATE, new EventListener() {
-							
-							@Override
-							public void onEvent(Event event) throws Exception {
-								// Reload content event. FIXME: MENGRAN. Deed-loop.
-								// 1. Prepare fetch parameters
-								Map<String, String> fetchParams = new HashMap<String, String>();
-								String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
-								if (StringUtils.hasText(dependencies)) {
-									for (String dep : dependencies.trim().split(" ")) {
-										fetchParams.put(dep, userParamDiv.getWidgetAttribute(dep));
-									}
-								}
-								// 2. Fetch result
-								Map<String, String> fetchResult = fetch(config.get(PARAM_CONFIG.FETCH_URL), fetchParams);
-								// 3. Re-fill items
-								cb.getItems().clear();
-								for (Entry<String, String> entry : fetchResult.entrySet()) {
-									Comboitem ci = cb.appendItem(entry.getValue());
-									ci.setValue(entry.getKey());
-								}
-								cb.setSelectedIndex(1);
-								// 4. Post change event
-								Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, cb));
-							}
-						});
-					}
-					if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
-						if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
-							for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
-								paramDiv.getFellow(dep).addEventListener(Events.ON_CHANGE, new EventListener() {
-									
-									@Override
-									public void onEvent(Event event) throws Exception {
-										Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
-									}
-								});
-							}
-						}
-					}
-					cb.addEventListener(Events.ON_CHANGE, new EventListener() {
-						
-						@Override
-						public void onEvent(Event event) throws Exception {
-							userParamDiv.setWidgetAttribute(paramName, cb.getSelectedItem().getValue().toString());
-						}
-					});
-					paramDiv.appendChild(new Label(paramName + " ："));
-					paramDiv.appendChild(cb);
-					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
-				}
+		// Construct parameter components
+		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
+			@SuppressWarnings("unchecked")
+			Entry<String, String[]> e = (Entry<String, String[]>) entry;
+			// Update report parameters only. Don't support new parameters. 
+			if (report.getParams() != null && report.getParams().containsKey(e.getKey())) {
+				Map<PARAM_CONFIG, String> config = report.getParams().get(e.getKey());
+				config.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
 			}
 		}
+		paramComponentConstruct(paramDiv, report);
+		
+		// Initialize parameter components
+		paramComponentInit(paramDiv, report);
 		
 		// Append search button
 		Button search = new Button("查询");
-		search.setClass("paramDiv_btn");
 		search.setWidgetAttribute("fileName", report.getName());
 		final Div tmpParamDiv = paramDiv;
 		search.addEventListener(Events.ON_CLICK, new EventListener() {
@@ -153,7 +88,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			@Override
 			public void onEvent(Event event) throws Exception {
 				Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
-				app.setSrc(report.getName());
+				for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+					if (tmpParamDiv.getWidgetAttribute(entry.getKey()) != null) {
+						entry.getValue().put(PARAM_CONFIG.VALUE, tmpParamDiv.getWidgetAttribute(entry.getKey()));
+					}
+				}
+				app.setReport(report);
 			}
 		});
 		paramDiv.appendChild(search);
@@ -171,32 +111,172 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		});
 		paramDiv.appendChild(reset);
 		
-		paramDiv.setStyle("background-color: #999; padding: 5px");
+		paramDiv.setClass("paramDiv-class");
+		
+		// Post search action event
+		Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CLICK, search));
 		
 	}
 	
-	private String fetchProvided(String name) {
+	private void paramComponentConstruct(final Div paramDiv, final Report report) {
+		
+		final Div userParamDiv = paramDiv;
+		
+		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+			final String paramName = entry.getKey();
+			final Map<PARAM_CONFIG, String> config = entry.getValue();
+			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
+				continue;
+			}
+
+			if ("provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				Input input = new Input();
+				input.setId(paramName);
+				input.setVisible(false);
+				input.setValue(fetchProvided(paramName, report));
+				paramDiv.appendChild(input);
+				userParamDiv.setWidgetAttribute(paramName, input.getValue());
+			}
+			
+			if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				Date now = new Date();
+				final Datebox db = new Datebox(now);
+				userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
+				db.setId(paramName);
+				db.setFormat("long");
+				db.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
+				paramDiv.appendChild(new Label(paramName + " ："));
+				paramDiv.appendChild(db);
+				db.addEventListener(Events.ON_CHANGE, new EventListener() {
+					
+					@Override
+					public void onEvent(Event event) throws Exception {
+						userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
+					}
+				});
+			}
+			
+			if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) || 
+					"select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				final Combobox cb = new Combobox();
+				cb.setId(paramName);
+				cb.setMold("rounded");
+				if (config.containsKey(PARAM_CONFIG.FETCH_URL)) {
+					// Fetch content
+					cb.addEventListener(Events.ON_CREATE, new EventListener() {
+						
+						@Override
+						public void onEvent(Event event) throws Exception {
+							// Reload content event. FIXME: MENGRAN. Deed-loop.
+							// 1. Prepare fetch parameters
+							Map<String, String> fetchParams = new HashMap<String, String>();
+							String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
+							if (StringUtils.hasText(dependencies)) {
+								for (String dep : dependencies.trim().split(" ")) {
+									fetchParams.put(dep, userParamDiv.getWidgetAttribute(dep));
+								}
+							}
+							// 2. Fetch result
+							Map<String, String> fetchResult = fetch(config.get(PARAM_CONFIG.FETCH_URL), fetchParams);
+							// 3. Re-fill items
+							cb.getItems().clear();
+							for (Entry<String, String> entry : fetchResult.entrySet()) {
+								Comboitem ci = cb.appendItem(entry.getValue());
+								ci.setValue(entry.getKey());
+							}
+							cb.setSelectedIndex(0);
+						}
+					});
+				}
+				if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
+					if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
+						for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
+							paramDiv.getFellow(dep).addEventListener(Events.ON_CHANGE, new EventListener() {
+								
+								@Override
+								public void onEvent(Event event) throws Exception {
+									Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
+								}
+							});
+						}
+					}
+				}
+				cb.addEventListener(Events.ON_CHANGE, new EventListener() {
+					
+					@Override
+					public void onEvent(Event event) throws Exception {
+						userParamDiv.setWidgetAttribute(paramName, cb.getSelectedItem().getValue().toString());
+					}
+				});
+				paramDiv.appendChild(new Label(paramName + " ："));
+				paramDiv.appendChild(cb);
+				// Post create event
+				Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
+			}
+		
+		}
+		
+	}
+	
+	private void paramComponentInit(final Div paramDiv, final Report report) {
+		
+		final Div userParamDiv = paramDiv;
+		
+		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+			final String paramName = entry.getKey();
+			final Map<PARAM_CONFIG, String> config = entry.getValue();
+			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
+				if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) 
+					|| "select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(paramName)));
+				}
+			}
+		}
+		
+	}
+	
+	private String fetchProvided(String name, final Report report) {
+		
+		Assert.notNull(name);
+		// First fetch from report parameter
+//		if (report.getParams().containsKey(name) && 
+//				report.getParams().get(name).get(PARAM_CONFIG.VALUE) != null) {
+//			return report.getParams().get(name).get(PARAM_CONFIG.VALUE);
+//		}
+		// Second fetch from cookie.
 		
 		return "admin";
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Map<String, String> fetch(String url , Map<String, String> params) {
 		
+		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+		for (Entry<String, String> entry : params.entrySet()) {
+			formparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+		}
+		
 		Map<String, String> result = new LinkedHashMap<String, String>();
-		if (url.equals("ind.action")) {
-			result.put("点击消费", "点击消费");
-			result.put("新客户数", "新客户数");
-			result.put("CPM", "CPM");
+		HttpClient httpClient = new DefaultHttpClient();
+		try {
+			HttpPost httppost = new HttpPost(url);
+			httppost.setEntity( new UrlEncodedFormEntity(formparams, "UTF-8"));
+			HttpResponse httpResponse = httpClient.execute(httppost);
+			HttpEntity entity = httpResponse.getEntity();
+			if (entity != null) {
+			    InputStream instream = entity.getContent();
+			    try {
+			    	result = ReportEngine.mapper.readValue(instream, LinkedHashMap.class);
+			    } finally {
+			        instream.close();
+			    }
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			
 		}
-		if (url.equals("line.action")) {
-			result.put("搜索", "搜索");
-			result.put("网盟", "网盟");
-			result.put("游戏", "游戏");
-		}
-		if (url.equals("pos.action")) {
-			result.put("高级经理A", "高级经理A");
-			result.put("高级经理B", "高级经理B");
-		}
+		
 		return result;
 	}
 	

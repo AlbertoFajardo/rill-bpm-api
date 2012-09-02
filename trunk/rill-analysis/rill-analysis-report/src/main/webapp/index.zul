@@ -13,7 +13,7 @@
 		</menubar>
 		<grid id="reportGrid">
 			<columns>
-				<column hflex="1">序列</column>
+				<column hflex="1">ID.</column>
 				<column hflex="4">报表名称</column>
 				<column hflex="2">调度表达式</column>
 				<column hflex="1">查看调度结果</column>

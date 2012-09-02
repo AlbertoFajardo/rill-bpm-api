@@ -14,14 +14,13 @@ Copyright (C) 2009 Potix Corporation. All Rights Reserved.
 */
 package org.zkoss.zss.app.zul;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
-import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
+import org.springframework.core.io.ClassPathResource;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -32,6 +31,7 @@ import org.zkoss.zss.app.file.FileHelper;
 import org.zkoss.zss.app.zul.ctrl.DesktopCellStyleContext;
 import org.zkoss.zss.app.zul.ctrl.DesktopWorkbenchContext;
 import org.zkoss.zss.model.Book;
+import org.zkoss.zss.model.impl.ExcelImporter;
 import org.zkoss.zss.ui.Spreadsheet;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Menubar;
@@ -64,50 +64,65 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 	
+	private boolean editMode = false;
+	
+	private static Book initBook;
+	static {
+		ClassPathResource initCpr = new ClassPathResource("Init.xlsx");
+		try {
+			initBook = new ExcelImporter().imports(initCpr.getInputStream(), "Init.xlsx");
+		} catch (Exception e) {
+			// Ignore
+		} finally {
+			try {
+				initCpr.getInputStream().close();
+			} catch (IOException e) {
+				// Ignore
+			}
+		}
+	}
+	
 	public Zssapp() {
 		
-		boolean editMode = false;
-		if (Executions.getCurrent().getParameter("edit") != null) {
-			editMode = true;
-		}
 		Executions.createComponents(Consts._Zssapp_zul, this, null);
 		Components.wireVariables(this, this, '$', true, true);
 		Components.addForwards(this, this, '$');
 		spreadsheet = (Spreadsheet)mainWin.getFellow("spreadsheet");
 		
-		// set src from request parameters
-		String fileName = Executions.getCurrent().getParameter("fileName");
-		Report report = reportMgr.getReport(fileName);
-		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
-			@SuppressWarnings("unchecked")
-			Entry<String, String[]> e = (Entry<String, String[]>) entry;
-			// Update report parameters only. Don't support new parameters. 
-			if (report.getParams() != null && report.getParams().containsKey(e.getKey())) {
-				Map<PARAM_CONFIG, String> config = report.getParams().get(e.getKey());
-				config.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
-			}
+		// FIXME: MENGRAN. View/edit mode
+		if (Executions.getCurrent().getParameter("edit") != null) {
+			editMode = true;
+			// set src from request parameters
+			String fileName = Executions.getCurrent().getParameter("fileName");
+			Report report = reportMgr.getReport(fileName);
+			this.setReport(report);
+			
+			return;
 		}
 		
-		this.setSrc(report.getName());
+		spreadsheet.setHiderowhead(true);
+		spreadsheet.setHidecolumnhead(true);
+		spreadsheet.setShowContextMenu(false);
+		spreadsheet.setShowFormulabar(false);
+		spreadsheet.setShowToolbar(false);
+		spreadsheet.setShowSheetbar(false);
+		spreadsheet.disableClientUpdate(true);
 		
-		// FIXME: MENGRAN. view/edit mode
-		if (!editMode) {
-			spreadsheet.setHiderowhead(true);
-			spreadsheet.setHidecolumnhead(true);
-			spreadsheet.setShowContextMenu(false);
-			spreadsheet.setShowFormulabar(false);
-			spreadsheet.setShowToolbar(false);
-			spreadsheet.setShowSheetbar(false);
-			spreadsheet.disableClientUpdate(true);
+		if (initBook != null) {
+			this.setBook(initBook);
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum());
 		}
 	}
 	
-	public void setSrc(String src) {
-//		getDesktopWorkbenchContext().getWorkbookCtrl().setBookSrc(src);
-		if (!FileHelper.openSpreadsheet(spreadsheet, reportMgr.getReport(src))) {
-			spreadsheet.setSrc(src);
+	public void setReport(Report report) {
+		
+		FileHelper.openSpreadsheet(spreadsheet, report);
+		
+		// FIXME: MENGRAN. view/edit mode
+		if (!editMode) {
+			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
+			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum());
 		}
 	}
 	

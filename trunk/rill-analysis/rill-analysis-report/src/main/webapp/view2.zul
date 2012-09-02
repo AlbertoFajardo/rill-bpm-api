@@ -3,6 +3,17 @@
 <?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
 
 <zk xmlns:h="native">
+	<style>
+	    .z-button-os { 
+	        width: 100px;
+	        height: 25px;
+	        background-color: #8dd;
+	        margin-left: 5px;
+	    }
+	    .paramDiv-class {
+	    	background-color: #999; padding: 5px;
+	    }
+	</style>
 	<!-- 
 	<h:select>
 		<h:option>AAAAAAA</h:option>
