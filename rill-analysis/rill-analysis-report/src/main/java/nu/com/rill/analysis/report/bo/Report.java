@@ -45,7 +45,7 @@ public class Report {
 
 	public final Map<String, Map<PARAM_CONFIG, String>> getParams() {
 		
-		return params == null ? deserializeParam(this.paramsXStrem) : params;
+		return params == null ? params = deserializeParam(this.paramsXStrem) : params;
 	}
 
 	public final String getCronExpression() {
@@ -90,6 +90,8 @@ public class Report {
 		return addDate == null ? "" : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(addDate);
 	}
 	
+	private static final String TAB = '\u0009' + "";
+	
 	public static String serializeParams(Map<String, Map<PARAM_CONFIG, String>> params) {
 		
 		if (CollectionUtils.isEmpty(params)) {
@@ -98,7 +100,7 @@ public class Report {
 		
 		String reportParams = "";
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : params.entrySet()) {
-			reportParams = reportParams + "|" + entry.getKey() + ":" + WorkflowOperations.XStreamSerializeHelper.serializeXml("PARAM_CONFIG", entry.getValue());
+			reportParams = reportParams + "|" + entry.getKey() + TAB + WorkflowOperations.XStreamSerializeHelper.serializeXml("PARAM_CONFIG", entry.getValue());
 		}
 		if (reportParams.length() > 0) {
 			reportParams = reportParams.substring(1);
@@ -116,7 +118,7 @@ public class Report {
 		
 		Map<String, Map<PARAM_CONFIG, String>> params = new LinkedHashMap<String, Map<PARAM_CONFIG,String>>();
 		for (String param : paramsXStream.split("\\|")) {
-			params.put(param.split(":")[0], WorkflowOperations.XStreamSerializeHelper.deserializeObject(param.split(":")[1].replaceAll("\n", ""), "PARAM_CONFIG", LinkedHashMap.class));
+			params.put(param.split(TAB)[0], WorkflowOperations.XStreamSerializeHelper.deserializeObject(param.split(TAB)[1].replaceAll("\n", ""), "PARAM_CONFIG", LinkedHashMap.class));
 		}
 		
 		return params;

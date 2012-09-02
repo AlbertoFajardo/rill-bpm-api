@@ -56,19 +56,21 @@ public class JsonDataRetriever implements DataRetriever {
 			}
 			if ("新客户数".equals(reportParams.get("分析指标"))) {
 				int originalLastRowNum = dataSheet.getLastRowNum();
-				dataSheet.getRow(originalLastRowNum).getCell(dataSheet.getRow(originalLastRowNum).getLastCellNum()).setCellValue(121);
+				for (int rowIndex = 4; rowIndex <= originalLastRowNum; rowIndex++) {
+					dataSheet.getRow(rowIndex).getCell(1).setCellValue(121);
+				}
+				
 				for (int i = 0; i < 20; i++) {
-					Row newRow = ReportEngine.copyRow(dataSheet, originalLastRowNum, originalLastRowNum + 1);
-					Integer randomNum = new Random().nextInt(200 - 100 + 1) + 100;
+					Row newRow = ReportEngine.copyRow(dataSheet, dataSheet.getLastRowNum(), dataSheet.getLastRowNum() + 1);
+					Integer randomNum = new Random().nextInt(200 - 100 + 1) + 200;
 					newRow.getCell(0).setCellValue(DateUtils.addDays(newRow.getCell(0).getDateCellValue(), 1));
 					newRow.getCell(1).setCellValue(randomNum.doubleValue());
 				}
 				originalLastRowNum = dataSheet.getLastRowNum();
 				int originalLastColNum = dataSheet.getRow(originalLastRowNum).getLastCellNum();
 				for (int index = 0; index < 3; index++) {
-					originalLastColNum++;
 					// Create new series
-					for (int i = 3; i < originalLastRowNum; i++) {
+					for (int i = 3; i <= originalLastRowNum; i++) {
 						Integer randomNum = new Random().nextInt(200 - 100 + 1) + 100;
 						Row currentRow = dataSheet.getRow(i);
 						Cell c = currentRow.createCell(originalLastColNum);
@@ -78,6 +80,7 @@ public class JsonDataRetriever implements DataRetriever {
 							c.setCellValue(randomNum);
 						}
 					}
+					originalLastColNum++;
 				}
 			}
 		} else if ("data_row.action".equals(dataSheet.getRow(dataSheet.getFirstRowNum()).getCell(0).getStringCellValue())) {

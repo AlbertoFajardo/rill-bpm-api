@@ -85,7 +85,7 @@ public class ReportEngineTests {
 		ReportEngine re = ReportEngine.INSTANCE;
 		Map<String, String> reportParams = new HashMap<String, String>();
 		reportParams.put("商业产品线", "网盟");
-		reportParams.put("分析指标", "点击消费");
+		reportParams.put("分析指标", "新客户数");
 		
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan.xlsx");
 		try {
