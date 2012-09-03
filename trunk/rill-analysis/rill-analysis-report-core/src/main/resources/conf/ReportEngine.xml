@@ -6,7 +6,28 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd"
 	default-autowire="byName">
+	
+	<!-- HTTP Client -->
+    <bean id="connectionManagerParams"
+		class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
+		<property name="connectionTimeout" value="5000" />
+		<property name="soTimeout" value="5000" />
+		<property name="maxTotalConnections" value="30" />
+		<property name="defaultMaxConnectionsPerHost" value="20" />
+	</bean>
 
+	<bean id="connectionManager"
+		class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager">
+		<property name="params" ref="connectionManagerParams" />
+	</bean>
+
+	<bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
+		<constructor-arg>
+			<ref bean="connectionManager" />
+		</constructor-arg>
+	</bean>
+	<!-- HTTP Client -->
+	
 	<bean id="mdxDateRetriever" class="nu.com.rill.analysis.report.excel.data.MdxDataRetriever">
 	</bean>
 

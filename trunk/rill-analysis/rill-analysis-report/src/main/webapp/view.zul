@@ -2,14 +2,6 @@
 <?page id="p1" title="Report View Page"?>
 <?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
 
-<style>
-    .z-button-os { 
-        width: 100px;
-        height: 25px;
-        background-color: blue;
-        margin-left: 5px;
-    }
-</style>
 <zk>
 	<zssapp width="100%" height="100%"></zssapp>
 </zk>

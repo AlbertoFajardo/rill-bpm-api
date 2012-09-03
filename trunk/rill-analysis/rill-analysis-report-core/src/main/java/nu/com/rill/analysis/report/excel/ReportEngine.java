@@ -4,12 +4,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -60,6 +66,7 @@ public final class ReportEngine {
 	public final Log LOG = LogFactory.getLog(this.getClass());
 	
 	public static ObjectMapper mapper = new ObjectMapper();
+	private static HttpClient httpClient = null;
 	
 	public static final ReportEngine INSTANCE = new ReportEngine();
 	
@@ -70,6 +77,33 @@ public final class ReportEngine {
 		BeanFactoryReference bfr = SingletonBeanFactoryLocator.getInstance().useBeanFactory(this.getClass().getSimpleName());
 		reportEngneBeanfactory = (ListableBeanFactory) bfr.getFactory();
 		drMap = reportEngneBeanfactory.getBeansOfType(DataRetriever.class);
+		httpClient = reportEngneBeanfactory.getBean(HttpClient.class);
+		Assert.notNull(httpClient);
+	}
+	
+	public static String fetchUrl(String url , Map<String, String> params, String cookie) {
+		
+		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+		for (Entry<String, String> entry : params.entrySet()) {
+			formparams.add(new NameValuePair(entry.getKey(), entry.getValue()));
+		}
+		
+		PostMethod httppost = new PostMethod(url);
+		try {
+			httppost.setRequestBody(formparams.toArray(new NameValuePair[0]));
+			httppost.addRequestHeader("Cookie", cookie);
+			httpClient.executeMethod(httppost);
+			InputStream is = httppost.getResponseBodyAsStream();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			IOUtils.copy(is, baos);
+		    String content = new String(baos.toByteArray(), "UTF-8");
+		    return content;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			httppost.releaseConnection();
+		}
+		
 	}
 	
 	public static Row copyRow(Worksheet worksheet, int sourceRowNum, int destinationRowNum) {
@@ -167,7 +201,10 @@ public final class ReportEngine {
 		if (isValid) {
 			// 2. Handle #_SETTINGS_SHEET
 			Map<String, Map<PARAM_CONFIG, String>> reportParams = retrieveReportParamsFromSettingsSheet(book.getWorksheet(_SETTINGS_SHEET));
-			
+			// Add Cookie pair
+			Map<PARAM_CONFIG, String> cookieParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
+			cookieParams.put(PARAM_CONFIG.VALUE, "");
+			reportParams.put("Cookie", cookieParams);
 			return reportParams;
 		}
 		
