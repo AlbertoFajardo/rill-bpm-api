@@ -1,45 +1,45 @@
 Manifest-Version: 1.0
 Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  -5.7.jar aopalliance-1.0.jar bcmail-jdk14-138.jar bcprov-jdk14-138.ja
- r bsh-2.0b4.jar commons-codec-1.6.jar commons-collections-3.2.jar com
+ r bsh-2.0b4.jar commons-codec-1.2.jar commons-collections-3.2.jar com
  mons-dbcp-1.2.1.jar commons-digester-1.7.jar commons-discovery-0.2.ja
- r commons-email-1.2.jar commons-fileupload-1.2.1.jar commons-io-1.3.1
- .jar commons-lang-2.4.jar commons-logging-1.1.1.jar commons-math-1.1.
- jar commons-pool-1.2.jar commons-vfs-1.0.jar dom4j-1.6.1.jar draw2d-3
- .2.100-v20070529.jar eigenbase-properties-1.1.0.10924.jar eigenbase-r
- esgen-1.3.0.11873.jar eigenbase-xom-1.3.0.11999.jar filters-2.0.235.j
- ar freemarker-2.3.8.jar google-collections-1.0.jar gson-1.4.jar hsqld
- b-1.8.0.10.jar httpclient-4.2.1.jar httpcore-4.2.1.jar infinispan-cac
- hestore-jdbc-5.1.1.FINAL.jar infinispan-core-5.1.1.FINAL.jar infinisp
- an-spring-5.1.1.FINAL.jar itext-2.1.5.jar jackson-core-asl-1.7.1.jar 
- jackson-jaxrs-1.7.1.jar jackson-mapper-asl-1.7.1.jar jackson-xc-1.7.1
- .jar jasperreports-4.0.1.jar java-uuid-generator-3.1.3.jar javacc-5.0
- .jar javacup-10k.jar javassist-3.14.0-GA.jar jaxb-api-2.2.2.jar jaxb-
- impl-2.2.3-1.jar jboss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.
- GA.jar jboss-marshalling-river-1.3.6.GA.jar jboss-transaction-api-1.0
- .1.GA.jar jcommon-1.0.16.jar jcommon-1.0.17.jar jdom-1.1.jar jersey-c
- lient-1.8.jar jersey-core-1.8.jar jersey-json-1.8.jar jettison-1.1.ja
- r jfreechart-1.0.13.jar jfreechart-1.0.14.jar jgroups-3.0.4.Final.jar
-  jlfgr-1.0.jar jxl-2.6.10.jar log4j-1.2.14.jar logback-classic-0.9.9.
- jar logback-core-0.9.9.jar mail-1.4.1.jar mondrian-3.4.4.jar mybatis-
- 3.0.4.jar mysql-connector-java-5.1.18.jar olap4j-1.0.1.500.jar olap4j
- -xmla-1.0.1.500.jar ooxml-schemas-1.1.jar opencsv-2.3.jar pivottable-
- 2.0.0.jar quartz-1.5.2.jar reflections-0.9.5-RC2.jar rhq-pluginAnnota
- tions-3.0.4.jar rill-analysis-report-core-0.0.1-SNAPSHOT.jar rill-bpm
- -api-1.0.2.jar rill-bpm-embeddedgf-3.1.3.jar rill-bpm-ws-1.0.1.jar sa
- iku-service-2.3.jar servlet-api-2.4.jar slf4j-api-1.6.1.jar slf4j-log
- 4j12-1.6.1.jar spring-aop-3.1.0.RELEASE.jar spring-asm-3.1.0.RELEASE.
- jar spring-beans-3.1.0.RELEASE.jar spring-context-3.1.0.RELEASE.jar s
- pring-context-support-3.1.0.RELEASE.jar spring-core-3.1.0.RELEASE.jar
-  spring-expression-3.1.0.RELEASE.jar spring-jdbc-3.1.0.RELEASE.jar sp
- ring-orm-3.1.0.RELEASE.jar spring-test-3.0.3.RELEASE.jar spring-tx-3.
- 1.0.RELEASE.jar spring-web-3.1.0.RELEASE.jar spring-webmvc-3.1.0.RELE
- ASE.jar stax-api-1.0-2.jar stax-api-1.0.1.jar stax2-api-3.1.1.jar sta
- xmapper-1.0.0.Final.jar swt-3.3.0-v3346.jar validation-api-1.0.0.GA.j
- ar woodstox-core-asl-4.1.1.jar xalan-2.4.1.jar xercesImpl-2.6.0.jar x
- ml-apis-1.3.04.jar xmlbeans-2.3.0.jar xpp3_min-1.1.3.4.O.jar xstream-
- 1.2.2.jar zcommon-5.0.11.jar zcommons-el-1.1.0.jar zhtml-5.0.11.jar z
- k-5.0.11.jar zkbind-6.0.1.jar zkex-5.0.11.jar zkplus-5.0.11.jar zkspr
- ing-core-3.1.jar zpoi-2.4.0.jar zpoiex-2.4.0.jar zss-2.3.0.jar zssex-
- 2.4.0.jar zul-5.0.11.jar zweb-5.0.11.jar
+ r commons-email-1.2.jar commons-fileupload-1.2.1.jar commons-httpclie
+ nt-3.1.jar commons-io-1.3.1.jar commons-lang-2.4.jar commons-logging-
+ 1.1.1.jar commons-math-1.1.jar commons-pool-1.2.jar commons-vfs-1.0.j
+ ar dom4j-1.6.1.jar draw2d-3.2.100-v20070529.jar eigenbase-properties-
+ 1.1.0.10924.jar eigenbase-resgen-1.3.0.11873.jar eigenbase-xom-1.3.0.
+ 11999.jar filters-2.0.235.jar freemarker-2.3.8.jar google-collections
+ -1.0.jar gson-1.4.jar hsqldb-1.8.0.10.jar infinispan-cachestore-jdbc-
+ 5.1.1.FINAL.jar infinispan-core-5.1.1.FINAL.jar infinispan-spring-5.1
+ .1.FINAL.jar itext-2.1.5.jar jackson-core-asl-1.7.1.jar jackson-jaxrs
+ -1.7.1.jar jackson-mapper-asl-1.7.1.jar jackson-xc-1.7.1.jar jasperre
+ ports-4.0.1.jar java-uuid-generator-3.1.3.jar javacc-5.0.jar javacup-
+ 10k.jar javassist-3.14.0-GA.jar jaxb-api-2.2.2.jar jaxb-impl-2.2.3-1.
+ jar jboss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.GA.jar jboss-
+ marshalling-river-1.3.6.GA.jar jboss-transaction-api-1.0.1.GA.jar jco
+ mmon-1.0.16.jar jcommon-1.0.17.jar jdom-1.1.jar jersey-client-1.8.jar
+  jersey-core-1.8.jar jersey-json-1.8.jar jettison-1.1.jar jfreechart-
+ 1.0.13.jar jfreechart-1.0.14.jar jgroups-3.0.4.Final.jar jlfgr-1.0.ja
+ r jxl-2.6.10.jar log4j-1.2.14.jar logback-classic-0.9.9.jar logback-c
+ ore-0.9.9.jar mail-1.4.1.jar mondrian-3.4.4.jar mybatis-3.0.4.jar mys
+ ql-connector-java-5.1.18.jar olap4j-1.0.1.500.jar olap4j-xmla-1.0.1.5
+ 00.jar ooxml-schemas-1.1.jar opencsv-2.3.jar pivottable-2.0.0.jar qua
+ rtz-1.5.2.jar reflections-0.9.5-RC2.jar rhq-pluginAnnotations-3.0.4.j
+ ar rill-analysis-report-core-0.0.1-SNAPSHOT.jar rill-bpm-api-1.0.2.ja
+ r rill-bpm-embeddedgf-3.1.3.jar rill-bpm-ws-1.0.1.jar saiku-service-2
+ .3.jar servlet-api-2.4.jar slf4j-api-1.6.1.jar slf4j-log4j12-1.6.1.ja
+ r spring-aop-3.1.0.RELEASE.jar spring-asm-3.1.0.RELEASE.jar spring-be
+ ans-3.1.0.RELEASE.jar spring-context-3.1.0.RELEASE.jar spring-context
+ -support-3.1.0.RELEASE.jar spring-core-3.1.0.RELEASE.jar spring-expre
+ ssion-3.1.0.RELEASE.jar spring-jdbc-3.1.0.RELEASE.jar spring-orm-3.1.
+ 0.RELEASE.jar spring-test-3.0.3.RELEASE.jar spring-tx-3.1.0.RELEASE.j
+ ar spring-web-3.1.0.RELEASE.jar spring-webmvc-3.1.0.RELEASE.jar stax-
+ api-1.0-2.jar stax-api-1.0.1.jar stax2-api-3.1.1.jar staxmapper-1.0.0
+ .Final.jar swt-3.3.0-v3346.jar validation-api-1.0.0.GA.jar woodstox-c
+ ore-asl-4.1.1.jar xalan-2.4.1.jar xercesImpl-2.6.0.jar xml-apis-1.3.0
+ 4.jar xmlbeans-2.3.0.jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar zco
+ mmon-5.0.11.jar zcommons-el-1.1.0.jar zhtml-5.0.11.jar zk-5.0.11.jar 
+ zkbind-6.0.1.jar zkex-5.0.11.jar zkplus-5.0.11.jar zkspring-core-3.1.
+ jar zpoi-2.4.0.jar zpoiex-2.4.0.jar zss-2.3.0.jar zssex-2.4.0.jar zul
+ -5.0.11.jar zweb-5.0.11.jar
 

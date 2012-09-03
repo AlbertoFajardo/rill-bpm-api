@@ -1,6 +1,5 @@
 package nu.com.rill.analysis.report.param;
 
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,16 +14,12 @@ import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.zhtml.Input;
 import org.zkoss.zk.ui.Component;
@@ -48,6 +43,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static final Log LOGGER = LogFactory.getLog(ParamDivCtrl.class);
 	
 	private Div paramDiv;
 	
@@ -106,7 +103,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			
 			@Override
 			public void onEvent(Event event) throws Exception {
-//				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
 			}
 		});
 		paramDiv.appendChild(reset);
@@ -177,7 +174,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 								}
 							}
 							// 2. Fetch result
-							Map<String, String> fetchResult = fetch(config.get(PARAM_CONFIG.FETCH_URL), fetchParams);
+							Map<String, String> fetchResult = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams);
 							// 3. Re-fill items
 							cb.getItems().clear();
 							for (Entry<String, String> entry : fetchResult.entrySet()) {
@@ -185,6 +182,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 								ci.setValue(entry.getKey());
 							}
 							cb.setSelectedIndex(0);
+							userParamDiv.setWidgetAttribute(paramName, cb.getSelectedItem().getValue().toString());
 						}
 					});
 				}
@@ -249,32 +247,26 @@ public class ParamDivCtrl extends GenericForwardComposer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Map<String, String> fetch(String url , Map<String, String> params) {
+	private Map<String, String> fetchSelectItems(String url , Map<String, String> params) {
 		
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
 		for (Entry<String, String> entry : params.entrySet()) {
-			formparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+			formparams.add(new NameValuePair(entry.getKey(), entry.getValue()));
 		}
 		
+		String cookie = Executions.getCurrent().getHeader("Cookie");
+		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
+		
 		Map<String, String> result = new LinkedHashMap<String, String>();
-		HttpClient httpClient = new DefaultHttpClient();
+		String content = ReportEngine.fetchUrl(url, params, cookie);
+		if (!StringUtils.hasText(content)) {
+			LOGGER.info("Return empty content when try to fetch url " + url + " using " + ObjectUtils.getDisplayString(params) + " " + cookie);
+			return result;
+		}
 		try {
-			HttpPost httppost = new HttpPost(url);
-			httppost.setEntity( new UrlEncodedFormEntity(formparams, "UTF-8"));
-			HttpResponse httpResponse = httpClient.execute(httppost);
-			HttpEntity entity = httpResponse.getEntity();
-			if (entity != null) {
-			    InputStream instream = entity.getContent();
-			    try {
-			    	result = ReportEngine.mapper.readValue(instream, LinkedHashMap.class);
-			    } finally {
-			        instream.close();
-			    }
-			}
+			result.putAll(ReportEngine.mapper.readValue(content, Map.class));
 		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			
+			LOGGER.error("Error when try to parse to JSON " + content, e);
 		}
 		
 		return result;

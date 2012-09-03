@@ -50,7 +50,6 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	private final static String KEY_ZSSAPP = "org.zkoss.zss.app.zul.zssApp";
 	/*Default spreadsheet*/
-	//TODO: in mainWin id space, move to here
 	private Spreadsheet spreadsheet;
 	
 	//private Window mainWin;
@@ -119,7 +118,6 @@ public class Zssapp extends Div implements IdSpace  {
 		
 		FileHelper.openSpreadsheet(spreadsheet, report);
 		
-		// FIXME: MENGRAN. view/edit mode
 		if (!editMode) {
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum());
