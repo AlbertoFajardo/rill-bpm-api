@@ -43,21 +43,7 @@
 			<artifactId>zkbind</artifactId>
 			<version>${zkbind.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.zkoss.zk</groupId>
-			<artifactId>zul</artifactId>
-			<version>${zk.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.zkoss.zk</groupId>
-			<artifactId>zkplus</artifactId>
-			<version>${zk.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.zkoss.zk</groupId>
-			<artifactId>zhtml</artifactId>
-			<version>${zk.version}</version>
-		</dependency>
+		
 		<dependency>
 	      <groupId>commons-io</groupId>
 	      <artifactId>commons-io</artifactId>
