@@ -14,13 +14,17 @@ Copyright (C) 2009 Potix Corporation. All Rights Reserved.
 */
 package org.zkoss.zss.app.zul;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -65,20 +69,24 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	private boolean editMode = false;
 	
-	private static Book initBook;
+	private static byte[] initBookBytes = null;
 	static {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ClassPathResource initCpr = new ClassPathResource("Init.xlsx");
 		try {
-			initBook = new ExcelImporter().imports(initCpr.getInputStream(), "Init.xlsx");
-		} catch (Exception e) {
-			// Ignore
+			IOUtils.copy(initCpr.getInputStream(), baos);
+			initBookBytes = baos.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		} finally {
 			try {
 				initCpr.getInputStream().close();
 			} catch (IOException e) {
-				// Ignore
+				throw new RuntimeException(e);
 			}
 		}
+		
+		Assert.notNull(initBookBytes);
 	}
 	
 	public Zssapp() {
@@ -107,6 +115,19 @@ public class Zssapp extends Div implements IdSpace  {
 		spreadsheet.setShowSheetbar(false);
 		spreadsheet.disableClientUpdate(true);
 		
+		Book initBook = null;
+		ByteArrayInputStream bais = new ByteArrayInputStream(initBookBytes);
+		try {
+			initBook = new ExcelImporter().imports(bais, "Init.xlsx");
+		} catch (Exception e) {
+			// Ignore
+		} finally {
+			try {
+				bais.close();
+			} catch (IOException e) {
+				// Ignore
+			}
+		}
 		if (initBook != null) {
 			this.setBook(initBook);
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
