@@ -16,7 +16,9 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<zk.version>5.0.11</zk.version>
+		<zk.version.r>5.0.11-r</zk.version.r>
 		<zkbind.version>6.0.1</zkbind.version>
+		<zss-r.version>2.4.0-r</zss-r.version>
 		<zss.version>2.4.0</zss.version>
 	</properties>
 	<dependencies>
@@ -59,12 +61,12 @@
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
 			<artifactId>zss</artifactId>
-			<version>${zss.version}</version>
+			<version>${zss-r.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
 			<artifactId>zssex</artifactId>
-			<version>${zss.version}</version>
+			<version>${zss-r.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
@@ -100,7 +102,7 @@
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
 			<artifactId>zkex</artifactId>
-			<version>${zk.version}</version>
+			<version>${zk.version.r}</version>
 		</dependency>
 		<dependency>
 	      <groupId>commons-io</groupId>
