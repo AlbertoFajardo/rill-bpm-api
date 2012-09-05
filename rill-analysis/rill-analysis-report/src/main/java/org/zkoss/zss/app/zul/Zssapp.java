@@ -29,6 +29,9 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zkplus.spring.SpringUtil;
 import org.zkoss.zss.app.Consts;
 import org.zkoss.zss.app.file.FileHelper;
@@ -105,6 +108,14 @@ public class Zssapp extends Div implements IdSpace  {
 			this.setReport(report);
 			
 			return;
+		} else {
+			this.addEventListener(Events.ON_USER, new EventListener() {
+				
+				@Override
+				public void onEvent(Event event) throws Exception {
+					Zssapp.this.setReport((Report) event.getData());
+				}
+			});
 		}
 		
 		spreadsheet.setHiderowhead(true);
@@ -140,8 +151,8 @@ public class Zssapp extends Div implements IdSpace  {
 		FileHelper.openSpreadsheet(spreadsheet, report);
 		
 		if (!editMode) {
-			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
-			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum());
+			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum() + 2);
+			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum() + 1);
 		}
 	}
 	
