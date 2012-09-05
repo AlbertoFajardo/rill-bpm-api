@@ -10,10 +10,10 @@
 	<!-- HTTP Client -->
     <bean id="connectionManagerParams"
 		class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
-		<property name="connectionTimeout" value="5000" />
-		<property name="soTimeout" value="5000" />
-		<property name="maxTotalConnections" value="30" />
-		<property name="defaultMaxConnectionsPerHost" value="20" />
+		<property name="connectionTimeout" value="2000" />
+		<property name="soTimeout" value="2000" />
+		<property name="maxTotalConnections" value="150" />
+		<property name="defaultMaxConnectionsPerHost" value="150" />
 	</bean>
 
 	<bean id="connectionManager"

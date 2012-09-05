@@ -56,11 +56,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 		
 		final Report report = reportMgr.getReport(fileName);
-		if (CollectionUtils.isEmpty(report.getParams())) {
-			// Not contains any parameter
-			return;
-		}
-		
 		// Construct parameter components
 		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
 			@SuppressWarnings("unchecked")
@@ -71,6 +66,15 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				config.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
 			}
 		}
+		final Div tmpParamDiv = paramDiv;
+		if (CollectionUtils.isEmpty(report.getParams())) {
+			// Not contains any parameter
+			LOGGER.debug("Not contains any parameter and open it directly.");
+			// Post search action event
+			Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_USER, tmpParamDiv.getNextSibling(), report));
+			return;
+		}
+		
 		paramComponentConstruct(paramDiv, report);
 		
 		// Initialize parameter components
@@ -79,7 +83,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		// Append search button
 		Button search = new Button("查询");
 		search.setWidgetAttribute("fileName", report.getName());
-		final Div tmpParamDiv = paramDiv;
+		
 		search.addEventListener(Events.ON_CLICK, new EventListener() {
 			
 			@Override
