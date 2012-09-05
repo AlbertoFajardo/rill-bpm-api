@@ -19,7 +19,6 @@
 		<zk.version.r>5.0.11-r</zk.version.r>
 		<zkbind.version>6.0.1</zkbind.version>
 		<zss-r.version>2.4.0-r</zss-r.version>
-		<zss.version>2.4.0</zss.version>
 	</properties>
 	<dependencies>
 		<!-- 
@@ -71,12 +70,12 @@
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
 			<artifactId>zpoi</artifactId>
-			<version>${zss.version}</version>
+			<version>${zss-r.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
 			<artifactId>zpoiex</artifactId>
-			<version>${zss.version}</version>
+			<version>${zss-r.version}</version>
 		</dependency>
 		
 		<dependency>
