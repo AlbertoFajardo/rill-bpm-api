@@ -176,8 +176,7 @@
 						<configuration>
 							<url>${googlecode.releases.url}</url>
 							<repositoryId>${googlecode.releases.repositoryId}</repositoryId>
-							<file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-							<classifier>sources</classifier>
+							<file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>${project.artifactId}</artifactId>
 							<packaging>jar</packaging>
