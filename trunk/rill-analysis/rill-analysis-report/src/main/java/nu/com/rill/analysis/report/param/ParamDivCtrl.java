@@ -1,5 +1,6 @@
 package nu.com.rill.analysis.report.param;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -141,6 +142,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			
 			if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 				Date now = new Date();
+				if (config.get(PARAM_CONFIG.VALUE) != null) {
+					try {
+						now = new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).parse(config.get(PARAM_CONFIG.VALUE));
+					} catch (ParseException e) {
+						// Ignore
+						LOGGER.warn(e);
+					}
+				}
 				final Datebox db = new Datebox(now);
 				userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
 				db.setId(paramName);
