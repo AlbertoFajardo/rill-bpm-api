@@ -196,16 +196,15 @@ public class MdxDataRetriever implements DataRetriever {
 							} else {
 								if ("calendar".equals(entry.getValue().get(PARAM_CONFIG.RENDER_TYPE))) {
 									// 1. Check parameter names is time dimension
-									if (entry.getValue() != null && entry.getValue().get(PARAM_CONFIG.VALUE) != null 
-											&& entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.").length > 0 && currDateStr.startsWith(entry.getValue().get(PARAM_CONFIG.VALUE).split("\\.")[0])) {
-										String tempStr = format.format(new SimpleDateFormat(entry.getValue().get(PARAM_CONFIG.FORMAT)).parseObject(reportParams.get(entry.getKey())));
-										replacedValue = tempStr.substring(0, entry.getValue().get(PARAM_CONFIG.VALUE).length());
+									if (entry.getValue() != null && entry.getValue().get(PARAM_CONFIG.VALUE) != null) {
+										replacedValue = format.format(new SimpleDateFormat(entry.getValue().get(PARAM_CONFIG.FORMAT)).parseObject(reportParams.get(entry.getKey())));
 									}
 								}
 							}
 							
-							LOG.debug("Replace " + entry.getValue() + " report parameters using " + replacedValue);
-							mdx = StringUtils.replace(mdx, entry.getValue().get(PARAM_CONFIG.VALUE), replacedValue);
+							String replaceTarget = format.format(new SimpleDateFormat(entry.getValue().get(PARAM_CONFIG.FORMAT)).parseObject(entry.getValue().get(PARAM_CONFIG.VALUE)));
+							LOG.debug("Replace " + replaceTarget + " report parameters using " + replacedValue);
+							mdx = StringUtils.replace(mdx, replaceTarget, replacedValue);
 						}
 					}
 					LOG.debug("Execute mdx " + mdx);
