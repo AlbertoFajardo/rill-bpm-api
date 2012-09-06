@@ -20,6 +20,12 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<groupId>nu.com.rill</groupId>
+			<artifactId>rill-analysis-mondrian</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.1</version>
@@ -121,11 +127,13 @@
 		    <name>Spring Maven MILESTONE Repository</name>
 		    <url>http://maven.springframework.org/milestone</url>
 		</repository>
+		<!-- 
 		<repository>
 			<id>Baidu_Local</id>
 			<name>Baidu local maven server</name>
 			<url>http://maven.scm.baidu.com:8081/nexus/content/repositories/Baidu_Local</url>
 		</repository>
+		 -->
 	</repositories>
 
 </project>

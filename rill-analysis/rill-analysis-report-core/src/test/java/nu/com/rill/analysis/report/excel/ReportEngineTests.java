@@ -80,6 +80,26 @@ public class ReportEngineTests {
 	}
 	
 	@Test
+	public void generateReportBridgeKpi() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		Map<String, String> reportParams = new HashMap<String, String>();
+		reportParams.put("选择日期", "2012-09-04");
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/bridge_kpi.xlsx");
+		try {
+			Workbook wb = re.generateReport(cpr.getInputStream(), "bridge_kpi.xlsx", reportParams);
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			wb.write(baos);
+			File tmpImage = File.createTempFile("bridge_kpi.xlsx" + System.currentTimeMillis(), ".xlsx");
+			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
 	public void generateReportLuopan() {
 		
 		ReportEngine re = ReportEngine.INSTANCE;

@@ -1,0 +1,44 @@
+<Schema name="rigelip-dataplatform">
+  <Cube name="bridge-kpi" caption="Bridge KPI Cube" visible="true" cache="true" enabled="true">
+    <Table name="bridge_usage_info">
+    </Table>
+    <Dimension type="StandardDimension" visible="true" foreignKey="fk_trade_id" highCardinality="false" name="Trade" caption="&#34892;&#19994;">
+      <Hierarchy visible="true" hasAll="true" allMemberName="AllTrade" allMemberCaption="&#20840;&#34892;&#19994;" primaryKey="id" defaultMember="AllTrade" caption="&#34892;&#19994;">
+        <Table name="dimen_trade">
+        </Table>
+        <Level name="FirstTrade" visible="true" column="first_trade_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never" caption="&#19968;&#32423;&#34892;&#19994;">
+        </Level>
+        <Level name="SecondTrade" visible="true" column="second_trade_name" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never" caption="&#20108;&#32423;&#34892;&#19994;">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="StandardDimension" visible="true" foreignKey="fk_region_id" highCardinality="false" name="Region" caption="&#22320;&#22495;">
+      <Hierarchy visible="true" hasAll="true" allMemberName="AllRegion" allMemberCaption="&#20840;&#22320;&#22495;" primaryKey="id" defaultMember="AllRegion">
+        <Table name="dimen_region">
+        </Table>
+        <Level name="Province" visible="true" column="province" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never" caption="&#30465;&#20221;">
+        </Level>
+        <Level name="City" visible="true" column="city" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never" caption="&#22478;&#24066;">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Dimension type="TimeDimension" visible="true" foreignKey="date" highCardinality="false" name="Time" caption="&#26102;&#38388;">
+      <Hierarchy visible="true" hasAll="true" allMemberName="AllTime" allMemberCaption="&#20840;&#26102;&#38388;" primaryKey="id" defaultMember="AllTime" caption="&#26102;&#38388;">
+        <Table name="dimen_time">
+        </Table>
+        <Level name="Year" visible="true" column="year" type="String" uniqueMembers="false" levelType="TimeYears" hideMemberIf="Never" caption="&#24180;">
+        </Level>
+        <Level name="Quarter" visible="true" column="quarter" type="String" uniqueMembers="false" levelType="TimeQuarters" hideMemberIf="Never" caption="&#23395;">
+        </Level>
+        <Level name="Month" visible="true" column="month" type="String" uniqueMembers="false" levelType="TimeMonths" hideMemberIf="Never" caption="&#26376;">
+        </Level>
+        <Level name="Day" visible="true" column="day" type="String" uniqueMembers="false" levelType="TimeDays" hideMemberIf="Never" caption="&#26085;">
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Measure name="Usage Cnt" column="usage_cnt" datatype="Integer" aggregator="sum" caption="&#20351;&#29992;&#37327;" visible="true">
+    </Measure>
+    <Measure name="LoginUser Cnt" column="login_user_cnt" datatype="Integer" aggregator="sum" caption="&#30331;&#38470;&#29992;&#25143;&#37327;" visible="true">
+    </Measure>
+  </Cube>
+</Schema>

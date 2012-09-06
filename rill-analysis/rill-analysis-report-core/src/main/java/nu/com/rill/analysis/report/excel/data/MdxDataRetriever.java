@@ -232,7 +232,8 @@ public class MdxDataRetriever implements DataRetriever {
 									JsonNode on = child.get(j);
 									Assert.isTrue(on instanceof ObjectNode, on + " should be ObjectNode but " + on.getClass().getName());
 									if (childRow.getCell(j).getCellType() == Cell.CELL_TYPE_NUMERIC && on.findValue("type").getValueAsText().equals("DATA_CELL")) {
-										childRow.getCell(j).setCellValue(new Double(on.findValue("raw").getValueAsText()));
+										// FIXME: MENGRAN. 0 or ""
+										childRow.getCell(j).setCellValue(new Double(on.findValue("raw") == null ? "0" : on.findValue("raw").getValueAsText()));
 									} else if (childRow.getCell(j).getCellType() == Cell.CELL_TYPE_BLANK) {
 										// Not change blank value
 									} else {
