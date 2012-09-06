@@ -12,7 +12,9 @@
   <import resource="saiku-beans.xml"/>
   <import resource="spring-servlet.xml"/>
   
+  <!-- 
   <import resource="applicationContext-hive.xml"/>
+   -->
 
   <!-- global handler mapping interceptors -->
   <util:list id="enunciate-handler-interceptors" xmlns:util="http://www.springframework.org/schema/util">

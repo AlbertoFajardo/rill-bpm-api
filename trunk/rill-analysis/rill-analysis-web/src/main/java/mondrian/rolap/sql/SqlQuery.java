@@ -31,7 +31,6 @@ import mondrian.rolap.SqlStatement;
 import mondrian.spi.Dialect;
 import mondrian.spi.DialectManager;
 import mondrian.util.Pair;
-import nu.com.rill.analysis.data.hive.HiveDialect;
 
 import org.springframework.util.ReflectionUtils;
 
@@ -680,7 +679,7 @@ public class SqlQuery {
         groupingFunctionsToBuffer(buf, prefix);
         // Add by MENGRAN at 2012-06-24
         // FIXME: MENGRAN support star schema only at this version
-        if (dialect instanceof HiveDialect) {
+        if (dialect.getClass().getName().equals("nu.com.rill.analysis.data.hive.HiveDialect")) {
         	if (from.size() > 1) {
         		buf.append(" from ");
         		Set<String> discardFrom = new HashSet<String>();

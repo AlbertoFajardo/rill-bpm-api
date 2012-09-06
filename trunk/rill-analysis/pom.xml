@@ -51,13 +51,11 @@
 			<url>http://www.datanucleus.org/downloads/maven2/</url>
 		</repository>
 		
-		<!-- 
 		<repository>  
 	        <id>googlecode-repo-releases</id>  
 	        <name>googlecode Maven Repository Releases</name>  
 	        <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/releases</url>  
 	    </repository>
-	     -->
 	    
 	</repositories>
   <modules>
