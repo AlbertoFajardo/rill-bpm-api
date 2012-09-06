@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.zkoss.zk</groupId>
+  <artifactId>zkex</artifactId>
+  <versioning>
+    <release>5.0.11-r</release>
+    <versions>
+      <version>5.0.11-r</version>
+    </versions>
+    <lastUpdated>20120906034954</lastUpdated>
+  </versioning>
+</metadata>
