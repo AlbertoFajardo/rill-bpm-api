@@ -914,7 +914,8 @@ public class OlapQueryService implements Serializable {
 				int [] bodysType = new int[row.length];
 				for (int i = 0; i < row.length; i++) {
 					if (row[i] instanceof DataCell) {
-						bodys[i] = ((DataCell) row[i]).getRawNumber().toString();
+						// FIXME: MENGRAN. 0 or empty string
+						bodys[i] = ((DataCell) row[i]).getRawNumber() == null ? "0" : ((DataCell) row[i]).getRawNumber().toString();
 						bodysType[i] = Cell.CELL_TYPE_NUMERIC;
 					} else {
 						bodys[i] = row[i].getFormattedValue();
