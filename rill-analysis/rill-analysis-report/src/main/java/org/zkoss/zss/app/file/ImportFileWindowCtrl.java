@@ -154,7 +154,11 @@ public class ImportFileWindowCtrl extends GenericForwardComposer  {
 	public void onFileUpload(ForwardEvent event) {
 		
 		Media media = ((UploadEvent) event.getOrigin()).getMedia();
-		reportMgr.createReport(media.getName(), null, media.getByteData());
+		if (reportMgr.getReport(media.getName()) == null) {
+			reportMgr.createReport(media.getName(), null, media.getByteData());
+		} else {
+			reportMgr.updateReport(media.getName(), media.getByteData());
+		}
 //		FileHelper.store();
 		
 		_importFileDialog.fireOnClose(null);
