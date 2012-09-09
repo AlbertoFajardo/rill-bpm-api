@@ -13,7 +13,7 @@ public interface ReportDao {
 	
 	List<Report> findAllReportsExcludeContent();
 	
-	Report updateReport(String name, byte[] content);
+	Report updateReport(String name, final String paramsXStrem, byte[] content);
 	Report updateReport(String name, String cronExpression);
 	
 	void deleteReport(String name);

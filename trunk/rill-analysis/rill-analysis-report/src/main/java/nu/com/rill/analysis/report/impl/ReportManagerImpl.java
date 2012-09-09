@@ -64,8 +64,11 @@ public class ReportManagerImpl implements ReportManager {
 
 	@Override
 	public Report updateReport(String name, byte[] bytes) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		Map<String, Map<PARAM_CONFIG, String>> params = ReportEngine.INSTANCE.retrieveReportParams(new ByteArrayInputStream(bytes), name);
+		String reportParams = Report.serializeParams(params);
+		
+		return reportDao.updateReport(name, reportParams, bytes);
 	}
 
 	@Override

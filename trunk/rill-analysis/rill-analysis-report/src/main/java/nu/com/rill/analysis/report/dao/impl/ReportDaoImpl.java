@@ -80,7 +80,10 @@ public class ReportDaoImpl extends JdbcDaoSupport implements ReportDao {
 	public Report getReportByName(String name) {
 		
 		final List<Report> reportList = getJdbcTemplate().query("select * from report where name = ?", new Object[] {name}, ParameterizedBeanPropertyRowMapper.newInstance(Report.class));
-		Assert.isTrue(reportList.size() == 1, "report named " + name + " is not exists or have duplicated one.");
+		if (reportList.isEmpty()) {
+			return null;
+		}
+		Assert.isTrue(reportList.size() == 1, "report named " + name + " have duplicated one.");
 		
 		final LobHandler lobHandler = new DefaultLobHandler();
 		getJdbcTemplate().query("select content from report_byte where report_id = ?", new Object[] {reportList.get(0).getId()}, new AbstractLobStreamingResultSetExtractor() {
@@ -99,9 +102,43 @@ public class ReportDaoImpl extends JdbcDaoSupport implements ReportDao {
 	}
 
 	@Override
-	public Report updateReport(String name, byte[] content) {
+	public Report updateReport(String name, final String paramsXStrem, final byte[] content) {
 		
-		return null;
+		final Report reportDb = getReportByName(name);
+		Assert.notNull(reportDb, "Can not find report named by " + name);
+		
+		getJdbcTemplate().execute("update report set paramsXStrem = ? where id = ?", new PreparedStatementCallback<Void>() {
+
+			@Override
+			public Void doInPreparedStatement(PreparedStatement ps)
+					throws SQLException, DataAccessException {
+				
+				ps.setString(1, paramsXStrem);
+				ps.setInt(2, reportDb.getId());
+				ps.execute();
+				
+				return null;
+			}
+		});
+		reportDb.setParamsXStrem(paramsXStrem);
+		
+		getJdbcTemplate().execute("update report_byte set content = ? where report_id = ?", new PreparedStatementCallback<Void>() {
+
+			@Override
+			public Void doInPreparedStatement(PreparedStatement ps)
+					throws SQLException, DataAccessException {
+				
+				ps.setBytes(1, content);
+				ps.setInt(2, reportDb.getId());
+				ps.execute();
+				
+				return null;
+			}
+		});
+		reportDb.setReportContent(content);
+		
+		return reportDb;
+		
 	}
 
 	@Override

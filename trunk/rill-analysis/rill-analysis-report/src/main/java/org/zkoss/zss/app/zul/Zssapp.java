@@ -119,7 +119,7 @@ public class Zssapp extends Div implements IdSpace  {
 		}
 		
 		spreadsheet.setHiderowhead(true);
-		spreadsheet.setHidecolumnhead(true);
+//		spreadsheet.setHidecolumnhead(true);
 		spreadsheet.setShowContextMenu(false);
 		spreadsheet.setShowFormulabar(false);
 		spreadsheet.setShowToolbar(false);
@@ -151,7 +151,7 @@ public class Zssapp extends Div implements IdSpace  {
 		FileHelper.openSpreadsheet(spreadsheet, report);
 		
 		if (!editMode) {
-			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum() + 2);
+			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum() + 1);
 		}
 	}
