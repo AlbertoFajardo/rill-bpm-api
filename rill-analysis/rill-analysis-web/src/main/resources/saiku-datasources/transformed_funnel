@@ -1,7 +1,7 @@
 type=OLAP
 name=transformed_funnel
 driver=mondrian.olap4j.MondrianOlap4jDriver
-location=jdbc:mondrian:Jdbc=jdbc:mysql://10.26.212.12:8306/transformed_funnel;Catalog=D:\\01Dev\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\mondrian-schema\\transformed_funnel.mondrian.xml;JdbcDrivers=com.mysql.jdbc.Driver;
+location=jdbc:mondrian:Jdbc=jdbc:mysql://10.26.212.12:8306/transformed_funnel;Catalog=D:\\06RillDev2\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\mondrian-schema\\transformed_funnel.mondrian.xml;JdbcDrivers=com.mysql.jdbc.Driver;
 username=rigelip
 password=rigelip
 

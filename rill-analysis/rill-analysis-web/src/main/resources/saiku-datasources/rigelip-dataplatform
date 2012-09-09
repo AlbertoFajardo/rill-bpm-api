@@ -1,9 +1,9 @@
 type=OLAP
 name=rigelip-dataplatform
 driver=mondrian.olap4j.MondrianOlap4jDriver
-location=jdbc:mondrian:Jdbc=jdbc:mysql://tc-sf-crmdb42.tc.baidu.com:8100/summary_cube;Catalog=D:\\01Dev\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\mondrian-schema\\rigelip-dataplatform.xml;JdbcDrivers=com.mysql.jdbc.Driver;
-username=crm
-password=123456
+location=jdbc:mondrian:Jdbc=jdbc:mysql://10.26.212.12:8306/summary_cube;Catalog=D:\\06RillDev2\\workspace\\rill-analysis\\rill-analysis-web\\src\\main\\webapp\\mondrian-schema\\rigelip-dataplatform.xml;JdbcDrivers=com.mysql.jdbc.Driver;
+username=rigelip
+password=rigelip
 
 # some security configuration for roles, first enable it
 # security.enabled=true
