@@ -142,7 +142,7 @@ public class Zssapp extends Div implements IdSpace  {
 		if (initBook != null) {
 			this.setBook(initBook);
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
-			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum());
+			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum());
 		}
 	}
 	
@@ -152,7 +152,7 @@ public class Zssapp extends Div implements IdSpace  {
 		
 		if (!editMode) {
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
-			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getFirstRowNum()).getLastCellNum() + 1);
+			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
 		}
 	}
 	
