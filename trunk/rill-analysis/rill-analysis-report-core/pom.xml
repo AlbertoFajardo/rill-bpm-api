@@ -78,11 +78,13 @@
 			<version>${zss-r.version}</version>
 		</dependency>
 		
+		<!-- 
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
 			<artifactId>zkbind</artifactId>
 			<version>${zkbind.version}</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
 			<artifactId>zul</artifactId>
