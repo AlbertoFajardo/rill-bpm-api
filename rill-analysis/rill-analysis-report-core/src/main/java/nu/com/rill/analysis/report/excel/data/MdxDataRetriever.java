@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.node.NullNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.rill.bpm.api.WorkflowOperations;
 import org.springframework.util.Assert;
@@ -237,6 +238,24 @@ public class MdxDataRetriever implements DataRetriever {
 										// Not change blank value
 									} else {
 										childRow.getCell(j).setCellValue(on.findValue("value").getValueAsText());
+									}
+								}
+							}
+							// FIXME: MENGRAN. What we should do
+							if (cellset instanceof NullNode) {
+								for (int i = row.getRowNum() + 1; i < Integer.MAX_VALUE; i++) {
+									if (dataSheet.getRow(i) != null && dataSheet.getRow(i).getCell(0) != null) {
+										for (int j = 0; j < dataSheet.getRow(i).getLastCellNum(); j++) {
+											if (dataSheet.getRow(i).getCell(j).getCellType() == Cell.CELL_TYPE_NUMERIC) {
+												dataSheet.getRow(i).getCell(j).setCellValue(new Double("0"));
+											} else if (dataSheet.getRow(i).getCell(j).getCellType() == Cell.CELL_TYPE_BLANK) {
+												// Not change blank value
+											} else {
+//												dataSheet.getRow(i).getCell(j).setCellValue("-");
+											}
+										}
+									} else {
+										break;
 									}
 								}
 							}

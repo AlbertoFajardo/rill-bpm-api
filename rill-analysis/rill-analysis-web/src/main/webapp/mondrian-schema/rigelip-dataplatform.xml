@@ -38,7 +38,23 @@
     </Dimension>
     <Measure name="Usage Cnt" column="usage_cnt" datatype="Integer" aggregator="sum" caption="&#20351;&#29992;&#37327;" visible="true">
     </Measure>
-    <Measure name="LoginUser Cnt" column="login_user_cnt" datatype="Integer" aggregator="sum" caption="&#30331;&#38470;&#29992;&#25143;&#37327;" visible="true">
+    <Measure name="LoginUser Cnt" column="login_user_cnt" datatype="Integer" aggregator="sum" caption="&#29992;&#25143;&#30331;&#24405;&#37327;" visible="true">
+    </Measure>
+    <Measure name="LoginMan Cnt" column="login_main_cnt" datatype="Integer" aggregator="sum" caption="&#20027;&#36134;&#21495;&#30331;&#24405;&#25968;" visible="true">
+    </Measure>
+    <Measure name="LoginSub Cnt" column="login_sub_cnt" datatype="Integer" aggregator="sum" caption="&#23376;&#36134;&#21495;&#30331;&#24405;&#25968;" visible="true">
+    </Measure>
+    <Measure name="ActiveUser Cnt" column="active_user_cnt" datatype="Integer" aggregator="sum" caption="&#27963;&#36291;&#29992;&#25143;&#25968;" visible="true">
+    </Measure>
+    <Measure name="ActiveMain Cnt" column="active_main_cnt" datatype="Integer" aggregator="sum" caption="&#27963;&#36291;&#20027;&#36134;&#21495;&#25968;" visible="true">
+    </Measure>
+    <Measure name="ActiveSub Cnt" column="active_sub_cnt" datatype="Integer" aggregator="sum" caption="&#27963;&#36291;&#23376;&#36134;&#21495;&#25968;" visible="true">
+    </Measure>
+    <Measure name="HasComm Cnt" column="has_commun_cnt" datatype="Integer" aggregator="sum" caption="&#26377;&#27807;&#36890;&#23458;&#25143;&#25968;" visible="true">
+    </Measure>
+    <Measure name="HasMsg Cnt" column="has_message_cnt" datatype="Integer" aggregator="sum" caption="&#26377;&#30041;&#35328;&#23458;&#25143;&#25968;" visible="true">
+    </Measure>
+    <Measure name="HasOpport Cnt" column="has_opport_cnt" datatype="Integer" aggregator="sum" caption="&#26377;&#21830;&#26426;&#23458;&#25143;&#25968;" visible="true">
     </Measure>
   </Cube>
 </Schema>
