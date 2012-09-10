@@ -125,7 +125,7 @@ public class MdxDataRetriever implements DataRetriever {
 			List<Map<String, Object>> saikuConnections = ReportEngine.mapper.readValue(reportParams.get(ReportEngine.REPORT_DISCOVERY), List.class);
 			
 			for (Row row : dataSheet) {
-				if (row.getCell(0) != null && row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING && row.getCell(0).getStringCellValue().startsWith("SELECT")) {
+				if (row.getCell(0) != null && row.getCell(0).getCellType() == Cell.CELL_TYPE_STRING && (row.getCell(0).getStringCellValue().startsWith("SELECT") || row.getCell(0).getStringCellValue().startsWith("WITH"))) {
 					LOG.debug("Replace data begin with next row using " + row.getCell(0).getStringCellValue());
 					// Determine if need delete query or not
 					if (reportParams.containsKey(ReportEngine.REPORT_CUBE) && !row.getCell(0).getStringCellValue().contains("[" + reportParams.containsKey(ReportEngine.REPORT_CUBE) + "]")) {
