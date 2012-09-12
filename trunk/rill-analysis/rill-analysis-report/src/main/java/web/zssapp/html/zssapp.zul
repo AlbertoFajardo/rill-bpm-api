@@ -10,6 +10,7 @@
 					showFormulabar="true"
 					showSheetbar="true"
 					showContextMenu="true"
+					hiderowhead="true"
 					maxrows="200"
 					maxcolumns="60" vflex="true" height="100%" width="100%" ctrlKeys="^c^x^v^d^s^o^b^i^u#del^#del^z^y^e" >
 		</spreadsheet>

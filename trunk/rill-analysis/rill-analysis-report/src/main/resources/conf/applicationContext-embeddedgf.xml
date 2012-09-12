@@ -36,12 +36,14 @@
     	<property name="initCommand">
     		<list>
     			<map>
+    				<!-- 
     				<entry key="enable-monitoring">
 	    				<list>
-	    					<value>--modules</value>
+	    					<value>modules</value>
 	    					<value>transaction-service=HIGH</value>
 	    				</list>
 	    			</entry>
+	    			 -->
 	    			<entry key="set-log-levels">
 	    				<list>
 	    					<value>com.sun.enterprise.server.logging.GFFileHandler=INFO</value>
