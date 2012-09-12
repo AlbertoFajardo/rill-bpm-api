@@ -15,8 +15,13 @@ import org.springframework.util.Assert;
 
 public class ReportManagerImpl implements ReportManager {
 	
-	private ReportDao reportDao;
-	private DynamicScheduleService dynamicScheduleService;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private transient ReportDao reportDao;
+	private transient DynamicScheduleService dynamicScheduleService;
 	
 	public final ReportDao getReportDao() {
 		return reportDao;

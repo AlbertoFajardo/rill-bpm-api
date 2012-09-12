@@ -44,6 +44,9 @@
 		<ui-factory-class>org.zkoss.zk.ui.http.SerializableUiFactory</ui-factory-class>
 		</system-config>
 	-->
+	<system-config>
+		<ui-factory-class>org.zkoss.zk.ui.http.SerializableUiFactory</ui-factory-class>
+	</system-config>
 	<!--
 		Turn on the following if used with WebLogic 9.1 <system-config>
 		<cache-provider-class>org.zkoss.zk.ui.sys.GlobalDesktopCacheProvider</cache-provider-class>
@@ -125,4 +128,5 @@
 		<name>org.zkoss.web.classWebResource.cache</name>
 		<value>false</value>
 	</library-property>
+	
 </zk>
