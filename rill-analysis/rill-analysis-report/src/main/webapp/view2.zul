@@ -16,6 +16,10 @@
 	    .zstop, .zscorner {
 	    	display: none;
 	    }
+	    .zscell {
+	    	border-right: 1px solid #FFFFFF;
+			border-bottom: 1px solid #FFFFFF;
+	    }
 	</style>
 	<!-- 
 	<h:select>

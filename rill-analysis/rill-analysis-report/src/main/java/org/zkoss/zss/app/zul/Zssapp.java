@@ -118,7 +118,7 @@ public class Zssapp extends Div implements IdSpace  {
 			});
 		}
 		
-		spreadsheet.setHiderowhead(true);
+//		spreadsheet.setHiderowhead(true);
 //		spreadsheet.setHidecolumnhead(true);
 		spreadsheet.setShowContextMenu(false);
 		spreadsheet.setShowFormulabar(false);
