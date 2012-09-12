@@ -65,8 +65,8 @@ public class Zssapp extends Div implements IdSpace  {
 	Appmenubar _appmenubar;
 	
 	/* Context */
-	DesktopWorkbenchContext workbenchContext = new DesktopWorkbenchContext();
-	DesktopCellStyleContext cellStyleContext = new DesktopCellStyleContext();
+	transient DesktopWorkbenchContext workbenchContext = new DesktopWorkbenchContext();
+	transient DesktopCellStyleContext cellStyleContext = new DesktopCellStyleContext();
 	
 	final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 	
@@ -161,7 +161,7 @@ public class Zssapp extends Div implements IdSpace  {
 	 * @param book
 	 */
 	public void setBook(Book book) {
-		getDesktopWorkbenchContext().getWorkbookCtrl().setBook(book);
+		spreadsheet.setBook(book);
 	}
 	
 	public void setMaxrows(int maxrows) {

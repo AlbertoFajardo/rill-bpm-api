@@ -2,17 +2,18 @@ Manifest-Version: 1.0
 Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  -5.7.jar aopalliance-1.0.jar bcmail-jdk14-138.jar bcprov-jdk14-138.ja
  r bsh-2.0b4.jar commons-codec-1.2.jar commons-collections-3.2.jar com
- mons-dbcp-1.2.1.jar commons-discovery-0.2.jar commons-email-1.2.jar c
- ommons-fileupload-1.2.1.jar commons-httpclient-3.1.jar commons-io-1.3
- .1.jar commons-lang-2.4.jar commons-logging-1.1.1.jar commons-math-1.
- 1.jar commons-pool-1.6.jar commons-vfs-1.0.jar dom4j-1.6.1.jar draw2d
- -3.2.100-v20070529.jar eigenbase-properties-1.1.0.10924.jar eigenbase
- -resgen-1.3.0.11873.jar eigenbase-xom-1.3.0.11999.jar freemarker-2.3.
- 8.jar google-collections-1.0.jar gson-1.4.jar hsqldb-1.8.0.10.jar inf
- inispan-cachestore-jdbc-5.1.1.FINAL.jar infinispan-core-5.1.1.FINAL.j
- ar infinispan-spring-5.1.1.FINAL.jar itext-2.1.5.jar jackson-core-asl
- -1.7.1.jar jackson-jaxrs-1.7.1.jar jackson-mapper-asl-1.7.1.jar jacks
- on-xc-1.7.1.jar java-uuid-generator-3.1.3.jar javacc-5.0.jar javacup-
+ mons-dbcp-1.2.1.jar commons-digester-1.7.jar commons-discovery-0.2.ja
+ r commons-email-1.2.jar commons-fileupload-1.2.1.jar commons-httpclie
+ nt-3.1.jar commons-io-1.3.1.jar commons-lang-2.4.jar commons-logging-
+ 1.1.1.jar commons-math-1.1.jar commons-pool-1.6.jar commons-vfs-1.0.j
+ ar dom4j-1.6.1.jar draw2d-3.2.100-v20070529.jar eigenbase-properties-
+ 1.1.0.10924.jar eigenbase-resgen-1.3.0.11873.jar eigenbase-xom-1.3.0.
+ 11999.jar filters-2.0.235.jar freemarker-2.3.8.jar google-collections
+ -1.0.jar gson-1.4.jar hsqldb-1.8.0.10.jar infinispan-cachestore-jdbc-
+ 5.1.1.FINAL.jar infinispan-core-5.1.1.FINAL.jar infinispan-spring-5.1
+ .1.FINAL.jar itext-2.1.5.jar jackson-core-asl-1.7.1.jar jackson-jaxrs
+ -1.7.1.jar jackson-mapper-asl-1.7.1.jar jackson-xc-1.7.1.jar jasperre
+ ports-4.0.1.jar java-uuid-generator-3.1.3.jar javacc-5.0.jar javacup-
  10k.jar javassist-3.14.0-GA.jar jaxb-api-2.2.2.jar jaxb-impl-2.2.3-1.
  jar jboss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.GA.jar jboss-
  marshalling-river-1.3.6.GA.jar jboss-transaction-api-1.0.1.GA.jar jco

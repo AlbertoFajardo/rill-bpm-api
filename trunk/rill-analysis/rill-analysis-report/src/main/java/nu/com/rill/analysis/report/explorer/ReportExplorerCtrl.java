@@ -50,8 +50,8 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 	
 	public final static Log LOG = LogFactory.getLog(ReportExplorerCtrl.class);
 	
-	private Grid reportGrid;
-	private Dialog reportScheduleDialog;
+	private transient Grid reportGrid;
+	private transient Dialog reportScheduleDialog;
 	
 	public void onUser$reportGrid() {
 		
@@ -123,8 +123,13 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 		final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 		
 		reportGrid.setModel(new ListModelArray(reportMgr.listReport()));
-		reportGrid.setRowRenderer(new RowRenderer() {
-			
+		reportGrid.setRowRenderer(new SerializeRowRenderer() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void render(Row row, Object data) throws Exception {
 				final Report report = (Report) data;
@@ -154,7 +159,12 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				
 				Button scheduleResult = new Button("查看");
 				scheduleResult.setWidgetAttribute("fileName", report.getName());
-				scheduleResult.addEventListener(Events.ON_CLICK, new EventListener() {
+				scheduleResult.addEventListener(Events.ON_CLICK, new SerializeEventListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
@@ -169,7 +179,12 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				Div div = new Div();
 				Button open2 = new Button("打开");
 				open2.setWidgetAttribute("fileName", report.getName());
-				open2.addEventListener(Events.ON_CLICK, new EventListener() {
+				open2.addEventListener(Events.ON_CLICK, new SerializeEventListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
@@ -180,7 +195,12 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				
 				Button edit = new Button("编辑");
 				edit.setWidgetAttribute("fileName", report.getName());
-				edit.addEventListener(Events.ON_CLICK, new EventListener() {
+				edit.addEventListener(Events.ON_CLICK, new SerializeEventListener() {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
 					
 					@Override
 					public void onEvent(Event event) throws Exception {

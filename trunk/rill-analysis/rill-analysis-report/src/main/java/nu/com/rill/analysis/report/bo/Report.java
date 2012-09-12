@@ -1,5 +1,6 @@
 package nu.com.rill.analysis.report.bo;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -12,18 +13,23 @@ import org.rill.bpm.api.WorkflowOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-public class Report {
+public class Report implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private Integer id;
 	
 	private String name;
 	
-	private Map<String, Map<PARAM_CONFIG, String>> params;
+	private transient Map<String, Map<PARAM_CONFIG, String>> params;
 	private String paramsXStrem;
 	
 	private String cronExpression;
 	
-	private byte[] reportContent;
+	private transient byte[] reportContent;
 	
 	private Date addDate;
 
