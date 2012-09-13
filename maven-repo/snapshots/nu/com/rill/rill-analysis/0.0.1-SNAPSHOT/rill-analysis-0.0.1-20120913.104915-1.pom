@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>rill-bpm</artifactId>
+		<groupId>org.rill</groupId>
+		<version>1.0.1</version>
+	</parent>
+	<groupId>nu.com.rill</groupId>
+	<artifactId>rill-analysis</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>rill-analysis</name>
+	<packaging>pom</packaging>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<infinispan.version>5.1.1.FINAL</infinispan.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.framework.version}</version>
+		</dependency>
+		
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>pentaho-repo</id>
+			<name>pentaho repository</name>
+			<url>http://repository.pentaho.org/artifactory/pentaho</url>
+		</repository>
+		<repository>
+			<id>pentaho-third-party</id>
+			<url>http://repo.pentaho.org/artifactory/third-party/</url>
+		</repository>
+		<repository>
+			<id>codehaus</id>
+			<url>http://repository.codehaus.org/</url>
+		</repository>
+		<repository>
+			<id>datanucleus</id>
+			<url>http://www.datanucleus.org/downloads/maven2/</url>
+		</repository>
+		
+		<repository>  
+	        <id>googlecode-repo-releases</id>  
+	        <name>googlecode Maven Repository Releases</name>  
+	        <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/releases</url>  
+	    </repository>
+	    
+	</repositories>
+  <modules>
+  	<!-- 
+    <module>rill-analysis-data</module>
+    <module>rill-analysis-mondrian</module>
+    <module>rill-analysis-web</module>
+    <module>rill-analysis-report</module>
+     -->
+    <module>rill-analysis-report-core</module>
+  </modules>
+</project>
