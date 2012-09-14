@@ -71,7 +71,11 @@ public class BookChartDecorator extends RefreshDataSourceBookDecorator<XSSFChart
 						if ((i - 1) < serSize) {
 							c.getSerList().get(i - 1).getTx().getStrRef().setF(tx.formatAsString());
 							c.getSerList().get(i - 1).getTx().getStrRef().unsetStrCache();
-							c.getSerList().get(i - 1).getCat().unsetNumRef();
+							try {
+								c.getSerList().get(i - 1).getCat().unsetNumRef();
+							} catch (Exception e) {
+								c.getSerList().get(i - 1).getCat().unsetStrRef();
+							}
 							c.getSerList().get(i - 1).getCat().addNewStrRef().setF(cats.getFormulaString());
 							c.getSerList().get(i - 1).getVal().getNumRef().setF(vals.getFormulaString());
 							c.getSerList().get(i - 1).getVal().getNumRef().unsetNumCache();
@@ -98,7 +102,11 @@ public class BookChartDecorator extends RefreshDataSourceBookDecorator<XSSFChart
 						if ((i - 1) < serSize) {
 							c.getSerList().get(i - 1).getTx().getStrRef().setF(tx.formatAsString());
 							c.getSerList().get(i - 1).getTx().getStrRef().unsetStrCache();
-							c.getSerList().get(i - 1).getCat().unsetNumRef();
+							try {
+								c.getSerList().get(i - 1).getCat().unsetNumRef();
+							} catch (Exception e) {
+								c.getSerList().get(i - 1).getCat().unsetStrRef();
+							}
 							c.getSerList().get(i - 1).getCat().addNewStrRef().setF(cats.getFormulaString());
 							c.getSerList().get(i - 1).getVal().getNumRef().setF(vals.getFormulaString());
 							c.getSerList().get(i - 1).getVal().getNumRef().unsetNumCache();
@@ -113,6 +121,8 @@ public class BookChartDecorator extends RefreshDataSourceBookDecorator<XSSFChart
 				}
 				
 			break;
+			default:
+				break;
 		}
 		
 		Method commit = ReflectionUtils.findMethod(t.getClass(), "commit");

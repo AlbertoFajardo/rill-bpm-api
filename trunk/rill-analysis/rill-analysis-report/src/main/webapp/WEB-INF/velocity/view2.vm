@@ -6,20 +6,17 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="-1" />
 <title>Use ZK as fragment</title>
-<style>
-        .z-button-os { 
-            width: 100px;
-            height: 25px;
-            background-color: blue;
-            margin-left: 5px;
-        }
-    </style>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#anchor').load('#springUrl("")/view2.zul?zk.redrawCtrl=page&fileName=luopan.xlsx')
+	});
+</script>
+
 </head>
 <body>
-    <button onclick="$('#anchor').load('view2.zul?zk.redrawCtrl=page&fileName=luopan.xlsx')">Load the fragment</button>
+    <button onclick="$('#anchor').load('#springUrl("")view2.zul?zk.redrawCtrl=page&fileName=luopan.xlsx')">Load the fragment</button>
     <hr />
     <div id="anchor" style="height: 100%"></div>
-    
 </body>
 </html>
