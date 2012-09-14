@@ -30,7 +30,6 @@ import org.zkoss.poi.ss.usermodel.CellStyle;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.poi.ss.util.CellRangeAddress;
-import org.zkoss.poi.ss.util.CellUtil;
 import org.zkoss.poi.xssf.usermodel.XSSFWorkbook;
 import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.Worksheet;
@@ -82,17 +81,32 @@ public final class ReportEngine {
 		Assert.notNull(httpClient);
 	}
 	
-	public static String fetchUrl(String url , Map<String, String> params, String cookie) {
+	private static ThreadLocal<String> cookieHolder = new ThreadLocal<String>();
+	public static void registCookie(String cookie) {
+		if (cookie != null) {
+			Assert.isNull(cookieHolder.get(), "Already regist cookie into thread? " + cookieHolder.get());
+		}
+		cookieHolder.set(cookie);
+	}
+	
+	public static String retrieveCookie() {
 		
+		return cookieHolder.get();
+	}
+	
+	public static String fetchUrl(String url , Map<String, String> params) {
+		
+		PostMethod httppost = new PostMethod(url);
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
 		for (Entry<String, String> entry : params.entrySet()) {
 			formparams.add(new NameValuePair(entry.getKey(), entry.getValue()));
+//			httppost.setParameter(entry.getKey(), entry.getValue());
 		}
 		
-		PostMethod httppost = new PostMethod(url);
 		try {
+			httppost.addRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE + ";charset=utf8");
 			httppost.setRequestBody(formparams.toArray(new NameValuePair[0]));
-			httppost.addRequestHeader("Cookie", cookie);
+			httppost.addRequestHeader("Cookie", retrieveCookie());
 			httpClient.executeMethod(httppost);
 			InputStream is = httppost.getResponseBodyAsStream();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();

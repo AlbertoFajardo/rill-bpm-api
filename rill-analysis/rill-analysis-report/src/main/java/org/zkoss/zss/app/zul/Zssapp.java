@@ -21,10 +21,12 @@ import java.util.ArrayList;
 
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
+import nu.com.rill.analysis.report.excel.ReportEngine;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -148,7 +150,14 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	public void setReport(Report report) {
 		
-		FileHelper.openSpreadsheet(spreadsheet, report);
+		String cookie = Executions.getCurrent().getHeader("Cookie");
+		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
+		try {
+			ReportEngine.registCookie(cookie);
+			FileHelper.openSpreadsheet(spreadsheet, report);
+		} finally {
+			ReportEngine.registCookie(null);
+		}
 		
 		if (!editMode) {
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());

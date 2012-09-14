@@ -50,8 +50,7 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  9.jar swt-3.3.0-v3346.jar validation-api-1.0.0.GA.jar woodstox-core-a
  sl-4.1.1.jar xalan-2.4.1.jar xbean-spring-2.7.jar xercesImpl-2.6.0.ja
  r xmlbeans-2.3.0.jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar zcommon
- -5.0.11.jar zcommons-el-1.1.0.jar zhtml-5.0.11.jar zk-5.0.11.jar zkbi
- nd-6.0.1.jar zkex-5.0.11-r.jar zkplus-5.0.11.jar zpoi-2.4.0-r.jar zpo
- iex-2.4.0-r.jar zss-2.4.0-r.jar zssex-2.4.0-r.jar zul-5.0.11.jar zweb
- -5.0.11.jar
+ -5.0.11.jar zcommons-el-1.1.0.jar zhtml-5.0.11.jar zk-5.0.11.jar zkex
+ -5.0.11-r.jar zkplus-5.0.11.jar zpoi-2.4.0-r.jar zpoiex-2.4.0-r.jar z
+ ss-2.4.0-r.jar zssex-2.4.0-r.jar zul-5.0.11.jar zweb-5.0.11.jar
 

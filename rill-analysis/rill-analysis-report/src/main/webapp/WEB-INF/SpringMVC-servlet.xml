@@ -12,14 +12,13 @@
 	default-autowire="byName">
 
 	<context:annotation-config />
-	<context:component-scan base-package="nu.com.rill.analysis.report.example" />
+	<context:component-scan base-package="nu.com.rill.analysis.report" />
 	
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
 	
-	<!-- 
 	<bean id="velocityConfig"
 		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
 		<property name="resourceLoaderPath" value="/WEB-INF/velocity/" />
@@ -41,7 +40,6 @@
 		<property name="exposeSessionAttributes" value="true"/>
 		<property name="allowSessionOverride" value="true"/>
 	</bean>
-	 -->
 	
 	<bean id="multipartResolver"
 	    class="org.springframework.web.multipart.commons.CommonsMultipartResolver">

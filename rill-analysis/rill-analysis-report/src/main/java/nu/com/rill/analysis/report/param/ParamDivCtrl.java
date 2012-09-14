@@ -271,15 +271,21 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
 		
 		Map<String, String> result = new LinkedHashMap<String, String>();
-		String content = ReportEngine.fetchUrl(url, params, cookie);
-		if (!StringUtils.hasText(content)) {
-			LOGGER.info("Return empty content when try to fetch url " + url + " using " + ObjectUtils.getDisplayString(params) + " " + cookie);
-			return result;
-		}
 		try {
-			result.putAll(ReportEngine.mapper.readValue(content, Map.class));
-		} catch (Exception e) {
-			LOGGER.error("Error when try to parse to JSON " + content, e);
+			ReportEngine.registCookie(cookie);
+			String content = ReportEngine.fetchUrl(url, params);
+			
+			if (!StringUtils.hasText(content)) {
+				LOGGER.info("Return empty content when try to fetch url " + url + " using " + ObjectUtils.getDisplayString(params) + " " + cookie);
+				return result;
+			}
+			try {
+				result.putAll(ReportEngine.mapper.readValue(content, Map.class));
+			} catch (Exception e) {
+				LOGGER.error("Error when try to parse to JSON " + content, e);
+			}
+		} finally {
+			ReportEngine.registCookie(null);
 		}
 		
 		return result;
