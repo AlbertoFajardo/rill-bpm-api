@@ -16,9 +16,9 @@ import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -135,7 +135,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				Input input = new Input();
 				input.setId(paramName);
 				input.setVisible(false);
-				input.setValue(fetchProvided(paramName, report));
+				input.setValue(config.get(PARAM_CONFIG.VALUE));
 				paramDiv.appendChild(input);
 				userParamDiv.setWidgetAttribute(paramName, input.getValue());
 			}
@@ -144,7 +144,15 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				Date now = new Date();
 				if (config.get(PARAM_CONFIG.VALUE) != null) {
 					try {
-						now = new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).parse(config.get(PARAM_CONFIG.VALUE));
+						String value = config.get(PARAM_CONFIG.VALUE);
+						if ("yestoday".equals(value.toLowerCase())) {
+							now = DateUtils.addDays(now, -1);
+						} else if ("today".equals(value.toLowerCase())) {
+							// Do nothing
+						} else {
+							// From parameter
+							now = new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).parse(config.get(PARAM_CONFIG.VALUE));
+						}
 					} catch (ParseException e) {
 						// Ignore
 						LOGGER.warn(e);
@@ -244,19 +252,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 		}
 		
-	}
-	
-	private String fetchProvided(String name, final Report report) {
-		
-		Assert.notNull(name);
-		// First fetch from report parameter
-//		if (report.getParams().containsKey(name) && 
-//				report.getParams().get(name).get(PARAM_CONFIG.VALUE) != null) {
-//			return report.getParams().get(name).get(PARAM_CONFIG.VALUE);
-//		}
-		// Second fetch from cookie.
-		
-		return "admin";
 	}
 	
 	@SuppressWarnings("unchecked")
