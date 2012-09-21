@@ -22,10 +22,12 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
+<!-- 
+      xsi:schemaLocation="urn:infinispan:config:5.1 http://www.infinispan.org/schemas/infinispan-config-5.1.xsd"
+       -->
 <infinispan
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:infinispan:config:5.0 http://www.infinispan.org/schemas/infinispan-config-5.0.xsd"
-      xmlns="urn:infinispan:config:5.0">
+      xmlns="urn:infinispan:config:5.1">
 
    <!--
       ******************************************************************************************************************
@@ -116,11 +118,10 @@
          Enables collection of global JMX statistics, and allows you to customize the JMX domain name under which
          MBeans are registered.
       -->
-      <!-- change [false] by MENGRAN for junit test -->
       <globalJmxStatistics 
-            enabled="false" 
+            enabled="true" 
             jmxDomain="org.infinispan" 
-            cacheManagerName="reportEngineManager"/>
+            cacheManagerName="sessionCacheManager"/>
 
       <!--
          If the transport is omitted, there is no way to create distributed or clustered caches.
@@ -135,15 +136,14 @@
             http://docs.jboss.org/infinispan/5.0/apidocs/org/infinispan/remoting/transport/jgroups/JGroupsTransport.html
 
       -->
-      <!-- Use the property below to point to a specific JGroups configuration file on your classpath
-      <transport 
-            clusterName="workflowCache-cluster"
-            >
-         <properties>
-            <property name="configurationFile" value="jgroups-tcp.xml" />
-         </properties>
-      </transport>
-       -->
+      <!-- Use the property below to point to a specific JGroups configuration file on your classpath -->
+	<!-- machineId="m1" rackId="r1" nodeName="Node-A" -->
+	<transport clusterName="session-cluster">
+		<properties>
+			<property name="configurationFile" value="conf/jgroups-tcp-static.xml" />
+		</properties>
+	</transport>
+
 
       <!--
          Used to customize the marshaller used to serialize objects and deserialize byte streams.  Also allows you to
@@ -180,6 +180,7 @@
    -->
 
    <default>
+      <lazyDeserialization />
       <!--
          Tunes the locking and concurrency characteristics of the cache.
 
@@ -207,9 +208,13 @@
             transactionManagerLookupClass="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
             syncRollbackPhase="false"
             syncCommitPhase="false"
-            useEagerLocking="false"
-            eagerLockSingleNode="false"
-            cacheStopTimeout="30000" />
+            cacheStopTimeout="30000"
+            use1PcForAutoCommitTransactions="false"
+            autoCommit="true"
+            lockingMode="OPTIMISTIC"
+            useSynchronization="false"
+            transactionMode="TRANSACTIONAL"
+            />
       -->
       <!--
          Enables deadlock detection.  See:
@@ -223,8 +228,7 @@
       <!--
          Used to register JMX statistics in any available MBean server
       -->
-      <!-- change [false] by MENGRAN for junit test -->
-      <jmxStatistics enabled="false"/>
+      <jmxStatistics enabled="true"/>
 
       <!--
          Used to control whether objects stored in Infinispan nodes are primarily stored as rehydrated Objects or as
@@ -246,9 +250,8 @@
          modes supported: distribution (d), replication (r) or invalidation (i).
 
          http://community.jboss.org/wiki/Clusteringmodes
-      
-      <clustering mode="d">
       -->
+      <clustering mode="d">
          <!--
             Defines whether to retrieve state on startup.  This is only valud for 'replication' mode.
          
@@ -257,13 +260,17 @@
             fetchInMemoryState="false"
             alwaysProvideInMemoryState="false"
          />
-		-->
+         -->
 
          <!--
             Network calls are synchronous.
-         
-         <sync replTimeout="20000"/>
          -->
+         <sync replTimeout="20000"/>
+         <hash
+            numOwners="3"
+            rehashWait="120000"
+            rehashRpcTimeout="600000"
+         />
 
          <!--
             Uncomment this for async replication.
@@ -274,9 +281,12 @@
             replQueueInterval="10000"
             replQueueMaxElements="500"
          />
-        
+         -->
       </clustering>
-		 -->
+      
+      <!-- Change to 20000 from 2000 by MENGRAN at 2012-05-24 -->
+      <eviction maxEntries="20000" strategy="LRU" />
+
    </default>
 
 
@@ -554,6 +564,27 @@
             class="com.mycompany.CustomInterceptor1"
          />
       </customInterceptors>
+   </namedCache>
+   -->
+
+   <!--
+      A transactional cache configured to run in pessimistic mode.
+      See:
+         http://community.jboss.org/wiki/Infinispantransactions
+   -->
+   <!--
+   <namedCache name="pessimisticCache">
+
+      <transaction
+            transactionManagerLookupClass="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
+            syncCommitPhase="false"
+            cacheStopTimeout="30000"
+            use1PcForAutoCommitTransactions="false"
+            autoCommit="true"
+            lockingMode="PESSIMISTIC"
+            useSynchronization="false"
+            transactionMode="TRANSACTIONAL"/>
+
    </namedCache>
    -->
 

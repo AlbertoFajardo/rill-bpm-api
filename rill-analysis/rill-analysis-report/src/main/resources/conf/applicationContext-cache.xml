@@ -13,6 +13,6 @@
 	<!-- Infinispan cache manager -->
 	<bean id="cacheManager"
           class="org.infinispan.spring.provider.SpringEmbeddedCacheManagerFactoryBean"
-          p:configurationFileLocation="classpath:/conf/workflow-infinispan-config.xml" />
+          p:configurationFileLocation="classpath:/conf/session-infinispan-config.xml" />
 
 </beans>
