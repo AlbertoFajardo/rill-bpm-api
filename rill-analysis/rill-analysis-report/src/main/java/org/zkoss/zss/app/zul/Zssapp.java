@@ -59,20 +59,40 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	private final static String KEY_ZSSAPP = "org.zkoss.zss.app.zul.zssApp";
 	/*Default spreadsheet*/
-	private Spreadsheet spreadsheet;
+	private transient Spreadsheet spreadsheet;
 	
 	//private Window mainWin;
-	private Div mainWin;
+	transient private Div mainWin;
 	
-	Appmenubar _appmenubar;
+	transient Appmenubar _appmenubar;
+	
+	private Report report;
 	
 	/* Context */
 	transient DesktopWorkbenchContext workbenchContext = new DesktopWorkbenchContext();
 	transient DesktopCellStyleContext cellStyleContext = new DesktopCellStyleContext();
 	
-	final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
+	transient final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 	
 	private boolean editMode = false;
+	
+	private synchronized void writeObject(java.io.ObjectOutputStream s)
+	throws java.io.IOException {
+		s.defaultWriteObject();
+
+		//write children
+		s.writeObject(report);
+		s.writeObject(null);
+	}
+	
+	private synchronized void readObject(java.io.ObjectInputStream s)
+	throws java.io.IOException, ClassNotFoundException {
+		s.defaultReadObject();
+
+		//read children
+		this.report = (Report) s.readObject();
+
+	}
 	
 	private static byte[] initBookBytes = null;
 	static {
@@ -149,6 +169,8 @@ public class Zssapp extends Div implements IdSpace  {
 	}
 	
 	public void setReport(Report report) {
+		
+		this.report = report;
 		
 		String cookie = Executions.getCurrent().getHeader("Cookie");
 		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
