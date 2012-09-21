@@ -29,7 +29,7 @@ public class Report implements Serializable {
 	
 	private String cronExpression;
 	
-	private byte[] reportContent;
+	private transient byte[] reportContent;
 	
 	private Date addDate;
 
