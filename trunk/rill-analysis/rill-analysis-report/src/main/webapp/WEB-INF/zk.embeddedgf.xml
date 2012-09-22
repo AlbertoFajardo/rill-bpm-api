@@ -55,11 +55,6 @@
 		<failover-manager-class>org.zkoss.zkdemo.test.DumbFailoverManager</failover-manager-class>
 		</system-config>
 	-->
-	
-	<system-config>
-		<ui-factory-class>org.zkoss.zk.ui.http.SerializableUiFactory</ui-factory-class>
-		<session-cache-class>nu.com.rill.analysis.report.cluster.InfinispanSessionCache</session-cache-class>
-	</system-config>
 
 	<!-- Optional -->
 	<!--
