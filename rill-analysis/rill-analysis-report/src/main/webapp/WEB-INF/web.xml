@@ -39,15 +39,6 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
 		<listener-class>org.zkoss.zk.ui.http.HttpSessionListener</listener-class>
 	</listener>
 	
-	<filter>
-	    <filter-name>infinispanSessionCacheFilter</filter-name>
-    	<filter-class>nu.com.rill.analysis.report.cluster.InfinispanSessionCache</filter-class>
-    </filter>
-    <filter-mapping>
-    	<filter-name>infinispanSessionCacheFilter</filter-name>
-    	<url-pattern>/*</url-pattern>
-    </filter-mapping>
-    
 	<!-- Character filter -->
     <filter>
 	    <filter-name>UTF8Filter</filter-name>
@@ -59,7 +50,7 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
     </filter>
     <filter-mapping>
     	<filter-name>UTF8Filter</filter-name>
-    	<url-pattern>/*</url-pattern>
+    	<url-pattern>/web/*</url-pattern>
     </filter-mapping>
     
     <servlet>
@@ -189,7 +180,7 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
 	<!-- /////////// -->
 	<!-- Miscellaneous -->
 	<session-config>
-		<session-timeout>1</session-timeout>
+		<session-timeout>30</session-timeout>
 	</session-config>
 
 	<!-- MIME mapping -->

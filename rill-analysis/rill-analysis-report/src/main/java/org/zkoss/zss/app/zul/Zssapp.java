@@ -59,20 +59,18 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	private final static String KEY_ZSSAPP = "org.zkoss.zss.app.zul.zssApp";
 	/*Default spreadsheet*/
-	private transient Spreadsheet spreadsheet;
+	private Spreadsheet spreadsheet;
 	
 	//private Window mainWin;
-	transient private Div mainWin;
+	private Div mainWin;
 	
-	transient Appmenubar _appmenubar;
-	
-	private Report report;
+	Appmenubar _appmenubar;
 	
 	/* Context */
 	transient DesktopWorkbenchContext workbenchContext = new DesktopWorkbenchContext();
 	transient DesktopCellStyleContext cellStyleContext = new DesktopCellStyleContext();
 	
-	transient final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
+	final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 	
 	private boolean editMode = false;
 	
@@ -150,14 +148,7 @@ public class Zssapp extends Div implements IdSpace  {
 		}
 	}
 	
-	public Report getReport() {
-		
-		return this.report;
-	}
-	
 	public void setReport(Report report) {
-		
-		this.report = report;
 		
 		String cookie = Executions.getCurrent().getHeader("Cookie");
 		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
