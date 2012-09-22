@@ -76,24 +76,6 @@ public class Zssapp extends Div implements IdSpace  {
 	
 	private boolean editMode = false;
 	
-	private synchronized void writeObject(java.io.ObjectOutputStream s)
-	throws java.io.IOException {
-		s.defaultWriteObject();
-
-		//write children
-		s.writeObject(report);
-		s.writeObject(null);
-	}
-	
-	private synchronized void readObject(java.io.ObjectInputStream s)
-	throws java.io.IOException, ClassNotFoundException {
-		s.defaultReadObject();
-
-		//read children
-		this.report = (Report) s.readObject();
-
-	}
-	
 	private static byte[] initBookBytes = null;
 	static {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -166,6 +148,11 @@ public class Zssapp extends Div implements IdSpace  {
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum());
 		}
+	}
+	
+	public Report getReport() {
+		
+		return this.report;
 	}
 	
 	public void setReport(Report report) {
