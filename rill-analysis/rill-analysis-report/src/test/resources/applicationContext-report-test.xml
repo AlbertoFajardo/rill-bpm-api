@@ -14,6 +14,8 @@
           http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
 " default-autowire="byName">
     
+    <import resource="classpath:/conf/applicationContext-properties.xml"/>
+    
 	<jdbc:embedded-database id="dataSource" type="H2">
         <jdbc:script location="classpath:/db/report_store_h2.sql"/>
     </jdbc:embedded-database>

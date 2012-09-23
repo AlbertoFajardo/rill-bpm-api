@@ -132,7 +132,7 @@ public class FileHelper {
 			Map<String, String> reportParams = new HashMap<String, String>();
 			if (!CollectionUtils.isEmpty(report.getParams())) {
 				for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
-					reportParams.put(entry.getKey(), entry.getValue().get(PARAM_CONFIG.VALUE));
+					reportParams.put(entry.getValue().get(PARAM_CONFIG.NAME), entry.getValue().get(PARAM_CONFIG.VALUE));
 				}
 			}
 			Workbook wb = ReportEngine.INSTANCE.generateReport(input, report.getName(), reportParams);
