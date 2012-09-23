@@ -30,10 +30,13 @@ import org.zkoss.poi.ss.usermodel.CellStyle;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.poi.ss.util.CellRangeAddress;
+import org.zkoss.poi.ss.util.CellReference;
+import org.zkoss.poi.xssf.usermodel.XSSFTable;
 import org.zkoss.poi.xssf.usermodel.XSSFWorkbook;
 import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.Worksheet;
 import org.zkoss.zss.model.impl.ExcelImporter;
+import org.zkoss.zss.model.impl.XSSFSheetImpl;
 
 /**
  * Excel report engine. 
@@ -62,6 +65,9 @@ public final class ReportEngine {
 	public static final String USERNAME = "USERNAME";
 	public static final String PASSWORD = "PASSWORD";
 	public static final String URL = "URL";
+	public static final String COOKIE = "Cookie";
+	
+	public static final String PARAM_TABLE = "paramTable";
 	
 	public final Log LOG = LogFactory.getLog(this.getClass());
 	
@@ -209,17 +215,34 @@ public final class ReportEngine {
 		Assert.notNull(is);
 		Assert.notNull(bookName);
 		
+		return retrieveReportParams(is, bookName, new HashMap<String, String>(0));
+	}
+	
+	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(InputStream is, String bookName, Map<String, String> contextParams) {
+		
+		Assert.notNull(is);
+		Assert.notNull(bookName);
+		
 		Book book = new ExcelImporter().imports(is, bookName);
 		// 1. Validate
 		boolean isValid = validateReportTemplate(book);
 		
 		if (isValid) {
 			// 2. Handle #_SETTINGS_SHEET
-			Map<String, Map<PARAM_CONFIG, String>> reportParams = retrieveReportParamsFromSettingsSheet(book.getWorksheet(_SETTINGS_SHEET));
+			processSettings(book.getWorksheet(_SETTINGS_SHEET), contextParams);
+			@SuppressWarnings("unchecked")
+			Map<String, Map<PARAM_CONFIG, String>> reportParams = WorkflowOperations.XStreamSerializeHelper.deserializeObject(contextParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, LinkedHashMap.class); 
 			// Add Cookie pair
 			Map<PARAM_CONFIG, String> cookieParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
 			cookieParams.put(PARAM_CONFIG.VALUE, "");
-			reportParams.put("Cookie", cookieParams);
+			cookieParams.put(PARAM_CONFIG.NAME, COOKIE);
+			reportParams.put(COOKIE, cookieParams);
+			
+			Map<PARAM_CONFIG, String> urlParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
+			urlParams.put(PARAM_CONFIG.VALUE, contextParams.get(URL));
+			urlParams.put(PARAM_CONFIG.NAME, URL);
+			reportParams.put(URL, urlParams);
+			
 			return reportParams;
 		}
 		
@@ -320,25 +343,40 @@ public final class ReportEngine {
 	}
 	// API ------------------- END
 	public enum PARAM_CONFIG {
-		VALUE, RENDER_TYPE, DEPENDENCIES, FETCH_URL, FORMAT
+		NAME, VALUE, RENDER_TYPE, DEPENDENCIES, FETCH_URL, FORMAT
 	}
 	
-	private Map<String, Map<PARAM_CONFIG, String>> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet) {
+	private Map<String, Map<PARAM_CONFIG, String>> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet, Map<String, String> contextParams) {
 		
 		// 2. Handle #_SETTINGS_SHEET
 		Map<String, Map<PARAM_CONFIG, String>> reportParams = new LinkedHashMap<String, Map<PARAM_CONFIG, String>>(2);
-		for (Row row : settingsSheet) {
-			if (row.getLastCellNum() > 4 && !"".equals(row.getCell(3).getStringCellValue())) {
-				Map<PARAM_CONFIG, String> paramConfig = new HashMap<PARAM_CONFIG, String>(4);
-				for (PARAM_CONFIG pc : PARAM_CONFIG.values()) {
-					int i = pc.ordinal() + 4;
-					if (i < row.getLastCellNum()) {
-						paramConfig.put(pc, row.getCell(i).getStringCellValue());
+		List<XSSFTable> tables = ((XSSFSheetImpl) settingsSheet).getTables();
+		if (CollectionUtils.isEmpty(tables)) {
+			return reportParams;
+		}
+		for (XSSFTable table : tables) {
+			if (PARAM_TABLE.equals(table.getName())) {
+				CellReference startCell = table.getStartCellReference();
+				CellReference endCell = table.getEndCellReference();
+				for (int i = startCell.getRow() + 1; i <= endCell.getRow(); i++) {
+					// Get parameter configuration by row
+					Map<PARAM_CONFIG, String> paramConfig = new HashMap<PARAM_CONFIG, String>(4);
+					String prefix = "";
+					for (PARAM_CONFIG pc : PARAM_CONFIG.values()) {
+						int index = pc.ordinal() + startCell.getCol() + 1;
+						// Combine URL prefix
+						if (pc.equals(PARAM_CONFIG.FETCH_URL)) {
+							prefix = contextParams.get(URL);
+						}
+						if (index <= endCell.getCol()) {
+							paramConfig.put(pc, prefix + settingsSheet.getRow(i).getCell(index).getStringCellValue());
+						}
 					}
+					reportParams.put(settingsSheet.getRow(i).getCell(startCell.getCol()).getStringCellValue(), paramConfig);
 				}
-				reportParams.put(row.getCell(3).getStringCellValue(), paramConfig);
 			}
 		}
+		
 		return reportParams;
 	}
 	
@@ -420,7 +458,6 @@ public final class ReportEngine {
 			}
 		}
 		reportParams.put(RELOAD, reload.toString());
-		reportParams.put(URL, url);
 		reportParams.put(DATA_TYPE, type);
 		
 		// Report parameter's value is high-priority
@@ -430,12 +467,15 @@ public final class ReportEngine {
 		if (!reportParams.containsKey(PASSWORD) || reportParams.get(PASSWORD) == null) {
 			reportParams.put(PASSWORD, password);
 		}
-		
-		if (url != null && username != null && password != null) {
-			LOG.info("Retrieve datesource settings: " + url + " " + username + " " + password);
+		if (!reportParams.containsKey(URL) || reportParams.get(URL) == null) {
+			reportParams.put(URL, url);
 		}
 		
-		Map<String, Map<PARAM_CONFIG, String>> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet);
+		if (url != null && username != null) {
+			LOG.info("Retrieve datesource settings: " + url + " " + username);
+		}
+		
+		Map<String, Map<PARAM_CONFIG, String>> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet, reportParams);
 		if (!CollectionUtils.isEmpty(parameters)) {
 			reportParams.put(REPORT_PARAMETERS, WorkflowOperations.XStreamSerializeHelper.serializeXml(REPORT_PARAMETERS, parameters));
 			LOG.info("Have added " + REPORT_PARAMETERS + " to report params: " + reportParams);
