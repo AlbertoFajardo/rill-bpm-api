@@ -29,7 +29,7 @@ public class JsonDataRetriever implements DataRetriever {
 		
 		Row row = dataSheet.getRow(dataSheet.getFirstRowNum());
 		String url = row.getCell(row.getFirstCellNum()).getStringCellValue();
-		String result = ReportEngine.fetchUrl(url, reportParams);
+		String result = ReportEngine.fetchUrl(reportParams.get(ReportEngine.URL) + url, reportParams);
 		
 		List<List<String>> data = new ArrayList<List<String>>();
 		try {
