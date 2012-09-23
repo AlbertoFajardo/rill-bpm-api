@@ -31,12 +31,12 @@ public class JsonDataController {
 		List<List<String>> result = new ArrayList<List<String>>();
 		List<String> lineData = new ArrayList<String>();
 		lineData.add("商业产品线");
-		lineData.add(ServletRequestUtils.getRequiredStringParameter(request, "商业产品线"));
+		lineData.add(ServletRequestUtils.getRequiredStringParameter(request, "lineId"));
 		result.add(lineData);
 		
 		List<String> indData = new ArrayList<String>();
 		indData.add("分析指标");
-		indData.add(ServletRequestUtils.getRequiredStringParameter(request, "分析指标"));
+		indData.add(ServletRequestUtils.getRequiredStringParameter(request, "indId"));
 		result.add(indData);
 		
 		Random random = new Random();

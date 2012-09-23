@@ -1,7 +1,7 @@
 create table report (
     id INT NOT NULL AUTO_INCREMENT,
     name varchar(128) not null,
-    paramsXStrem varchar(1024) default null,
+    paramsXStrem CLOB default null,
     cronExpression varchar(200) default null,
     addDate timestamp default CURRENT_TIMESTAMP,
     primary key (id)

@@ -91,8 +91,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			public void onEvent(Event event) throws Exception {
 				Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
 				for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
-					if (tmpParamDiv.getWidgetAttribute(entry.getKey()) != null) {
-						entry.getValue().put(PARAM_CONFIG.VALUE, tmpParamDiv.getWidgetAttribute(entry.getKey()));
+					if (tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)) != null) {
+						entry.getValue().put(PARAM_CONFIG.VALUE, tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)));
 					}
 				}
 				app.setReport(report);
@@ -133,11 +133,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 
 			if ("provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 				Input input = new Input();
-				input.setId(paramName);
+				input.setId(config.get(PARAM_CONFIG.NAME));
 				input.setVisible(false);
 				input.setValue(config.get(PARAM_CONFIG.VALUE));
 				paramDiv.appendChild(input);
-				userParamDiv.setWidgetAttribute(paramName, input.getValue());
+				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), input.getValue());
 			}
 			
 			if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
@@ -159,8 +159,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					}
 				}
 				final Datebox db = new Datebox(now);
-				userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
-				db.setId(paramName);
+				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
+				db.setId(config.get(PARAM_CONFIG.NAME));
 				db.setFormat("long");
 				db.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
 				paramDiv.appendChild(new Label(paramName + " ："));
@@ -169,7 +169,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
-						userParamDiv.setWidgetAttribute(paramName, new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
+						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
 					}
 				});
 			}
@@ -177,7 +177,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) || 
 					"select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 				final Combobox cb = new Combobox();
-				cb.setId(paramName);
+				cb.setId(config.get(PARAM_CONFIG.NAME));
 				cb.setMold("rounded");
 				if (config.containsKey(PARAM_CONFIG.FETCH_URL)) {
 					// Fetch content
@@ -203,7 +203,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 								ci.setValue(entry.getKey());
 							}
 							cb.setSelectedIndex(0);
-							userParamDiv.setWidgetAttribute(paramName, cb.getSelectedItem().getValue().toString());
+							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getValue().toString());
 						}
 					});
 				}
@@ -224,7 +224,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
-						userParamDiv.setWidgetAttribute(paramName, cb.getSelectedItem().getValue().toString());
+						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getValue().toString());
 					}
 				});
 				paramDiv.appendChild(new Label(paramName + " ："));
@@ -242,12 +242,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		final Div userParamDiv = paramDiv;
 		
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
-			final String paramName = entry.getKey();
 			final Map<PARAM_CONFIG, String> config = entry.getValue();
 			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) 
 					|| "select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(paramName)));
+					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME))));
 				}
 			}
 		}
