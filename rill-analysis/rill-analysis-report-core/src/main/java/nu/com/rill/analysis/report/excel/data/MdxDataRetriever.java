@@ -186,7 +186,7 @@ public class MdxDataRetriever implements DataRetriever {
 							
 							String replacedValue = null;
 							// Value in report parameters is high-priority 
-							replacedValue = reportParams.containsKey(entry.getKey()) ? reportParams.get(entry.getKey()) : replacedValue;
+							replacedValue = reportParams.containsKey(entry.getKey()) ? reportParams.get(entry.getValue().get(PARAM_CONFIG.NAME)) : replacedValue;
 							// Schedule model, then use current date to change report parameters
 							if (reportParams.get(ReportEngine.REPORT_SCHEDULE_MODE) != null) {
 								// 1. Check parameter names is time dimension
@@ -198,7 +198,8 @@ public class MdxDataRetriever implements DataRetriever {
 								if ("calendar".equals(entry.getValue().get(PARAM_CONFIG.RENDER_TYPE))) {
 									// 1. Check parameter names is time dimension
 									if (entry.getValue() != null && entry.getValue().get(PARAM_CONFIG.VALUE) != null) {
-										replacedValue = format.format(new SimpleDateFormat(entry.getValue().get(PARAM_CONFIG.FORMAT)).parseObject(reportParams.get(entry.getKey())));
+										replacedValue = format.format(new SimpleDateFormat(entry.getValue().get(PARAM_CONFIG.FORMAT)).parseObject(reportParams.get(entry.getValue().get(PARAM_CONFIG.NAME))));
+										
 									}
 								}
 							}

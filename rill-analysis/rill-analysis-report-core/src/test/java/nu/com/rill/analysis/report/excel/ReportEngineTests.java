@@ -84,7 +84,7 @@ public class ReportEngineTests {
 		
 		ReportEngine re = ReportEngine.INSTANCE;
 		Map<String, String> reportParams = new HashMap<String, String>();
-		reportParams.put("选择日期", "2012-09-08");
+		reportParams.put("date", "2012-09-08");
 		
 		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/bridge_kpi.xlsx");
 		try {

@@ -361,10 +361,11 @@ public final class ReportEngine {
 				for (int i = startCell.getRow() + 1; i <= endCell.getRow(); i++) {
 					// Get parameter configuration by row
 					Map<PARAM_CONFIG, String> paramConfig = new HashMap<PARAM_CONFIG, String>(4);
-					String prefix = "";
+					
 					for (PARAM_CONFIG pc : PARAM_CONFIG.values()) {
 						int index = pc.ordinal() + startCell.getCol() + 1;
 						// Combine URL prefix
+						String prefix = "";
 						if (pc.equals(PARAM_CONFIG.FETCH_URL)) {
 							prefix = contextParams.get(URL);
 						}
