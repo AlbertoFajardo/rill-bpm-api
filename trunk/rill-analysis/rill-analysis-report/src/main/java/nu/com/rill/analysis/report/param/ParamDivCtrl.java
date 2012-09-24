@@ -32,11 +32,11 @@ import org.zkoss.zk.ui.util.GenericForwardComposer;
 import org.zkoss.zkplus.spring.SpringUtil;
 import org.zkoss.zss.app.zul.Zssapp;
 import org.zkoss.zul.Button;
-import org.zkoss.zul.Combobox;
-import org.zkoss.zul.Comboitem;
 import org.zkoss.zul.Datebox;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Label;
+
+import com.foo.ecuiZk.Select;
 
 public class ParamDivCtrl extends GenericForwardComposer {
 
@@ -127,6 +127,55 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		
 	}
 	
+	private class SelectOnCreate {
+		
+		private Select target;
+		
+		public SelectOnCreate(Select target) {
+			super();
+			this.target = target;
+		}
+
+		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam) {
+			
+			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
+			
+			// Reload content event. FIXME: MENGRAN. Deed-loop.
+			// 1. Prepare fetch parameters
+			Map<String, String> fetchParams = new HashMap<String, String>();
+			String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
+			if (StringUtils.hasText(dependencies)) {
+				for (String dep : dependencies.trim().split(" ")) {
+					fetchParams.put(dep, paramDiv.getWidgetAttribute(dep));
+				}
+			}
+			// 2. Fetch result
+			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
+			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
+			if (!StringUtils.hasText(selectedIndex)) {
+				selectedIndex = "0";
+			}
+			
+			// 3. Re-fill items
+			ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
+			int i = -1;
+			for (Entry<String, String> entry : fetchResult.entrySet()) {
+				i++;
+				HashMap<String, String> item1 = new HashMap<String, String>();
+				item1.put("value", entry.getKey());
+				item1.put("text", entry.getValue());
+				if (new Integer(i).toString().equals(selectedIndex)) {
+					item1.put("selected", "selected");
+				}
+				items.add(item1);
+			}
+			target.setItems(items);
+			
+			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("text"));
+		}
+	}
+	
+	
 	private void paramComponentConstruct(final Div paramDiv, final Report report) {
 		
 		final Div userParamDiv = paramDiv;
@@ -148,6 +197,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		floatParamDiv.appendChild(download);
 		
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+			final Entry<String, Map<PARAM_CONFIG, String>> paramEntry = entry;
 			final String paramName = entry.getKey();
 			final Map<PARAM_CONFIG, String> config = entry.getValue();
 			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
@@ -200,38 +250,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			
 			if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) || 
 					"select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-				final Combobox cb = new Combobox();
+				final Select cb = new Select();
+				final SelectOnCreate soc = new SelectOnCreate(cb);
 				cb.setId(config.get(PARAM_CONFIG.NAME));
-				cb.setMold("rounded");
 				if (config.containsKey(PARAM_CONFIG.FETCH_URL)) {
 					// Fetch content
-					cb.addEventListener(Events.ON_CREATE, new EventListener() {
-						
-						@Override
-						public void onEvent(Event event) throws Exception {
-							// Reload content event. FIXME: MENGRAN. Deed-loop.
-							// 1. Prepare fetch parameters
-							Map<String, String> fetchParams = new HashMap<String, String>();
-							String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
-							if (StringUtils.hasText(dependencies)) {
-								for (String dep : dependencies.trim().split(" ")) {
-									fetchParams.put(dep, userParamDiv.getWidgetAttribute(dep));
-								}
-							}
-							// 2. Fetch result
-							Map<String, String> fetchResult = new LinkedHashMap<String, String>();
-							String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
-							// 3. Re-fill items
-							cb.getItems().clear();
-							for (Entry<String, String> entry : fetchResult.entrySet()) {
-								Comboitem ci = cb.appendItem(entry.getValue());
-								ci.setValue(entry.getKey());
-							}
-							cb.setSelectedIndex("".equals(selectedIndex) ? 0 : new Integer(selectedIndex));
-							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getLabel());
-						}
-					});
+					soc.onCreate(entry);
 				}
+				
 				if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
 					if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
 						for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
@@ -239,7 +265,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 								
 								@Override
 								public void onEvent(Event event) throws Exception {
-									Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
+									soc.onCreate(paramEntry);
 								}
 							});
 						}
@@ -249,7 +275,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
-						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getLabel());
+						for (HashMap<String, String> item : cb.getItems()) {
+							if (item.get("value").equals(cb.getValue())) {
+								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), item.get("text").toString());
+							}
+						}
 					}
 				});
 				if (StringUtils.hasLength(paramName)) {
@@ -261,8 +291,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					floatParamDiv.appendChild(new Label(" "));
 				}
 				
-				// Post create event
-				Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
 			}
 		
 		}

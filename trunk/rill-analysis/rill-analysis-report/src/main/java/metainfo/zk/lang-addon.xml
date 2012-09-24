@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language-addon>
 	<addon-name>zssapp</addon-name>
-	<depends>zssex</depends>
+	<depends>zssex,ecuiZk</depends>
 	<language-name>xul/html</language-name>
 
 	<version>
@@ -48,5 +48,28 @@
 		<component-name>zssapp</component-name>
 		<extends>div</extends>
 		<component-class>org.zkoss.zss.app.zul.Zssapp</component-class>
+	</component>
+	
+	<component>
+		<component-name>select</component-name> <!-- required -->
+		<component-class>com.foo.ecuiZk.Select</component-class> <!-- required -->
+		<widget-class>ecuiZk.Select</widget-class> <!-- required -->
+		<mold>
+			<mold-name>default</mold-name>
+			<mold-uri>mold/select.js</mold-uri>
+
+			<!--
+			== Tip in advance ==
+				You don't have to specify a css.dsp if you need not ,
+				but usually you need it.
+
+				You could assign a .css file ,too.
+
+				The css.dsp is almost as same as CSS file ,
+				but have more powerful enhancement.	(like EL support.)
+			====
+			-->
+			<css-uri>css/select.css.dsp</css-uri>
+		</mold>
 	</component>
 </language-addon>
