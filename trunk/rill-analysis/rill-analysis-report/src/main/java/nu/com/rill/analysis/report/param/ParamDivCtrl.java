@@ -62,9 +62,15 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			@SuppressWarnings("unchecked")
 			Entry<String, String[]> e = (Entry<String, String[]>) entry;
 			// Update report parameters only. Don't support new parameters. 
-			if (report.getParams() != null && report.getParams().containsKey(e.getKey())) {
-				Map<PARAM_CONFIG, String> config = report.getParams().get(e.getKey());
-				config.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
+			if (report.getParams() != null) {
+				for (Map<PARAM_CONFIG, String> ele : report.getParams().values()) {
+					if (e.getKey().equals(ele.get(PARAM_CONFIG.NAME))) {
+						ele.put(PARAM_CONFIG.VALUE, e.getValue()[0]);
+					}
+				}
+				if (report.getParams().containsKey(e.getKey())) {
+					report.getParams().get(e.getKey()).put(PARAM_CONFIG.VALUE, e.getValue()[0]);
+				}
 			}
 		}
 		final Div tmpParamDiv = paramDiv;
@@ -72,7 +78,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			// Not contains any parameter
 			LOGGER.debug("Not contains any parameter and open it directly.");
 			// Post search action event
-			Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_USER, tmpParamDiv.getNextSibling(), report));
+			Executions.getCurrent().postEvent(Integer.MAX_VALUE - 1, new Event(Events.ON_USER, tmpParamDiv.getNextSibling(), report));
 			return;
 		}
 		
@@ -81,8 +87,22 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		// Initialize parameter components
 		paramComponentInit(paramDiv, report);
 		
+		// Append reset button
+		Button reset = new Button("重置");
+		reset.setClass("reset-class");
+		reset.setWidgetAttribute("fileName", report.getName());
+		reset.addEventListener(Events.ON_CLICK, new EventListener() {
+			
+			@Override
+			public void onEvent(Event event) throws Exception {
+				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+			}
+		});
+		paramDiv.appendChild(reset);
+				
 		// Append search button
 		Button search = new Button("查询");
+		search.setClass("search-class");
 		search.setWidgetAttribute("fileName", report.getName());
 		
 		search.addEventListener(Events.ON_CLICK, new EventListener() {
@@ -100,29 +120,32 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		});
 		paramDiv.appendChild(search);
 		
-		// Append reset button
-		Button reset = new Button("重置");
-		reset.setClass("paramDiv_btn");
-		reset.setWidgetAttribute("fileName", report.getName());
-		reset.addEventListener(Events.ON_CLICK, new EventListener() {
-			
-			@Override
-			public void onEvent(Event event) throws Exception {
-				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
-			}
-		});
-		paramDiv.appendChild(reset);
-		
 		paramDiv.setClass("paramDiv-class");
 		
 		// Post search action event
-		Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CLICK, search));
+		Executions.getCurrent().postEvent(Integer.MAX_VALUE - 1, new Event(Events.ON_CLICK, search));
 		
 	}
 	
 	private void paramComponentConstruct(final Div paramDiv, final Report report) {
 		
 		final Div userParamDiv = paramDiv;
+		Div floatParamDiv = new Div();
+		floatParamDiv.setId("floatParamDiv");
+		floatParamDiv.setClass("paramDiv-floatParamDiv-class");
+		userParamDiv.appendChild(floatParamDiv);
+		// Append download button
+		Button download = new Button("Download");
+		download.setClass("search-class");
+		download.setWidgetAttribute("fileName", report.getName());
+		
+		download.addEventListener(Events.ON_CLICK, new EventListener() {
+			
+			@Override
+			public void onEvent(Event event) throws Exception {
+			}
+		});
+		floatParamDiv.appendChild(download);
 		
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
 			final String paramName = entry.getKey();
@@ -165,6 +188,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				db.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
 				paramDiv.appendChild(new Label(paramName + " ："));
 				paramDiv.appendChild(db);
+				paramDiv.appendChild(new Label(" "));
 				db.addEventListener(Events.ON_CHANGE, new EventListener() {
 					
 					@Override
@@ -195,15 +219,16 @@ public class ParamDivCtrl extends GenericForwardComposer {
 								}
 							}
 							// 2. Fetch result
-							Map<String, String> fetchResult = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams);
+							Map<String, String> fetchResult = new LinkedHashMap<String, String>();
+							String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
 							// 3. Re-fill items
 							cb.getItems().clear();
 							for (Entry<String, String> entry : fetchResult.entrySet()) {
 								Comboitem ci = cb.appendItem(entry.getValue());
 								ci.setValue(entry.getKey());
 							}
-							cb.setSelectedIndex(0);
-							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getValue().toString());
+							cb.setSelectedIndex("".equals(selectedIndex) ? 0 : new Integer(selectedIndex));
+							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getLabel());
 						}
 					});
 				}
@@ -224,11 +249,18 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
-						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getValue().toString());
+						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getSelectedItem().getLabel());
 					}
 				});
-				paramDiv.appendChild(new Label(paramName + " ："));
-				paramDiv.appendChild(cb);
+				if (StringUtils.hasLength(paramName)) {
+					paramDiv.appendChild(new Label(paramName + " ："));
+					paramDiv.appendChild(cb);
+					paramDiv.appendChild(new Label(" "));
+				} else {
+					floatParamDiv.appendChild(cb);
+					floatParamDiv.appendChild(new Label(" "));
+				}
+				
 				// Post create event
 				Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CREATE, cb));
 			}
@@ -254,7 +286,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Map<String, String> fetchSelectItems(String url , Map<String, String> params) {
+	private String fetchSelectItems(String url , Map<String, String> params, Map<String, String> items) {
 		
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
 		for (Entry<String, String> entry : params.entrySet()) {
@@ -264,17 +296,18 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		String cookie = Executions.getCurrent().getHeader("Cookie");
 		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
 		
-		Map<String, String> result = new LinkedHashMap<String, String>();
 		try {
 			ReportEngine.registCookie(cookie);
 			String content = ReportEngine.fetchUrl(url, params);
 			
 			if (!StringUtils.hasText(content)) {
 				LOGGER.info("Return empty content when try to fetch url " + url + " using " + ObjectUtils.getDisplayString(params) + " " + cookie);
-				return result;
+				return "";
 			}
 			try {
-				result.putAll(ReportEngine.mapper.readValue(content, Map.class));
+				Map<String, Object> jsonResult = ReportEngine.mapper.readValue(content, Map.class);
+				items.putAll((Map<String, String>) jsonResult.get("value"));
+				return jsonResult.get("selectedIndex").toString();
 			} catch (Exception e) {
 				LOGGER.error("Error when try to parse to JSON " + content, e);
 			}
@@ -282,7 +315,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			ReportEngine.registCookie(null);
 		}
 		
-		return result;
+		return "";
 	}
 	
 }
