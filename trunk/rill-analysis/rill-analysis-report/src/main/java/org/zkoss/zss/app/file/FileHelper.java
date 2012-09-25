@@ -137,15 +137,6 @@ public class FileHelper {
 			}
 			Workbook wb = ReportEngine.INSTANCE.generateReport(input, report.getName(), reportParams);
 			
-			try {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				wb.write(baos);
-				File tmpImage = File.createTempFile(report.getName() + System.currentTimeMillis(), ".xlsx");
-				FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
-			} catch (Exception e) {
-				// Ignore~~
-			}
-			
 //			ss.setBookFromStream(input, info.getFileName());
 			ss.setBook((Book) wb);
 			return true;

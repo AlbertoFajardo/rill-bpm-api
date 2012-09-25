@@ -2,6 +2,48 @@
 <?page id="p1" title="Report View Page"?>
 <?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
 
-<zk>
-	<zssapp width="100%" height="100%"></zssapp>
+<zk xmlns:h="native">
+	<custom-attributes scope="request" org.zkoss.zk.ui.page.redrawCtrl="page"/>
+	<style>
+	    .z-button-os { 
+	        width: 85px;
+	        height: 22px;
+	        margin-left: 5px;
+	        border-color: #7FAFC5
+	    }
+	    .ui-item {
+	    	font-size: 12px;
+	    	color: #000000;
+	    }
+	    .paramDiv-class {
+	    	background-color: #F7F7F7; padding: 5px; color: #949494;
+	    	position: relative;	
+	    	font-size: 14px;
+	    }
+	    .paramDiv-floatParamDiv-class {
+	    	float: right;
+	    	position: absolute;
+	    	top: 40px;
+	    	right: 30px;
+	    	z-index: 999;
+	    }
+	    .search-class, .download-class {
+	    	background-color: #DEEBF1;
+	    	float: right;
+	    }
+	    .reset-class {
+	    	background-color: #EFEFF5;
+	    	float: right;
+	    }
+	    
+	    .zstop, .zscorner {
+	    	display: none;
+	    }
+	    .zscell {
+	    	border-right: 1px solid #FFFFFF;
+			border-bottom: 1px solid #FFFFFF;
+	    }
+	</style>
+	<div id="paramDiv" use="org.zkoss.zss.app.zul.IdDiv" apply="nu.com.rill.analysis.report.param.ParamDivCtrl" />
+	<zssapp width="100%" height="90%"></zssapp>
 </zk>
