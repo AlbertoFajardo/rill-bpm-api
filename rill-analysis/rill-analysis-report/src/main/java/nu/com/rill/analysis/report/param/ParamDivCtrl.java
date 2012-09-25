@@ -1,5 +1,6 @@
 package nu.com.rill.analysis.report.param;
 
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,9 +32,11 @@ import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.GenericForwardComposer;
 import org.zkoss.zkplus.spring.SpringUtil;
 import org.zkoss.zss.app.zul.Zssapp;
+import org.zkoss.zss.model.Book;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Datebox;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Label;
 
 import com.foo.ecuiZk.Select;
@@ -185,13 +188,22 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		userParamDiv.appendChild(floatParamDiv);
 		// Append download button
 		Button download = new Button("Download");
-		download.setClass("search-class");
+		download.setClass("download-class");
 		download.setWidgetAttribute("fileName", report.getName());
 		
 		download.addEventListener(Events.ON_CLICK, new EventListener() {
 			
 			@Override
 			public void onEvent(Event event) throws Exception {
+				Zssapp app = (Zssapp) userParamDiv.getNextSibling();
+				Book book = app.getSpreadsheet().getBook();
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					book.write(baos);
+					Filedownload.save(baos.toByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", report.getName());
+				} catch (Exception e) {
+					// Ignore~~
+				}
 			}
 		});
 		floatParamDiv.appendChild(download);

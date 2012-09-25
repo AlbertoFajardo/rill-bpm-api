@@ -23,10 +23,10 @@
 	    	float: right;
 	    	position: absolute;
 	    	top: 40px;
-	    	right: 20px;
+	    	right: 30px;
 	    	z-index: 999;
 	    }
-	    .search-class {
+	    .search-class, .download-class {
 	    	background-color: #DEEBF1;
 	    	float: right;
 	    }
