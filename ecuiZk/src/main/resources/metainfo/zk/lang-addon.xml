@@ -1,0 +1,42 @@
+<language-addon>
+    <addon-name>ecuiZk</addon-name>
+  	<version>
+		<version-class>com.foo.ecuiZk.Version</version-class>
+		<version-uid>0.0.1-SNAPSHOT</version-uid>
+		<zk-version>6.0.1</zk-version><!-- or later -->
+	</version>
+    
+	<language-name>xul/html</language-name>
+	<component>
+		<component-name>select</component-name> <!-- required -->
+		<component-class>com.foo.ecuiZk.Select</component-class> <!-- required -->
+		<widget-class>ecuiZk.Select</widget-class> <!-- required -->
+		<mold>
+			<mold-name>default</mold-name>
+			<mold-uri>mold/select.js</mold-uri>
+
+			<!--
+			== Tip in advance ==
+				You don't have to specify a css.dsp if you need not ,
+				but usually you need it.
+
+				You could assign a .css file ,too.
+
+				The css.dsp is almost as same as CSS file ,
+				but have more powerful enhancement.	(like EL support.)
+			====
+			-->
+			<css-uri>css/select.css.dsp</css-uri>
+		</mold>
+	</component>
+	<component>
+		<component-name>multiSelect</component-name> <!-- required -->
+		<component-class>com.foo.ecuiZk.MultiSelect</component-class> <!-- required -->
+		<widget-class>ecuiZk.MultiSelect</widget-class> <!-- required -->
+		<mold>
+			<mold-name>default</mold-name>
+			<mold-uri>mold/multiSelect.js</mold-uri>
+			<css-uri>css/select.css.dsp</css-uri>
+		</mold>
+	</component>
+</language-addon>
