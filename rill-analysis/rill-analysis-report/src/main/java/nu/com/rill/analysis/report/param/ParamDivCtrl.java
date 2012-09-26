@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -81,14 +82,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			// Not contains any parameter
 			LOGGER.debug("Not contains any parameter and open it directly.");
 			// Post search action event
-			Executions.getCurrent().postEvent(Integer.MAX_VALUE - 1, new Event(Events.ON_USER, tmpParamDiv.getNextSibling(), report));
+			Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_USER, tmpParamDiv.getNextSibling(), report));
 			return;
 		}
 		
 		paramComponentConstruct(paramDiv, report);
 		
 		// Initialize parameter components
-		paramComponentInit(paramDiv, report);
+		paramComponentInit(paramDiv, report, false);
 		
 		// Append reset button
 		Button reset = new Button("重置");
@@ -98,7 +99,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			
 			@Override
 			public void onEvent(Event event) throws Exception {
-				Executions.getCurrent().sendRedirect("view2.zul?fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+				
+				// Initialize parameter components
+				paramComponentInit(tmpParamDiv, report, true);
 			}
 		});
 		paramDiv.appendChild(reset);
@@ -138,8 +141,25 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			super();
 			this.target = target;
 		}
+		
+		public void resetSelectedIndex() {
+			
+			Assert.notEmpty(this.target.getItems());
+			ArrayList<HashMap<String, String>> items = this.target.getItems();
+			for (int i = 0; i < items.size(); i++) {
+				HashMap<String, String> item = items.get(i);
+				if (i == 0) {
+					item.put("selected", "selected");
+				} else {
+					item.remove("selected");
+				}
+			}
+			this.target.setItems(items);
+			
+			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("text"));
+		}
 
-		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam) {
+		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, boolean reset) {
 			
 			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
 			
@@ -155,7 +175,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			// 2. Fetch result
 			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
 			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
-			if (!StringUtils.hasText(selectedIndex)) {
+			if (reset || !StringUtils.hasText(selectedIndex)) {
 				selectedIndex = "0";
 			}
 			
@@ -267,7 +287,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				cb.setId(config.get(PARAM_CONFIG.NAME));
 				if (config.containsKey(PARAM_CONFIG.FETCH_URL)) {
 					// Fetch content
-					soc.onCreate(entry);
+					soc.onCreate(entry, false);
 				}
 				
 				if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
@@ -277,7 +297,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 								
 								@Override
 								public void onEvent(Event event) throws Exception {
-									soc.onCreate(paramEntry);
+									soc.onCreate(paramEntry, (Boolean) event.getData());
 								}
 							});
 						}
@@ -309,7 +329,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		
 	}
 	
-	private void paramComponentInit(final Div paramDiv, final Report report) {
+	private void paramComponentInit(final Div paramDiv, final Report report, boolean reset) {
 		
 		final Div userParamDiv = paramDiv;
 		
@@ -318,8 +338,13 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) 
 					|| "select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
-					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME))));
+					if (reset) {
+						SelectOnCreate soc = new SelectOnCreate((Select) userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME)));
+						soc.resetSelectedIndex();
+					}
+					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME)), reset));
 				}
+				// FIXME: What we should do when calendar reset.
 			}
 		}
 		
