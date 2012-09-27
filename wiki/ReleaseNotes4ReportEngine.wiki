@@ -1,0 +1,4 @@
+#labels Phase-Deploy
+= Deployment Details =
+==Open $TOMCAT_HOME/conf/server.xml==
+  * Add 'URIEncoding="utf-8' for http connector
