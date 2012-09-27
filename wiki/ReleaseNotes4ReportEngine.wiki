@@ -1,4 +1,7 @@
 #labels Phase-Deploy
-= Deployment Details =
-==Open $TOMCAT_HOME/conf/server.xml==
-  * Add 'URIEncoding="utf-8' for http connector
+== Deployment Details ==
+===Open $TOMCAT_HOME/conf/server.xml===
+  * Add URIEncoding="utf-8" for http Connector
+  * Add jvmRoute="re1" for Engine.(re1,re2...ren to make sure unique in all nodes)
+===Open $TOMCAT_HOME/bin/catalina.sh===
+  * Add JAVA_OPTS="$JAVA_OPTS -Dorg.apache.catalina.SESSION_COOKIE_NAME=REJSESSIONID -Dorg.apache.catalina.SESSION_PARAMETER_NAME=rejsessionid"
