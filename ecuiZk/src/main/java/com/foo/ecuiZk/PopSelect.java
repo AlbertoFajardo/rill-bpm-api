@@ -1,5 +1,6 @@
 package com.foo.ecuiZk;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zul.impl.XulElement;
 
-public class MultiSelect extends XulElement {
+public class PopSelect extends XulElement {
 
 	/*
 	static {
@@ -25,17 +26,17 @@ public class MultiSelect extends XulElement {
 
 	private String _text;
 	
-	private String _value;
+	private ArrayList<String> _value;
 	
 	private HashMap<String, String> _options;
 	
-	private ArrayList<HashMap<String, String>> _items;
+	private ArrayList<ArrayList<String>> _items;
 
 	public String getText() {
 		return _text;
 	}
 	
-	public String getValue() {
+	public ArrayList<String> getValue() {
 		return _value;
 	}
 	
@@ -43,7 +44,7 @@ public class MultiSelect extends XulElement {
 		return _options;
 	}
 	
-	public ArrayList<HashMap<String, String>> getItems() {
+	public ArrayList<ArrayList<String>> getItems() {
 		return _items;
 	}
 	
@@ -54,7 +55,7 @@ public class MultiSelect extends XulElement {
 		}
 	}
 	
-	public void setValue(String value) {
+	public void setValue(ArrayList<String> value) {
 		if (!Objects.equals(_value, value)) {
 			_value = value;
 			smartUpdate("value", _value);
@@ -66,13 +67,13 @@ public class MultiSelect extends XulElement {
 		smartUpdate("options", _options);
 	}
 	
-	public void setItems(ArrayList<HashMap<String, String>> items) {
+	public void setItems(ArrayList<ArrayList<String>> items) {
 		_items = items;
 		smartUpdate("items", _items);
 	}
 	
 	static {
-		addClientEvent(MultiSelect.class, "onChange", CE_IMPORTANT);
+		addClientEvent(PopSelect.class, "onChange", CE_IMPORTANT);
 	}
 
 	//super//
@@ -95,8 +96,9 @@ public class MultiSelect extends XulElement {
 			Events.postEvent(Event.getEvent(request));
 		} 
 		else if (cmd.equals("onChange")) {
-			final String value = (String)data.get("value");
-			_value = value;
+			final String str = (String)data.get("value");
+			_value = new ArrayList<String>();
+			_value.addAll(Arrays.asList(str.split(",")));
 			//System.out.println(_value);
 			Events.postEvent(Event.getEvent(request));
 		}else

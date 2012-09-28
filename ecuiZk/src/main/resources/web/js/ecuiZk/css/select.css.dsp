@@ -135,3 +135,13 @@ input.ui-button-g:active {background-position:0px -96px;color:#FFF}
 .ui-pop-button-text {border:0px;background:none}
 .ui-pop-button .ui-pop-button-icon {position:absolute;height:18px;width:11px;top:0px;right:4px;background:url(../../../js/ecuiZk/img/ecui.png) -17px -200px}
 .ui-pop-button-disabled .ui-pop-button-icon {background-position:-17px -218px}
+
+.ui-pop-select {background:none repeat scroll 0 0 #FFFFFF; border:1px solid #A8ADB6; height:20px; width:100px; vertical-align:middle;}
+.ui-pop-select-text {border-top:1px solid #F0F0F0; cursor:default; display:block; line-height:18px; padding-left:4px;}
+.ui-pop-select-button {background:url("../../../js/ecuiZk/img/ecui.png") no-repeat scroll 4px -200px transparent; border: 0 none; border-radius:0 0 0 0; margin:0; padding:0;}
+
+.ui-custom-checkboxs input {vertical-align:middle}
+.ui-custom-checkboxs-title {margin:0px -10px;border-bottom:1px dashed #CCC;padding:10px;padding-top:0px;margin-bottom:10px}
+.ui-custom-checkboxs-title label {font-weight:bold;margin:0px 10px 0px 5px}
+.ui-custom-checkboxs-item {float:left;display:block;width:138px;padding-bottom:5px}
+.ui-custom-checkboxs-item label {margin-left:5px}
