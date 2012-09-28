@@ -19,12 +19,14 @@
  * If this.desktop exist , means it's after mold rendering.
  *
  */
-ecuiZk.MultiSelect = zk.$extends(zul.Widget, {
+ecuiZk.PopSelect = zk.$extends(zul.Widget, {
 	_text:'', //default value for text attribute
 	_ecuiId : "", //ecui控件使用的id
+	_popButId : "", 
+	_popPanelId : "",
 	_options : {}, //ecui控件的options配置
 	_items : {},
-	_value : "",
+	_value : [],
 	//_selected : 
 	
 	/**
@@ -78,13 +80,13 @@ ecuiZk.MultiSelect = zk.$extends(zul.Widget, {
     },
     
     getValue : function () {
-    	this._value = ecui.get(this._ecuiId).getValue();
+    	this._value = ecui.get(this._popButId).getValue();
     	return this._value;
     },
     
     setValue : function (val) {
     	this._value = val;
-    	ecui.get(this._ecuiId).setValue(this._value);
+    	ecui.get(this._popButId).setValue(this._value);
     },
     
     getItems : function () {
@@ -93,24 +95,14 @@ ecuiZk.MultiSelect = zk.$extends(zul.Widget, {
     
     setItems : function (val) {
     	this._items = val;
-    	if (this._ecuiId) {
-    		for (var i = 0, list = ecui.get(this._ecuiId).getItems(), o; o = list[i++]; ) {
-    			ecui.get(this._ecuiId).remove(o);
-            }
-    		
-    		for (var i = 0; i < this._items.length; i++) {
-    			var item = this._items[i];
-    			ecui.get(this._ecuiId).add(item.text, item.index, {value : item.value});
-    			if (item.selected == "selected") {
-    				ecui.get(this._ecuiId).setValue(item.value);
-    			}
-    		}
+    	if (this._popPanelId) {
+    		ecui.get(this._popPanelId).render(this._items);
     	}
     },
     
     optToStr_ : function () {
     	var options = this._options;
-    	var optStr = "type:select;";
+    	var optStr = "type:pop;";
     	var item;
     	for (item in options) {
     		optStr += item + ":" + options[item] + ";"
@@ -123,7 +115,7 @@ ecuiZk.MultiSelect = zk.$extends(zul.Widget, {
 
 		this.$supers(ecuiZk.Select,'bind_', arguments);
 		ecui.init(document.body);
-		ecui.get(this._ecuiId).onchange = this.doChange_(this);
+		ecui.get(this._popButId).onchange = this.doChange_(this);
 		
 	},
 
@@ -137,14 +129,15 @@ ecuiZk.MultiSelect = zk.$extends(zul.Widget, {
 		* as LAST STATEMENT in the function.
 		*/
 		this.$supers(ecuiZk.Select,'unbind_', arguments);
-		ecui.get(this._ecuiId).$dispose();
+		ecui.get(this._popButId).$dispose();
+		ecui.get(this._popPanelId).$dispose();
 	},
 	
 	doChange_ : function (me) {
 		return function (evt) {
 			//me.$super("doChange_", evt, true);
-			me._value = ecui.get(me._ecuiId).getValue();
-			me.fire("onChange", {value : me._value});
+			me._value = ecui.get(me._popButId).getValue();
+			me.fire("onChange", {value : me._value.join()});
 		};
 	},
 	
