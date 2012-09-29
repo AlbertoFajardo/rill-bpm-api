@@ -1407,7 +1407,7 @@ var UI_TABLE_ROW_CLASS;
             },
             UI_EVENT_CLASS = UI_EVENT.prototype,
 
-            ecuiName = 'ecui',        // Element 中用于自动渲染的 ecui 属性名称
+            ecuiName = 'ecuiZk',        // Element 中用于自动渲染的 ecui 属性名称
             isGlobalId,               // 是否自动将 ecui 的标识符全局化
             structural,               // DOM结构生成的方式，0表示填充所有内容，1表示不填充控件的class，2表示完全不填充
 
