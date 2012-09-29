@@ -23,7 +23,7 @@
 	    	float: right;
 	    	position: absolute;
 	    	top: 40px;
-	    	right: 30px;
+	    	right: 80px;
 	    	z-index: 999;
 	    }
 	    .search-class, .download-class {
@@ -44,5 +44,5 @@
 	    }
 	</style>
 	<div id="paramDiv" use="org.zkoss.zss.app.zul.IdDiv" apply="nu.com.rill.analysis.report.param.ParamDivCtrl" />
-	<zssapp width="100%" height="90%"></zssapp>
+	<zssapp width="100%"></zssapp>
 </zk>
