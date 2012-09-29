@@ -21,7 +21,7 @@ function (out) {
 	out.push(this._text);
 	out.push('</span>');
 	*/
-	out.push("<select ecui='id:", this._ecuiId, ";", this.optToStr_(), "' style='");
+	out.push("<select ecuiZk='id:", this._ecuiId, ";", this.optToStr_(), "' style='");
 	if (this._options["width"]) {
 		out.push("width:", this._options["width"], "; ");
 	}
