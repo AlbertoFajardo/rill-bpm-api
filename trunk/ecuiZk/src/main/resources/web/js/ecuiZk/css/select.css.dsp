@@ -129,7 +129,7 @@ input.ui-button-g:active {background-position:0px -96px;color:#FFF}
 .ui-multi-calendar-layer-cal-area {display:inline-block;margin-right:10px;*display:inline;zoom:1}
 .ui-multi-calendar-layer-buttons  {margin-top:10px;padding-bottom:5px}
 
-.ui-pop {position:absolute;border:1px solid #7D889A;border-top-width:5px;background-color:#FFF;z-index:1;padding:10px}
+.ui-pop {position:absolute;border:1px solid #7D889A;border-top-width:5px;background-color:#FFF;z-index:9999;padding:10px}
 .ui-pop-buttons {padding-top:5px;clear:both}
 .ui-pop-button {position:relative;padding-right:20px;}
 .ui-pop-button-text {border:0px;background:none}
