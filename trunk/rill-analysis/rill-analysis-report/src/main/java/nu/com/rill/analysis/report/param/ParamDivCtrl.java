@@ -40,6 +40,7 @@ import org.zkoss.zul.Div;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Label;
 
+import com.foo.ecuiZk.PopSelect;
 import com.foo.ecuiZk.Select;
 
 public class ParamDivCtrl extends GenericForwardComposer {
@@ -159,7 +160,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("text"));
 		}
 
-		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, boolean reset) {
+		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
+			
+			if (reset == null) {
+				reset = false;
+			}
 			
 			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
 			
@@ -195,6 +200,88 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			target.setItems(items);
 			
 			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("text"));
+		}
+	}
+	
+	private class PopSelectOnCreate {
+		
+		private PopSelect target;
+		
+		public PopSelectOnCreate(PopSelect target) {
+			super();
+			this.target = target;
+		}
+		
+		public void resetSelectedIndex() {
+			
+			Assert.notEmpty(this.target.getItems());
+			ArrayList<ArrayList<String>> items = this.target.getItems();
+			String value = "";
+			for (int i = 0; i < items.size(); i++) {
+				List<String> item = items.get(i);
+				if (i == 0) {
+					item.set(2, "true");
+					value = item.get(1);
+				} else {
+					item.set(2, "false");
+				}
+			}
+			this.target.setItems(items);
+			
+			paramDiv.setWidgetAttribute(target.getId(), value);
+		}
+
+		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
+			
+			if (reset == null) {
+				reset = false;
+			}
+			
+//			HashMap<String, String> options = new HashMap<String, String>();
+//			options.put("butWidth", "400px");
+//			options.put("panelWidth", "350px");
+			
+			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
+			
+			// Reload content event. FIXME: MENGRAN. Deed-loop.
+			// 1. Prepare fetch parameters
+			Map<String, String> fetchParams = new HashMap<String, String>();
+			String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
+			if (StringUtils.hasText(dependencies)) {
+				for (String dep : dependencies.trim().split(" ")) {
+					fetchParams.put(dep, paramDiv.getWidgetAttribute(dep));
+				}
+			}
+			// 2. Fetch result
+			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
+			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
+			if (reset || !StringUtils.hasText(selectedIndex)) {
+				selectedIndex = "0";
+			}
+			
+			// 3. Re-fill items
+			ArrayList<ArrayList<String>> items = new ArrayList<ArrayList<String>>();
+			int i = -1;
+			String value = "";
+			for (Entry<String, String> entry : fetchResult.entrySet()) {
+				i++;
+				ArrayList<String> item1 = new ArrayList<String>();
+				item1.add(i + "");
+				item1.add(entry.getValue());
+				for (String select : selectedIndex.split(",")) {
+					if (select.equals(new Integer(i).toString())) {
+						item1.add("true");
+						value += entry.getValue();
+					}else {
+						item1.add("false");
+					}
+				}
+				item1.add(i == 0 ? "true" : "false");
+				items.add(item1);
+			}
+			target.setItems(items);
+			
+			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), value);
 		}
 	}
 	
@@ -280,8 +367,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				});
 			}
 			
-			if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) || 
-					"select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+			if ("select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 				final Select cb = new Select();
 				final SelectOnCreate soc = new SelectOnCreate(cb);
 				cb.setId(config.get(PARAM_CONFIG.NAME));
@@ -324,6 +410,57 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				}
 				
 			}
+			
+			if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				
+				final PopSelect ps = new PopSelect();
+				final PopSelectOnCreate psoc = new PopSelectOnCreate(ps);
+				ps.setId(config.get(PARAM_CONFIG.NAME));
+				if (config.containsKey(PARAM_CONFIG.FETCH_URL)) {
+					// Fetch content
+					psoc.onCreate(entry, false);
+				}
+				
+				if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
+					if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
+						for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
+							paramDiv.getFellow(dep).addEventListener(Events.ON_CHANGE, new EventListener() {
+								
+								@Override
+								public void onEvent(Event event) throws Exception {
+									psoc.onCreate(paramEntry, (Boolean) event.getData());
+								}
+							});
+						}
+					}
+				}
+				ps.addEventListener(Events.ON_CHANGE, new EventListener() {
+					
+					@Override
+					public void onEvent(Event event) throws Exception {
+						String select = "";
+						if (!CollectionUtils.isEmpty(ps.getValue())) {
+							for (String value : ps.getValue()) {
+								for (ArrayList<String> item : ps.getItems()) {
+									if (item.get(0).equals(value)) {
+										select += item.get(1) + ",";
+									}
+								}
+							}
+							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), select.substring(0, select.length() - 1));
+						}
+						
+					}
+				});
+				if (StringUtils.hasLength(paramName)) {
+					paramDiv.appendChild(new Label(paramName + " ："));
+					paramDiv.appendChild(ps);
+					paramDiv.appendChild(new Label(" "));
+				} else {
+					floatParamDiv.appendChild(ps);
+					floatParamDiv.appendChild(new Label(" "));
+				}
+			}
 		
 		}
 		
@@ -336,11 +473,17 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
 			final Map<PARAM_CONFIG, String> config = entry.getValue();
 			if (config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
-				if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE)) 
-					|| "select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				if ("select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 					if (reset) {
 						SelectOnCreate soc = new SelectOnCreate((Select) userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME)));
 						soc.resetSelectedIndex();
+					}
+					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME)), reset));
+				}
+				if ("multiselect".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+					if (reset) {
+						PopSelectOnCreate psoc = new PopSelectOnCreate((PopSelect) userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME)));
+						psoc.resetSelectedIndex();
 					}
 					Executions.getCurrent().postEvent(Integer.MAX_VALUE, new Event(Events.ON_CHANGE, userParamDiv.getFellow(config.get(PARAM_CONFIG.NAME)), reset));
 				}

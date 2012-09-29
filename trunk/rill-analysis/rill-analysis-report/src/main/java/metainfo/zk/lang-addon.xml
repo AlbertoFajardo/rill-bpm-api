@@ -57,18 +57,16 @@
 		<mold>
 			<mold-name>default</mold-name>
 			<mold-uri>mold/select.js</mold-uri>
-
-			<!--
-			== Tip in advance ==
-				You don't have to specify a css.dsp if you need not ,
-				but usually you need it.
-
-				You could assign a .css file ,too.
-
-				The css.dsp is almost as same as CSS file ,
-				but have more powerful enhancement.	(like EL support.)
-			====
-			-->
+			<css-uri>css/select.css.dsp</css-uri>
+		</mold>
+	</component>
+	<component>
+		<component-name>popSelect</component-name> <!-- required -->
+		<component-class>com.foo.ecuiZk.PopSelect</component-class> <!-- required -->
+		<widget-class>ecuiZk.PopSelect</widget-class> <!-- required -->
+		<mold>
+			<mold-name>default</mold-name>
+			<mold-uri>mold/popSelect.js</mold-uri>
 			<css-uri>css/select.css.dsp</css-uri>
 		</mold>
 	</component>
