@@ -57,7 +57,7 @@
             }
         ),
 
-        UI_POP_CLASS = UI_POP.prototype;
+        UI_POP_CLASS = UI_POP.prototype,
 
         UI_POP_BTN = UI_POP_CLASS.Button = 
         inheritsControl(

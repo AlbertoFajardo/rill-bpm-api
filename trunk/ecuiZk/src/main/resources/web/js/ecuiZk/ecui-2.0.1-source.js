@@ -1,4 +1,7 @@
 var ecui;
+var UI_CONTROL_CLASS;
+var UI_TABLE_CLASS;
+var UI_TABLE_ROW_CLASS;
 (function () {
 
 //{assign var="phases" value="define,body" delimiter=","}//
@@ -9757,7 +9760,7 @@ _eFill       - 用于控制中部宽度的单元格
                 insertBefore(lockedEl.firstChild, this._uHead.getOuter());
                 insertBefore(lockedEl.firstChild, getParent(this.getBody()));
             }
-        );
+        ),
         UI_LOCKED_TABLE_CLASS = UI_LOCKED_TABLE.prototype,
 
         /**
