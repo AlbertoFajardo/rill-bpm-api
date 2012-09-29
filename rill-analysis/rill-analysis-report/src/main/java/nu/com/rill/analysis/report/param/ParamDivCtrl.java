@@ -401,10 +401,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					}
 				});
 				if (StringUtils.hasLength(paramName)) {
-					paramDiv.appendChild(new Label(paramName + " ："));
+					paramDiv.appendChild(new Label(" "));
+					Label l = new Label(paramName + " ：");
+					l.setClass("param-label-class");
+					paramDiv.appendChild(l);
 					paramDiv.appendChild(cb);
 					paramDiv.appendChild(new Label(" "));
 				} else {
+					floatParamDiv.appendChild(new Label(" "));
 					floatParamDiv.appendChild(cb);
 					floatParamDiv.appendChild(new Label(" "));
 				}
@@ -453,10 +457,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					}
 				});
 				if (StringUtils.hasLength(paramName)) {
-					paramDiv.appendChild(new Label(paramName + " ："));
+					paramDiv.appendChild(new Label(" "));
+					Label l = new Label(paramName + " ：");
+					l.setClass("param-label-class");
+					paramDiv.appendChild(l);
 					paramDiv.appendChild(ps);
 					paramDiv.appendChild(new Label(" "));
 				} else {
+					floatParamDiv.appendChild(new Label(" "));
 					floatParamDiv.appendChild(ps);
 					floatParamDiv.appendChild(new Label(" "));
 				}

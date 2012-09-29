@@ -11,14 +11,16 @@
 	        margin-left: 5px;
 	        border-color: #7FAFC5
 	    }
-	    .ui-item {
-	    	font-size: 12px;
-	    	color: #000000;
+	    
+	    .param-label-class {
+	    	color: #949494;
+	    	font-size: 14px;
+	    	vertical-align:middle;
 	    }
 	    .paramDiv-class {
-	    	background-color: #F7F7F7; padding: 5px; color: #949494;
+	    	background-color: #F7F7F7; padding: 5px; 
 	    	position: relative;	
-	    	font-size: 14px;
+	    	font-size: 12px;
 	    }
 	    .paramDiv-floatParamDiv-class {
 	    	float: right;

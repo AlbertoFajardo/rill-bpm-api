@@ -146,6 +146,8 @@ public class Zssapp extends Div implements IdSpace  {
 		}
 		if (initBook != null) {
 			this.setBook(initBook);
+			// Calculate height // FIXME: Need adjust~
+			calculateHeight(spreadsheet.getSelectedSheet());
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum());
 		}
@@ -167,8 +169,14 @@ public class Zssapp extends Div implements IdSpace  {
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
 		}
 		
+		// FIXME: bridge-kpi.xlsx have two scroll-bar
+		calculateHeight(spreadsheet.getSelectedSheet());
+		
+	}
+	
+	private void calculateHeight(Worksheet sheet) {
+		
 		int height = 15;
-		Worksheet sheet = spreadsheet.getSelectedSheet();
 		for (Row row : sheet) {
 			height +=Utils.getRowHeightInPx(sheet, row);
 		}
