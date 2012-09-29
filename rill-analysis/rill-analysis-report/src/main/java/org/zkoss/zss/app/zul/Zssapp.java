@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -40,8 +41,10 @@ import org.zkoss.zss.app.file.FileHelper;
 import org.zkoss.zss.app.zul.ctrl.DesktopCellStyleContext;
 import org.zkoss.zss.app.zul.ctrl.DesktopWorkbenchContext;
 import org.zkoss.zss.model.Book;
+import org.zkoss.zss.model.Worksheet;
 import org.zkoss.zss.model.impl.ExcelImporter;
 import org.zkoss.zss.ui.Spreadsheet;
+import org.zkoss.zss.ui.impl.Utils;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Menubar;
 
@@ -163,6 +166,13 @@ public class Zssapp extends Div implements IdSpace  {
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
 		}
+		
+		int height = 15;
+		Worksheet sheet = spreadsheet.getSelectedSheet();
+		for (Row row : sheet) {
+			height +=Utils.getRowHeightInPx(sheet, row);
+		}
+		this.setHeight(height + "px");
 	}
 	
 	/**

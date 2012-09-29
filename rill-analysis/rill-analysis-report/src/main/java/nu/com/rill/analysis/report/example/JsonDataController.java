@@ -39,14 +39,14 @@ public class JsonDataController {
 		indData.add(ServletRequestUtils.getRequiredStringParameter(request, "indId"));
 		result.add(indData);
 		
+		String[] posIds = ServletRequestUtils.getRequiredStringParameter(request, "posIds").split(",");
+		
 		Random random = new Random();
 		List<String> trendTitleData = new ArrayList<String>();
 		trendTitleData.add("时间");
-		trendTitleData.add("高级经理");
-		trendTitleData.add("高级经理" + random.nextInt(100));
-		trendTitleData.add("高级经理" + random.nextInt(100));
-		trendTitleData.add("高级经理" + random.nextInt(100));
-		trendTitleData.add("高级经理" + random.nextInt(100));
+		for (String posId : posIds) {
+			trendTitleData.add(posId);
+		}
 		result.add(trendTitleData);
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -55,15 +55,10 @@ public class JsonDataController {
 			Integer randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
 			date = DateUtils.addDays(date, 1);
 			trendData.add(sdf.format(date));
-			trendData.add(randomNum.toString());
-			randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
-			trendData.add(randomNum.toString());
-			randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
-			trendData.add(randomNum.toString());
-			randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
-			trendData.add(randomNum.toString());
-			randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
-			trendData.add(randomNum.toString());
+			for (String posId : posIds) {
+				trendData.add(randomNum.toString());
+				randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
+			}
 			result.add(trendData);
 		}
 		
