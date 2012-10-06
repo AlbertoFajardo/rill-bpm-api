@@ -24,10 +24,11 @@ import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -59,6 +60,8 @@ public class Zssapp extends Div implements IdSpace  {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static final Log LOGGER = LogFactory.getLog(Zssapp.class);
 	
 	private final static String KEY_ZSSAPP = "org.zkoss.zss.app.zul.zssApp";
 	/*Default spreadsheet*/
@@ -146,7 +149,7 @@ public class Zssapp extends Div implements IdSpace  {
 		}
 		if (initBook != null) {
 			this.setBook(initBook);
-			// Calculate height // FIXME: Need adjust~
+			// Calculate height
 			calculateHeight(spreadsheet.getSelectedSheet());
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum());
@@ -169,7 +172,7 @@ public class Zssapp extends Div implements IdSpace  {
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
 		}
 		
-		// FIXME: bridge-kpi.xlsx have two scroll-bar
+		// Calculate height
 		calculateHeight(spreadsheet.getSelectedSheet());
 		
 	}
@@ -177,8 +180,9 @@ public class Zssapp extends Div implements IdSpace  {
 	private void calculateHeight(Worksheet sheet) {
 		
 		int height = 15;
-		for (Row row : sheet) {
-			height +=Utils.getRowHeightInPx(sheet, row);
+		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+			height +=Utils.getRowHeightInPx(sheet, sheet.getRow(i));
+			LOGGER.debug("height : " + height + " after calculate row num" + i);
 		}
 		this.setHeight(height + "px");
 	}
