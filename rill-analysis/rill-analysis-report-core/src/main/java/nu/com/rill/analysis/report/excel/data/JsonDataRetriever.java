@@ -9,6 +9,8 @@ import nu.com.rill.analysis.report.excel.ReportEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zss.model.Worksheet;
@@ -31,9 +33,26 @@ public class JsonDataRetriever implements DataRetriever {
 		String url = row.getCell(row.getFirstCellNum()).getStringCellValue();
 		String result = ReportEngine.fetchUrl(reportParams.get(ReportEngine.URL) + url, reportParams);
 		
-		List<List<String>> data = new ArrayList<List<String>>();
+		List<List<String>> data = null;
 		try {
-			data.addAll(ReportEngine.mapper.readValue(result, List.class));
+			JsonParser parser = ReportEngine.mapper.getJsonFactory().createJsonParser(result);
+			parser.nextToken();
+			while (parser.nextToken() != JsonToken.END_OBJECT) {
+				String fieldname = parser.getCurrentName();
+				if (fieldname == null) {
+					break;
+				}
+				parser.nextToken();
+				if ("_RE_DATA_JSON_RESULT".equals(fieldname)) {
+					data = parser.readValueAs(List.class);
+				}
+			}
+			parser.close();
+			if (data == null) {
+				data = new ArrayList<List<String>>();
+				data.addAll(ReportEngine.mapper.readValue(result, List.class));
+			}
+			
 			int i = row.getRowNum() + 1;
 			for (List<String> element : data) {
 				// Handle row one by one.

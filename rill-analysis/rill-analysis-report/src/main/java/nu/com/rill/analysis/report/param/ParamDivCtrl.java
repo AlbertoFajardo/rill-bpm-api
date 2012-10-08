@@ -20,6 +20,8 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -521,7 +523,22 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				return "";
 			}
 			try {
-				Map<String, Object> jsonResult = ReportEngine.mapper.readValue(content, Map.class);
+				Map<String, Object> jsonResult = null;
+				JsonParser parser = ReportEngine.mapper.getJsonFactory().createJsonParser(content);
+				parser.nextToken();
+				while (parser.nextToken() != JsonToken.END_OBJECT) {
+					String fieldname = parser.getCurrentName();
+					parser.nextToken();
+					if (fieldname.equals("_RE_PARAM_JSON_RESULT")) {
+						jsonResult = parser.readValueAs(Map.class);
+					}
+				}
+				parser.close();
+				
+				if (jsonResult == null) {
+					jsonResult = ReportEngine.mapper.readValue(content, Map.class);
+				}
+				
 				items.putAll((Map<String, String>) jsonResult.get("value"));
 				return jsonResult.get("selectedIndex").toString();
 			} catch (Exception e) {
