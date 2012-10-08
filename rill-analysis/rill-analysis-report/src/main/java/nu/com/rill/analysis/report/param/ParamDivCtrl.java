@@ -20,8 +20,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -516,6 +515,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		
 		try {
 			ReportEngine.registCookie(cookie);
+			LOGGER.debug("Fetch url with params: " + ObjectUtils.getDisplayString(params));
 			String content = ReportEngine.fetchUrl(url, params);
 			
 			if (!StringUtils.hasText(content)) {
@@ -524,19 +524,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 			try {
 				Map<String, Object> jsonResult = null;
-				JsonParser parser = ReportEngine.mapper.getJsonFactory().createJsonParser(content);
-				parser.nextToken();
-				while (parser.nextToken() != JsonToken.END_OBJECT) {
-					String fieldname = parser.getCurrentName();
-					parser.nextToken();
-					if (fieldname.equals("_RE_PARAM_JSON_RESULT")) {
-						jsonResult = parser.readValueAs(Map.class);
-					}
-				}
-				parser.close();
+				jsonResult = ReportEngine.mapper.readValue(content, new TypeReference<Map<String, Object>>() {
+				});
 				
-				if (jsonResult == null) {
-					jsonResult = ReportEngine.mapper.readValue(content, Map.class);
+				if (jsonResult.containsKey("_RE_PARAM_JSON_RESULT")) {
+					jsonResult = (Map<String, Object>) jsonResult.get("_RE_PARAM_JSON_RESULT");
 				}
 				
 				items.putAll((Map<String, String>) jsonResult.get("value"));
