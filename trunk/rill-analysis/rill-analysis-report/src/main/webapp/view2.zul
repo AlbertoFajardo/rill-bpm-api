@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?page id="p1" title="Report View Page"?>
 <?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
+<?script type="text/javascript" src="ecui-2.0.1-source.js"?>
 
 <zk xmlns:h="native">
+	
 	<style>
 	    .z-button-os { 
 	        width: 85px;
@@ -21,12 +23,16 @@
 	    	position: relative;	
 	    	font-size: 12px;
 	    }
+	    .ui-panel {
+	    	font-size: 12px;
+	    }
 	    .paramDiv-floatParamDiv-class {
 	    	float: right;
 	    	position: absolute;
 	    	top: 40px;
 	    	right: 80px;
 	    	z-index: 999;
+	    	font-size: 12px;
 	    }
 	    .search-class, .download-class {
 	    	background-color: #DEEBF1;
