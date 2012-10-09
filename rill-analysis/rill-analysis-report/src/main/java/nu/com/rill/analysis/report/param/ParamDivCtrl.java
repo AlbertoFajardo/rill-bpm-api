@@ -158,7 +158,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 			this.target.setItems(items);
 			
-			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("text"));
+			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("value"));
 		}
 
 		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
@@ -200,7 +200,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 			target.setItems(items);
 			
-			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("text"));
+			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("value"));
 		}
 	}
 	
@@ -222,7 +222,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				List<String> item = items.get(i);
 				if (i == 0) {
 					item.set(2, "true");
-					value = item.get(1);
+					value = item.get(0);
 				} else {
 					item.set(2, "false");
 				}
@@ -267,12 +267,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			for (Entry<String, String> entry : fetchResult.entrySet()) {
 				i++;
 				ArrayList<String> item1 = new ArrayList<String>();
-				item1.add(i + "");
+				item1.add(entry.getKey());
 				item1.add(entry.getValue());
 				for (String select : selectedIndex.split(",")) {
 					if (select.equals(new Integer(i).toString())) {
 						item1.add("true");
-						value += entry.getValue();
+						value += entry.getKey();
 					}else {
 						item1.add("false");
 					}
@@ -295,7 +295,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		floatParamDiv.setClass("paramDiv-floatParamDiv-class");
 		userParamDiv.appendChild(floatParamDiv);
 		// Append download button
-		Button download = new Button("Download");
+		Button download = new Button("下载");
 		download.setClass("download-class");
 		download.setWidgetAttribute("fileName", report.getName());
 		
@@ -396,7 +396,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					public void onEvent(Event event) throws Exception {
 						for (HashMap<String, String> item : cb.getItems()) {
 							if (item.get("value").equals(cb.getValue())) {
-								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), item.get("text").toString());
+								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getValue());
 							}
 						}
 					}
@@ -446,11 +446,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 						String select = "";
 						if (!CollectionUtils.isEmpty(ps.getValue())) {
 							for (String value : ps.getValue()) {
-								for (ArrayList<String> item : ps.getItems()) {
-									if (item.get(0).equals(value)) {
-										select += item.get(1) + ",";
-									}
-								}
+								select += value + ",";
+//								for (ArrayList<String> item : ps.getItems()) {
+//									if (item.get(0).equals(value)) {
+//										select += item.get(1) + ",";
+//									}
+//								}
 							}
 							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), select.substring(0, select.length() - 1));
 						}
@@ -530,9 +531,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				if (jsonResult.containsKey("_RE_PARAM_JSON_RESULT")) {
 					jsonResult = (Map<String, Object>) jsonResult.get("_RE_PARAM_JSON_RESULT");
 				}
+				if (jsonResult != null) {
+					items.putAll((Map<String, String>) jsonResult.get("value"));
+				}
 				
-				items.putAll((Map<String, String>) jsonResult.get("value"));
-				return jsonResult.get("selectedIndex").toString();
+				return jsonResult == null ? "" : jsonResult.get("selectedIndex").toString();
 			} catch (Exception e) {
 				LOGGER.error("Error when try to parse to JSON " + content, e);
 			}

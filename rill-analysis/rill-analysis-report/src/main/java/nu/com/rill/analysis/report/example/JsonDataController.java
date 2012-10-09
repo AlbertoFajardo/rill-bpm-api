@@ -31,12 +31,12 @@ public class JsonDataController {
 		List<List<String>> result = new ArrayList<List<String>>();
 		List<String> lineData = new ArrayList<String>();
 		lineData.add("商业产品线");
-		lineData.add(ServletRequestUtils.getRequiredStringParameter(request, "lineId"));
+		lineData.add(ParamController.lineMap.get(ServletRequestUtils.getRequiredStringParameter(request, "lineId")));
 		result.add(lineData);
 		
 		List<String> indData = new ArrayList<String>();
 		indData.add("分析指标");
-		indData.add(ServletRequestUtils.getRequiredStringParameter(request, "indId"));
+		indData.add(ParamController.indMap.get(ServletRequestUtils.getRequiredStringParameter(request, "indId")));
 		result.add(indData);
 		
 		String[] posIds = ServletRequestUtils.getRequiredStringParameter(request, "posIds").split(",");
@@ -45,7 +45,7 @@ public class JsonDataController {
 		List<String> trendTitleData = new ArrayList<String>();
 		trendTitleData.add("时间");
 		for (String posId : posIds) {
-			trendTitleData.add(posId);
+			trendTitleData.add(ParamController.posMap.get(posId));
 		}
 		result.add(trendTitleData);
 		Date date = new Date();
