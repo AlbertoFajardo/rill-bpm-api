@@ -68,4 +68,45 @@ public class JsonDataController {
 		
 	}
 	
+	@RequestMapping(value = { "/rtdata" }, method = {RequestMethod.GET, RequestMethod.POST})
+	public void rtdata(HttpServletRequest request,HttpServletResponse response) throws Exception {
+		
+		response.setContentType("application/json;charset=UTF-8");
+		final PrintWriter out = response.getWriter();
+		
+		List<List<String>> result = new ArrayList<List<String>>();
+		List<String> lineData = new ArrayList<String>();
+		lineData.add("商业产品线");
+		lineData.add(ParamController.lineMap.get(ServletRequestUtils.getRequiredStringParameter(request, "lineId")));
+		result.add(lineData);
+		
+		List<String> indData = new ArrayList<String>();
+		indData.add("分析指标");
+		indData.add(ParamController.indMap.get(ServletRequestUtils.getRequiredStringParameter(request, "indId")));
+		result.add(indData);
+		
+		List<String> trendTitleData = new ArrayList<String>();
+		trendTitleData.add("时间");
+		trendTitleData.add("今天");
+		trendTitleData.add("昨天");
+		trendTitleData.add("上周同期");
+		result.add(trendTitleData);
+		
+		for (int i = 0; i < 24; i++) {
+			List<String> trendData = new ArrayList<String>();
+			Integer randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
+			trendData.add(i + ":00");
+			for (String a : "1,2,3".split(",")) {
+				trendData.add(randomNum.toString());
+				randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
+			}
+			result.add(trendData);
+		}
+		
+		ReportEngine.mapper.writeValue(out, result);
+		
+		out.flush();
+		
+	}
+	
 }
