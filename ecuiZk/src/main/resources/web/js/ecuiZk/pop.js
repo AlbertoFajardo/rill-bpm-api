@@ -125,7 +125,10 @@
 
     UI_POP_CLASS.render = function (data) {
         if (!this._uCheckPanel) {
-            return ;
+        	var parEle = createDom();
+            moveElements(this.getMain(), parEle, true);
+            this.getMain().appendChild(parEle);
+            this._uCheckPanel = $fastCreate(UI_CUSTOM_CHECKBOXS, parEle, this, {});
         }
         var items = [];
         for (var i = 0, o; o = data[i++]; ) {
