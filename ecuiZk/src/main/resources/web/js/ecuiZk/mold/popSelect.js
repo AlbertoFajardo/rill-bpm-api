@@ -13,7 +13,7 @@ function (out) {
 	this._popButId = this._ecuiId + "-but";
 	this._popPanelId = this._ecuiId + "-panel";
 
-	out.push("<div style='position:relative; display:inline-block; *zoom:1'><span ecui='type:pop-select;id:", this._popButId, ";target:", this._popPanelId, "'");
+	out.push("<span ecui='type:pop-select;id:", this._popButId, ";target:", this._popPanelId, "'");
 	this._options.butWidth && (out.push(" style='width:", this._options.butWidth, "'"));
 	out.push("></span>");
 	
@@ -24,5 +24,5 @@ function (out) {
         optStr += "def-checked:" + ((o[3] === "true" || o[3] === true) ? "true" : "false");
         out.push("<span ecui='", optStr, "'>", o[1], "</span>");
 	}
-	out.push("</div></div>");
+	out.push("</div>");
 }
