@@ -12,10 +12,6 @@ function (out) {
 	this._ecuiId = "ecuiZk-" + uuid;
 	this._popButId = this._ecuiId + "-but";
 	this._popPanelId = this._ecuiId + "-panel";
-
-	out.push("<span ecui='type:pop-select;id:", this._popButId, ";target:", this._popPanelId, "'");
-	this._options.butWidth && (out.push(" style='width:", this._options.butWidth, "'"));
-	out.push("></span>");
 	
 	var html;
 	for (var i = 0, o; o = this._items[i++]; ){
@@ -31,4 +27,8 @@ function (out) {
 	pop.setAttribute("style", "width:" + this._options.panelWidth);
 	
 	document.body.appendChild(pop);
+
+	out.push("<span ecui='type:pop-select;id:", this._popButId, ";target:", this._popPanelId, "'");
+	this._options.butWidth && (out.push(" style='width:", this._options.butWidth, "'"));
+	out.push("></span>");
 }

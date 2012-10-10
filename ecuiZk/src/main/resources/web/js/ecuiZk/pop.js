@@ -145,6 +145,12 @@
     };
 
     UI_POP_CLASS.$setValue = function () {
+    	if (!this._uCheckPanel) {
+        	var parEle = createDom();
+            moveElements(this.getMain(), parEle, true);
+            this.getMain().appendChild(parEle);
+            this._uCheckPanel = $fastCreate(UI_CUSTOM_CHECKBOXS, parEle, this, {});
+        }
         var text = this._uCheckPanel.getText(),
             value = this._uCheckPanel.getValue();
         if (value == this._uControl._eInput.value) {
