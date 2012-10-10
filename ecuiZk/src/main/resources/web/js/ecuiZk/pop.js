@@ -100,6 +100,9 @@
             h = view.bottom - this.getHeight();
         }
 
+        var parPos = getPosition(this.getOuter().offsetParent);
+        w = w - parPos.left;
+        h = h - parPos.top;
         this.setPosition(w, h);
         setFocused(this);
     };
