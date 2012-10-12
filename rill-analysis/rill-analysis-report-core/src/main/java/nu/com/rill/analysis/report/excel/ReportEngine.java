@@ -22,7 +22,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.rill.bpm.api.WorkflowOperations;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.access.BeanFactoryReference;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
+import org.springframework.context.access.ContextJndiBeanFactoryLocator;
+import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
@@ -80,7 +81,7 @@ public final class ReportEngine {
 	private ListableBeanFactory reportEngneBeanfactory; 
 	private ReportEngine() {
 		// Singleton
-		BeanFactoryReference bfr = SingletonBeanFactoryLocator.getInstance().useBeanFactory(this.getClass().getSimpleName());
+		BeanFactoryReference bfr = ContextSingletonBeanFactoryLocator.getInstance().useBeanFactory(this.getClass().getSimpleName());
 		reportEngneBeanfactory = (ListableBeanFactory) bfr.getFactory();
 		drMap = reportEngneBeanfactory.getBeansOfType(DataRetriever.class);
 		httpClient = reportEngneBeanfactory.getBean(HttpClient.class);

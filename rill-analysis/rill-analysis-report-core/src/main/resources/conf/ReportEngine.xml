@@ -7,13 +7,15 @@
        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd"
 	default-autowire="byName">
 	
+	<import resource="ReportEngine-properties.xml"/>
+	
 	<!-- HTTP Client -->
     <bean id="connectionManagerParams"
 		class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
-		<property name="connectionTimeout" value="2000" />
-		<property name="soTimeout" value="2000" />
-		<property name="maxTotalConnections" value="150" />
-		<property name="defaultMaxConnectionsPerHost" value="150" />
+		<property name="connectionTimeout" value="${re.httpCon.connectionTimeout}" />
+		<property name="soTimeout" value="${re.httpCon.soTimeout}" />
+		<property name="maxTotalConnections" value="${re.httpCon.maxTotalConnections}" />
+		<property name="defaultMaxConnectionsPerHost" value="${re.httpCon.defaultMaxConnectionsPerHost}" />
 	</bean>
 
 	<bean id="connectionManager"
