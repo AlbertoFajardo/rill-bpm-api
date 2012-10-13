@@ -22,7 +22,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.rill.bpm.api.WorkflowOperations;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.access.BeanFactoryReference;
-import org.springframework.context.access.ContextJndiBeanFactoryLocator;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;

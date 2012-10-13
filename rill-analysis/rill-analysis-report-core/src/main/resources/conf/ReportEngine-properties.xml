@@ -17,7 +17,7 @@
     	- Use environment feature to handle different steps (develop, test, production)
     	- When in web environment, JNDI properties will override local properties. 
     -->
-    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <bean class="nu.com.rill.analysis.report.excel.JndiPropertySourcesPlaceholderConfigurer">
 	  <property name="locations" value="classpath:conf/ReportEngine.properties"/>
 	</bean>
     <!-- ##Properties place holder configuration## end  -->
