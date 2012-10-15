@@ -6,11 +6,11 @@
 	<parent>
 		<artifactId>rill-analysis</artifactId>
 		<groupId>nu.com.rill</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.1.0</version>
 	</parent>
 	<groupId>nu.com.rill</groupId>
 	<artifactId>rill-analysis-report</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>rill-analysis-report</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -22,7 +22,12 @@
 		<dependency>
 			<groupId>com.foo</groupId>
 			<artifactId>ecuiZk</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>nu.com.rill</groupId>
+			<artifactId>rill-analysis-report-core</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 		
 		<dependency>
@@ -46,18 +51,6 @@
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
 			<version>1.6</version>
-		</dependency>
-		
-	    <dependency>
-	        <groupId>org.zkoss.pivot</groupId>
-	        <artifactId>pivottable</artifactId>
-	        <version>2.0.0</version>
-	    </dependency>
-		
-		<dependency>
-			<groupId>org.zkoss.zk</groupId>
-			<artifactId>zkbind</artifactId>
-			<version>${zkbind.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -87,12 +80,6 @@
 		    <groupId>org.rill</groupId>
 		    <artifactId>rill-bpm-ws</artifactId>
 		    <version>1.0.1</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>nu.com.rill</groupId>
-		    <artifactId>rill-analysis-report-core</artifactId>
-		    <version>${project.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -148,13 +135,6 @@
             	</exclusion>
             </exclusions>
         </dependency>
-        
-        <dependency>
-			<groupId>de.javakaffee.msm</groupId>
-			<artifactId>memcached-session-manager</artifactId>
-			<version>1.6.2</version>
-			<scope>provided</scope>
-		</dependency>
 
 	</dependencies>
 
