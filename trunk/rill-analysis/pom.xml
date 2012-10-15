@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>nu.com.rill</groupId>
 	<artifactId>rill-analysis</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>rill-analysis</name>
 	<packaging>pom</packaging>
 	<url>http://maven.apache.org</url>
@@ -66,5 +66,6 @@
     <module>rill-analysis-report</module>
      -->
     <module>rill-analysis-report-core</module>
+    <module>rill-analysis-report</module>
   </modules>
 </project>
