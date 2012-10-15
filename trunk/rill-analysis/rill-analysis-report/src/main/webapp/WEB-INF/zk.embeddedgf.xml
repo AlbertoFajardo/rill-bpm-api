@@ -123,7 +123,7 @@
 	</client-config>
 	<library-property>
 		<name>org.zkoss.web.classWebResource.cache</name>
-		<value>false</value>
+		<value>true</value>
 	</library-property>
 	
 </zk>
