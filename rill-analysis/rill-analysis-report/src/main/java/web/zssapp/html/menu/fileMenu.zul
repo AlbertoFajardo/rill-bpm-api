@@ -1,6 +1,0 @@
-<?page title="new page title" contentType="text/html;charset=UTF-8"?>
-<zk>
-	<menupopup id="fileMenupopup">
-		<menuitem id="importFile" label="导入" />
-	</menupopup>
-</zk>
