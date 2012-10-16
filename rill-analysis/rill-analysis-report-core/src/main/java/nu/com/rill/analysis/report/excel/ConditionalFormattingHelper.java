@@ -15,6 +15,7 @@ import org.zkoss.poi.ss.usermodel.ConditionalFormatting;
 import org.zkoss.poi.ss.usermodel.Sheet;
 import org.zkoss.poi.ss.util.CellRangeAddress;
 import org.zkoss.poi.xssf.usermodel.XSSFConditionalFormattingRule;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zss.model.Worksheet;
 import org.zkoss.zss.ui.impl.Utils;
 
@@ -32,15 +33,16 @@ public class ConditionalFormattingHelper {
 		int width = Utils.getColumnWidthInPx((Worksheet) cell.getSheet(), cell.getColumnIndex());
 		int height = Utils.getRowHeightInPx((Worksheet) cell.getSheet(), cell.getRow());
 		result.put("padding-left", (width * 1.5) + "px");
-		result.put("background-position-y", (height -10) / 2 + "px");
+		result.put("background-position", "0px " + (height -10) / 2 + "px");
+		String prefix = Executions.getCurrent().getContextPath();
 		if (new Double(vo.getVal()).compareTo(cell.getNumericCellValue()) < 0) {
 			// Up
-			String path = "./images/arrow-up.png";
+			String path = prefix + "/images/arrow-up.png";
 			result.put("background-image", "url('" + path + "')");
 		}
 		if (new Double(vo.getVal()).compareTo(cell.getNumericCellValue()) > 0) {
 			// Down
-			String path = "./images/arrow-down.png";
+			String path = prefix + "/images/arrow-down.png";
 			result.put("background-image", "url('" + path + "')");
 		}
 		
