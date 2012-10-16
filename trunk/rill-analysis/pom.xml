@@ -66,6 +66,5 @@
     <module>rill-analysis-report</module>
      -->
     <module>rill-analysis-report-core</module>
-    <module>rill-analysis-report</module>
   </modules>
 </project>
