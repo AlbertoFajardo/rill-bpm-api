@@ -7,6 +7,7 @@ import java.util.Map;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,6 +16,7 @@ public class ParamControllerTest {
 	@Test
 	public void test() throws Exception {
 		
+		ObjectMapper om = new ObjectMapper();
 		StringWriter out = new StringWriter();
 		Map<String, String> result = new LinkedHashMap<String, String>();
 		result.put("1", "点击消费");
@@ -23,11 +25,11 @@ public class ParamControllerTest {
 		Map<String, Object> jsonResult = new HashMap<String, Object>();
 		jsonResult.put("value", result);
 		jsonResult.put("selectedIndex", 2);
-		ReportEngine.mapper.writeValue(out, jsonResult);
+		om.writeValue(out, jsonResult);
 		
 		System.out.println(out.toString());
 		
-		Map<String, Object> parseResult = ReportEngine.mapper.readValue(out.toString(), Map.class);
+		Map<String, Object> parseResult = om.readValue(out.toString(), Map.class);
 		Assert.assertTrue(parseResult.size() == 2);
 		Assert.assertEquals(parseResult.get("selectedIndex").toString(), "2");
 		Assert.assertTrue(parseResult.get("value") instanceof Map);

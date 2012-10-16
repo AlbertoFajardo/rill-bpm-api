@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.transaction.annotation.Transactional;
 
 @ContextConfiguration(value="classpath:applicationContext-report-test.xml")
-public class ReportManagerImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class ReportManagerImplTests extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
 	private ReportManager reportMgr;
