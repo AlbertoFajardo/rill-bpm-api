@@ -138,19 +138,21 @@ public class SessionStickyListenerAndFilter implements Filter, ServletContextLis
 			for (Cookie cookie : request.getCookies()) {
 				if (cookie.getName().toUpperCase().equals(RE_SERVER_ID)) {
 					LOGGER.debug("Retrieve session sticky id from cookie "
-							+ cookie);
+							+ cookie.getValue());
 					reServerIdCookie = cookie;
 				}
 			}
 		}
 		
+		boolean needAddCookie = (reServerIdCookie == null);
 		String localPhysical = localPhysicalAddressHashcode();
 		if (reServerIdCookie != null && !localPhysical.equals(reServerIdCookie.getValue())) {
 			LOGGER.warn("Session sticky maybe not effect, we will reset cookie value from " + reServerIdCookie + " to " + localPhysical);
-			reServerIdCookie.setValue(localPhysical);
+			reServerIdCookie.setMaxAge(0);
+			needAddCookie = true;
 		}
 		
-		if (reServerIdCookie == null) {
+		if (needAddCookie) {
 			// Means first-time access
 			cookieGenerator.setCookieName(RE_SERVER_ID);
 			LOGGER.info("Add cookie value of session sticky id "
