@@ -1,6 +1,8 @@
 package nu.com.rill.analysis.report.param;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +12,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.mail.internet.MimeUtility;
+import javax.servlet.http.HttpServletRequest;
 
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
@@ -27,6 +32,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.zhtml.Input;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -96,7 +102,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		// Append reset button
 		Button reset = new Button("重置");
 		reset.setClass("reset-class");
-		reset.setWidgetAttribute("fileName", report.getName());
 		reset.addEventListener(Events.ON_CLICK, new EventListener() {
 			
 			@Override
@@ -111,7 +116,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		// Append search button
 		Button search = new Button("查询");
 		search.setClass("search-class");
-		search.setWidgetAttribute("fileName", report.getName());
 		
 		search.addEventListener(Events.ON_CLICK, new EventListener() {
 			
@@ -159,6 +163,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			this.target.setItems(items);
 			
 			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("value"));
+			paramDiv.setWidgetAttribute(target.getId() + "_text", items.get(new Integer(0)).get("text"));
 		}
 
 		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
@@ -201,6 +206,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			target.setItems(items);
 			
 			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("value"));
+			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", items.get(new Integer(selectedIndex)).get("text"));
 		}
 	}
 	
@@ -218,11 +224,13 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			Assert.notEmpty(this.target.getItems());
 			ArrayList<ArrayList<String>> items = this.target.getItems();
 			String value = "";
+			String text = "";
 			for (int i = 0; i < items.size(); i++) {
 				List<String> item = items.get(i);
 				if (i == 0) {
 					item.set(2, "true");
 					value = item.get(0);
+					text = item.get(1);
 				} else {
 					item.set(2, "false");
 				}
@@ -230,6 +238,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			this.target.setItems(items);
 			
 			paramDiv.setWidgetAttribute(target.getId(), value);
+			paramDiv.setWidgetAttribute(target.getId() + "_text", text);
 		}
 
 		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
@@ -237,10 +246,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			if (reset == null) {
 				reset = false;
 			}
-			
-//			HashMap<String, String> options = new HashMap<String, String>();
-//			options.put("butWidth", "400px");
-//			options.put("panelWidth", "350px");
 			
 			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
 			
@@ -264,6 +269,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			ArrayList<ArrayList<String>> items = new ArrayList<ArrayList<String>>();
 			int i = -1;
 			String value = "";
+			String text = "";
 			for (Entry<String, String> entry : fetchResult.entrySet()) {
 				i++;
 				ArrayList<String> item1 = new ArrayList<String>();
@@ -273,6 +279,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					if (select.equals(new Integer(i).toString())) {
 						item1.add("true");
 						value += entry.getKey();
+						text += entry.getValue();
 					}else {
 						item1.add("false");
 					}
@@ -283,9 +290,58 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			target.setItems(items);
 			
 			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), value);
+			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", text);
 		}
 	}
 	
+	// FIXME: MENGRAN. Need change strategy of setWidgetAttribute in change event 
+	private String generateDownloadFileName(final Div paramDiv, final Report report) {
+		
+		String result = report.getName();
+		
+		if (CollectionUtils.isEmpty(report.getParams())) {
+			return result;
+		}
+		
+		Map<PARAM_CONFIG, String> config = null;
+		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+			if ("downloadFileName".equals(entry.getValue().get(PARAM_CONFIG.NAME))) {
+				config = entry.getValue();
+			}
+		}
+		if (config == null) {
+			return result;
+		}
+		
+		List<Object> argList = new ArrayList<Object>();
+		if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
+			if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
+				for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
+					argList.add(paramDiv.getWidgetAttribute(dep + "_text"));
+				}
+			}
+			if (config.containsKey(PARAM_CONFIG.FORMAT)) {
+				result = MessageFormat.format(config.get(PARAM_CONFIG.FORMAT), argList.toArray(new Object[0]));
+			}
+		}
+		
+		try {
+			Execution ex = Executions.getCurrent();
+			HttpServletRequest request = (HttpServletRequest) ex.getNativeRequest();
+			if (request.getHeader("User-Agent").indexOf("MSIE") != -1) {
+				// IE
+				result = URLEncoder.encode(result, "UTF-8");
+			} else {
+				// NON-IE
+				result = MimeUtility.encodeText(result, "GBK", "B");
+			}
+		} catch (Exception e) {
+			LOGGER.debug("Error occurred when try to encode download file name " + result, e);
+		}
+		
+		return result;
+		
+	}
 	
 	private void paramComponentConstruct(final Div paramDiv, final Report report) {
 		
@@ -297,7 +353,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		// Append download button
 		Button download = new Button("下载");
 		download.setClass("download-class");
-		download.setWidgetAttribute("fileName", report.getName());
 		
 		download.addEventListener(Events.ON_CLICK, new EventListener() {
 			
@@ -308,7 +363,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				try {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					book.write(baos);
-					Filedownload.save(baos.toByteArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", report.getName());
+					Filedownload.save(baos.toByteArray(), 
+							"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+							generateDownloadFileName(paramDiv, report));
 				} catch (Exception e) {
 					// Ignore~~
 				}
@@ -331,6 +388,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				input.setValue(config.get(PARAM_CONFIG.VALUE));
 				paramDiv.appendChild(input);
 				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), input.getValue());
+				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", input.getValue());
 			}
 			
 			if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
@@ -353,9 +411,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				}
 				final Datebox db = new Datebox(now);
 				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
+				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
 				db.setId(config.get(PARAM_CONFIG.NAME));
 				db.setFormat("long");
-				db.setWidgetAttribute(PARAM_CONFIG.RENDER_TYPE.name(), config.get(PARAM_CONFIG.RENDER_TYPE));
 				paramDiv.appendChild(new Label(paramName + " ："));
 				paramDiv.appendChild(db);
 				paramDiv.appendChild(new Label(" "));
@@ -364,6 +422,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					@Override
 					public void onEvent(Event event) throws Exception {
 						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
+						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
 					}
 				});
 			}
@@ -397,11 +456,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 						for (HashMap<String, String> item : cb.getItems()) {
 							if (item.get("value").equals(cb.getValue())) {
 								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getValue());
+								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", item.get("text"));
 							}
 						}
 					}
 				});
-				if (StringUtils.hasLength(paramName)) {
+				if (StringUtils.hasText(paramName)) {
 					paramDiv.appendChild(new Label(" "));
 					Label l = new Label(paramName + " ：");
 					l.setClass("param-label-class");
@@ -447,18 +507,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 						if (!CollectionUtils.isEmpty(ps.getValue())) {
 							for (String value : ps.getValue()) {
 								select += value + ",";
-//								for (ArrayList<String> item : ps.getItems()) {
-//									if (item.get(0).equals(value)) {
-//										select += item.get(1) + ",";
-//									}
-//								}
 							}
 							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), select.substring(0, select.length() - 1));
+							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", ps.getText());
 						}
 						
 					}
 				});
-				if (StringUtils.hasLength(paramName)) {
+				if (StringUtils.hasText(paramName)) {
 					paramDiv.appendChild(new Label(" "));
 					Label l = new Label(paramName + " ：");
 					l.setClass("param-label-class");
