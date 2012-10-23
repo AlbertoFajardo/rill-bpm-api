@@ -25,6 +25,7 @@ import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.CellStyle;
 import org.zkoss.poi.ss.usermodel.Row;
@@ -373,7 +374,16 @@ public final class ReportEngine {
 							paramConfig.put(pc, prefix + settingsSheet.getRow(i).getCell(index).getStringCellValue());
 						}
 					}
-					reportParams.put(settingsSheet.getRow(i).getCell(startCell.getCol()).getStringCellValue(), paramConfig);
+					String paramName = settingsSheet.getRow(i).getCell(startCell.getCol()).getStringCellValue();
+					// Fix parameter label text is empty text. Add by MENGRAN at 2012-10-23
+					if (!StringUtils.hasText(paramName)) {
+						StringBuilder sb = new StringBuilder();
+						for (int spaceI = 0; spaceI <= i; spaceI++) {
+							sb.append(" ");
+						}
+						paramName = sb.toString();
+					}
+					reportParams.put(paramName, paramConfig);
 				}
 			}
 		}
