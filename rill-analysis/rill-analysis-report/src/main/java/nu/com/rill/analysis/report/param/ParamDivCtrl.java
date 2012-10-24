@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
 
+import nu.com.rill.analysis.report.REException;
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine;
@@ -122,10 +123,20 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			@Override
 			public void onEvent(Event event) throws Exception {
 				Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
+				StringBuilder paramError = new StringBuilder("无效参数[");
+				boolean hasParamError = false;
 				for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
 					if (tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)) != null) {
+						if ("-999999".equals(tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)))) {
+							paramError.append(entry.getKey()).append("、");
+							hasParamError = true;
+						}
 						entry.getValue().put(PARAM_CONFIG.VALUE, tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)));
 					}
+				}
+				if (hasParamError) {
+					paramError.deleteCharAt(paramError.length() - 1).append("]。");
+					throw new REException(paramError.toString());
 				}
 				app.setReport(report);
 			}
@@ -595,6 +606,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			} catch (Exception e) {
 				LOGGER.error("Error when try to parse to JSON " + content, e);
 			}
+		} catch (REException e) {
+			LOGGER.error("Ignore fetch select items exception. ", e);
+			items.put("-999999", " ");
 		} finally {
 			ReportEngine.registCookie(null);
 		}
