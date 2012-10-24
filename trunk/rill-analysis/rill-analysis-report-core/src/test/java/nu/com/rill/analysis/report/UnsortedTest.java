@@ -1,5 +1,7 @@
 package nu.com.rill.analysis.report;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -106,6 +108,22 @@ public class UnsortedTest {
 			data = new ArrayList<List<String>>();
 			data.addAll(ReportEngine.mapper.readValue(json, List.class));
 		}
+	}
+	
+	@Test
+	public void testContains() throws Exception {
+		
+		String ip = "application/json";
+		String ip2 = "application/json;charset=UTF-8";
+
+		Assert.assertTrue(ip2.contains(ip));
+	}
+	
+	@Test
+	public void testHash() throws Exception {
+		
+		String ip = "127.0.0.1";
+		System.out.println(InetAddress.getByName(ip).hashCode() + 7801);
 	}
 
 }

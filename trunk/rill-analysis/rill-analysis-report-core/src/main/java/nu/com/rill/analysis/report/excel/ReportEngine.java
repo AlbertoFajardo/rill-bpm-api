@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletResponse;
+
+import nu.com.rill.analysis.report.REException;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -70,7 +74,7 @@ public final class ReportEngine {
 	
 	public static final String PARAM_TABLE = "paramTable";
 	
-	public final Log LOG = LogFactory.getLog(this.getClass());
+	public static final Log LOG = LogFactory.getLog(ReportEngine.class);
 	
 	public static ObjectMapper mapper = new ObjectMapper();
 	private static HttpClient httpClient = null;
@@ -101,7 +105,7 @@ public final class ReportEngine {
 		return cookieHolder.get();
 	}
 	
-	public static String fetchUrl(String url , Map<String, String> params) {
+	public static String fetchUrl(String url , Map<String, String> params) throws REException {
 		
 		PostMethod httppost = new PostMethod(url);
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
@@ -115,13 +119,23 @@ public final class ReportEngine {
 			httppost.setRequestBody(formparams.toArray(new NameValuePair[0]));
 			httppost.addRequestHeader("Cookie", retrieveCookie());
 			httpClient.executeMethod(httppost);
+			if (httppost.getStatusCode() != HttpServletResponse.SC_OK) {
+				throw new IllegalStateException("无法正常访问" + "[" + httppost.getStatusCode() + "]: " + url);
+			}
+			if (httppost.getResponseHeader("Content-Type") != null && !httppost.getResponseHeader("Content-Type").getValue().contains("application/json")) {
+				throw new IllegalStateException("仅允许响应application/json数据: " + httppost.getResponseHeader("Content-Type").getValue());
+			}
 			InputStream is = httppost.getResponseBodyAsStream();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			IOUtils.copy(is, baos);
 		    String content = new String(baos.toByteArray(), "UTF-8");
 		    return content;
+		} catch (IllegalStateException e) {
+			LOG.error(e);
+			throw new REException(e.getMessage(), e);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			LOG.error(e);
+			throw new REException(e);
 		} finally {
 			httppost.releaseConnection();
 		}
@@ -279,7 +293,7 @@ public final class ReportEngine {
 			return bookAfterProcess;
 			
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new REException("无法生成报表模版.", e);
 		} finally {
 			try {
 				is.close();
@@ -330,9 +344,13 @@ public final class ReportEngine {
 			Workbook bookAfterProcess = new ExcelImporter().imports(new ByteArrayInputStream(baos.toByteArray()), bookName);
 			
 			return bookAfterProcess;
-			
+		
+		} catch (REException e) {
+			LOG.error(e);
+			throw new REException("无法生成报表。", e);	
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			LOG.error(e);
+			throw new REException(e);
 		} finally {
 			try {
 				is.close();
