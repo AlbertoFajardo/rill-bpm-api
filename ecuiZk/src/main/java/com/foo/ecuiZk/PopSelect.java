@@ -1,17 +1,14 @@
 package com.foo.ecuiZk;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
-
-import org.zkoss.zk.ui.Component;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.zkoss.lang.Objects;
 import org.zkoss.zk.au.AuRequest;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zul.impl.XulElement;
 
 public class PopSelect extends XulElement {
@@ -23,6 +20,11 @@ public class PopSelect extends XulElement {
 	*/
 	
 	/* Here's a simple example for how to implements a member field */
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String _text;
 	
@@ -51,14 +53,25 @@ public class PopSelect extends XulElement {
 	public void setText(String text) {
 		if (!Objects.equals(_text, text)) {
 			_text = text;
-			smartUpdate("text", _text);
+//			smartUpdate("text", _text);
 		}
+		
 	}
 	
 	public void setValue(ArrayList<String> value) {
 		if (!Objects.equals(_value, value)) {
 			_value = value;
-			smartUpdate("value", _value);
+//			smartUpdate("value", _value);
+			// Add by MENGRAN for synchronize value and text
+			StringBuilder sb = new StringBuilder();
+			for (String v : value) {
+				for (ArrayList<String> list : getItems()) {
+					if (list.get(0).equals(v)) {
+						sb.append(list.get(1)).append(",");
+					}
+				}
+			}
+			setText(sb.length() > 0 ? sb.substring(0, sb.length() - 1) : sb.toString());
 		}
 	}
 	
@@ -70,6 +83,15 @@ public class PopSelect extends XulElement {
 	public void setItems(ArrayList<ArrayList<String>> items) {
 		_items = items;
 		smartUpdate("items", _items);
+		
+		// Add by MENGRAN for synchronize value and items
+		ArrayList<String> selected = new ArrayList<String>();
+		for (ArrayList<String> list : items) {
+			if ("true".equals(list.get(2))) {
+				selected.add(list.get(0));
+			}
+		}
+		setValue(selected);
 	}
 	
 	static {
@@ -86,6 +108,7 @@ public class PopSelect extends XulElement {
 		render(renderer, "items", _items);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public void service(AuRequest request, boolean everError) {
 		final String cmd = request.getCommand();
 		final Map data = request.getData();
@@ -97,8 +120,7 @@ public class PopSelect extends XulElement {
 		} 
 		else if (cmd.equals("onChange")) {
 			final String str = (String)data.get("value");
-			_value = new ArrayList<String>();
-			_value.addAll(Arrays.asList(str.split(",")));
+			setValue(new ArrayList<String>(Arrays.asList(str.split(","))));
 			//System.out.println(_value);
 			Events.postEvent(Event.getEvent(request));
 		}else
