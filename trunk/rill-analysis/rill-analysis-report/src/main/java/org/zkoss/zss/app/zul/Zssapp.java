@@ -36,6 +36,7 @@ import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.sys.ContentRenderer;
 import org.zkoss.zkplus.spring.SpringUtil;
 import org.zkoss.zss.app.Consts;
 import org.zkoss.zss.app.file.FileHelper;
@@ -70,6 +71,17 @@ public class Zssapp extends Div implements IdSpace  {
 	//private Window mainWin;
 	private Div mainWin;
 	
+	private String parentIframeId;
+	
+	public String getParentIframeId() {
+		return parentIframeId;
+	}
+
+	public void setParentIframeId(String parentIframeId) {
+		this.parentIframeId = parentIframeId;
+		this.smartUpdate("parentIframeId", parentIframeId);
+	}
+
 	Appmenubar _appmenubar;
 	
 	/* Context */
@@ -100,12 +112,24 @@ public class Zssapp extends Div implements IdSpace  {
 		Assert.notNull(initBookBytes);
 	}
 	
+	
+	
+	@Override
+	protected void renderProperties(ContentRenderer renderer)
+			throws IOException {
+		super.renderProperties(renderer);
+		
+		renderer.render("parentIframeId", parentIframeId);
+	}
+
 	public Zssapp() {
 		
 		Executions.createComponents(Consts._Zssapp_zul, this, null);
 		Components.wireVariables(this, this, '$', true, true);
 		Components.addForwards(this, this, '$');
 		spreadsheet = (Spreadsheet)mainWin.getFellow("spreadsheet");
+		final String parentIframeId = Executions.getCurrent().getParameter("parentIframeId");
+		this.setParentIframeId(parentIframeId);
 		
 		// FIXME: MENGRAN. View/edit mode
 		if (Executions.getCurrent().getParameter("edit") != null) {
@@ -150,7 +174,7 @@ public class Zssapp extends Div implements IdSpace  {
 		if (initBook != null) {
 			this.setBook(initBook);
 			// Calculate height
-			calculateHeight(spreadsheet.getSelectedSheet());
+			calculateHeight(null, spreadsheet.getSelectedSheet());
 			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
 			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum());
 		}
@@ -173,13 +197,13 @@ public class Zssapp extends Div implements IdSpace  {
 		}
 		
 		// Calculate height
-		calculateHeight(spreadsheet.getSelectedSheet());
+		calculateHeight(report, spreadsheet.getSelectedSheet());
 		
 	}
 	
-	private void calculateHeight(Worksheet sheet) {
+	private void calculateHeight(Report report, Worksheet sheet) {
 		
-		int height = 15;
+		int height = (report == null || report.getParams() == null) ? 15 : 75;
 		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
 			height +=Utils.getRowHeightInPx(sheet, sheet.getRow(i));
 			LOGGER.debug("height : " + height + " after calculate row num" + i);
