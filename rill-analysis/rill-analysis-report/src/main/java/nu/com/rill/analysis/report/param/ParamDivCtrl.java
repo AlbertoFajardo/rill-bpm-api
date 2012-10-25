@@ -62,14 +62,286 @@ public class ParamDivCtrl extends GenericForwardComposer {
 	
 	private Div paramDiv;
 	
+	private interface ParamComponentActionCallBack<T> {
+		
+		T action(Component c);
+	}
+	
+	private class SupportedParamComponentActionCallBack<T> implements ParamComponentActionCallBack<T> {
+
+		@Override
+		public final T action(Component c) {
+			
+			if (c == null) {
+				return null;
+			}
+				
+			if (c instanceof Input) {
+				return actionInput((Input) c);
+			}
+			
+			if (c instanceof Select) {
+				return actionSelect((Select) c);
+			}
+			
+			if (c instanceof PopSelect) {
+				return actionPopSelect((PopSelect) c);
+			}
+			
+			if (c instanceof Datebox) {
+				return actionDatebox((Datebox) c);
+			}
+			
+			throw new UnsupportedOperationException();
+		}
+		
+		protected T actionDatebox(Datebox c) {
+			
+			throw new UnsupportedOperationException();
+		}
+
+		protected T actionInput(Input i) {
+			
+			throw new UnsupportedOperationException();
+		}
+		
+		protected T actionSelect(Select s) {
+			
+			throw new UnsupportedOperationException();
+		}
+		
+		protected T actionPopSelect(PopSelect ps) {
+			
+			throw new UnsupportedOperationException();
+		}
+		
+	}
+	
+	private class ParamComponentValue extends SupportedParamComponentActionCallBack<String> {
+		
+		@Override
+		protected String actionInput(Input i) {
+			return i.getValue();
+		}
+		
+		@Override
+		protected String actionSelect(Select s) {
+			return s.getValue();
+		}
+
+		@Override
+		protected String actionPopSelect(PopSelect ps) {
+			
+			StringBuilder sb = new StringBuilder();
+			for (String v : ps.getValue()) {
+				sb.append(v).append(",");
+			}
+			
+			return sb.length() > 0 ? sb.substring(0, sb.length() - 1) : sb.toString();
+		}
+
+		@Override
+		protected String actionDatebox(Datebox c) {
+			
+			return new SimpleDateFormat(c.getWidgetAttribute(PARAM_CONFIG.FORMAT.name())).format(c.getValue());
+		}
+		
+	}
+	
+	private class ParamComponentText extends SupportedParamComponentActionCallBack<String> {
+		
+		@Override
+		protected String actionInput(Input i) {
+			return i.getValue();
+		}
+		
+		@Override
+		protected String actionSelect(Select s) {
+			return s.getText();
+		}
+
+		@Override
+		protected String actionPopSelect(PopSelect ps) {
+			
+			return ps.getText();
+		}
+
+		@Override
+		protected String actionDatebox(Datebox c) {
+			
+			return new SimpleDateFormat(c.getWidgetAttribute(PARAM_CONFIG.FORMAT.name())).format(c.getValue());
+		}
+		
+	}
+	
+	private class SelectOnCreate {
+		
+		private Select target;
+		
+		public SelectOnCreate(Select target) {
+			super();
+			this.target = target;
+		}
+		
+		public void resetSelectedIndex() {
+			
+			Assert.notEmpty(this.target.getItems());
+			ArrayList<HashMap<String, String>> items = this.target.getItems();
+			for (int i = 0; i < items.size(); i++) {
+				HashMap<String, String> item = items.get(i);
+				if (i == 0) {
+					item.put("selected", "selected");
+				} else {
+					item.remove("selected");
+				}
+			}
+			this.target.setItems(items);
+			
+//			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("value"));
+//			paramDiv.setWidgetAttribute(target.getId() + "_text", items.get(new Integer(0)).get("text"));
+		}
+
+		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
+			
+			if (reset == null) {
+				reset = false;
+			}
+			
+			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
+			
+			// Reload content event. FIXME: MENGRAN. Deed-loop.
+			// 1. Prepare fetch parameters
+			Map<String, String> fetchParams = new HashMap<String, String>();
+			String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
+			if (StringUtils.hasText(dependencies)) {
+				for (String dep : dependencies.trim().split(" ")) {
+					fetchParams.put(dep, paramComponent(paramDiv, dep, new ParamComponentValue()));
+				}
+			}
+			// 2. Fetch result
+			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
+			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
+			if (reset || !StringUtils.hasText(selectedIndex)) {
+				selectedIndex = "0";
+			}
+			
+			// 3. Re-fill items
+			// map: value text selected
+			ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
+			int i = -1;
+			for (Entry<String, String> entry : fetchResult.entrySet()) {
+				i++;
+				HashMap<String, String> item1 = new HashMap<String, String>();
+				item1.put("value", entry.getKey());
+				item1.put("text", entry.getValue());
+				if (new Integer(i).toString().equals(selectedIndex)) {
+					item1.put("selected", "selected");
+				}
+				items.add(item1);
+			}
+			target.setItems(items);
+			
+//			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("value"));
+//			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", items.get(new Integer(selectedIndex)).get("text"));
+		}
+	}
+	
+	private class PopSelectOnCreate {
+		
+		private PopSelect target;
+		
+		public PopSelectOnCreate(PopSelect target) {
+			super();
+			this.target = target;
+		}
+		
+		public void resetSelectedIndex() {
+			
+			Assert.notEmpty(this.target.getItems());
+			ArrayList<ArrayList<String>> items = this.target.getItems();
+//			String value = "";
+//			String text = "";
+			for (int i = 0; i < items.size(); i++) {
+				List<String> item = items.get(i);
+				if (i == 0) {
+					item.set(2, "true");
+//					value = item.get(0);
+//					text = item.get(1);
+				} else {
+					item.set(2, "false");
+				}
+			}
+			this.target.setItems(items);
+			
+//			paramDiv.setWidgetAttribute(target.getId(), value);
+//			paramDiv.setWidgetAttribute(target.getId() + "_text", text);
+		}
+
+		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
+			
+			if (reset == null) {
+				reset = false;
+			}
+			
+			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
+			
+			// Reload content event. FIXME: MENGRAN. Deed-loop.
+			// 1. Prepare fetch parameters
+			Map<String, String> fetchParams = new HashMap<String, String>();
+			String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
+			if (StringUtils.hasText(dependencies)) {
+				for (String dep : dependencies.trim().split(" ")) {
+					fetchParams.put(dep, paramComponent(paramDiv, dep, new ParamComponentValue()));
+				}
+			}
+			// 2. Fetch result
+			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
+			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
+			if (reset || !StringUtils.hasText(selectedIndex)) {
+				selectedIndex = "0";
+			}
+			
+			// 3. Re-fill items
+			// 1: key 2: value 3: selected 4: default
+			ArrayList<ArrayList<String>> items = new ArrayList<ArrayList<String>>();
+			int i = -1;
+//			String value = "";
+//			String text = "";
+			for (Entry<String, String> entry : fetchResult.entrySet()) {
+				i++;
+				ArrayList<String> item1 = new ArrayList<String>();
+				item1.add(entry.getKey());
+				item1.add(entry.getValue());
+				for (String select : selectedIndex.split(",")) {
+					if (select.equals(new Integer(i).toString())) {
+						item1.add("true");
+//						value += entry.getKey();
+//						text += entry.getValue();
+					}else {
+						item1.add("false");
+					}
+				}
+				item1.add(i == 0 ? "true" : "false");
+				items.add(item1);
+			}
+			target.setItems(items);
+			
+//			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), value);
+//			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", text);
+		}
+	}
+	
 	@Override
 	public void doAfterCompose(Component comp) throws Exception {
 		super.doAfterCompose(comp);
 		
 		String fileName = Executions.getCurrent().getParameter("fileName");
-		final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
+		Assert.isTrue(StringUtils.hasText(fileName), "Please give me filename parameter.");
+		fileName = fileName.trim();
 		
+		final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 		final Report report = reportMgr.getReport(fileName);
+		
 		// Construct parameter components
 		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
 			@SuppressWarnings("unchecked")
@@ -86,6 +358,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				}
 			}
 		}
+		
 		final Div tmpParamDiv = paramDiv;
 		if (CollectionUtils.isEmpty(report.getParams())) {
 			// Not contains any parameter
@@ -123,15 +396,19 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			@Override
 			public void onEvent(Event event) throws Exception {
 				Zssapp app = (Zssapp) tmpParamDiv.getNextSibling();
+				
 				StringBuilder paramError = new StringBuilder("无效参数[");
 				boolean hasParamError = false;
 				for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
-					if (tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)) != null) {
-						if ("-999999".equals(tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)))) {
+					
+					String value = paramComponent(paramDiv, entry.getValue().get(PARAM_CONFIG.NAME), new ParamComponentValue());
+					
+					if (value != null) {
+						if ("-999999".equals(value)) {
 							paramError.append(entry.getKey()).append("、");
 							hasParamError = true;
 						}
-						entry.getValue().put(PARAM_CONFIG.VALUE, tmpParamDiv.getWidgetAttribute(entry.getValue().get(ReportEngine.PARAM_CONFIG.NAME)));
+						entry.getValue().put(PARAM_CONFIG.VALUE, value);
 					}
 				}
 				if (hasParamError) {
@@ -150,162 +427,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		
 	}
 	
-	private class SelectOnCreate {
-		
-		private Select target;
-		
-		public SelectOnCreate(Select target) {
-			super();
-			this.target = target;
-		}
-		
-		public void resetSelectedIndex() {
-			
-			Assert.notEmpty(this.target.getItems());
-			ArrayList<HashMap<String, String>> items = this.target.getItems();
-			for (int i = 0; i < items.size(); i++) {
-				HashMap<String, String> item = items.get(i);
-				if (i == 0) {
-					item.put("selected", "selected");
-				} else {
-					item.remove("selected");
-				}
-			}
-			this.target.setItems(items);
-			
-			paramDiv.setWidgetAttribute(target.getId(), items.get(new Integer(0)).get("value"));
-			paramDiv.setWidgetAttribute(target.getId() + "_text", items.get(new Integer(0)).get("text"));
-		}
-
-		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
-			
-			if (reset == null) {
-				reset = false;
-			}
-			
-			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
-			
-			// Reload content event. FIXME: MENGRAN. Deed-loop.
-			// 1. Prepare fetch parameters
-			Map<String, String> fetchParams = new HashMap<String, String>();
-			String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
-			if (StringUtils.hasText(dependencies)) {
-				for (String dep : dependencies.trim().split(" ")) {
-					fetchParams.put(dep, paramDiv.getWidgetAttribute(dep));
-				}
-			}
-			// 2. Fetch result
-			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
-			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
-			if (reset || !StringUtils.hasText(selectedIndex)) {
-				selectedIndex = "0";
-			}
-			
-			// 3. Re-fill items
-			ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
-			int i = -1;
-			for (Entry<String, String> entry : fetchResult.entrySet()) {
-				i++;
-				HashMap<String, String> item1 = new HashMap<String, String>();
-				item1.put("value", entry.getKey());
-				item1.put("text", entry.getValue());
-				if (new Integer(i).toString().equals(selectedIndex)) {
-					item1.put("selected", "selected");
-				}
-				items.add(item1);
-			}
-			target.setItems(items);
-			
-			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), items.get(new Integer(selectedIndex)).get("value"));
-			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", items.get(new Integer(selectedIndex)).get("text"));
-		}
-	}
-	
-	private class PopSelectOnCreate {
-		
-		private PopSelect target;
-		
-		public PopSelectOnCreate(PopSelect target) {
-			super();
-			this.target = target;
-		}
-		
-		public void resetSelectedIndex() {
-			
-			Assert.notEmpty(this.target.getItems());
-			ArrayList<ArrayList<String>> items = this.target.getItems();
-			String value = "";
-			String text = "";
-			for (int i = 0; i < items.size(); i++) {
-				List<String> item = items.get(i);
-				if (i == 0) {
-					item.set(2, "true");
-					value = item.get(0);
-					text = item.get(1);
-				} else {
-					item.set(2, "false");
-				}
-			}
-			this.target.setItems(items);
-			
-			paramDiv.setWidgetAttribute(target.getId(), value);
-			paramDiv.setWidgetAttribute(target.getId() + "_text", text);
-		}
-
-		public void onCreate(Entry<String, Map<PARAM_CONFIG, String>> entryParam, Boolean reset) {
-			
-			if (reset == null) {
-				reset = false;
-			}
-			
-			final Map<PARAM_CONFIG, String> config = entryParam.getValue();
-			
-			// Reload content event. FIXME: MENGRAN. Deed-loop.
-			// 1. Prepare fetch parameters
-			Map<String, String> fetchParams = new HashMap<String, String>();
-			String dependencies = config.get(PARAM_CONFIG.DEPENDENCIES);
-			if (StringUtils.hasText(dependencies)) {
-				for (String dep : dependencies.trim().split(" ")) {
-					fetchParams.put(dep, paramDiv.getWidgetAttribute(dep));
-				}
-			}
-			// 2. Fetch result
-			Map<String, String> fetchResult = new LinkedHashMap<String, String>();
-			String selectedIndex = fetchSelectItems(config.get(PARAM_CONFIG.FETCH_URL), fetchParams, fetchResult);
-			if (reset || !StringUtils.hasText(selectedIndex)) {
-				selectedIndex = "0";
-			}
-			
-			// 3. Re-fill items
-			ArrayList<ArrayList<String>> items = new ArrayList<ArrayList<String>>();
-			int i = -1;
-			String value = "";
-			String text = "";
-			for (Entry<String, String> entry : fetchResult.entrySet()) {
-				i++;
-				ArrayList<String> item1 = new ArrayList<String>();
-				item1.add(entry.getKey());
-				item1.add(entry.getValue());
-				for (String select : selectedIndex.split(",")) {
-					if (select.equals(new Integer(i).toString())) {
-						item1.add("true");
-						value += entry.getKey();
-						text += entry.getValue();
-					}else {
-						item1.add("false");
-					}
-				}
-				item1.add(i == 0 ? "true" : "false");
-				items.add(item1);
-			}
-			target.setItems(items);
-			
-			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), value);
-			paramDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", text);
-		}
-	}
-	
-	// FIXME: MENGRAN. Need change strategy of setWidgetAttribute in change event 
 	private String generateDownloadFileName(final Div paramDiv, final Report report) {
 		
 		String result = report.getName();
@@ -328,7 +449,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
 			if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
 				for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
-					argList.add(paramDiv.getWidgetAttribute(dep + "_text"));
+					String text = paramComponent(paramDiv, dep, new ParamComponentText());
+					argList.add(text);
 				}
 			}
 			if (config.containsKey(PARAM_CONFIG.FORMAT)) {
@@ -352,6 +474,13 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		
 		return result;
 		
+	}
+	
+	private <T> T paramComponent(final Div paramDiv, String paramComponentId, ParamComponentActionCallBack<T> callBack) {
+		
+		Component c = paramDiv.getFellowIfAny(paramComponentId);
+		
+		return callBack.action(c);
 	}
 	
 	private void paramComponentConstruct(final Div paramDiv, final Report report) {
@@ -378,6 +507,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 							"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
 							generateDownloadFileName(paramDiv, report));
 				} catch (Exception e) {
+					LOGGER.error(e);
 					// Ignore~~
 				}
 			}
@@ -398,8 +528,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				input.setVisible(false);
 				input.setValue(config.get(PARAM_CONFIG.VALUE));
 				paramDiv.appendChild(input);
-				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), input.getValue());
-				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", input.getValue());
 			}
 			
 			if ("calendar".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
@@ -421,21 +549,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 					}
 				}
 				final Datebox db = new Datebox(now);
-				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
-				userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(now));
+				db.setWidgetAttribute(PARAM_CONFIG.FORMAT.name(), config.get(PARAM_CONFIG.FORMAT));
 				db.setId(config.get(PARAM_CONFIG.NAME));
 				db.setFormat("long");
 				paramDiv.appendChild(new Label(paramName + " ："));
 				paramDiv.appendChild(db);
 				paramDiv.appendChild(new Label(" "));
-				db.addEventListener(Events.ON_CHANGE, new EventListener() {
-					
-					@Override
-					public void onEvent(Event event) throws Exception {
-						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
-						userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", new SimpleDateFormat(config.get(PARAM_CONFIG.FORMAT)).format(db.getValue()));
-					}
-				});
 			}
 			
 			if ("select".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
@@ -460,18 +579,6 @@ public class ParamDivCtrl extends GenericForwardComposer {
 						}
 					}
 				}
-				cb.addEventListener(Events.ON_CHANGE, new EventListener() {
-					
-					@Override
-					public void onEvent(Event event) throws Exception {
-						for (HashMap<String, String> item : cb.getItems()) {
-							if (item.get("value").equals(cb.getValue())) {
-								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), cb.getValue());
-								userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", item.get("text"));
-							}
-						}
-					}
-				});
 				if (StringUtils.hasText(paramName)) {
 					paramDiv.appendChild(new Label(" "));
 					Label l = new Label(paramName + " ：");
@@ -510,21 +617,21 @@ public class ParamDivCtrl extends GenericForwardComposer {
 						}
 					}
 				}
-				ps.addEventListener(Events.ON_CHANGE, new EventListener() {
-					
-					@Override
-					public void onEvent(Event event) throws Exception {
-						String select = "";
-						if (!CollectionUtils.isEmpty(ps.getValue())) {
-							for (String value : ps.getValue()) {
-								select += value + ",";
-							}
-							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), select.substring(0, select.length() - 1));
-							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", ps.getText());
-						}
-						
-					}
-				});
+//				ps.addEventListener(Events.ON_CHANGE, new EventListener() {
+//					
+//					@Override
+//					public void onEvent(Event event) throws Exception {
+//						String select = "";
+//						if (!CollectionUtils.isEmpty(ps.getValue())) {
+//							for (String value : ps.getValue()) {
+//								select += value + ",";
+//							}
+//							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME), select.substring(0, select.length() - 1));
+//							userParamDiv.setWidgetAttribute(config.get(PARAM_CONFIG.NAME) + "_text", ps.getText());
+//						}
+//						
+//					}
+//				});
 				if (StringUtils.hasText(paramName)) {
 					paramDiv.appendChild(new Label(" "));
 					Label l = new Label(paramName + " ：");

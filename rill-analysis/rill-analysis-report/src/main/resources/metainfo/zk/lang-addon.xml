@@ -48,6 +48,7 @@
 		<component-name>zssapp</component-name>
 		<extends>div</extends>
 		<component-class>org.zkoss.zss.app.zul.Zssapp</component-class>
+		<widget-class>zssapp.Zssapp</widget-class>
 	</component>
 	
 	<component>
