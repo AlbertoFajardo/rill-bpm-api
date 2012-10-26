@@ -51,5 +51,5 @@
 	    }
 	</style>
 	<div id="paramDiv" use="org.zkoss.zss.app.zul.IdDiv" apply="nu.com.rill.analysis.report.param.ParamDivCtrl" />
-	<zssapp width="100%" class="zssapp-class"></zssapp>
+	<zssapp width="100%" class="zssappDiv-class"></zssapp>
 </zk>
