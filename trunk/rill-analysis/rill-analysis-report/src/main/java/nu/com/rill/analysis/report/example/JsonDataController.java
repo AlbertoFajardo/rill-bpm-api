@@ -50,7 +50,7 @@ public class JsonDataController {
 		result.add(trendTitleData);
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		for (int i = random.nextInt(10); i < 30; i++) {
+		for (int i = random.nextInt(10); i < 30 + random.nextInt(100); i++) {
 			List<String> trendData = new ArrayList<String>();
 			Integer randomNum = new Random().nextInt(4344110 - 2444111 + 1) + 2444111;
 			date = DateUtils.addDays(date, 1);
