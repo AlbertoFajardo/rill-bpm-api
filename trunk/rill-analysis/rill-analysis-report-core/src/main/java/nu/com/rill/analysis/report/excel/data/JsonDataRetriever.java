@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nu.com.rill.analysis.report.REException;
 import nu.com.rill.analysis.report.excel.DataRetriever;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
@@ -85,7 +86,7 @@ public class JsonDataRetriever implements DataRetriever {
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error when try to parse to JSON " + result, e);
-			throw new RuntimeException(e);
+			throw new REException("仅允许响应application/json数据.", e);
 		}
 		
 		return;

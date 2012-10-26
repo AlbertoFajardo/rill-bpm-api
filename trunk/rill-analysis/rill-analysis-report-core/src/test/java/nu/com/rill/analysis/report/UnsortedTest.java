@@ -122,8 +122,11 @@ public class UnsortedTest {
 	@Test
 	public void testHash() throws Exception {
 		
-		String ip = "127.0.0.1";
-		System.out.println(InetAddress.getByName(ip).hashCode() + 7801);
+		String ip = "10.38.100.27";
+		System.out.println(InetAddress.getByName(ip).hashCode() + 7800);
+		
+		ip = "10.50.133.26";
+		System.out.println(InetAddress.getByName(ip).hashCode() + 7800);
 	}
 
 }

@@ -122,9 +122,9 @@ public final class ReportEngine {
 			if (httppost.getStatusCode() != HttpServletResponse.SC_OK) {
 				throw new IllegalStateException("无法正常访问" + "[" + httppost.getStatusCode() + "]: " + url);
 			}
-			if (httppost.getResponseHeader("Content-Type") != null && !httppost.getResponseHeader("Content-Type").getValue().contains("application/json")) {
-				throw new IllegalStateException("仅允许响应application/json数据: " + httppost.getResponseHeader("Content-Type").getValue());
-			}
+//			if (httppost.getResponseHeader("Content-Type") != null && !httppost.getResponseHeader("Content-Type").getValue().contains("application/json")) {
+//				throw new IllegalStateException("仅允许响应application/json数据: " + httppost.getResponseHeader("Content-Type").getValue());
+//			}
 			InputStream is = httppost.getResponseBodyAsStream();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			IOUtils.copy(is, baos);
