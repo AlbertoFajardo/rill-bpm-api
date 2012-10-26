@@ -128,5 +128,26 @@ public class UnsortedTest {
 		ip = "10.50.133.26";
 		System.out.println(InetAddress.getByName(ip).hashCode() + 7800);
 	}
+	
+	@Test
+	public void testTickInterval() {
+		
+		int labelCnt = 30;
+		int width = 780;
+		
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+		
+		labelCnt = 90;
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+		
+		labelCnt = 6;
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+		
+		labelCnt = 10;
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+		
+		labelCnt = 30;
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+	}
 
 }
