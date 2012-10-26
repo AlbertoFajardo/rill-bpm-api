@@ -107,39 +107,60 @@ public final class ReportEngine {
 	
 	public static String fetchUrl(String url , Map<String, String> params) throws REException {
 		
-		PostMethod httppost = new PostMethod(url);
-		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-		for (Entry<String, String> entry : params.entrySet()) {
-			formparams.add(new NameValuePair(entry.getKey(), entry.getValue()));
-//			httppost.setParameter(entry.getKey(), entry.getValue());
+		String prefix = "", suffix = "";
+		String[] failOver = new String[] {url};
+		if (url.contains("[") && url.contains("]")) {
+			failOver = url.substring(url.indexOf("[") + 1, url.indexOf("]")).split(" ");
+			prefix = url.substring(0, url.indexOf("["));
+			suffix = url.substring(url.indexOf("]") + 1);
 		}
 		
-		try {
-			httppost.addRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE + ";charset=utf8");
-			httppost.setRequestBody(formparams.toArray(new NameValuePair[0]));
-			httppost.addRequestHeader("Cookie", retrieveCookie());
-			httpClient.executeMethod(httppost);
-			if (httppost.getStatusCode() != HttpServletResponse.SC_OK) {
-				throw new IllegalStateException("无法正常访问" + "[" + httppost.getStatusCode() + "]: " + url);
+		for (int i = 0 ; i < failOver.length; i++) {
+			String f = failOver[i];
+			String urlUse = prefix + f + suffix;
+			try {
+				PostMethod httppost = new PostMethod(urlUse);
+				List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+				for (Entry<String, String> entry : params.entrySet()) {
+					formparams.add(new NameValuePair(entry.getKey(), entry.getValue()));
+				}
+				
+				try {
+					httppost.addRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE + ";charset=utf8");
+					httppost.setRequestBody(formparams.toArray(new NameValuePair[0]));
+					httppost.addRequestHeader("Cookie", retrieveCookie());
+					httpClient.executeMethod(httppost);
+					if (httppost.getStatusCode() != HttpServletResponse.SC_OK) {
+						throw new IllegalStateException("无法正常访问" + "[" + httppost.getStatusCode() + "]: " + urlUse);
+					}
+//					if (httppost.getResponseHeader("Content-Type") != null && !httppost.getResponseHeader("Content-Type").getValue().contains("application/json")) {
+//						throw new IllegalStateException("仅允许响应application/json数据: " + httppost.getResponseHeader("Content-Type").getValue());
+//					}
+					InputStream is = httppost.getResponseBodyAsStream();
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					IOUtils.copy(is, baos);
+				    String content = new String(baos.toByteArray(), "UTF-8");
+				    return content;
+				} catch (IllegalStateException e) {
+					LOG.error(e);
+					throw new REException(e.getMessage(), e);
+				} catch (IOException e) {
+					LOG.error(e);
+					throw new REException("连接拒绝" + "[" + urlUse + "].");
+				} finally {
+					httppost.releaseConnection();
+				}
+			} catch (REException e) {
+				if (i != failOver.length - 1) {
+					LOG.warn("Fail to fetch url, retry next one..." + urlUse, e);
+				} else {
+					throw e;
+				}
 			}
-//			if (httppost.getResponseHeader("Content-Type") != null && !httppost.getResponseHeader("Content-Type").getValue().contains("application/json")) {
-//				throw new IllegalStateException("仅允许响应application/json数据: " + httppost.getResponseHeader("Content-Type").getValue());
-//			}
-			InputStream is = httppost.getResponseBodyAsStream();
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			IOUtils.copy(is, baos);
-		    String content = new String(baos.toByteArray(), "UTF-8");
-		    return content;
-		} catch (IllegalStateException e) {
-			LOG.error(e);
-			throw new REException(e.getMessage(), e);
-		} catch (Exception e) {
-			LOG.error(e);
-			throw new REException(e);
-		} finally {
-			httppost.releaseConnection();
+			
 		}
 		
+		throw new REException("无法正常访问" + "[" + url + "].");
 	}
 	
 	public static Row copyRow(Worksheet worksheet, int sourceRowNum, int destinationRowNum) {
@@ -243,25 +264,32 @@ public final class ReportEngine {
 		boolean isValid = validateReportTemplate(book);
 		
 		if (isValid) {
-			// 2. Handle #_SETTINGS_SHEET
-			processSettings(book.getWorksheet(_SETTINGS_SHEET), contextParams);
-			@SuppressWarnings("unchecked")
-			Map<String, Map<PARAM_CONFIG, String>> reportParams = WorkflowOperations.XStreamSerializeHelper.deserializeObject(contextParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, LinkedHashMap.class); 
-			// Add Cookie pair
-			Map<PARAM_CONFIG, String> cookieParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
-			cookieParams.put(PARAM_CONFIG.VALUE, "");
-			cookieParams.put(PARAM_CONFIG.NAME, COOKIE);
-			reportParams.put(COOKIE, cookieParams);
-			
-			Map<PARAM_CONFIG, String> urlParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
-			urlParams.put(PARAM_CONFIG.VALUE, contextParams.get(URL));
-			urlParams.put(PARAM_CONFIG.NAME, URL);
-			reportParams.put(URL, urlParams);
-			
-			return reportParams;
+			return retrieveReportParams(book, contextParams);
 		}
 		
 		return Collections.emptyMap();
+	}
+	
+	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(Book book, Map<String, String> contextParams) {
+		
+		Assert.notNull(book);
+		
+		// 2. Handle #_SETTINGS_SHEET
+		processSettings(book.getWorksheet(_SETTINGS_SHEET), contextParams);
+		@SuppressWarnings("unchecked")
+		Map<String, Map<PARAM_CONFIG, String>> reportParams = WorkflowOperations.XStreamSerializeHelper.deserializeObject(contextParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, LinkedHashMap.class); 
+		// Add Cookie pair
+		Map<PARAM_CONFIG, String> cookieParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
+		cookieParams.put(PARAM_CONFIG.VALUE, "");
+		cookieParams.put(PARAM_CONFIG.NAME, COOKIE);
+		reportParams.put(COOKIE, cookieParams);
+		
+		Map<PARAM_CONFIG, String> urlParams = new LinkedHashMap<ReportEngine.PARAM_CONFIG, String>(0);
+		urlParams.put(PARAM_CONFIG.VALUE, contextParams.get(URL));
+		urlParams.put(PARAM_CONFIG.NAME, URL);
+		reportParams.put(URL, urlParams);
+		
+		return reportParams;
 	}
 	
 	public Workbook generateReportTemplate(InputStream is, String[][] data, int[][] dataType, String bookName) {

@@ -187,17 +187,18 @@ public class Zssapp extends Div implements IdSpace  {
 		try {
 			ReportEngine.registCookie(cookie);
 			FileHelper.openSpreadsheet(spreadsheet, report);
+			
+			if (!editMode) {
+				spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
+				spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
+			}
+			
 		} finally {
 			ReportEngine.registCookie(null);
+			
+			// Calculate height
+			calculateHeight(report, spreadsheet.getSelectedSheet());
 		}
-		
-		if (!editMode) {
-			spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
-			spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
-		}
-		
-		// Calculate height
-		calculateHeight(report, spreadsheet.getSelectedSheet());
 		
 	}
 	
