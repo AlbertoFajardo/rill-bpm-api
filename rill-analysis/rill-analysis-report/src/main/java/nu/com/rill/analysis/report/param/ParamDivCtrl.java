@@ -1,5 +1,6 @@
 package nu.com.rill.analysis.report.param;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
@@ -435,8 +436,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			return result;
 		}
 		
+		Zssapp app = (Zssapp) paramDiv.getNextSibling();
+		Map<String, Map<PARAM_CONFIG, String>> reCalculateParams = ReportEngine.INSTANCE.retrieveReportParams(app.getSpreadsheet().getBook(), new LinkedHashMap<String, String>(0));
+		
 		Map<PARAM_CONFIG, String> config = null;
-		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
+		for (Entry<String, Map<PARAM_CONFIG, String>> entry : reCalculateParams.entrySet()) {
 			if ("downloadFileName".equals(entry.getValue().get(PARAM_CONFIG.NAME))) {
 				config = entry.getValue();
 			}
@@ -444,14 +448,13 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		if (config == null) {
 			return result;
 		}
+		result = config.get(PARAM_CONFIG.VALUE);
 		
 		List<Object> argList = new ArrayList<Object>();
-		if (config.containsKey(PARAM_CONFIG.DEPENDENCIES)) {
-			if (StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
-				for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
-					String text = paramComponent(paramDiv, dep, new ParamComponentText());
-					argList.add(text);
-				}
+		if (config.containsKey(PARAM_CONFIG.DEPENDENCIES) && StringUtils.hasText(config.get(PARAM_CONFIG.DEPENDENCIES))) {
+			for (String dep : config.get(PARAM_CONFIG.DEPENDENCIES).trim().split(" ")) {
+				String text = paramComponent(paramDiv, dep, new ParamComponentText());
+				argList.add(text);
 			}
 			if (config.containsKey(PARAM_CONFIG.FORMAT)) {
 				result = MessageFormat.format(config.get(PARAM_CONFIG.FORMAT), argList.toArray(new Object[0]));
