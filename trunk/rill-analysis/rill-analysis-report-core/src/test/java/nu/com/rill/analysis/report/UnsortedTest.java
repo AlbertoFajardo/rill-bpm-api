@@ -148,6 +148,12 @@ public class UnsortedTest {
 		
 		labelCnt = 30;
 		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+		
+		labelCnt = 11;
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+		
+		labelCnt = 12;
+		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
 	}
 
 }
