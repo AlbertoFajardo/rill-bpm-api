@@ -43,6 +43,7 @@ import org.zkoss.zk.ui.util.GenericForwardComposer;
 import org.zkoss.zkplus.spring.SpringUtil;
 import org.zkoss.zss.app.zul.Zssapp;
 import org.zkoss.zss.model.Book;
+import org.zkoss.zss.model.impl.ExcelImporter;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Datebox;
 import org.zkoss.zul.Div;
@@ -506,6 +507,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				try {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					book.write(baos);
+					Book forDownload = new ExcelImporter().imports(new ByteArrayInputStream(baos.toByteArray()), book.getBookName());
+					for (int i = 0; i < forDownload.getNumberOfSheets(); i++) {
+						if (ReportEngine._SETTINGS_SHEET.equals(forDownload.getSheetAt(i).getSheetName())) {
+							forDownload.removeSheetAt(i);
+						}
+					}
+					baos = new ByteArrayOutputStream();
+					forDownload.write(baos);
 					Filedownload.save(baos.toByteArray(), 
 							"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
 							generateDownloadFileName(paramDiv, report));
