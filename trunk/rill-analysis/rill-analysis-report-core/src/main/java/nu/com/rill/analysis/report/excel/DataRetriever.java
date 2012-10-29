@@ -7,7 +7,7 @@ import org.zkoss.zss.model.Worksheet;
 public interface DataRetriever {
 
 	public enum DATA_TYPE {
-		json, mdx
+		json, mdx, jdbc
 	}
 	
 	boolean supportType(DATA_TYPE dt);
