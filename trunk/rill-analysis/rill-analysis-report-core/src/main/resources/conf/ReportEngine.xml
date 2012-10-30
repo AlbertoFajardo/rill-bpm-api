@@ -30,11 +30,26 @@
 	</bean>
 	<!-- HTTP Client -->
 	
-	<bean id="mdxDateRetriever" class="nu.com.rill.analysis.report.excel.data.MdxDataRetriever">
+	<bean id="mdxDataRetriever" class="nu.com.rill.analysis.report.excel.data.MdxDataRetriever">
 	</bean>
 
-	<bean id="jsonDateRetriever"
+	<bean id="jsonDataRetriever"
 		class="nu.com.rill.analysis.report.excel.data.JsonDataRetriever">
+	</bean>
+	
+	<bean id="jdbcDataRetriever" class="nu.com.rill.analysis.report.excel.data.JdbcDataRetriever">
+		<property name="dbcpProperties">
+			<props>
+				<prop key="driverClassName">${re.jdbcData.driverClassName}</prop>
+				<prop key="initialSize">${re.jdbcData.initialSize}</prop>
+				<prop key="maxIdle">${re.jdbcData.maxIdle}</prop>
+				<prop key="minIdle">${re.jdbcData.minIdle}</prop>
+				<prop key="testOnBorrow">${re.jdbcData.testOnBorrow}</prop>
+				<prop key="removeAbandoned">${re.jdbcData.removeAbandoned}</prop>
+				<prop key="removeAbandonedTimeout">${re.jdbcData.removeAbandonedTimeout}</prop>
+				<prop key="minEvictableIdleTimeMillis">${re.jdbcData.minEvictableIdleTimeMillis}</prop>
+			</props>
+		</property>
 	</bean>
 	
 	<bean id="bookChartDecorator"
