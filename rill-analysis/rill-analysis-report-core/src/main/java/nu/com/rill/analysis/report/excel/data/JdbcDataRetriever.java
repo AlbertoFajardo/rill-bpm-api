@@ -96,7 +96,9 @@ public class JdbcDataRetriever implements DataRetriever {
 		
 		// Start execute SQL to retrieve result.
 		Row row = dataSheet.getRow(dataSheet.getFirstRowNum());
-//		String url = row.getCell(row.getFirstCellNum()).getStringCellValue();
+		String sql = row.getCell(row.getFirstCellNum()).getStringCellValue();
+		// FIXME: MENGRAN. Call jdbcTemplate is safe?
+		
 		String result = ReportEngine.fetchUrl(reportParams.get(ReportEngine.URL) + url, reportParams);
 		
 		List<List<String>> data = null;

@@ -184,6 +184,8 @@ public class Zssapp extends Div implements IdSpace  {
 		
 		String cookie = Executions.getCurrent().getHeader("Cookie");
 		cookie = StringUtils.replace(cookie, "JSESSIONID=", "IGNORE_JSESSIONID=");
+		long startTime = System.currentTimeMillis();
+		LOGGER.debug("Start openSpreadsheet " + report.getName() + " " + startTime); 
 		try {
 			ReportEngine.registCookie(cookie);
 			FileHelper.openSpreadsheet(spreadsheet, report);
@@ -199,6 +201,7 @@ public class Zssapp extends Div implements IdSpace  {
 			// Calculate height
 			calculateHeight(report, spreadsheet.getSelectedSheet());
 		}
+		LOGGER.debug("End openSpreadsheet " + report.getName() + " " + (System.currentTimeMillis() - startTime));
 		
 	}
 	

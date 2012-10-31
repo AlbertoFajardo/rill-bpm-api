@@ -32,7 +32,7 @@ public class ConditionalFormattingHelper {
 		result.put("background-repeat", "no-repeat");
 		int width = Utils.getColumnWidthInPx((Worksheet) cell.getSheet(), cell.getColumnIndex());
 		int height = Utils.getRowHeightInPx((Worksheet) cell.getSheet(), cell.getRow());
-		result.put("padding-left", (width * 1.5) + "px");
+		result.put("padding-left", (width * 4) + "px");
 		result.put("background-position", "0px " + (height -10) / 2 + "px");
 		String prefix = Executions.getCurrent().getContextPath();
 		if (new Double(vo.getVal()).compareTo(cell.getNumericCellValue()) < 0) {
