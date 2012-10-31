@@ -115,6 +115,9 @@ public final class ReportEngine {
 			suffix = url.substring(url.indexOf("]") + 1);
 		}
 		
+		long startTime = System.currentTimeMillis();
+		LOG.debug("Start fetchUrl " + url + " " + startTime);
+		
 		for (int i = 0 ; i < failOver.length; i++) {
 			String f = failOver[i];
 			String urlUse = prefix + f + suffix;
@@ -140,6 +143,8 @@ public final class ReportEngine {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					IOUtils.copy(is, baos);
 				    String content = new String(baos.toByteArray(), "UTF-8");
+				    
+				    LOG.debug("End fetchUrl " + url + " " + (System.currentTimeMillis() - startTime));
 				    return content;
 				} catch (IllegalStateException e) {
 					LOG.error(e);
@@ -336,6 +341,9 @@ public final class ReportEngine {
 		Assert.notNull(is);
 		Assert.notNull(bookName);
 		
+		long startTime = System.currentTimeMillis();
+		LOG.debug("Start generateReport " + startTime);
+		
 		Map<String, String> useReportParams = new HashMap<String, String>();
 		if (!CollectionUtils.isEmpty(reportParams)) {
 			useReportParams.putAll(reportParams);
@@ -352,7 +360,12 @@ public final class ReportEngine {
 				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams);
 				
 				// 3. Handle #_INPUT_SHEET sheet
-				processInput(book.getWorksheet(_INPUT_SHEET), useReportParams);
+				for (int i = 0 ; i < book.getNumberOfSheets(); i++) {
+					if (book.getSheetAt(i).getSheetName().startsWith(_INPUT_SHEET)) {
+						LOG.debug("Process input sheet " + book.getSheetAt(i).getSheetName());
+						processInput(book.getWorksheetAt(i), useReportParams);
+					}
+				}
 				
 				// 4. Formula evaluate
 //				bookAfterProcess.setForceFormulaRecalculation(true);
@@ -380,6 +393,7 @@ public final class ReportEngine {
 			LOG.error(e);
 			throw new REException(e);
 		} finally {
+			LOG.debug("End generateReport " + (System.currentTimeMillis() - startTime));
 			try {
 				is.close();
 			} catch (IOException e) {
@@ -483,7 +497,10 @@ public final class ReportEngine {
 		for (Entry<String, DataRetriever> entry : drMap.entrySet()) {
 			if (entry.getValue().supportType(nu.com.rill.analysis.report.excel.DataRetriever.DATA_TYPE.valueOf(reportParams.get(DATA_TYPE)))) {
 				LOG.info("Use data retriever: " + entry.getKey());
+				long startTime = System.currentTimeMillis();
+				LOG.debug("Start processInput " + startTime);
 				entry.getValue().retrieveData(inputSheet, reportParams);
+				LOG.debug("End processInput " + (System.currentTimeMillis() - startTime));
 				return;
 			}
 		}

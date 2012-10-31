@@ -183,6 +183,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		public SelectOnCreate(Select target) {
 			super();
 			this.target = target;
+			HashMap<String, String> options = new HashMap<String, String>();
+			options.put("width", "150px");
+			this.target.setOptions(options);
 		}
 		
 		public void resetSelectedIndex() {
@@ -255,6 +258,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		public PopSelectOnCreate(PopSelect target) {
 			super();
 			this.target = target;
+			HashMap<String, String> options = new HashMap<String, String>();
+			options.put("butWidth", "150px");
+			this.target.setOptions(options);
 		}
 		
 		public void resetSelectedIndex() {
@@ -375,23 +381,23 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		// Initialize parameter components
 		paramComponentInit(paramDiv, report, false);
 		
-		// Append reset button
-		Button reset = new Button("重置");
-		reset.setClass("reset-class");
-		reset.addEventListener(Events.ON_CLICK, new EventListener() {
-			
-			@Override
-			public void onEvent(Event event) throws Exception {
-				
-				// Initialize parameter components
-				paramComponentInit(tmpParamDiv, report, true);
-			}
-		});
-		paramDiv.appendChild(reset);
+//		// Append reset button
+//		Button reset = new Button("重置");
+//		reset.setClass("reset-class");
+//		reset.addEventListener(Events.ON_CLICK, new EventListener() {
+//			
+//			@Override
+//			public void onEvent(Event event) throws Exception {
+//				
+//				// Initialize parameter components
+//				paramComponentInit(tmpParamDiv, report, true);
+//			}
+//		});
+//		paramDiv.appendChild(reset);
 				
 		// Append search button
 		Button search = new Button("查询");
-		search.setClass("search-class");
+		search.setClass("ui-button ui-button-g search-class");
 		
 		search.addEventListener(Events.ON_CLICK, new EventListener() {
 			
@@ -495,7 +501,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		floatParamDiv.setClass("paramDiv-floatParamDiv-class");
 		userParamDiv.appendChild(floatParamDiv);
 		// Append download button
-		Button download = new Button("下载");
+		Button download = new Button("");
 		download.setClass("download-class");
 		
 		download.addEventListener(Events.ON_CLICK, new EventListener() {
