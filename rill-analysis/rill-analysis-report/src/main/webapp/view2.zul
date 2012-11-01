@@ -50,7 +50,7 @@
 	    .download-class {
 	    	background-color: #DEEBF1;
 	    	float: right;
-	        background: url("./images/down_report.png") -2px -2px;
+	        background: url("${execution.contextPath}/images/down_report.png") -2px -2px;
 	        width: 79px;
 	        height: 22px;
 	        cursor: pointer;
