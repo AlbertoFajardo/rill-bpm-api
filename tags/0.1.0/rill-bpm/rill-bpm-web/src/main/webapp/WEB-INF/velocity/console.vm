@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Solutions 
+Description: A two-column, fixed-width design for 1024x768 screen resolutions.
+Version    : 1.0
+Released   : 20091102
+
+-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>rill-bpm-web - process console</title>
+<meta name="keywords" content="BPM" />
+<meta name="description" content="rill-bpm-web" />
+<link type="text/css" href="#springUrl("")/css/solutions/style.css" rel="stylesheet" />
+<link type="text/css" href="#springUrl("")/css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<style type="text/css">
+	#deploy-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
+	#deploy-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+</style>
+<link rel="stylesheet" type="text/css" media="screen" href="#springUrl("")/css/jqgrid/ui.jqgrid.css" />	
+
+<script type="text/javascript" src="#springUrl("")/js/rill.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jqgrid/i18n/grid.locale-en.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jqgrid/jquery.jqGrid.min.js"></script>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript">
+
+// Document ready
+$(document).ready(function() {
+	// alert("Hello jQuery");
+	
+	$("#dialog").hide();
+	
+	$("#deploy-submit").click(function() {
+		if ($("#deployFile").val().length < 1) return false;
+		$("#deployForm").submit();
+	});
+	//hover states on the static widgets
+	$('#deploy-submit, ul#icons li').hover(
+		function() { $(this).addClass('ui-state-hover'); }, 
+		function() { $(this).removeClass('ui-state-hover'); }
+	);
+	
+	// Process definition
+	$('#jqGrid').jqGrid({ 
+		url : "#springUrl("")/web/console/processDefList",
+		datatype : 'json',
+		mtype : 'GET',
+		colNames:['流程定义ID','运行中', '已结束', '版本','最新上传时间', '动作'],
+		colModel :[ 
+	      {name:'procDefKey', index:'PD.KEY_', width:120, search:true}, 
+	      {name:'procDefRunning', index:'procDefRunning', width:20, sortable: false, search:false},
+	      {name:'procDefEnd', index:'procDefEnd', width:20, sortable: false, search:false}, 
+	      {name:'procDefVersion', index:'procDefVersion', width:20, sortable: false, search:false}, 
+	      {name:'procDefLastedTime', index:'procDefLastedTime', width:60, align:'center', sortable: false, search:false},
+	      {name:'procDefAction', index:'procDefAction', width:15, align:'center', sortable: false, search:false}
+	    ],
+	    jsonReader : {
+	    	repeatitems: true,
+	    	root:"invdata"
+	    },
+	    gridComplete: function() {
+	    	$("tr.jqgrow", this).each(function(index, ele){
+	    		trRowId = $(ele).attr("id");
+	    		$("td", ele).each(function(tdIndex, tdEle){
+	    			tdEleText = $(tdEle).text();
+	    			tdEleText = jQuery.trim(tdEleText);
+	    			if (tdIndex == 1 && tdEleText !== "0") {
+	    				$(tdEle).empty(); 
+	    				runningLink = "<a onclick='processInstanceList(\"" + trRowId + "\", true);' class='ui-state-default ui-corner-all' href='javascript:void(0);'>" + tdEleText + "</a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    			if (tdIndex == 2 && tdEleText !== "0") {
+	    				$(tdEle).empty(); 
+	    				runningLink = "<a onclick='processInstanceList(\"" + trRowId + "\", false);' class='ui-state-default ui-corner-all' href='javascript:void(0);'>" + tdEleText + "</a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    			// action
+	    			if (tdIndex == 5 && tdEleText !== "") {
+	    				$(tdEle).empty(); 
+	    				startUrl = '#springUrl("")/web/formrender/process/' + tdEleText;
+	    				runningLink = "<a target='_blank' href='" + startUrl + "' class='ui-state-default ui-corner-all' href='javascript:void(0);'><span class='ui-icon ui-icon-play'></span></a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    		});
+	    	});
+	    },
+		beforeSelectRow: function(rowid, e) {
+		    //var $link = $('a', e.target);
+		    //if (e.target.tagName.toUpperCase() === "A" || $link.length > 0) {
+		    //    // link exist in the item which is clicked
+		    //    return false;
+		    //}
+		    return false;
+		},
+		autowidth : true,
+		pager: '#jqGridPager',
+		height: 'auto',
+	    rowNum:10,
+	    rowList:[10],
+	    emptyrecords: "Nothing to display"
+    }).navGrid('#jqGridPager',{view:false, del:false, add:false, edit:false, search:false}, 
+		{}, // use default settings for edit
+		{}, // use default settings for add
+		{},  // delete instead that del:false we need this
+		{}, // enable the advanced searching
+		{closeOnEscape:true} /* allow the view dialog to be closed when user press ESC key*/
+		).filterToolbar();
+    
+    // Process instance
+	$('#pijqGrid').jqGrid({ 
+		url : "#springUrl("")/web/console/processInstanceList/" + true + "/" + "-1" + "?randomAjax=" + Math.random(),
+		datatype : 'json',
+		mtype : 'GET',
+		colNames:['ID','业务对象KEY', '流程定义KEY', '启动人', '启动时间', '结束时间'],
+		colModel :[ 
+	      {name:'procInstanceId', index:'PROC_INST_ID_', width:20, sortable: true,search:false}, 
+	      {name:'businessKey', index:'BUSINESS_KEY_', width:50, sortable: true,search:true},
+	      {name:'procDefKey', index:'procDefKey', width:100, sortable: false,search:false}, 
+	      {name:'startUser', index:'startUser', width:20, align:'left', sortable: false,search:false},
+	      {name:'startTime', index:'START_TIME_', width:60, align:'center', sortable: true,search:false}, 
+	      {name:'endTime', index:'END_TIME_', width:60, align:'center', sortable: true,search:false}
+	    ],
+	    jsonReader : {
+	    	repeatitems: true,
+	    	root:"invdata"
+	    },
+	    gridComplete: function() {
+	    	$("tr.jqgrow", this).each(function(index, ele){
+	    		trRowId = $(ele).attr("id");
+	    		$("td", ele).each(function(tdIndex, tdEle){
+	    			tdEleText = $(tdEle).text();
+	    			if (tdIndex == 0) {
+	    				$(tdEle).empty(); 
+	    				runningLink = "<a target='_blank' class='ui-state-default ui-corner-all' href='#springUrl("")/web/runtime/process/" + tdEleText + "'>" + tdEleText + "</a>";
+	    				$(runningLink).appendTo($(tdEle));
+	    			}
+	    		});
+	    	});
+	    },
+		beforeSelectRow: function(rowid, e) {
+		    //var $link = $('a', e.target);
+		    //if (e.target.tagName.toUpperCase() === "A" || $link.length > 0) {
+		    //    // link exist in the item which is clicked
+		    //    return false;
+		    //}
+		    return false;
+		},
+		autowidth : true,
+		pager: '#pijqGridPager',
+		height: 'auto',
+	    rowNum:10,
+	    rowList:[10],
+	    emptyrecords: "Nothing to display"
+    }).navGrid('#pijqGridPager',{view:false, del:false, add:false, edit:false, search:false}, 
+		{}, // use default settings for edit
+		{}, // use default settings for add
+		{},  // delete instead that del:false we need this
+		{}, // enable the advanced searching
+		{closeOnEscape:true} /* allow the view dialog to be closed when user press ESC key*/
+		).filterToolbar();
+	
+});
+
+function processInstanceList(processDefId, isRunning) {
+	
+	changedUrl = '#springUrl("")/web/console/processInstanceList/' + isRunning + '/' + processDefId + '?randomAjax=' + Math.random(),
+	$("#pijqGrid").setGridParam({url: changedUrl});
+	$("#pijqGrid").trigger("reloadGrid");
+}
+
+// Deploy submit call method
+function afterDeploy(deploymentId, message) {
+	
+	var message = deploymentId < 0 ? "<div>部署失败[" + message + "]</div>" : "<div>部署成功[" + deploymentId + "]</div>";
+	$("#dialog").empty(); 
+	$(message).appendTo($("#dialog"));
+	$( "#dialog" ).dialog({
+		height: 140,
+		width:400,
+		modal: true
+	});
+}
+
+
+google.load("visualization", "1", {packages:["corechart"]});
+google.setOnLoadCallback(drawChart);
+function drawChart() {
+	// alert("Hello Google Chart.");
+	threeDaysUrl = '#springUrl("")/web/statistics/process/3days?randomAjax=' + Math.random();
+	jQuery.getJSON(threeDaysUrl, function(jsonData){
+		var data = new google.visualization.DataTable();
+	    data.addColumn('string', 'Day');
+	    data.addColumn('number', 'Running');
+	    data.addColumn('number', 'Stopped');
+	    data.addRows(jsonData[0]);
+	
+	    var options = {
+	      width: 220, title: '启动/完成流程数'
+	    };
+	
+	    var chart = new google.visualization.LineChart(document.getElementById('3daysProcessStartAndEnd'));
+	    chart.draw(data, options); 
+	});
+}
+      
+</script>
+
+</head>
+<body>
+	<div id="logo">
+		<h1><a href="http://code.google.com/p/rill-bpm-api/" target="_blank">rill-bpm-web  </a></h1>
+		<p><em> 基于<a href="http://www.activiti.org/">Activiti</a>的企业级BPM解决方案</em></p>
+	</div>
+	<hr />
+	<!-- end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li><a href="#springUrl("")" class="first">主页</a></li>
+				<li class="current_page_item"><a href="#springUrl("")/web/console/">流程管理</a></li>
+				<li><a href="#">流程分析</a></li>
+				<li><a href="#">关于</a></li>
+			</ul>
+		</div>
+		<!-- end #menu -->
+		<div id="search">
+			<form method="get" action="#springUrl("")/web/console/">
+				<select id="search-text" name="selectedScaleoutTarget">
+					#foreach($tdpEntry in $scaleoutTarget.entrySet())
+						#if ($tdpEntry.key == $selectedScaleoutTarget)
+			          		<option value="$!{tdpEntry.key}" selected="selected">$!{tdpEntry.key}</option>
+			            #end
+			            #if ($tdpEntry.key != $selectedScaleoutTarget)
+			          		<option value="$!{tdpEntry.key}">$!{tdpEntry.key}</option>
+			            #end
+					#end
+				</select>
+				<input type="submit" id="scaleout-submit" value="切换" />
+			</form>
+		</div>
+		<!-- end #search -->
+	</div>
+	<!-- end #header -->
+	<!-- end #header-wrapper -->
+	<div id="page">
+		<div id="content">
+		  <div class="post">
+				<h2 class="title"><a href="javascript:void(0);">流程部署 </a></h2>
+				<p class="meta"><em>提供web接口的流程部署功能，可以部署单个/多个（zip格式压缩）流程定义文件。</em></p>
+				<div class="entry">
+					<form id="deployForm" name="deployForm" method="post" action="#springUrl("")/web/console/deploy" target="hiddenDeployIframe" 
+						enctype="multipart/form-data">
+						<input type="hidden" name="afterDeploy" value="afterDeploy" />
+						<input type="file" id="deployFile" name="deployFile" size="40" />
+						<p><a href="javascript:void(0);" id="deploy-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-disk"></span>部署</a></p>
+					</form>
+					<iframe name="hiddenDeployIframe" id="hiddenDeployIframe" style="display:none"></iframe>
+				</div>
+		  </div>
+			<div class="post">
+				<h2 class="title"><a href="javascript:void(0);">流程定义查询</a></h2>
+				<p class="meta"><em>引擎中部署的所有流程定义及版本。</em></p>
+				<div class="entry">
+					<table id="jqGrid"><tr><td/></tr></table> 
+					<div id="jqGridPager"></div> 
+				</div>
+			</div>
+			<div class="post">
+				<h2 class="title"><a href="javascript:void(0);">流程实例查询</a></h2>
+				<p class="meta"><em>流程实例列表</em></p>
+				<div class="entry">
+					<table id="pijqGrid"><tr><td/></tr></table> 
+					<div id="pijqGridPager"></div> 
+				</div>
+			</div>
+		</div><!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>流程运行情况</h2>
+					<p>流程运行情况图表。<br />Powered by Google Chart。</p>
+				</li>
+				<li>
+					<h2>3日内 </h2>
+					<ul>
+						<div id="3daysProcessStartAndEnd"></div>
+					</ul>
+				</li>
+				<li>
+					<h2>流程缓存管理</h2>
+					<script type="text/javascript">
+						$(document).ready(function() {
+							$( "#cacheResult" ).hide();
+							$("#cache-submit").click(function() {
+								params = {
+								      url:          '#springUrl("")/web/cachemgr/' + $('#cacheUrl').val(),
+								      type:         $('#cacheType').val(),
+								      cache:        false,
+								      dataType:     'json',
+								      contentType:  'application/x-www-form-urlencoded',
+								      success:      function(data, textStatus, jqXHR) {
+								      if (data.type && data.type === "MIX") {
+								     	  rebuildResult = '';
+									      if (data.add && data.add.length) {
+									      	rebuildResult = rebuildResult + 'add:' + data.add + '<br />';
+									      }
+									      if (data.update && data.update.length) {
+									      	rebuildResult = rebuildResult + 'update:' + data.update + '<br />';
+									      }
+									      if (rebuildResult === '') {
+									      	$( "#cacheResult" ).html('No-op any cache entry.');
+									      } else {
+									      	$( "#cacheResult" ).html(rebuildResult);
+									      }
+								      } else {
+									      if (data.cacheNames) {
+									      	$( "#cacheResult" ).html('cache names:' + data.cacheNames);
+									      } else {
+									      	$( "#cacheResult" ).html('type:' + data.type + '<br />'
+									      							+ 'name:' + data.cacheName + '<br />'
+									      							+ 'key:' + data.cacheKey + '<br />'
+									      							+ 'value:' + data.cacheValue + '<br />');
+									      }
+								      }
+								      	$( "#cacheResult" ).dialog({
+								      		modal: true
+								      	});
+								      }
+								    };
+								jQuery.ajax(params);
+							});
+							
+						});
+					</script>
+					<style type="text/css">
+						#cacheUrl {width: 99%; margin: 10px 10px 10px 0px;}
+						#cache-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
+						#cache-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+					</style>
+					<p>
+						<select id="cacheType" name="cacheType">
+							<option value='GET'>GET</option>
+							<!-- unsupport update cache values at 2012-04-09  --> 
+							<option value='PUT'>PUT</option>
+							<option value='DELETE'>DELETE</option>
+						</select>
+						<textarea id="cacheUrl" name="cacheUrl" size="40"></textarea>
+						<a href="javascript:void(0);" id="cache-submit" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-disk"></span>提交</a>
+						<br />
+						<div id="cacheResult" title="Cache Result">
+						</div>
+					</p>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+	<div id="footer">
+		<p>Copyright (c) 2011 RillMeng. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	<!-- end #footer -->
+	
+	<div id="dialog" title=""></div>
+</body>
+</html>

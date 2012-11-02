@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-express_v2" name="Pg-support-express_v2">
+    <documentation>Place documentation for the 'Pg-support-express_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow3"></exclusiveGateway>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway" default="flow4"></exclusiveGateway>
+    <userTask id="manager_audit_inside_express" name="经理审核快递单" default="flow6" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="express/auditExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>2</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=102</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=101</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="支持助理发起" sourceRef="exclusivegateway1" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__express_assistantSubmit==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3" name="" sourceRef="exclusivegateway1" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow4" name="" sourceRef="exclusivegateway3" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow5" name="派内部快递" sourceRef="exclusivegateway3" targetRef="manager_audit_inside_express">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__express_expressType==1}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="expressAdmin_audit_inside_express" name="快递管理员审核" default="flow7" activiti:candidateGroups="ht_support_express_manager" activiti:formKey="express/auditExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>3</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=104</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=101</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="confirm_express" name="支持助理确认" activiti:candidateGroups="ht_support_assistanter" activiti:formKey="express/confirmExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>4</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=106</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="in_deliver_express" name="派内部快递" default="flow9" activiti:candidateGroups="ht_support_express_manager" activiti:formKey="express/deliverInExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>5</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=107</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=101</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="in_finish_feedback" name="反馈快递单" activiti:candidateGroups="ht_support_express_manager" activiti:formKey="express/feedbackExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>8</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=108</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=109</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow6" name="" sourceRef="manager_audit_inside_express" targetRef="expressAdmin_audit_inside_express"></sequenceFlow>
+    <sequenceFlow id="flow7" name="" sourceRef="expressAdmin_audit_inside_express" targetRef="confirm_express"></sequenceFlow>
+    <sequenceFlow id="flow8" name="" sourceRef="confirm_express" targetRef="in_deliver_express"></sequenceFlow>
+    <sequenceFlow id="flow9" name="" sourceRef="in_deliver_express" targetRef="in_finish_feedback"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow10" name="" sourceRef="exclusivegateway2" targetRef="exclusivegateway5"></sequenceFlow>
+    <userTask id="out_deliver_express" name="派外部快递" activiti:candidateGroups="ht_support_assistanter" activiti:formKey="express/deliverOutExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>7</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=107</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=101</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow11" name="派外部快递" sourceRef="exclusivegateway3" targetRef="out_deliver_express">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__express_expressType==2}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="out_finish_express" name="反馈快递单" activiti:candidateGroups="ht_support_assistanter" activiti:formKey="express/feedbackExpressInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=108</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=109</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>8</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow12" name="" sourceRef="out_deliver_express" targetRef="out_finish_express"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow13" name="" sourceRef="out_finish_express" targetRef="exclusivegateway6"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow14" name="" sourceRef="exclusivegateway6" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow15" name="撤消派快递" sourceRef="out_deliver_express" targetRef="exclusivegateway5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__expressAudit_auditResult==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow16" name="" sourceRef="exclusivegateway5" targetRef="endevent2"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow17" name="驳回" sourceRef="manager_audit_inside_express" targetRef="exclusivegateway7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__expressAudit_auditResult==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent3" name="End"></endEvent>
+    <sequenceFlow id="flow18" name="" sourceRef="exclusivegateway7" targetRef="endevent3"></sequenceFlow>
+    <sequenceFlow id="flow19" name="驳回" sourceRef="expressAdmin_audit_inside_express" targetRef="exclusivegateway7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__expressAudit_auditResult==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent4" name="End"></endEvent>
+    <sequenceFlow id="flow20" name="撤销派快递" sourceRef="in_deliver_express" targetRef="endevent4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__expressAudit_auditResult==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow21" name="" sourceRef="exclusivegateway4" targetRef="in_deliver_express"></sequenceFlow>
+    <sequenceFlow id="flow22" name="" sourceRef="in_finish_feedback" targetRef="exclusivegateway6"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-express_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-express_v2" id="BPMNPlane_Pg-support-express_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="70" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="160" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="390" y="30"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40" width="40" x="300" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="manager_audit_inside_express" id="BPMNShape_manager_audit_inside_express">
+        <omgdc:Bounds height="55" width="105" x="268" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40" width="40" x="250" y="380"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="expressAdmin_audit_inside_express" id="BPMNShape_expressAdmin_audit_inside_express">
+        <omgdc:Bounds height="55" width="105" x="420" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_express" id="BPMNShape_confirm_express">
+        <omgdc:Bounds height="55" width="105" x="570" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="in_deliver_express" id="BPMNShape_in_deliver_express">
+        <omgdc:Bounds height="55" width="105" x="720" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="in_finish_feedback" id="BPMNShape_in_finish_feedback">
+        <omgdc:Bounds height="55" width="105" x="880" y="190"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40" width="40" x="674" y="30"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="out_deliver_express" id="BPMNShape_out_deliver_express">
+        <omgdc:Bounds height="55" width="105" x="420" y="90"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="out_finish_express" id="BPMNShape_out_finish_express">
+        <omgdc:Bounds height="55" width="105" x="570" y="90"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40" width="40" x="912" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="1010" y="100"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35" width="35" x="837" y="33"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
+        <omgdc:Bounds height="40" width="40" x="386" y="280"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent3" id="BPMNShape_endevent3">
+        <omgdc:Bounds height="35" width="35" x="471" y="283"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent4" id="BPMNShape_endevent4">
+        <omgdc:Bounds height="35" width="35" x="755" y="283"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="105" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="160" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="180" y="137"></omgdi:waypoint>
+        <omgdi:waypoint x="270" y="380"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="200" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="300" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="320" y="97"></omgdi:waypoint>
+        <omgdi:waypoint x="410" y="70"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="320" y="137"></omgdi:waypoint>
+        <omgdi:waypoint x="320" y="190"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="373" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="420" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="525" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="570" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="675" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="720" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="825" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="880" y="217"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="430" y="50"></omgdi:waypoint>
+        <omgdi:waypoint x="694" y="70"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="340" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="420" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="525" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="570" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="675" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="932" y="97"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="952" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="1010" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="525" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="694" y="70"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="714" y="50"></omgdi:waypoint>
+        <omgdi:waypoint x="837" y="50"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="320" y="245"></omgdi:waypoint>
+        <omgdi:waypoint x="406" y="280"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="426" y="300"></omgdi:waypoint>
+        <omgdi:waypoint x="471" y="300"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="472" y="245"></omgdi:waypoint>
+        <omgdi:waypoint x="406" y="280"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="772" y="245"></omgdi:waypoint>
+        <omgdi:waypoint x="772" y="283"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="290" y="400"></omgdi:waypoint>
+        <omgdi:waypoint x="602" y="400"></omgdi:waypoint>
+        <omgdi:waypoint x="772" y="245"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="985" y="217"></omgdi:waypoint>
+        <omgdi:waypoint x="932" y="137"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
