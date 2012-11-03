@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCfRule;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCfvo;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
@@ -21,6 +23,10 @@ import org.zkoss.zss.ui.impl.Utils;
 
 public class ConditionalFormattingHelper {
 	
+	private static final Log LOGGER = LogFactory.getLog(ConditionalFormattingHelper.class);
+	
+	public static final String HIDDENTEXT4ICONSET = "HiddenText4IconSet";
+	
 	private static void processIconSet(Map<String, String> result, XSSFConditionalFormattingRule rule, Cell cell) {
 		
 		CTCfRule ctRule = rule.getCTCfRule();
@@ -28,23 +34,30 @@ public class ConditionalFormattingHelper {
 			return;
 		}
 		
+		result.put("HiddenText4IconSet", "true");
 		CTCfvo vo = ctRule.getIconSet().getCfvoList().get(0);
 		result.put("background-repeat", "no-repeat");
 		int width = Utils.getColumnWidthInPx((Worksheet) cell.getSheet(), cell.getColumnIndex());
 		int height = Utils.getRowHeightInPx((Worksheet) cell.getSheet(), cell.getRow());
-		result.put("padding-left", (width * 4) + "px");
 		result.put("background-position", "0px " + (height -10) / 2 + "px");
-		String prefix = Executions.getCurrent().getContextPath();
+		String prefix = "";
+		String path = "";
+		try {
+			prefix = Executions.getCurrent().getContextPath() + "/images";
+			result.put("padding-left", (width * 4) + "px");
+		} catch (Exception e) {
+			// Ignore
+			prefix = ".";
+		}
 		if (new Double(vo.getVal()).compareTo(cell.getNumericCellValue()) < 0) {
 			// Up
-			String path = prefix + "/images/arrow-up.png";
-			result.put("background-image", "url('" + path + "')");
+			path = prefix + "/arrow-up.png";
 		}
 		if (new Double(vo.getVal()).compareTo(cell.getNumericCellValue()) > 0) {
 			// Down
-			String path = prefix + "/images/arrow-down.png";
-			result.put("background-image", "url('" + path + "')");
+			path = prefix + "/arrow-down.png";
 		}
+		result.put("background-image", "url('" + path + "')");
 		
 	}
 	
@@ -101,6 +114,7 @@ public class ConditionalFormattingHelper {
 				}
 			} catch (Exception e) {
 				// Ignore
+				LOGGER.warn(e);
 			}
 		}
 		

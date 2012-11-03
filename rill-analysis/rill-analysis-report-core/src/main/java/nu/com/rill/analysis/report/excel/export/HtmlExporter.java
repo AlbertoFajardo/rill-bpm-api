@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import nu.com.rill.analysis.report.excel.ConditionalFormattingHelper;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.Assert;
@@ -139,13 +141,16 @@ public class HtmlExporter {
 		
 		// Render table one by one
 		Table table = new Table();
-		table.setCellspacing("0");
 		
+		int height = 0;
 		for (Row r : sheet) {
 			Tr tr = renderTr(r);
 			table.appendChild(tr);
+			height +=Utils.getRowHeightInPx((Worksheet) sheet, r);
 		}
-		
+		table.setCellpadding("0");
+		table.setCellspacing("0");
+		table.setAttribute("height", height + "px");
 		return table;
 	}
 	
@@ -181,7 +186,7 @@ public class HtmlExporter {
 		return 1;
 	} 
 	
-	private void appCellStyle(Td td, Cell c, Row r, int colIndex) {
+	private void appCellStyle(Td td, Cell c, Row r, int colIndex, Div div) {
 		
 		String textCssStyle = "";
 		String fontCssStyle = "";
@@ -193,6 +198,8 @@ public class HtmlExporter {
 			fontCssStyle = BookHelper.getFontCSSStyle(c, BookHelper.getFont(c));
 			
 			td.setColspan(getCellColspan(c) + "");
+			
+			div.setStyle(cfh.getInnerHtmlStyle());
 		}
 		
 		td.setStyle(htmlStyle + textCssStyle + fontCssStyle);
@@ -202,19 +209,19 @@ public class HtmlExporter {
 	private Td renderTd(Row r, Cell c, int colIndex) {
 		
 		Td td = new Td();
-		appCellStyle(td, c, r, colIndex);
 		
 		int height = Utils.getRowHeightInPx((Worksheet) sheet, r);
 		int width = Utils.getColumnWidthInPx((Worksheet) sheet, colIndex);
-		
 		Div div = new Div();
-		if (c == null || (c.getCellType() == Cell.CELL_TYPE_STRING && !StringUtils.hasText(c.getStringCellValue()))) {
+		appCellStyle(td, c, r, colIndex, div);
+		if (c == null || c.getCellType() == Cell.CELL_TYPE_BLANK || (c.getCellType() == Cell.CELL_TYPE_STRING && !StringUtils.hasText(c.getStringCellValue()))) {
 			div.appendText(BLANK);
-			div.setStyle("height: " + height + "px; width: " + width + "px");
+			div.setStyle("height: " + height + "px; width: " + width + "px; font-size: 0");
 			td.appendChild(div);
 		} else {
 //			Range range = Ranges.range((Worksheet) c.getSheet(), c.getRowIndex(), c.getColumnIndex());
-			td.appendText(BookHelper.getCellText(c));
+			div.appendText(div.getStyle().contains(ConditionalFormattingHelper.HIDDENTEXT4ICONSET) ? BLANK : BookHelper.getCellText(c));
+			td.appendChild(div);
 		}
 		
 		return td;

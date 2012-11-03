@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>nu.com.rill</groupId>
 	<artifactId>rill-analysis-report</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<name>rill-analysis-report</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>nu.com.rill</groupId>
 			<artifactId>rill-analysis-report-core</artifactId>
-			<version>0.1.0</version>
+			<version>0.1.1</version>
 		</dependency>
 		
 		<dependency>
@@ -172,9 +172,9 @@
 					<wtpmanifest>true</wtpmanifest>
 					<wtpapplicationxml>true</wtpapplicationxml>
 					<wtpversion>2.0</wtpversion>
-					<!-- -->
+					<!-- --> 
 					<useProjectReferences>false</useProjectReferences>
-
+ 					
 					<classpathContainers>
 						<classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
 						<classpathContainer>org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0</classpathContainer>

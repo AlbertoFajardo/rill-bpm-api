@@ -14,7 +14,11 @@ import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.poi.ss.util.AreaReference;
 import org.zkoss.poi.ss.util.CellReference;
 import org.zkoss.poi.xssf.usermodel.XSSFTable;
+import org.zkoss.zss.model.Range;
+import org.zkoss.zss.model.Worksheet;
 import org.zkoss.zss.model.impl.XSSFSheetImpl;
+import org.zkoss.zss.ui.Rect;
+import org.zkoss.zss.ui.impl.Utils;
 
 public class TableDecorator extends RefreshDataSourceBookDecorator<XSSFTable> implements BookDecorator {
 	
@@ -35,11 +39,32 @@ public class TableDecorator extends RefreshDataSourceBookDecorator<XSSFTable> im
 			Sheet cellRangeAddressSheet, Sheet refreshTargetSheet, XSSFTable t) {
 		
 		// Refresh table
-		StringBuilder leftTopCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn())).append(arrayEval.getFirstRow() + 1);
-		StringBuilder rightBottomCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(arrayEval.getLastRow() + 1);
+//		StringBuilder leftTopCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn())).append(arrayEval.getFirstRow() + 1);
+//		StringBuilder rightBottomCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getLastColumn())).append(arrayEval.getLastRow() + 1);
 //		AreaReference ar = new AreaReference(cellRangeAddressSheet.getSheetName() + "!" + leftTopCell + ":" + rightBottomCell);
+//		System.out.println(leftTopCell + " " + rightBottomCell);
 		
 		CTTable ctTable = t.getCTTable();
+		AreaReference ar = new AreaReference(refreshTargetSheet.getSheetName() + "!" + ctTable.getRef());
+		// Demo data row(Below header row)
+		Rect srcRect = new Rect(ar.getFirstCell().getCol(), ar.getFirstCell().getRow() + new Long(ctTable.getHeaderRowCount()).intValue(), 
+				ar.getLastCell().getCol(),
+				ar.getLastCell().getRow());
+		
+		if (arrayEval.getHeight() > 2) {
+			Rect descRect = (Rect) srcRect.cloneSelf();
+			descRect.setTop(srcRect.getTop() + 1);
+			descRect.setBottom(srcRect.getBottom() + arrayEval.getHeight() - 2);
+			Utils.pasteSpecial((Worksheet) refreshTargetSheet, srcRect, (Worksheet) refreshTargetSheet, 
+					descRect.getTop(), descRect.getLeft(), descRect.getBottom(), descRect.getRight(), 
+					Range.PASTE_ALL, Range.PASTEOP_NONE, false, false);
+			
+			StringBuilder leftTopCell = new StringBuilder(CellReference.convertNumToColString(ar.getFirstCell().getCol())).append(ar.getFirstCell().getRow() + 1);
+			StringBuilder rightBottomCell = new StringBuilder(CellReference.convertNumToColString(ar.getLastCell().getCol())).append(descRect.getBottom() + 1);
+
+			ctTable.setRef(leftTopCell + ":" + rightBottomCell);
+		}
+		
 	}
 
 }
