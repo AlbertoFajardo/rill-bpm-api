@@ -207,7 +207,7 @@ public class JdbcDataRetriever implements DataRetriever {
 				}
 				currentCell.setCellValue(rowSet.getMetaData().getColumnLabel(k + 1));
 			}
-			i++;
+			
 			while (rowSet.next()) {
 				i++;
 				// Handle row one by one.
@@ -236,7 +236,6 @@ public class JdbcDataRetriever implements DataRetriever {
 						currentCell.setCellValue(rowSet.getString(j + 1));
 					}
 				}
-				i++;
 			}
 			
 		} catch (DataAccessException e) {

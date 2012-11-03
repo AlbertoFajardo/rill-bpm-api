@@ -191,7 +191,7 @@ public class Zssapp extends Div implements IdSpace  {
 			FileHelper.openSpreadsheet(spreadsheet, report);
 			
 			if (!editMode) {
-				spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum());
+				spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum() + 1);
 				spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
 			}
 			

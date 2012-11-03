@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nu.com.rill.analysis.report.excel.export.HtmlExporter;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -18,7 +20,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.zkoss.poi.ss.usermodel.Workbook;
 
-public class JdbcDataRetrieverTests {
+public class JdbcDataRetrieverTest {
 
 	private EmbeddedDatabase db;
 	
@@ -41,26 +43,22 @@ public class JdbcDataRetrieverTests {
 		System.setProperty("re.jdbcData.driverClassName", "org.h2.Driver");
 		ReportEngine re = ReportEngine.INSTANCE;
 		
-		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/jdbcDataRetriever.xlsx");
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/jdbcDataRetriever_table.xlsx");
 		try {
 			Map<String, String> contextParams = new HashMap<String, String>();
-			contextParams.put(ReportEngine.URL, "jdbc:h2:mem:testDb;DB_CLOSE_DELAY=1000;MVCC=TRUE");
+			contextParams.put(ReportEngine.URL, "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
 			contextParams.put(ReportEngine.USERNAME, "sa");
 			contextParams.put(ReportEngine.PASSWORD, "");
 			
 			Workbook wb = re.generateReport(cpr.getInputStream(), "jdbcDataRetrieverTest.xlsx", contextParams);
-			
-//			Assert.assertTrue(list.size() == 7);
-//			Assert.assertTrue(list.get("商业产品线").get(PARAM_CONFIG.NAME).equals("lineId"));
-//			Assert.assertTrue(list.get("商业产品线").get(PARAM_CONFIG.RENDER_TYPE).equals("select"));
-//			Assert.assertTrue(StringUtils.hasText(list.get("商业产品线").get(PARAM_CONFIG.FETCH_URL)));
-//			Assert.assertTrue(list.get("分析指标").get(PARAM_CONFIG.DEPENDENCIES).equals("lineId"));
-//			Assert.assertTrue(list.get("分析指标").get(PARAM_CONFIG.FETCH_URL).equals("DUMMYexample/ind"));
-			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			wb.write(baos);
 			File tmpImage = File.createTempFile("jdbcDataRetrieverTest.xlsx" + System.currentTimeMillis(), ".xlsx");
 			FileUtils.writeByteArrayToFile(tmpImage, baos.toByteArray());
+			
+			String html = new HtmlExporter(wb).export();
+			File tmpHtml = File.createTempFile("jdbcDataRetrieverTest.xlsx" + System.currentTimeMillis(), ".html");
+			FileUtils.writeByteArrayToFile(tmpHtml, html.getBytes("utf-8"));
 			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
