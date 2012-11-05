@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +27,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 
 public class TemplateMailSenderSupport {
@@ -92,10 +92,7 @@ public class TemplateMailSenderSupport {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected MimeMessageHelper obtainMimeMessageHelper(Map<String, Object> model) throws MessagingException {
-		
-		MimeMessage mimeMessage = getMailSender().createMimeMessage();
-		MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, isMultipart(model), getEncode());
+	protected MimeMessageHelper processMultipart(Map<String, Object> model, MimeMessageHelper messageHelper) throws MessagingException {
 		
 		// Handle multipart
 		if (isMultipart(model)) {
@@ -116,6 +113,29 @@ public class TemplateMailSenderSupport {
 					messageHelper.addAttachment(aw.getAttachmentFileName(), aw.getInputStreamSource());
 				else
 					messageHelper.addAttachment(aw.getAttachmentFileName(), aw.getInputStreamSource(), aw.getContentType());
+			}
+		}
+		
+		// Handle multipart
+		if (isMultipart(model)) {
+			List<AttachmentWarper> list = new ArrayList<AttachmentWarper>();
+			Object inline = model.get(TemplateMailSender.INLINE_KEY);
+			if (inline.getClass().isArray()) {
+				AttachmentWarper[] awArrays = ((AttachmentWarper[]) inline);
+                                list.addAll(Arrays.asList(awArrays));
+			} else if (inline instanceof Collection) {
+				Collection<AttachmentWarper> c = (Collection<AttachmentWarper>) inline;
+				list.addAll(c);
+			} else {
+				list.add(((AttachmentWarper) inline));
+			}
+			
+			for (AttachmentWarper aw : list) {
+				String cid = StringUtils.replace(aw.getAttachmentFileName(), ".", "_");
+				if (aw.getContentType() == null)
+					messageHelper.addInline(cid, aw.getInputStreamSource(), messageHelper.getFileTypeMap().getContentType(aw.getAttachmentFileName()));
+				else
+					messageHelper.addInline(cid, aw.getInputStreamSource(), aw.getContentType());
 			}
 		}
 		
