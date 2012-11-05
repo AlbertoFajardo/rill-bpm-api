@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.internet.MimeMessage;
+
 import org.rill.bpm.common.mail.TemplateMailSender;
 import org.rill.bpm.common.mail.support.TemplateMailSenderSupport;
 import org.springframework.beans.BeanUtils;
@@ -76,11 +78,13 @@ public class FreeMarkerTemplateMailSender extends TemplateMailSenderSupport impl
 			model.put("hostInfo", "unknown");
 		}
 		
-		final MimeMessageHelper messageHelper;
 		// Start to set properties
+		final MimeMessageHelper finalMessageHelper;
 		try {
-			// Prepare mail information
-			messageHelper = obtainMimeMessageHelper(model);
+			
+			MimeMessage mimeMessage = getMailSender().createMimeMessage();
+			MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, isMultipart(model), getEncode());
+			finalMessageHelper = messageHelper;
 			
 			// Generate mail content
 			String content = generateMailContent(templatePath, model);
@@ -104,6 +108,10 @@ public class FreeMarkerTemplateMailSender extends TemplateMailSenderSupport impl
 			if (mailSource.getText() != null) {
 				messageHelper.setText(mailSource.getText(), true);
 			}
+			
+			// Prepare mail information
+			messageHelper = processMultipart(model, messageHelper);
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -111,7 +119,7 @@ public class FreeMarkerTemplateMailSender extends TemplateMailSenderSupport impl
 		// Do send mail
 		getTaskExecutor().execute(new Runnable() {
 			public void run() {
-				getMailSender().send(messageHelper.getMimeMessage());
+				getMailSender().send(finalMessageHelper.getMimeMessage());
 			}
 		});
 	}

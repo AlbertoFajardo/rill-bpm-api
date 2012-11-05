@@ -26,6 +26,7 @@ import org.springframework.mail.SimpleMailMessage;
 public interface TemplateMailSender {
 
     String ATTACHMENT_KEY = TemplateMailSender.class.getName() + ".ATTACHMENT_KEY";
+    String INLINE_KEY = TemplateMailSender.class.getName() + ".INLINE_KEY";
 
     String generateMailContent(String templatePath, Map<String, Object> model);
 
