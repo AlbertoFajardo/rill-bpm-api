@@ -1,13 +1,20 @@
 package nu.com.rill.analysis.report.excel.export;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nu.com.rill.analysis.report.excel.ConditionalFormattingHelper;
+import nu.com.rill.analysis.report.excel.ReportEngine;
+import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
@@ -36,6 +43,7 @@ import com.hp.gagawa.java.elements.Img;
 import com.hp.gagawa.java.elements.Meta;
 import com.hp.gagawa.java.elements.Table;
 import com.hp.gagawa.java.elements.Td;
+import com.hp.gagawa.java.elements.Title;
 import com.hp.gagawa.java.elements.Tr;
 
 /**
@@ -47,10 +55,12 @@ import com.hp.gagawa.java.elements.Tr;
 public class HtmlExporter {
 	
 	public static final String BLANK = "&nbsp;";
+	public static final Log LOGGER = LogFactory.getLog(HtmlExporter.class);
 	
 	private Workbook wb;
 	private Sheet sheet;
 	private MergeMatrixHelper mmhelper;
+	private String workBookName;
 	
 	private Html html = new Html();
 	private Body body = new Body();
@@ -58,19 +68,53 @@ public class HtmlExporter {
 	
 	private int columnCnt = -1;
 	
-	public HtmlExporter(Workbook wb) {
+	private boolean hasExport = false;
+	
+	private Map<String, byte[]> images = new HashMap<String, byte[]>();
+	
+	public Workbook getWb() {
+		return wb;
+	}
+
+	public String getWorkBookName() {
+		return workBookName;
+	}
+
+	public Map<String, byte[]> getImages() {
+		return images;
+	}
+
+	public HtmlExporter(Workbook wb, String workBookName) {
 		super();
 		this.wb = wb;
+		this.workBookName = workBookName;
 		Assert.notNull(wb);
+		Assert.notNull(workBookName);
 		
 		html.appendChild(head);
 		html.appendChild(body);
 		Meta contextTypeMeta = new Meta("text/html;charset=utf-8");
 		contextTypeMeta.setHttpEquiv("Content-Type");
 		head.appendChild(contextTypeMeta);
+		
+		
+		Map<String, Map<PARAM_CONFIG, String>> params = ReportEngine.INSTANCE.retrieveReportParams((Book) wb, new HashMap<String, String>(0));
+		for (Map<PARAM_CONFIG, String> element : params.values()) {
+			if ("downloadFileName".equals(element.get(PARAM_CONFIG.NAME))) {
+				Title title = new Title();
+				title.appendText(element.get(PARAM_CONFIG.VALUE));
+				head.appendChild(title);
+			}
+		}
+		
 	}
 
 	public String export() {
+		
+		if (hasExport) {
+			return html.write();
+		}
+		hasExport = true;
 		
 		// Start parse work-book and generate HTML.
 		// FIXME: MENGRAN. Support first sheet export only at this version.
@@ -105,15 +149,7 @@ public class HtmlExporter {
 				ChartWidget chartwgt = new ChartWidget((Worksheet) sheet, chartX, zindex, ChartHelper.CHART_LIB_TYPE_PIC_CHART);
 				PicChart picChart = (PicChart) chartwgt.inner();
 				byte[] bytes = picChart.getEngine().drawChart(picChart);
-				String imgName = "";
-				try {
-				File tmpImage = File.createTempFile("htmlExporter" + System.currentTimeMillis(), ".png");
-				FileUtils.writeByteArrayToFile(tmpImage, bytes);
-				
-				imgName = tmpImage.getName();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				String imgName = "htmlExporter_" + workBookName + ".png";
 				
 				// New DIV to hold it.
 				Div div = new Div();
@@ -131,7 +167,27 @@ public class HtmlExporter {
 				Img img = new Img("", "./" + imgName);
 				div.appendChild(img);
 				body.appendChild(div);
+				
+				images.put(imgName, bytes);
 			}
+		}
+		
+		try {
+			ClassPathResource downCpr = new ClassPathResource("arrow-down.png");
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			IOUtils.copy(downCpr.getInputStream(), baos);
+			images.put(downCpr.getFilename(), baos.toByteArray());
+			IOUtils.closeQuietly(downCpr.getInputStream());
+			IOUtils.closeQuietly(baos);
+			
+			ClassPathResource upCpr = new ClassPathResource("arrow-up.png");
+			baos = new ByteArrayOutputStream();
+			IOUtils.copy(upCpr.getInputStream(), baos);
+			images.put(upCpr.getFilename(), baos.toByteArray());
+			IOUtils.closeQuietly(upCpr.getInputStream());
+			IOUtils.closeQuietly(baos);
+		} catch (Exception e) {
+			LOGGER.warn("Error occurred when try to load png of arrow-down/up", e);
 		}
 		
 		return html.write();
