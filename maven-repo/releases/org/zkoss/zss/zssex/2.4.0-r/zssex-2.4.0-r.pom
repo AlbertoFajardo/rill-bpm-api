@@ -6,7 +6,7 @@
 	<artifactId>zssex</artifactId>
 	<properties>
 		<zkex.version>5.0.11-r</zkex.version>
-		<zpoi.version>2.4.0</zpoi.version>
+		<zpoi.version>2.4.0-r</zpoi.version>
 		<jfreechart.version>1.0.13</jfreechart.version>
 		<googlecode.releases.url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/releases</googlecode.releases.url>
     	<googlecode.releases.repositoryId>googlecode-repo-releases</googlecode.releases.repositoryId>
@@ -21,6 +21,11 @@
 			<id>zk repository</id>
 			<url>http://mavensync.zkoss.org/maven2</url>
 		</repository>
+		<repository>  
+	        <id>googlecode-repo-releases</id>  
+	        <name>googlecode Maven Repository Releases</name>  
+	        <url>http://rill-bpm-api.googlecode.com/svn/maven-repo/releases</url>  
+	    </repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -55,7 +60,6 @@
 			<groupId>org.zkoss.zk</groupId>
 			<artifactId>zkex</artifactId>
 			<version>${zkex.version}</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jfree</groupId>
