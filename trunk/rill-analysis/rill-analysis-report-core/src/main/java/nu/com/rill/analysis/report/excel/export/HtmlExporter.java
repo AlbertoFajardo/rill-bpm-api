@@ -168,7 +168,7 @@ public class HtmlExporter {
 				
 				// New DIV to hold it.
 				Div div = new Div();
-				int top = 0;
+				int top = 5;
 				int left = 0;
 				for (int i = 0; i <= chartwgt.getRow(); i++) {
 					top += Utils.getRowHeightInPx((Worksheet) sheet, sheet.getRow(i));
