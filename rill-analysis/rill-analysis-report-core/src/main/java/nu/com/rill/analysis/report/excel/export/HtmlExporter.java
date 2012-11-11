@@ -71,6 +71,7 @@ public class HtmlExporter {
 	private boolean hasExport = false;
 	
 	private Map<String, byte[]> images = new HashMap<String, byte[]>();
+	private Map<String, Div> imageHolders = new HashMap<String, Div>();
 	
 	public Workbook getWb() {
 		return wb;
@@ -83,6 +84,20 @@ public class HtmlExporter {
 	public Map<String, byte[]> getImages() {
 		return images;
 	}
+	
+
+	public Map<String, Div> getImageHolders() {
+		return imageHolders;
+	}
+	
+
+	public Head getHead() {
+		return head;
+	}
+	
+	public Body getBody() {
+		return body;
+	}
 
 	public HtmlExporter(Workbook wb, String workBookName) {
 		super();
@@ -91,6 +106,7 @@ public class HtmlExporter {
 		Assert.notNull(wb);
 		Assert.notNull(workBookName);
 		
+		html.setAttribute("xmlns:v", "urn:schemas-microsoft-com:vml");
 		html.appendChild(head);
 		html.appendChild(body);
 		Meta contextTypeMeta = new Meta("text/html;charset=utf-8");
@@ -161,14 +177,16 @@ public class HtmlExporter {
 				for (int i = 0; i <= chartwgt.getColumn(); i++) {
 					left += Utils.getColumnWidthInPx((Worksheet) sheet, i);
 				}
+				div.setId(imgName);
 				div.setStyle("position: absolute; height: " + chartwgt.getHeight() + "; width: " + chartwgt.getWidth() + ";"
-						+ "padding-top: " + chartwgt.getTop() + "px; padding-left: " + chartwgt.getLeft() + "px;"
-						+ "top: " + top + "px; left: " + left + "px;");
+						+ "padding-top:" + chartwgt.getTop() + "px; padding-left:" + chartwgt.getLeft() + "px;"
+						+ "top: " + top + "px; left: " + left + "px; display: block");
 				Img img = new Img("", "./" + imgName);
 				div.appendChild(img);
 				body.appendChild(div);
 				
 				images.put(imgName, bytes);
+				imageHolders.put(imgName, div);
 			}
 		}
 		
@@ -270,6 +288,8 @@ public class HtmlExporter {
 		int width = Utils.getColumnWidthInPx((Worksheet) sheet, colIndex);
 		Div div = new Div();
 		appCellStyle(td, c, r, colIndex, div);
+		td.setWidth(width + "");
+		td.setHeight(height + "");
 		if (c == null || c.getCellType() == Cell.CELL_TYPE_BLANK || (c.getCellType() == Cell.CELL_TYPE_STRING && !StringUtils.hasText(c.getStringCellValue()))) {
 			div.appendText(BLANK);
 			div.setStyle("height: " + height + "px; width: " + width + "px; font-size: 0");

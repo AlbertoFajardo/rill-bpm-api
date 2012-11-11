@@ -14,7 +14,6 @@ import org.rill.bpm.common.mail.TemplateMailSender;
 import org.rill.bpm.common.mail.support.AttachmentWarper;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.util.StringUtils;
 
 public class SendReportViaEmailHelper {
 
