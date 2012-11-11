@@ -7,7 +7,12 @@ import org.rill.bpm.common.mail.freemarker.FreeMarkerTemplateMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.zkoss.zk.ui.Executions;
+
+import com.hp.gagawa.java.Node;
+import com.hp.gagawa.java.elements.Div;
+import com.hp.gagawa.java.elements.Img;
+import com.hp.gagawa.java.elements.Text;
+import com.hp.gagawa.java.elements.Title;
 
 public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
 
@@ -22,20 +27,19 @@ public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
 		logger.debug("Original html : " + html);
 		Assert.hasText(html, "Empty mail content is not allowed. " + templatePath);
 		
-		// FIXME: MENGRAN. Need use HTML-parser tools
-		// Process in-line image
-		for (Entry<String, byte[]> entry : exporter.getImages().entrySet()) {
+		// Process DIV's position
+		for (Entry<String, Div> entry : exporter.getImageHolders().entrySet()) {
+			Img img = (Img) entry.getValue().getChild(0);
 			String cid = StringUtils.replace(entry.getKey(), ".", "_");
-			html = StringUtils.replace(html, "./" + entry.getKey(), "cid:" + cid);
-			try {
-				String prefix = Executions.getCurrent().getContextPath() + "/images";
-				html = StringUtils.replace(html, prefix + "/" + entry.getKey(), "cid:" + cid);
-			} catch (Exception e) {
-				// Ignore
-			}
-			logger.debug("After replace " + cid + " : " + html);
+			img.setSrc("cid:" + cid);
+			exporter.getBody().removeChild(entry.getValue());
+			String vml = "<v:image src=\"" + img.getSrc() + "\" style=\"" + entry.getValue().getStyle() + "\"/>";
+			Text vimText = new Text(vml);
+			exporter.getBody().appendChild(0, vimText);
 		}
 		
+		// Re-export it.
+		html = exporter.export();
 		logger.debug("Mail content is : " + html);
 		return html;
 	}
@@ -45,13 +49,12 @@ public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
 			String templatePath, Map<String, Object> model) {
 		
 		HtmlExporter exporter = (HtmlExporter) model.get(MAIL_CONTENT_KEY);
-		String html = exporter.export();
-		int startIndex = html.indexOf("<title>");
-		int endIndex = html.indexOf("</title>");
-		if (startIndex > 0) {
-			String title = html.substring(startIndex + 7, endIndex);
-			logger.debug("Retrieve title: " + title);
-			mailSource.setSubject(title + mailSource.getSubject());
+		for (Node n : exporter.getHead().getChildren()) {
+			if (n instanceof Title) {
+				Text text = (Text) ((Title) n).getChild(0);
+				logger.debug("Retrieve title: " + text.toString());
+				mailSource.setSubject(text.toString() + mailSource.getSubject());
+			}
 		}
 		
 		// Do super's logic
