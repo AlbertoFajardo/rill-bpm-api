@@ -20,6 +20,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.util.StringUtils;
 
+import com.hp.gagawa.java.elements.Div;
+
 public class UnsortedTest {
 
 	@Test
@@ -154,6 +156,16 @@ public class UnsortedTest {
 		
 		labelCnt = 12;
 		System.out.println(width + " " + labelCnt + " " + ((labelCnt * 130 / width) <= 1 ? 1 : (labelCnt * 130 / width)));
+	}
+	
+	@Test
+	public void testFindUrlInBackGroupdStyle() {
+		String style = "background-url: url('./somedir/some.png')";
+		int startIndex = style.indexOf("url('");
+		int endIndex = style.indexOf(".png", startIndex);
+		String url = style.substring(startIndex + 5, endIndex + 4);
+		
+		Assert.assertEquals("./somedir/some.png", url);
 	}
 
 }
