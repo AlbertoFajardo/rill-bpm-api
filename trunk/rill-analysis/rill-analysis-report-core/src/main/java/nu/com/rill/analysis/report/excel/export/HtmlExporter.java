@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nu.com.rill.analysis.report.excel.ConditionalFormattingHelper;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 
@@ -295,8 +294,7 @@ public class HtmlExporter {
 			div.setStyle("height: " + height + "px; width: " + width + "px; font-size: 0");
 			td.appendChild(div);
 		} else {
-//			Range range = Ranges.range((Worksheet) c.getSheet(), c.getRowIndex(), c.getColumnIndex());
-			div.appendText(div.getStyle().contains(ConditionalFormattingHelper.HIDDENTEXT4ICONSET) ? BLANK : BookHelper.getCellText(c));
+			div.appendText(BookHelper.getCellText(c));
 			td.appendChild(div);
 		}
 		
