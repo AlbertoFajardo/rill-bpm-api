@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <page:show id="ps_nu_com_rill_analysis_report_console_ReportTemplate" object="${reporttemplate}" path="/reporttemplates" z="9kLMc2ThGKq+vron+byCr5dq2Fw=">
+        <field:display field="name" id="s_nu_com_rill_analysis_report_console_ReportTemplate_name" object="${reporttemplate}" z="WWk2vJKClJK9fYvdYpFKW6WCbEA="/>
+        <field:display field="creator" id="s_nu_com_rill_analysis_report_console_ReportTemplate_creator" object="${reporttemplate}" z="TZPYYoRkIR9oaMCM1X26k2ecLJo="/>
+        <field:display field="belongToApp" id="s_nu_com_rill_analysis_report_console_ReportTemplate_belongToApp" object="${reporttemplate}" z="3HBoNDtbfgEN5OlI2TdVowm2YvI="/>
+        <field:display date="true" dateTimePattern="${reportTemplate_createdate_date_format}" field="createDate" id="s_nu_com_rill_analysis_report_console_ReportTemplate_createDate" object="${reporttemplate}" z="5/tdS7899ANuNNbR4lHASfN7TSk="/>
+        <field:display byteArray="true" byteArrayDisplay="name" field="contents" id="s_nu_com_rill_analysis_report_console_ReportTemplate_contents" object="${reporttemplate}" path="/reporttemplates" z="user-managed"/>
+    </page:show>
+</div>
