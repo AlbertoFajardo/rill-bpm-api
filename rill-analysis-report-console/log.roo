@@ -1,0 +1,26 @@
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log opened at 2012-11-30 20:18:56
+hint
+help
+project --topLevelPackage nu.com.rill.analysis.report.console --projectName rill-analysis-report-console
+hint
+jpa setup --database H2_IN_MEMORY --provider HIBERNATE 
+hint
+entity jpa --class nu.com.rill.analysis.report.console.ReportTemplate --testAutomatically 
+hint
+field string --fieldName name --notNull --unique 
+field string --fieldName creator --notNull 
+field string --fieldName belongToApp --notNull 
+field date --fieldName createDate --type java.util.Date
+perform test
+hint
+web mvc setup
+web mvc all --package nu.com.rill.analysis.report.console
+security setup
+perform eclipse
+perform eclipse
+perform eclipse
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log opened at 2012-12-01 15:00:45
+hint
+perform package
+exit
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log closed at 2012-12-01 15:58:05
