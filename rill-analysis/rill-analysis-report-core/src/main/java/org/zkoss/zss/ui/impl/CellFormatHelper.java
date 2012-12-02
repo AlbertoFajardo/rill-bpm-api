@@ -28,7 +28,6 @@ import org.springframework.util.CollectionUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.CellStyle;
 import org.zkoss.poi.ss.usermodel.Font;
-import org.zkoss.poi.ss.usermodel.RichTextString;
 import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.FormatText;
 import org.zkoss.zss.model.Worksheet;
@@ -87,10 +86,10 @@ public class CellFormatHelper {
 			if (bgColor != null) {
 				sb.append("background-color:").append(bgColor).append(";");
 			}
-			final FormatText ft = Utils.getFormatText(_cell);
-			final boolean isRichText = ft.isRichTextString();
-			final RichTextString rstr = isRichText ? ft.getRichTextString() : null;
-			final String txt = rstr != null ? rstr.getString() : ft.getCellFormatResult().text;
+//			final FormatText ft = Utils.getFormatText(_cell);
+//			final boolean isRichText = ft.isRichTextString();
+//			final RichTextString rstr = isRichText ? ft.getRichTextString() : null;
+//			final String txt = rstr != null ? rstr.getString() : ft.getCellFormatResult().text;
 			
 			if(_cell.getCellType() == Cell.CELL_TYPE_BLANK) {
 				sb.append("z-index:-1;"); //For IE6/IE7's overflow
@@ -219,8 +218,7 @@ public class CellFormatHelper {
 					int bb = style.getBorderLeft();//get left here
 					//String color = BookHelper.indexToRGB(_book, style.getLeftBorderColor());
 					//ZSS-34 cell background color does not show in excel
-					String color = style.getFillPattern() != CellStyle.NO_FILL ? 
-							BookHelper.colorToHTML(_book, style.getLeftBorderColorColor()) : null;
+					String color = BookHelper.colorToHTML(_book, style.getLeftBorderColorColor());
 						hitRight = appendBorderStyle(sb, "right", bb, color);
 				}
 			}

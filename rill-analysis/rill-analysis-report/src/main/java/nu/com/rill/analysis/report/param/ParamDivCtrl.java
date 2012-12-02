@@ -539,7 +539,27 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				continue;
 			}
-
+			
+			if ("input".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				Input input = new Input();
+				input.setId(config.get(PARAM_CONFIG.NAME));
+				input.setValue(config.get(PARAM_CONFIG.VALUE));
+				paramDiv.appendChild(input);
+				
+				if (StringUtils.hasText(paramName)) {
+					paramDiv.appendChild(new Label(" "));
+					Label l = new Label(paramName + " ：");
+					l.setClass("param-label-class");
+					paramDiv.appendChild(l);
+					paramDiv.appendChild(input);
+					paramDiv.appendChild(new Label(" "));
+				} else {
+					floatParamDiv.appendChild(new Label(" "));
+					floatParamDiv.appendChild(input);
+					floatParamDiv.appendChild(new Label(" "));
+				}
+			}
+			
 			if ("provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 				Input input = new Input();
 				input.setId(config.get(PARAM_CONFIG.NAME));
