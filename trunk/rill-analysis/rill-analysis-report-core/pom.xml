@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
 			<artifactId>zssex</artifactId>
-			<version>${zss-r.version}</version>
+			<version>${zss-r1.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
