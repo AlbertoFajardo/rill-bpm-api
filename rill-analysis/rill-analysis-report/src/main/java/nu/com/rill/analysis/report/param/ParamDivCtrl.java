@@ -546,6 +546,14 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				input.setValue(config.get(PARAM_CONFIG.VALUE));
 				paramDiv.appendChild(input);
 				
+				input.addEventListener(Events.ON_CHANGE, new EventListener() {
+					
+					@Override
+					public void onEvent(Event event) throws Exception {
+						System.out.println(((Input) event.getTarget()).getValue());
+					}
+				});
+				
 				if (StringUtils.hasText(paramName)) {
 					paramDiv.appendChild(new Label(" "));
 					Label l = new Label(paramName + " ：");

@@ -11,8 +11,5 @@
 Copyright (C) 2010 Potix Corporation. All Rights Reserved.
 -->
 <package name="zssapp" language="xul/html" depends="zul.wgt, zul.inp">
-	<widget name="Simplecolorbutton"/>
-	<widget name="Dropdownbutton"/>
-	<widget name="Formulaeditor"/>
 	<widget name="Zssapp"/>
 </package>

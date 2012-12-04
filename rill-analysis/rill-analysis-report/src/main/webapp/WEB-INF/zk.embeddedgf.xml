@@ -119,7 +119,7 @@
 		</preference>
 	-->
 	<client-config>
-		<debug-js>true</debug-js>
+		<debug-js>false</debug-js>
 	</client-config>
 	<library-property>
 		<name>org.zkoss.web.classWebResource.cache</name>
