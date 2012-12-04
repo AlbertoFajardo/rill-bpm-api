@@ -25,6 +25,7 @@ import org.springframework.util.StringValueResolver;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zss.model.Worksheet;
+import org.zkoss.zss.model.impl.BookHelper;
 
 public class JdbcDataRetriever implements DataRetriever {
 
@@ -208,11 +209,12 @@ public class JdbcDataRetriever implements DataRetriever {
 				currentCell.setCellValue(rowSet.getMetaData().getColumnLabel(k + 1));
 			}
 			
+			int bakI = i;
 			while (rowSet.next()) {
 				i++;
 				// Handle row one by one.
 				Row currentRow = null;
-				if (dataSheet.getRow(i) == null) {
+				if (dataSheet.getRow(i)  == null || dataSheet.getRow(i).getCell(0) == null) {
 					currentRow = ReportEngine.copyRow(dataSheet, i - 1, i);
 				} else {
 					currentRow = dataSheet.getRow(i);
@@ -234,6 +236,26 @@ public class JdbcDataRetriever implements DataRetriever {
 					}
 					if (Cell.CELL_TYPE_STRING == cellType) {
 						currentCell.setCellValue(rowSet.getString(j + 1));
+					}
+				}
+			}
+			if (bakI == i) {
+				// Means not retrieve any data
+				for (int l = bakI; l <= dataSheet.getLastRowNum(); l++) {
+					for (int k = 0; k < rowSet.getMetaData().getColumnCount(); k++) {
+						Cell currentCell = null;
+						if (dataSheet.getRow(l) == null || dataSheet.getRow(l).getCell(k) == null) {
+							break;
+						} else {
+							currentCell = dataSheet.getRow(l).getCell(k);
+							if (currentCell.getCellType() == Cell.CELL_TYPE_STRING) {
+								BookHelper.setCellValue(currentCell, "-");
+							} else if (currentCell.getCellType() == Cell.CELL_TYPE_STRING) {
+								BookHelper.setCellValue(currentCell, 0);
+							} else {
+								BookHelper.setCellValue(currentCell, 0);
+							}
+						}
 					}
 				}
 			}

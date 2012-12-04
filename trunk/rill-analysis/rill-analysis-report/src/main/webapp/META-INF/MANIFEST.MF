@@ -44,5 +44,5 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  ar xstream-1.2.2.jar zcommon-5.0.11.jar zcommons-el-1.1.0.jar zhtml-5
  .0.11.jar zk-5.0.11.jar zkex-5.0.11-r.jar zkplus-5.0.11.jar zkspring-
  core-3.1.jar zpoi-2.4.0-r1.jar zpoiex-2.4.0-r.jar zss-2.4.0-r1.jar zs
- sex-2.4.0-r.jar zul-5.0.11.jar zweb-5.0.11.jar
+ sex-2.4.0-r1.jar zul-5.0.11.jar zweb-5.0.11.jar
 

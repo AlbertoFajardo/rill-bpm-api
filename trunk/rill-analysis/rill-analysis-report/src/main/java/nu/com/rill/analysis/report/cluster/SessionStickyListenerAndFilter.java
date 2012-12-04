@@ -138,7 +138,7 @@ public class SessionStickyListenerAndFilter implements Filter, ServletContextLis
 			for (Cookie cookie : request.getCookies()) {
 				if (cookie.getName().toUpperCase().equals(RE_SERVER_ID)) {
 					LOGGER.debug("Retrieve session sticky id from cookie "
-							+ cookie.getValue());
+							+ cookie.getValue() + " " + cookie + ". request " + request.getRequestURI());
 					reServerIdCookie = cookie;
 				}
 			}
