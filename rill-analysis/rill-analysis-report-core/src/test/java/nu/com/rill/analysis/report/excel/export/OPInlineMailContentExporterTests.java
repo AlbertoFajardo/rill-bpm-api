@@ -23,9 +23,9 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 	@Autowired
 	private SendReportViaEmailHelper sendReportViaEmailHelper;
 	
-	private static final String MODULE_NAME = "crm_tomcat_pangu";
+	private static final String MODULE_NAME = "crm_tomcat_pss";
 	private static final String MODULE_TOPN = "50";
-	private static final String MODULE_THRESHOLD = "15";
+	private static final String MODULE_THRESHOLD = "10";
 	private static Map<String, String> CN_EN_NAMES = new HashMap<String, String>();
 	static {
 		CN_EN_NAMES.put("crm_tomcat_kt", "增值业绩追踪系统");
@@ -34,7 +34,7 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 		CN_EN_NAMES.put("crm_tomcat_pulse", "Pulse系统");
 		CN_EN_NAMES.put("crm_tomcat_weihu", "维护系统");
 	}
-	private static final String SELECTED_DATE = "2012-12-04";
+	private static final String SELECTED_DATE = "2012-12-05";
 	
 	private static Map<String, String> contextParams = new HashMap<String, String>();
 	
