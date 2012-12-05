@@ -161,6 +161,7 @@ public class HtmlExporter {
 				columnCnt = r.getPhysicalNumberOfCells();
 			}
 		}
+		columnCnt++;
 		
 		// Append one sheet
 		body.appendChild(renderTable(sheet));

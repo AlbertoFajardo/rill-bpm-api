@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Components;
 import org.zkoss.zk.ui.Executions;
@@ -191,8 +192,14 @@ public class Zssapp extends Div implements IdSpace  {
 			FileHelper.openSpreadsheet(spreadsheet, report);
 			
 			if (!editMode) {
+				int columnCnt = -1;
+				for (Row r : spreadsheet.getSelectedSheet()) {
+					if (r != null && r.getPhysicalNumberOfCells() > columnCnt) {
+						columnCnt = r.getPhysicalNumberOfCells();
+					}
+				}
 				spreadsheet.setMaxrows(spreadsheet.getSelectedSheet().getLastRowNum() + 1);
-				spreadsheet.setMaxcolumns(spreadsheet.getSelectedSheet().getRow(spreadsheet.getSelectedSheet().getLastRowNum()).getLastCellNum() + 1);
+				spreadsheet.setMaxcolumns(columnCnt + 1);
 			}
 			
 		} finally {
