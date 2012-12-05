@@ -417,7 +417,7 @@ public final class ReportEngine {
 			
 			if (isValid) {
 				// 2. Handle #_SETTINGS_SHEET
-				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams, false);
+				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams, true);
 				
 				// 3. Handle #_INPUT_SHEET sheet
 				for (int i = 0 ; i < book.getNumberOfSheets(); i++) {
