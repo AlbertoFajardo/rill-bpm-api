@@ -263,7 +263,7 @@ public final class ReportEngine {
 	
 	public String generateReportViewUrl(String bookName, Map<String, String> contextParams, Map<String, Map<PARAM_CONFIG, String>> params, boolean combine) {
 		
-		 String systemViewPage = contextParams.get(SYSTEM_VIEW_PAGE);
+		 String systemViewPage = contextParams == null ? "" : contextParams.get(SYSTEM_VIEW_PAGE);
 		 if (!StringUtils.hasText(systemViewPage)) {
 			 return "";
 		 }
@@ -328,6 +328,11 @@ public final class ReportEngine {
 		}
 		
 		return Collections.emptyMap();
+	}
+	
+	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(Book book, Map<String, String> contextParams) {
+		
+		return retrieveReportParams(book, contextParams, false);
 	}
 	
 	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(Book book, Map<String, String> contextParams, boolean combine) {
@@ -506,7 +511,8 @@ public final class ReportEngine {
 							prefix = contextParams.get(URL);
 						}
 						if (index <= endCell.getCol()) {
-							paramConfig.put(pc, prefix + settingsSheet.getRow(i).getCell(index).getStringCellValue());
+							Cell c = settingsSheet.getRow(i).getCell(index);
+							paramConfig.put(pc, prefix + (c.getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf(c.getNumericCellValue()) : c.getStringCellValue()));
 						}
 					}
 					String paramName = settingsSheet.getRow(i).getCell(startCell.getCol()).getStringCellValue();

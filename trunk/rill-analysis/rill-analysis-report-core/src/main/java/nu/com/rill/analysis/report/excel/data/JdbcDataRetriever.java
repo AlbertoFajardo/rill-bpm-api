@@ -23,6 +23,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 import org.springframework.util.StringValueResolver;
 import org.zkoss.poi.ss.usermodel.Cell;
+import org.zkoss.poi.ss.usermodel.DateUtil;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.zss.model.Worksheet;
 import org.zkoss.zss.model.impl.BookHelper;
@@ -232,7 +233,11 @@ public class JdbcDataRetriever implements DataRetriever {
 						cellType = currentRow.getCell(j).getCellType();
 					}
 					if (Cell.CELL_TYPE_NUMERIC == cellType) {
-						currentCell.setCellValue(rowSet.getDouble(j + 1));
+						if (DateUtil.isCellDateFormatted(currentCell)) {
+							currentCell.setCellValue(rowSet.getDate(j + 1));
+						} else {
+							currentCell.setCellValue(rowSet.getDouble(j + 1));
+						}
 					}
 					if (Cell.CELL_TYPE_STRING == cellType) {
 						currentCell.setCellValue(rowSet.getString(j + 1));
