@@ -8,30 +8,16 @@
        default-autowire="byName">
 
     <context:annotation-config />
-
+	
+	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+	  <property name="locations" value="classpath:conf/ReportEngine.properties"/>
+	</bean>
+	
 	<bean id="sendReportViaEmailHelper" class="nu.com.rill.analysis.report.excel.export.SendReportViaEmailHelper"></bean>
 	
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host">
-			<value>smtp.gmail.com</value>
-		</property>
-		<property name="username">
-			<value>totyumengr@gmail.com</value>
-		</property>
-		<property name="password">
-			<value>interhui1025</value>
-		</property>
-		<property name="port">
-			<value>465</value>
-		</property>
-		<property name="javaMailProperties">
-			<props>
-				<prop key="mail.smtp.auth">true</prop>
-				<prop key="mail.smtp.timeout">25000</prop>
-				<prop key="mail.smtp.starttls.enable">true</prop>
-				<prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
-				<prop key="mail.smtp.socketFactory.fallback">false</prop>
-			</props>
+			<value>mail2-in.baidu.com</value>
 		</property>
 		
 		<property name="defaultEncoding" value="utf-8"></property>
@@ -39,36 +25,32 @@
 	
 	<bean id="simpleMailMessage" class="org.springframework.mail.SimpleMailMessage">
 		<property name="from">
-			<value>report-service.rigel@baidu.com</value>
+			<value>watchdog@baidu.com</value>
 		</property>
 		<property name="subject">
-			<value> - 来自报表服务</value>
+			<value> - From Report Center.</value>
 		</property>
 		<property name="to">
 			<list>
-				<!-- RD -->
-				<value>76511682@qq.com</value>
+				<!-- 
+				<value>sushuang@baidu.com</value>
+				 -->
+				<value>sfcrm-mon@baidu.com</value>
 			</list>
 		</property>
 		<property name="bcc">
 			<list>
-				<!-- RD -->
 				<value>mengran@baidu.com</value>
-				<value>ramiran@sina.com</value>
-				<value>totyumengr@gmail.com</value>
-				<value>hdmr@tom.com</value>
-				<!-- 
+				<!-- OP -->
 				<value>wuwei03@baidu.com</value>
-				<value>maxiaohu@baidu.com</value>
-				<value>zhangqiuchen@baidu.com</value>
-				<value>wangliang05@baidu.com</value>
-				<value>luolibin@baidu.com</value>
-				 -->
 			</list>
 		</property>
 	</bean>
 	
     <bean id="templateMailSender" class="nu.com.rill.analysis.report.excel.export.InlineMailContentMailSender">
+    	<property name="offlineMode">
+    		<value>${re.mail.offlineMode}</value>
+    	</property>
     </bean>
 
     <bean id="taskExecutor" class="org.springframework.core.task.SyncTaskExecutor">

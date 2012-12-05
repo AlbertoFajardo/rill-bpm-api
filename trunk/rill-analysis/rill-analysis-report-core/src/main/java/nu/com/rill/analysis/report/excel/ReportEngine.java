@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,6 +72,8 @@ public final class ReportEngine {
 	public static final String PASSWORD = "PASSWORD";
 	public static final String URL = "URL";
 	public static final String COOKIE = "Cookie";
+	
+	public static final String SYSTEM_VIEW_PAGE = "SYSTEM_VIEW_PAGE";
 	
 	public static final String PARAM_TABLE = "paramTable";
 	
@@ -251,12 +254,64 @@ public final class ReportEngine {
 	}
 	
 	// API -------------------
+	public String generateReportViewUrl(InputStream is, String bookName, Map<String, String> contextParams, boolean combine) {
+		
+		 Map<String, Map<PARAM_CONFIG, String>> params = retrieveReportParams(is, bookName, contextParams, combine);
+		 
+		 return generateReportViewUrl(bookName, contextParams, params, combine);
+	}
+	
+	public String generateReportViewUrl(String bookName, Map<String, String> contextParams, Map<String, Map<PARAM_CONFIG, String>> params, boolean combine) {
+		
+		 String systemViewPage = contextParams.get(SYSTEM_VIEW_PAGE);
+		 if (!StringUtils.hasText(systemViewPage)) {
+			 return "";
+		 }
+		 
+		 systemViewPage = systemViewPage.endsWith("?") ? systemViewPage : systemViewPage + "?";
+		 systemViewPage = systemViewPage + "fileName=" + bookName;
+		 
+		 try {
+			 StringBuilder sb = new StringBuilder();
+			 for(Entry<String, Map<PARAM_CONFIG, String>> entry : params.entrySet()) {
+				 if (entry.getValue().get(PARAM_CONFIG.RENDER_TYPE) != null) {
+					 sb.append("&");
+					 sb.append(entry.getValue().get(PARAM_CONFIG.NAME));
+					 sb.append("=");
+					 sb.append(URLEncoder.encode(entry.getValue().get(PARAM_CONFIG.VALUE), "utf-8"));
+				 }
+			 }
+			 
+			 return systemViewPage + sb.toString();
+		 } catch (Exception e) {
+			 LOG.warn("Error occurred when try to build system view page", e);
+		 }
+		 
+		 return "";
+	}
+	
 	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(InputStream is, String bookName) {
 		
 		Assert.notNull(is);
 		Assert.notNull(bookName);
 		
 		return retrieveReportParams(is, bookName, new HashMap<String, String>(0));
+	}
+	
+	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(InputStream is, String bookName, Map<String, String> contextParams, boolean combine) {
+		
+		Assert.notNull(is);
+		Assert.notNull(bookName);
+		
+		Book book = new ExcelImporter().imports(is, bookName);
+		// 1. Validate
+		boolean isValid = validateReportTemplate(book);
+		
+		if (isValid) {
+			return retrieveReportParams(book, contextParams, combine);
+		}
+		
+		return Collections.emptyMap();
 	}
 	
 	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(InputStream is, String bookName, Map<String, String> contextParams) {
@@ -269,18 +324,18 @@ public final class ReportEngine {
 		boolean isValid = validateReportTemplate(book);
 		
 		if (isValid) {
-			return retrieveReportParams(book, contextParams);
+			return retrieveReportParams(book, contextParams, false);
 		}
 		
 		return Collections.emptyMap();
 	}
 	
-	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(Book book, Map<String, String> contextParams) {
+	public Map<String, Map<PARAM_CONFIG, String>> retrieveReportParams(Book book, Map<String, String> contextParams, boolean combine) {
 		
 		Assert.notNull(book);
 		
 		// 2. Handle #_SETTINGS_SHEET
-		processSettings(book.getWorksheet(_SETTINGS_SHEET), contextParams);
+		processSettings(book.getWorksheet(_SETTINGS_SHEET), contextParams, combine);
 		@SuppressWarnings("unchecked")
 		Map<String, Map<PARAM_CONFIG, String>> reportParams = WorkflowOperations.XStreamSerializeHelper.deserializeObject(contextParams.get(REPORT_PARAMETERS), REPORT_PARAMETERS, LinkedHashMap.class); 
 		// Add Cookie pair
@@ -357,7 +412,7 @@ public final class ReportEngine {
 			
 			if (isValid) {
 				// 2. Handle #_SETTINGS_SHEET
-				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams);
+				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams, false);
 				
 				// 3. Handle #_INPUT_SHEET sheet
 				for (int i = 0 ; i < book.getNumberOfSheets(); i++) {
@@ -407,7 +462,7 @@ public final class ReportEngine {
 		NAME, VALUE, RENDER_TYPE, DEPENDENCIES, FETCH_URL, FORMAT
 	}
 	
-	private Map<String, Map<PARAM_CONFIG, String>> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet, Map<String, String> contextParams) {
+	private Map<String, Map<PARAM_CONFIG, String>> retrieveReportParamsFromSettingsSheet(Worksheet settingsSheet, Map<String, String> contextParams, boolean combine) {
 		
 		// 2. Handle #_SETTINGS_SHEET
 		Map<String, Map<PARAM_CONFIG, String>> reportParams = new LinkedHashMap<String, Map<PARAM_CONFIG, String>>(2);
@@ -415,6 +470,26 @@ public final class ReportEngine {
 		if (CollectionUtils.isEmpty(tables)) {
 			return reportParams;
 		}
+		
+		if (combine) {
+			for (XSSFTable table : tables) {
+				if (PARAM_TABLE.equals(table.getName())) {
+					CellReference startCell = table.getStartCellReference();
+					CellReference endCell = table.getEndCellReference();
+					for (int i = startCell.getRow() + 1; i <= endCell.getRow(); i++) {
+						
+						String paramName = settingsSheet.getRow(i).getCell(startCell.getCol() + 1).getStringCellValue();
+						if (StringUtils.hasText(paramName)) {
+							if (contextParams.containsKey(paramName)) {
+								settingsSheet.getRow(i).getCell(startCell.getCol() + 2).setCellValue(contextParams.get(paramName));
+							}
+						}
+					}
+				}
+			}
+			settingsSheet.getWorkbook().getCreationHelper().createFormulaEvaluator().evaluateAll();
+		}
+		
 		for (XSSFTable table : tables) {
 			if (PARAM_TABLE.equals(table.getName())) {
 				CellReference startCell = table.getStartCellReference();
@@ -510,7 +585,7 @@ public final class ReportEngine {
 		
 	}
 	
-	protected void processSettings(Worksheet settingsSheet, Map<String, String> reportParams) {
+	protected void processSettings(Worksheet settingsSheet, Map<String, String> reportParams, boolean combine) {
 		
 		String url = null, username = null, password = null, type = "mdx";
 		Boolean reload = new Boolean(true);
@@ -549,7 +624,7 @@ public final class ReportEngine {
 			LOG.info("Retrieve datesource settings: " + url + " " + username);
 		}
 		
-		Map<String, Map<PARAM_CONFIG, String>> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet, reportParams);
+		Map<String, Map<PARAM_CONFIG, String>> parameters = retrieveReportParamsFromSettingsSheet(settingsSheet, reportParams, combine);
 		if (!CollectionUtils.isEmpty(parameters)) {
 			reportParams.put(REPORT_PARAMETERS, WorkflowOperations.XStreamSerializeHelper.serializeXml(REPORT_PARAMETERS, parameters));
 			LOG.info("Have added " + REPORT_PARAMETERS + " to report params: " + reportParams);

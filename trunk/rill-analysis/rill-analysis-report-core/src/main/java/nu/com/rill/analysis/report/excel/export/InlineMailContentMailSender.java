@@ -23,6 +23,16 @@ public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
 
 	public static final String MAIL_CONTENT_KEY = InlineMailContentMailSender.class.getName() + ".MAIL_CONTENT_KEY"; 
 	
+	private boolean offlineMode = true;
+	
+	public boolean isOfflineMode() {
+		return offlineMode;
+	}
+
+	public void setOfflineMode(boolean offlineMode) {
+		this.offlineMode = offlineMode;
+	}
+
 	@Override
 	public String generateMailContent(String templatePath,
 			Map<String, Object> model) {
@@ -88,6 +98,10 @@ public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
 				logger.debug("Retrieve title: " + text.toString());
 				mailSource.setSubject(text.toString() + mailSource.getSubject());
 			}
+		}
+		
+		if (offlineMode) {
+			mailSource.setTo("mengran@baidu.com");
 		}
 		
 		// Do super's logic

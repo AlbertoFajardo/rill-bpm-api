@@ -15,6 +15,10 @@ import org.rill.bpm.common.mail.support.AttachmentWarper;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 
+import com.hp.gagawa.java.Node;
+import com.hp.gagawa.java.elements.Text;
+import com.hp.gagawa.java.elements.Title;
+
 public class SendReportViaEmailHelper {
 
 	public static final Log LOGGER = LogFactory.getLog(SendReportViaEmailHelper.class);
@@ -57,9 +61,21 @@ public class SendReportViaEmailHelper {
 		// Add attachment
 		List<AttachmentWarper> attachment = new ArrayList<AttachmentWarper>();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		String attachementName = htmlExporter.getWorkBookName();
+		try {
+			for (Node n : htmlExporter.getHead().getChildren()) {
+				if (n instanceof Title) {
+					Text text = (Text) ((Title) n).getChild(0);
+					String suffix = attachementName.indexOf('.') < 0 ? "" : attachementName.substring(attachementName.indexOf('.'));
+					attachementName = text.toString() + suffix;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Error occurred when try to retrieve attachment name, so use workbook name " + htmlExporter.getWorkBookName(), e);
+		}
 		try {
 			htmlExporter.getWb().write(baos);
-			AttachmentWarper att = new AttachmentWarper(htmlExporter.getWorkBookName(), null, new ByteArrayResource(baos.toByteArray()));
+			AttachmentWarper att = new AttachmentWarper(attachementName, null, new ByteArrayResource(baos.toByteArray()));
 			attachment.add(att);
 		} catch (IOException e) {
 			LOGGER.warn("Error occurred when try to add attachemet " + htmlExporter.getWorkBookName(), e);

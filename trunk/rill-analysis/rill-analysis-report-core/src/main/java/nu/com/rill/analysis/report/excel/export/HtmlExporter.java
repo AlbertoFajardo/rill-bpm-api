@@ -34,12 +34,14 @@ import org.zkoss.zssex.ui.widget.ChartWidget;
 import org.zkoss.zssex.ui.widget.PicChart;
 import org.zkoss.zssex.util.ChartHelper;
 
+import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Body;
 import com.hp.gagawa.java.elements.Div;
 import com.hp.gagawa.java.elements.Head;
 import com.hp.gagawa.java.elements.Html;
 import com.hp.gagawa.java.elements.Img;
 import com.hp.gagawa.java.elements.Meta;
+import com.hp.gagawa.java.elements.P;
 import com.hp.gagawa.java.elements.Table;
 import com.hp.gagawa.java.elements.Td;
 import com.hp.gagawa.java.elements.Title;
@@ -60,6 +62,8 @@ public class HtmlExporter {
 	private Sheet sheet;
 	private MergeMatrixHelper mmhelper;
 	private String workBookName;
+	
+	private String systemReportUrl;
 	
 	private Html html = new Html();
 	private Body body = new Body();
@@ -99,6 +103,11 @@ public class HtmlExporter {
 	}
 
 	public HtmlExporter(Workbook wb, String workBookName) {
+		
+		this(wb, workBookName, null);
+	}
+	
+	public HtmlExporter(Workbook wb, String workBookName, Map<String, String> reportParams) {
 		super();
 		this.wb = wb;
 		this.workBookName = workBookName;
@@ -112,8 +121,7 @@ public class HtmlExporter {
 		contextTypeMeta.setHttpEquiv("Content-Type");
 		head.appendChild(contextTypeMeta);
 		
-		
-		Map<String, Map<PARAM_CONFIG, String>> params = ReportEngine.INSTANCE.retrieveReportParams((Book) wb, new HashMap<String, String>(0));
+		Map<String, Map<PARAM_CONFIG, String>> params = ReportEngine.INSTANCE.retrieveReportParams((Book) wb, reportParams == null ? new HashMap<String, String>(0) : reportParams, true);
 		for (Map<PARAM_CONFIG, String> element : params.values()) {
 			if ("downloadFileName".equals(element.get(PARAM_CONFIG.NAME))) {
 				Title title = new Title();
@@ -121,6 +129,8 @@ public class HtmlExporter {
 				head.appendChild(title);
 			}
 		}
+		
+		systemReportUrl = ReportEngine.INSTANCE.generateReportViewUrl(workBookName, reportParams, params, true);
 		
 	}
 
@@ -154,6 +164,15 @@ public class HtmlExporter {
 		
 		// Append one sheet
 		body.appendChild(renderTable(sheet));
+		
+		P p = new P();
+		A a = new A(systemReportUrl, "_blank", "请直接至报表系统查看！");
+		p.appendChild(a);
+		body.appendChild(p);
+		
+		P footer = new P();
+		footer.appendText("<i> - Powered by Rigel Report Service.</i>");
+		body.appendChild(footer);
 		
 		// Generate chart image
 		DrawingManager dm = new DrawingManagerImpl(sheet);
