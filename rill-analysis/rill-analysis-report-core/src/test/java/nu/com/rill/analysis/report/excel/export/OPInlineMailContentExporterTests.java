@@ -1,11 +1,14 @@
 package nu.com.rill.analysis.report.excel.export;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +23,9 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 	@Autowired
 	private SendReportViaEmailHelper sendReportViaEmailHelper;
 	
-	private static final String MODULE_NAME = "crm_tomcat_weihu";
+	private static final String MODULE_NAME = "crm_tomcat_pangu";
+	private static final String MODULE_TOPN = "50";
+	private static final String MODULE_THRESHOLD = "15";
 	private static Map<String, String> CN_EN_NAMES = new HashMap<String, String>();
 	static {
 		CN_EN_NAMES.put("crm_tomcat_kt", "增值业绩追踪系统");
@@ -38,6 +43,8 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 		
 		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
 		contextParams.put("moduleName", MODULE_NAME);
+		contextParams.put("topN", MODULE_TOPN);
+		contextParams.put("threshold", MODULE_THRESHOLD);
 		contextParams.put("moduleCnName", CN_EN_NAMES.get(MODULE_NAME));
 		contextParams.put("selectedDate", SELECTED_DATE);
 		contextParams.put(ReportEngine.SYSTEM_VIEW_PAGE, "http://ai-rigel-prd00.ai01.baidu.com:8080/_report/view2.zul?");
@@ -82,6 +89,36 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 			
 			// Start send via e-mail
 			sendReportViaEmailHelper.export(exporter);
+			
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
+	@Test
+	public void bySecond() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/exporter/accesscnt-daily-bysecond.xlsx");
+		try {
+			
+			Workbook wb = re.generateReport(cpr.getInputStream(), "accesscnt-daily-bysecond.xlsx", contextParams);
+			HtmlExporter exporter = new HtmlExporter(wb, "accesscnt-daily-bysecond.xlsx", contextParams);
+			
+			// Start send via e-mail
+			sendReportViaEmailHelper.export(exporter);
+			
+			// Generate image file
+			for (Entry<String, byte[]> entry : exporter.getImages().entrySet()) {
+				File tmpImage = new File(System.getProperty("java.io.tmpdir"), entry.getKey());
+				FileUtils.writeByteArrayToFile(tmpImage, entry.getValue());
+			}
+			
+			String html = exporter.export();
+			File tmpHtml = File.createTempFile("accesscnt-daily-bysecond.xlsx" + System.currentTimeMillis(), ".html");
+			FileUtils.writeByteArrayToFile(tmpHtml, html.getBytes("utf-8"));
 			
 		} catch (IOException e) {
 			throw new RuntimeException(e);

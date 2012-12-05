@@ -444,7 +444,13 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		}
 		
 		Zssapp app = (Zssapp) paramDiv.getNextSibling();
-		Map<String, Map<PARAM_CONFIG, String>> reCalculateParams = ReportEngine.INSTANCE.retrieveReportParams(app.getSpreadsheet().getBook(), new LinkedHashMap<String, String>(0));
+		Map<String, String> contextParams = new LinkedHashMap<String, String>();
+		if (report.getParams() != null) {
+			for (Map<PARAM_CONFIG, String> ele : report.getParams().values()) {
+				contextParams.put(ele.get(PARAM_CONFIG.NAME), ele.get(PARAM_CONFIG.VALUE));
+			}
+		}
+		Map<String, Map<PARAM_CONFIG, String>> reCalculateParams = ReportEngine.INSTANCE.retrieveReportParams(app.getSpreadsheet().getBook(), contextParams, true);
 		
 		Map<PARAM_CONFIG, String> config = null;
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : reCalculateParams.entrySet()) {

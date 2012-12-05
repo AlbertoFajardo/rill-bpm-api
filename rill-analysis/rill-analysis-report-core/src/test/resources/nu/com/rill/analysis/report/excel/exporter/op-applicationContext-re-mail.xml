@@ -28,7 +28,7 @@
 			<value>watchdog@baidu.com</value>
 		</property>
 		<property name="subject">
-			<value> - From Report Center.</value>
+			<value> - From Rigel-OP Report Center.</value>
 		</property>
 		<property name="to">
 			<list>
