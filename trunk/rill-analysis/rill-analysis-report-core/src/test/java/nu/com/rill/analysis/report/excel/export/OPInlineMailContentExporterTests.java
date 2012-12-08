@@ -2,6 +2,8 @@ package nu.com.rill.analysis.report.excel.export;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,6 +11,7 @@ import java.util.Map.Entry;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,18 +26,24 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 	@Autowired
 	private SendReportViaEmailHelper sendReportViaEmailHelper;
 	
-	private static final String MODULE_NAME = "crm_tomcat_pss";
+	private static final String MODULE_NAME = "crm_tomcat_kt";
 	private static final String MODULE_TOPN = "50";
-	private static final String MODULE_THRESHOLD = "10";
 	private static Map<String, String> CN_EN_NAMES = new HashMap<String, String>();
+	private static Map<String, String> MODULE_THRESHOLDS = new HashMap<String, String>();
 	static {
 		CN_EN_NAMES.put("crm_tomcat_kt", "增值业绩追踪系统");
 		CN_EN_NAMES.put("crm_tomcat_pangu", "盘古呼出系统");
 		CN_EN_NAMES.put("crm_tomcat_pss", "智优系统");
 		CN_EN_NAMES.put("crm_tomcat_pulse", "Pulse系统");
 		CN_EN_NAMES.put("crm_tomcat_weihu", "维护系统");
+		
+		MODULE_THRESHOLDS.put("crm_tomcat_kt", "1");
+		MODULE_THRESHOLDS.put("crm_tomcat_pangu", "15");
+		MODULE_THRESHOLDS.put("crm_tomcat_pss", "8");
+		MODULE_THRESHOLDS.put("crm_tomcat_pulse", "1");
+		MODULE_THRESHOLDS.put("crm_tomcat_weihu", "5");
 	}
-	private static final String SELECTED_DATE = "2012-12-05";
+	private static final String SELECTED_DATE = new SimpleDateFormat("yyyy-MM-dd").format(DateUtils.addDays(new Date(), -1));
 	
 	private static Map<String, String> contextParams = new HashMap<String, String>();
 	
@@ -44,7 +53,7 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
 		contextParams.put("moduleName", MODULE_NAME);
 		contextParams.put("topN", MODULE_TOPN);
-		contextParams.put("threshold", MODULE_THRESHOLD);
+		contextParams.put("threshold", MODULE_THRESHOLDS.get(MODULE_NAME));
 		contextParams.put("moduleCnName", CN_EN_NAMES.get(MODULE_NAME));
 		contextParams.put("selectedDate", SELECTED_DATE);
 		contextParams.put(ReportEngine.SYSTEM_VIEW_PAGE, "http://ai-rigel-prd00.ai01.baidu.com:8080/_report/view2.zul?");

@@ -447,7 +447,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		Map<String, String> contextParams = new LinkedHashMap<String, String>();
 		if (report.getParams() != null) {
 			for (Map<PARAM_CONFIG, String> ele : report.getParams().values()) {
-				contextParams.put(ele.get(PARAM_CONFIG.NAME), ele.get(PARAM_CONFIG.VALUE));
+				if (StringUtils.hasText(ele.get(PARAM_CONFIG.RENDER_TYPE))) {
+					contextParams.put(ele.get(PARAM_CONFIG.NAME), ele.get(PARAM_CONFIG.VALUE));
+				}
 			}
 		}
 		Map<String, Map<PARAM_CONFIG, String>> reCalculateParams = ReportEngine.INSTANCE.retrieveReportParams(app.getSpreadsheet().getBook(), contextParams, true);
