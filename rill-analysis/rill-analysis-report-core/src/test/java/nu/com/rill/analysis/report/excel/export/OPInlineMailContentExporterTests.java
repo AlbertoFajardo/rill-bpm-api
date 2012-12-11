@@ -1,31 +1,21 @@
 package nu.com.rill.analysis.report.excel.export;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
+import nu.com.rill.analysis.report.ReportExportService;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-import org.zkoss.poi.ss.usermodel.Workbook;
+import org.springframework.remoting.rmi.RmiProxyFactoryBean;
+import org.springframework.util.Assert;
 
-@ContextConfiguration(value="classpath:/nu/com/rill/analysis/report/excel/exporter/op-applicationContext-re-mail.xml")
-public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContextTests {
+public class OPInlineMailContentExporterTests {
 
-	@Autowired
-	private SendReportViaEmailHelper sendReportViaEmailHelper;
-	
 	private static final String MODULE_NAME = "crm_tomcat_kt";
 	private static final String MODULE_TOPN = "50";
 	private static Map<String, String> CN_EN_NAMES = new HashMap<String, String>();
@@ -68,70 +58,57 @@ public class OPInlineMailContentExporterTests extends AbstractJUnit4SpringContex
 	@Test
 	public void byMachine() {
 		
-		ReportEngine re = ReportEngine.INSTANCE;
+		Assert.notNull(ReportEngine.INSTANCE);
 		
-		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/exporter/accesscnt-daily-bymachine.xlsx");
-		try {
-			
-			Workbook wb = re.generateReport(cpr.getInputStream(), "accesscnt-daily-bymachine.xlsx", contextParams);
-			HtmlExporter exporter = new HtmlExporter(wb, "accesscnt-daily-bymachine.xlsx", contextParams);
-			
-			// Start send via e-mail
-			sendReportViaEmailHelper.export(exporter);
-			
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		RmiProxyFactoryBean bean = new RmiProxyFactoryBean();
+		bean.setServiceUrl("rmi://localhost:8110/ViaEmailReportExportService");
+		bean.setServiceInterface(ReportExportService.class);
+		bean.afterPropertiesSet();
+		
+		ReportExportService service = (ReportExportService) bean.getObject();
+		
+		Map<String, String> mailParams = new HashMap<String, String>();
+		mailParams.put("from", "watchdog@baidu.com");
+		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
+		service.export("accesscnt-daily-bymachine.xlsx", mailParams, contextParams);
 		
 	}
 	
 	@Test
 	public void byStatus() {
 		
-		ReportEngine re = ReportEngine.INSTANCE;
+		Assert.notNull(ReportEngine.INSTANCE);
 		
-		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/exporter/accesscnt-daily-bystatus.xlsx");
-		try {
-			
-			Workbook wb = re.generateReport(cpr.getInputStream(), "accesscnt-daily-bystatus.xlsx", contextParams);
-			HtmlExporter exporter = new HtmlExporter(wb, "accesscnt-daily-bystatus.xlsx", contextParams);
-			
-			// Start send via e-mail
-			sendReportViaEmailHelper.export(exporter);
-			
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		RmiProxyFactoryBean bean = new RmiProxyFactoryBean();
+		bean.setServiceUrl("rmi://localhost:8110/ViaEmailReportExportService");
+		bean.setServiceInterface(ReportExportService.class);
+		bean.afterPropertiesSet();
+		
+		ReportExportService service = (ReportExportService) bean.getObject();
+		
+		Map<String, String> mailParams = new HashMap<String, String>();
+		mailParams.put("from", "watchdog@baidu.com");
+		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
+		service.export("accesscnt-daily-bystatus.xlsx", mailParams, contextParams);
 		
 	}
 	
 	@Test
 	public void bySecond() {
 		
-		ReportEngine re = ReportEngine.INSTANCE;
+		Assert.notNull(ReportEngine.INSTANCE);
 		
-		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/exporter/accesscnt-daily-bysecond.xlsx");
-		try {
-			
-			Workbook wb = re.generateReport(cpr.getInputStream(), "accesscnt-daily-bysecond.xlsx", contextParams);
-			HtmlExporter exporter = new HtmlExporter(wb, "accesscnt-daily-bysecond.xlsx", contextParams);
-			
-			// Start send via e-mail
-			sendReportViaEmailHelper.export(exporter);
-			
-			// Generate image file
-			for (Entry<String, byte[]> entry : exporter.getImages().entrySet()) {
-				File tmpImage = new File(System.getProperty("java.io.tmpdir"), entry.getKey());
-				FileUtils.writeByteArrayToFile(tmpImage, entry.getValue());
-			}
-			
-			String html = exporter.export();
-			File tmpHtml = File.createTempFile("accesscnt-daily-bysecond.xlsx" + System.currentTimeMillis(), ".html");
-			FileUtils.writeByteArrayToFile(tmpHtml, html.getBytes("utf-8"));
-			
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		RmiProxyFactoryBean bean = new RmiProxyFactoryBean();
+		bean.setServiceUrl("rmi://localhost:8110/ViaEmailReportExportService");
+		bean.setServiceInterface(ReportExportService.class);
+		bean.afterPropertiesSet();
+		
+		ReportExportService service = (ReportExportService) bean.getObject();
+		
+		Map<String, String> mailParams = new HashMap<String, String>();
+		mailParams.put("from", "watchdog@baidu.com");
+		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
+		service.export("accesscnt-daily-bysecond.xlsx", mailParams, contextParams);
 		
 	}
 
