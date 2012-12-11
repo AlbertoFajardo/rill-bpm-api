@@ -6,7 +6,9 @@ import java.util.Map.Entry;
 import nu.com.rill.analysis.report.excel.ConditionalFormattingHelper;
 
 import org.rill.bpm.common.mail.freemarker.FreeMarkerTemplateMailSender;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -19,7 +21,7 @@ import com.hp.gagawa.java.elements.Text;
 import com.hp.gagawa.java.elements.Title;
 import com.hp.gagawa.java.elements.Tr;
 
-public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
+public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender implements InitializingBean {
 
 	public static final String MAIL_CONTENT_KEY = InlineMailContentMailSender.class.getName() + ".MAIL_CONTENT_KEY"; 
 	
@@ -31,6 +33,26 @@ public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender {
 
 	public void setOfflineMode(boolean offlineMode) {
 		this.offlineMode = offlineMode;
+	}
+	
+	private JavaMailSender offMailSender;
+
+	public JavaMailSender getOffMailSender() {
+		return offMailSender;
+	}
+
+	public void setOffMailSender(JavaMailSender offMailSender) {
+		this.offMailSender = offMailSender;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		
+		if (offlineMode) {
+			Assert.notNull(offMailSender, "Must provide offEmailSender when in offline mode.");
+			logger.info("Change email sender to off email sender" + offMailSender);
+			this.setMailSender(offMailSender);
+		}
 	}
 
 	@Override

@@ -25,9 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.rill.bpm.api.WorkflowOperations;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -73,7 +74,7 @@ public final class ReportEngine {
 	public static final String URL = "URL";
 	public static final String COOKIE = "Cookie";
 	
-	public static final String SYSTEM_VIEW_PAGE = "SYSTEM_VIEW_PAGE";
+	public static final String SYSTEM_VIEW_PAGE = "re.mail.systemViewPage";
 	
 	public static final String PARAM_TABLE = "paramTable";
 	
@@ -85,11 +86,11 @@ public final class ReportEngine {
 	public static final ReportEngine INSTANCE = new ReportEngine();
 	
 	private Map<String, DataRetriever> drMap = null;
-	private ListableBeanFactory reportEngneBeanfactory; 
+	private ConfigurableListableBeanFactory reportEngneBeanfactory; 
 	private ReportEngine() {
 		// Singleton
 		BeanFactoryReference bfr = ContextSingletonBeanFactoryLocator.getInstance().useBeanFactory(this.getClass().getSimpleName());
-		reportEngneBeanfactory = (ListableBeanFactory) bfr.getFactory();
+		reportEngneBeanfactory = ((AbstractApplicationContext) bfr.getFactory()).getBeanFactory();
 		drMap = reportEngneBeanfactory.getBeansOfType(DataRetriever.class);
 		httpClient = reportEngneBeanfactory.getBean(HttpClient.class);
 		Assert.notNull(httpClient);
@@ -264,6 +265,9 @@ public final class ReportEngine {
 	public String generateReportViewUrl(String bookName, Map<String, String> contextParams, Map<String, Map<PARAM_CONFIG, String>> params, boolean combine) {
 		
 		 String systemViewPage = contextParams == null ? "" : contextParams.get(SYSTEM_VIEW_PAGE);
+		 if (!StringUtils.hasText(systemViewPage)) {
+			 systemViewPage = reportEngneBeanfactory.resolveEmbeddedValue("${" + SYSTEM_VIEW_PAGE + "}");
+		 }
 		 if (!StringUtils.hasText(systemViewPage)) {
 			 return "";
 		 }
