@@ -1,6 +1,7 @@
 package nu.com.rill.analysis.report.excel.export;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import nu.com.rill.analysis.report.REException;
+import nu.com.rill.analysis.report.excel.ReportEngine;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rill.bpm.common.mail.TemplateMailSender;
 import org.rill.bpm.common.mail.support.AttachmentWarper;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.util.Assert;
+import org.zkoss.poi.ss.usermodel.Workbook;
 
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.Text;
@@ -40,6 +48,40 @@ public class SendReportViaEmailHelper {
 
 	public void setTemplateMailSender(TemplateMailSender templateMailSender) {
 		this.templateMailSender = templateMailSender;
+	}
+	
+	public HtmlExporter export(Resource cpr, Map<String, String> contextParams) {
+		
+		Assert.notNull(cpr);
+		contextParams  = contextParams == null ? new HashMap<String, String>(0) : contextParams;
+		
+		try {
+			String fileName = "";
+			try {
+				fileName = cpr.getFilename();
+			} catch (Exception e) {
+				fileName = cpr.getDescription();
+			}
+			Workbook wb = ReportEngine.INSTANCE.generateReport(cpr.getInputStream(), fileName, contextParams);
+			
+			try {
+				File tmpHtml = File.createTempFile("wb" + System.currentTimeMillis(), ".xlsx");
+				ByteArrayOutputStream bais = new ByteArrayOutputStream();
+				wb.write(bais);
+				FileUtils.writeByteArrayToFile(tmpHtml, bais.toByteArray());
+			} catch (Exception e) {
+				// Ignore
+			}
+			
+			HtmlExporter exporter = new HtmlExporter(wb, fileName, contextParams);
+			// Start send via e-mail
+			this.export(exporter);
+			
+			return exporter;
+		} catch (Exception e) {
+			LOGGER.error("Error occurred when try to export via email.", e);
+			throw new REException(e);
+		}
 	}
 	
 	public void export(HtmlExporter htmlExporter) {
