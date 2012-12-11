@@ -20,7 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.zkoss.poi.ss.usermodel.Workbook;
 
-@ContextConfiguration(value="classpath:/nu/com/rill/analysis/report/excel/exporter/applicationContext-re-mail.xml")
+@ContextConfiguration(value="classpath:/nu/com/rill/analysis/report/excel/export/applicationContext-re-mail.xml")
 public class InlineMailContentExporterTest extends AbstractJUnit4SpringContextTests {
 
 	@Autowired
