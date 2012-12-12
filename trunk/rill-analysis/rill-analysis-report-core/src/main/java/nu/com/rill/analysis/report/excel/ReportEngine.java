@@ -42,6 +42,7 @@ import org.zkoss.poi.xssf.usermodel.XSSFTable;
 import org.zkoss.poi.xssf.usermodel.XSSFWorkbook;
 import org.zkoss.zss.model.Book;
 import org.zkoss.zss.model.Worksheet;
+import org.zkoss.zss.model.impl.BookHelper;
 import org.zkoss.zss.model.impl.ExcelImporter;
 import org.zkoss.zss.model.impl.XSSFSheetImpl;
 
@@ -61,6 +62,7 @@ public final class ReportEngine {
 	public static final String REPORT_QUERYNAME = "REPORT_QUERYNAME";
 	public static final String REPORT_DISCOVERY = "REPORT_DISCOVERY";
 	public static final String REPORT_CUBE = "REPORT_CUBE";
+	public static final String REPORT_NAME = "REPORT_NAME";
 	
 	public static final String REPORT_SCHEDULE_MODE = "REPORT_SCHEDULE_MODE";
 	// FIXME: MENGRAN. time dimension last level is?
@@ -343,6 +345,8 @@ public final class ReportEngine {
 		
 		Assert.notNull(book);
 		
+		contextParams.put(REPORT_NAME, book.getBookName());
+		
 		// 2. Handle #_SETTINGS_SHEET
 		processSettings(book.getWorksheet(_SETTINGS_SHEET), contextParams, combine);
 		@SuppressWarnings("unchecked")
@@ -420,6 +424,9 @@ public final class ReportEngine {
 			boolean isValid = validateReportTemplate(book);
 			
 			if (isValid) {
+				
+				useReportParams.put(REPORT_NAME, bookName);
+				
 				// 2. Handle #_SETTINGS_SHEET
 				processSettings(book.getWorksheet(_SETTINGS_SHEET), useReportParams, true);
 				
@@ -516,7 +523,9 @@ public final class ReportEngine {
 						}
 						if (index <= endCell.getCol()) {
 							Cell c = settingsSheet.getRow(i).getCell(index);
-							paramConfig.put(pc, prefix + (c.getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf(c.getNumericCellValue()) : c.getStringCellValue()));
+							paramConfig.put(pc, prefix + (c.getCellType() == Cell.CELL_TYPE_FORMULA ? BookHelper.getCellText(c) 
+									: (c.getCellType() == Cell.CELL_TYPE_NUMERIC ? String.valueOf(c.getNumericCellValue()) 
+											: c.getStringCellValue())));
 						}
 					}
 					String paramName = settingsSheet.getRow(i).getCell(startCell.getCol()).getStringCellValue();
@@ -595,7 +604,30 @@ public final class ReportEngine {
 		
 	}
 	
+	private Map<String, String> prepareReportParams(String name) {
+		
+		Assert.notNull(name);
+		
+		Map<String, String> contextParams = new HashMap<String, String>();
+		
+		try {
+			String urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "." + name + "}");
+			if (!StringUtils.hasText(urlInContext)) {
+				urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "}");
+			}
+			if (StringUtils.hasText(urlInContext)) {
+				contextParams.put(ReportEngine.URL, urlInContext);
+			}
+		} catch(Exception e) {
+			LOG.debug("Error occurred when try to retrieve URL from bean factory.", e);
+		}
+		
+		return contextParams;
+	}
+	
 	protected void processSettings(Worksheet settingsSheet, Map<String, String> reportParams, boolean combine) {
+		
+		reportParams.putAll(prepareReportParams(reportParams.get(REPORT_NAME)));
 		
 		String url = null, username = null, password = null, type = "mdx";
 		Boolean reload = new Boolean(true);

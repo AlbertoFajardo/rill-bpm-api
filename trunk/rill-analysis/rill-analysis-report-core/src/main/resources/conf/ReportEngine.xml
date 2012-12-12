@@ -50,6 +50,9 @@
 				<prop key="minEvictableIdleTimeMillis">${re.jdbcData.minEvictableIdleTimeMillis}</prop>
 			</props>
 		</property>
+		<property name="maxRecordAllowed">
+			<value>${re.jdbcData.maxRecordAllowed}</value>
+		</property>
 	</bean>
 	
 	<bean id="bookChartDecorator"
@@ -87,6 +90,9 @@
 		</property>
 		<property name="port">
 			<value>465</value>
+		</property>
+		<property name="protocol">
+			<value>smtps</value>
 		</property>
 		<property name="javaMailProperties">
 			<props>

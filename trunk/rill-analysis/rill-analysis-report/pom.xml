@@ -71,11 +71,13 @@
 		    <version>1.0.14</version>
 		</dependency>
 		
+		<!-- 
 		<dependency>
 		    <groupId>org.rill</groupId>
 		    <artifactId>rill-bpm-api</artifactId>
 		    <version>1.0.2</version>
 		</dependency>
+		 -->
 		<dependency>
 		    <groupId>org.rill</groupId>
 		    <artifactId>rill-bpm-ws</artifactId>

@@ -17,6 +17,7 @@ import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -34,6 +35,7 @@ import org.zkoss.zss.app.file.SpreadSheetMetaInfo;
 import org.zkoss.zss.app.zul.Dialog;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Grid;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.ListModelArray;
@@ -178,16 +180,26 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 				});
 				div.appendChild(open2);
 				
-				Button edit = new Button("编辑");
-				edit.setWidgetAttribute("fileName", report.getName());
-				edit.addEventListener(Events.ON_CLICK, new EventListener() {
+				Button download = new Button("下载");
+				download.setWidgetAttribute("fileName", report.getName());
+				download.addEventListener(Events.ON_CLICK, new EventListener() {
 					
 					@Override
 					public void onEvent(Event event) throws Exception {
-						Executions.getCurrent().sendRedirect("view.zul?edit=1&fileName=" + event.getTarget().getWidgetAttribute("fileName"));
+						Report report = reportMgr.getReport(event.getTarget().getWidgetAttribute("fileName"));
+						try {
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
+							IOUtils.write(report.getReportContent(), baos);
+							Filedownload.save(baos.toByteArray(), 
+									"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+									report.getName());
+						} catch (Exception e) {
+							// Ignore~~
+						}
+						
 					}
 				});
-				div.appendChild(edit);
+				div.appendChild(download);
 				
 				row.appendChild(div);
 			}
