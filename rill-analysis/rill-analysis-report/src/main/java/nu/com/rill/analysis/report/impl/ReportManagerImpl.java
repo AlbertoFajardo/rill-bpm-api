@@ -6,18 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 import nu.com.rill.analysis.report.ReportManager;
+import nu.com.rill.analysis.report.ReportTemplateRetriever;
 import nu.com.rill.analysis.report.bo.Report;
 import nu.com.rill.analysis.report.dao.ReportDao;
 import nu.com.rill.analysis.report.excel.ReportEngine;
 import nu.com.rill.analysis.report.excel.ReportEngine.PARAM_CONFIG;
 import nu.com.rill.analysis.report.schedule.DynamicScheduleService;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-public class ReportManagerImpl implements ReportManager, EnvironmentAware {
+public class ReportManagerImpl implements ReportManager, EnvironmentAware, ReportTemplateRetriever, BeanFactoryAware {
 	
 	private ReportDao reportDao;
 	private DynamicScheduleService dynamicScheduleService;
@@ -45,6 +48,21 @@ public class ReportManagerImpl implements ReportManager, EnvironmentAware {
 	public void setEnvironment(Environment environment) {
 		
 		env = environment;
+	}
+	
+	private static BeanFactory staticBeanFactory;
+
+	public void setBeanFactory(BeanFactory beanFactory) {
+		staticBeanFactory = beanFactory;
+	}
+
+	@Override
+	public byte[] retrieveReportTemplate(String reportName) {
+		
+		ReportManager reportManager = staticBeanFactory.getBean(ReportManager.class);
+		Report report = reportManager.getReport(reportName);
+		
+		return report.getReportContent();
 	}
 
 	private Map<String, String> prepareContextParams(String name) {

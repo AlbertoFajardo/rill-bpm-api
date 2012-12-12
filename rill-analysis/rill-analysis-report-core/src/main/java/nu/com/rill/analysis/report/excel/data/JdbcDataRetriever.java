@@ -43,6 +43,16 @@ public class JdbcDataRetriever implements DataRetriever {
 	public final void setDbcpProperties(Properties dbcpProperties) {
 		this.dbcpProperties = dbcpProperties;
 	}
+	
+	private int maxRecordAllowed;
+
+	public int getMaxRecordAllowed() {
+		return maxRecordAllowed;
+	}
+
+	public void setMaxRecordAllowed(int maxRecordAllowed) {
+		this.maxRecordAllowed = maxRecordAllowed;
+	}
 
 	@Override
 	public boolean supportType(DATA_TYPE dt) {
@@ -211,8 +221,13 @@ public class JdbcDataRetriever implements DataRetriever {
 			}
 			
 			int bakI = i;
+			int dataCnt = 0;
 			while (rowSet.next()) {
 				i++;
+				dataCnt++;
+				if (dataCnt > maxRecordAllowed) {
+					throw new REException("Exceeding maximum number of records: " + maxRecordAllowed);
+				}
 				// Handle row one by one.
 				Row currentRow = null;
 				if (dataSheet.getRow(i)  == null || dataSheet.getRow(i).getCell(0) == null) {

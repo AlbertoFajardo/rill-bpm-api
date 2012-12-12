@@ -40,13 +40,13 @@ public class OPInlineMailContentExporterTests {
 	@BeforeClass
 	public static void before() {
 		
-		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
+//		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
 		contextParams.put("moduleName", MODULE_NAME);
 		contextParams.put("topN", MODULE_TOPN);
 		contextParams.put("threshold", MODULE_THRESHOLDS.get(MODULE_NAME));
 		contextParams.put("moduleCnName", CN_EN_NAMES.get(MODULE_NAME));
 		contextParams.put("selectedDate", SELECTED_DATE);
-		contextParams.put(ReportEngine.SYSTEM_VIEW_PAGE, "http://ai-rigel-prd00.ai01.baidu.com:8080/_report/view2.zul?");
+//		contextParams.put(ReportEngine.SYSTEM_VIEW_PAGE, "http://ai-rigel-prd00.ai01.baidu.com:8080/_report/view2.zul?");
 		
 //		System.setProperty("re.mail.offlineMode", "false");
 		
@@ -56,9 +56,30 @@ public class OPInlineMailContentExporterTests {
 	}
 	
 	@Test
+	public void byMachineClient() {
+		
+		try {
+			RmiProxyFactoryBean bean = new RmiProxyFactoryBean();
+			bean.setServiceUrl("rmi://localhost:8110/ViaEmailReportExportService");
+			bean.setServiceInterface(ReportExportService.class);
+			bean.afterPropertiesSet();
+			
+			ReportExportService service = (ReportExportService) bean.getObject();
+			
+			Map<String, String> mailParams = new HashMap<String, String>();
+			mailParams.put("from", "watchdog@baidu.com");
+			mailParams.put("to", "mengran@baidu.com,sushuang@baidu.com");
+			service.export("accesscnt-daily-bymachine.xlsx", mailParams, contextParams);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
 	public void byMachine() {
 		
 		Assert.notNull(ReportEngine.INSTANCE);
+		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
 		
 		RmiProxyFactoryBean bean = new RmiProxyFactoryBean();
 		bean.setServiceUrl("rmi://localhost:8110/ViaEmailReportExportService");

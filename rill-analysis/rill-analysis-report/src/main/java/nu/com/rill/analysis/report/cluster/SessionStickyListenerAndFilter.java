@@ -5,6 +5,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -24,6 +25,7 @@ import org.infinispan.remoting.transport.Address;
 import org.infinispan.remoting.transport.Transport;
 import org.infinispan.spring.provider.SpringEmbeddedCacheManager;
 import org.springframework.jndi.JndiPropertySource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StandardServletEnvironment;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -43,6 +45,7 @@ public class SessionStickyListenerAndFilter implements Filter, ServletContextLis
 	public static final String RE_SERVER_CLUSTER_TCP_PING_KEY = "jgroups.tcpping.initial_hosts";
 	public static final String RE_SERVER_CLUSTER_HOST_KEY = "jgroups.bind_addr";
 	public static final String RE_SERVER_CLUSTER_PORT_KEY = "jgroups.tcp.port";
+	public static final String SYSTEM_PROPERTIES_CONFIGURATION = "systemPropertiesConfigLocation";
 
 //	private static final ThreadLocal<String> RE_SERVER_ID_HOLDER = new ThreadLocal<String>();
 	private SpringEmbeddedCacheManager cacheManager;
@@ -69,6 +72,19 @@ public class SessionStickyListenerAndFilter implements Filter, ServletContextLis
 			LOGGER.info("Add system property:jgroups.bind_addr=" + hostIp);
 			System.setProperty(RE_SERVER_CLUSTER_HOST_KEY, hostIp);
         }
+		
+		String systemPropertiesConfiguration = arg0.getServletContext().getInitParameter(SYSTEM_PROPERTIES_CONFIGURATION);
+		if (StringUtils.hasText(systemPropertiesConfiguration)) {
+			Set<String> propertyName = StringUtils.commaDelimitedListToSet(systemPropertiesConfiguration);
+			for (String p : propertyName) {
+				LOGGER.info("Try to add system property:" + p);
+				Object pValue = jndiPropertySource.getProperty(p);
+				if (pValue != null) {
+					LOGGER.info("Add system property:" + p + " " + pValue.toString());
+					System.setProperty(p, pValue.toString());
+				}
+			}
+		}
 		
 	}
 	

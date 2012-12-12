@@ -28,6 +28,10 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath*:/conf/applicationContext-server.xml</param-value>
 	</context-param>
+	<context-param>
+		<param-name>systemPropertiesConfigLocation</param-name>
+		<param-value>mail.mime.encodefilename,reportengine.author</param-value>
+	</context-param>
 	
 	<listener>
 		<listener-class>nu.com.rill.analysis.report.cluster.SessionStickyListenerAndFilter</listener-class>
