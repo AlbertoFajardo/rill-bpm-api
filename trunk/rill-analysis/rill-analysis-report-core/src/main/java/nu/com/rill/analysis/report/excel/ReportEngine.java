@@ -621,7 +621,11 @@ public final class ReportEngine {
 		try {
 			urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "." + name + "}");
 		} catch(Exception e) {
-			urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "}");
+			try {
+				urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "}");
+			} catch (Exception ee) {
+				// Ignore
+			}
 		}
 		
 		if (StringUtils.hasText(urlInContext)) {
