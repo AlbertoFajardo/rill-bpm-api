@@ -497,7 +497,14 @@ public final class ReportEngine {
 						String paramName = settingsSheet.getRow(i).getCell(startCell.getCol() + 1).getStringCellValue();
 						if (StringUtils.hasText(paramName)) {
 							if (contextParams.containsKey(paramName)) {
-								settingsSheet.getRow(i).getCell(startCell.getCol() + 2).setCellValue(contextParams.get(paramName));
+								Cell c = settingsSheet.getRow(i).getCell(startCell.getCol() + 2);
+								if (c.getCellType() == Cell.CELL_TYPE_FORMULA) {
+//									BookHelper.setCellFormula(c, "TEXT(\"" + contextParams.get(paramName) + "\",\""+ formatCell.getStringCellValue() + "\")");
+									int column = c.getColumnIndex();
+									settingsSheet.getRow(i).removeCell(c);
+									c = settingsSheet.getRow(i).createCell(column, Cell.CELL_TYPE_STRING);
+								}
+								c.setCellValue(contextParams.get(paramName));
 							}
 						}
 					}
@@ -610,16 +617,15 @@ public final class ReportEngine {
 		
 		Map<String, String> contextParams = new HashMap<String, String>();
 		
+		String urlInContext = null;
 		try {
-			String urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "." + name + "}");
-			if (!StringUtils.hasText(urlInContext)) {
-				urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "}");
-			}
-			if (StringUtils.hasText(urlInContext)) {
-				contextParams.put(ReportEngine.URL, urlInContext);
-			}
+			urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "." + name + "}");
 		} catch(Exception e) {
-			LOG.debug("Error occurred when try to retrieve URL from bean factory.", e);
+			urlInContext = reportEngneBeanfactory.resolveEmbeddedValue("${" + ReportEngine.URL + "}");
+		}
+		
+		if (StringUtils.hasText(urlInContext)) {
+			contextParams.put(ReportEngine.URL, urlInContext);
 		}
 		
 		return contextParams;
