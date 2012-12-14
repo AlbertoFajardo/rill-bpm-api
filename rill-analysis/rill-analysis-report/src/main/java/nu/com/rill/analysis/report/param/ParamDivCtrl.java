@@ -349,6 +349,10 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		
 		final ReportManager reportMgr = (ReportManager) SpringUtil.getBean("reportMgr");
 		final Report report = reportMgr.getReport(fileName);
+		ByteArrayInputStream bais = new ByteArrayInputStream(report.getReportContent());
+		Map<String, Map<PARAM_CONFIG, String>> reportParamsFrom = ReportEngine.INSTANCE.retrieveReportParams(bais, fileName);
+		bais.close();
+		report.setParamsXStrem(Report.serializeParams(reportParamsFrom));
 		
 		// Construct parameter components
 		for (Object entry : Executions.getCurrent().getParameterMap().entrySet()) {
