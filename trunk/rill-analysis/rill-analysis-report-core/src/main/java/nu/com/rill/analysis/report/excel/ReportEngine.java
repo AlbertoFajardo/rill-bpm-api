@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +36,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.CellStyle;
+import org.zkoss.poi.ss.usermodel.DateUtil;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.poi.ss.util.CellRangeAddress;
@@ -498,11 +501,20 @@ public final class ReportEngine {
 						if (StringUtils.hasText(paramName)) {
 							if (contextParams.containsKey(paramName)) {
 								Cell c = settingsSheet.getRow(i).getCell(startCell.getCol() + 2);
+								Cell formatCell = settingsSheet.getRow(i).getCell(startCell.getCol() + 1 + PARAM_CONFIG.FORMAT.ordinal());
 								if (c.getCellType() == Cell.CELL_TYPE_FORMULA) {
-//									BookHelper.setCellFormula(c, "TEXT(\"" + contextParams.get(paramName) + "\",\""+ formatCell.getStringCellValue() + "\")");
-									int column = c.getColumnIndex();
-									settingsSheet.getRow(i).removeCell(c);
-									c = settingsSheet.getRow(i).createCell(column, Cell.CELL_TYPE_STRING);
+//									BookHelper.setCellFormula(c, "TEXT(DATE(2012,12,10),\""+ formatCell.getStringCellValue() + "\")");
+									Date d = DateUtil.parseYYYYMMDDDate(contextParams.get(paramName));
+									Calendar calendar = Calendar.getInstance();
+									calendar.setTime(d);
+									StringBuilder sb = new StringBuilder();
+									sb.append(calendar.get(Calendar.YEAR)).append(",");
+									sb.append(calendar.get(Calendar.MONTH) + 1).append(",");
+									sb.append(calendar.get(Calendar.DAY_OF_MONTH)).append("");
+									c.setCellFormula("TEXT(DATE(" + sb.toString() + "),\""+ formatCell.getStringCellValue() + "\")");
+//									int column = c.getColumnIndex();
+//									settingsSheet.getRow(i).removeCell(c);
+//									c = settingsSheet.getRow(i).createCell(column, Cell.CELL_TYPE_STRING);
 								}
 								c.setCellValue(contextParams.get(paramName));
 							}

@@ -12,10 +12,12 @@ import org.springframework.util.StringUtils;
 
 public class ViaEmailReportExportMain {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
+		
+		export(args);
+	}
+	
+	public static void export(String[] args) {
 		
 		// Parse argument.
 		Assert.isTrue(args.length >= 3);
@@ -41,7 +43,8 @@ public class ViaEmailReportExportMain {
 			}
 		}
 		
-		String url = "rmi://ai-rigel-prd00.ai01.baidu.com:8110/ViaEmailReportExportService";
+//		String url = "rmi://ai-rigel-prd00.ai01.baidu.com:8110/ViaEmailReportExportService";
+		String url = "rmi://localhost:8110/ViaEmailReportExportService";
 		if (args.length > 3) {
 			url = args[3];
 		}

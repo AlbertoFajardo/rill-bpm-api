@@ -41,6 +41,31 @@ public class ReportEngineTest {
 	}
 	
 	@Test
+	public void retrieveReportParamsLuopanChangeFormula() {
+		
+		ReportEngine re = ReportEngine.INSTANCE;
+		
+		String SELECTED_DATE = new SimpleDateFormat("yyyy-MM-dd").format(DateUtils.addDays(new Date(), -2));
+		
+		ClassPathResource cpr = new ClassPathResource("nu/com/rill/analysis/report/excel/luopan.xlsx");
+		try {
+			Map<String, String> contextParams = new HashMap<String, String>();
+			contextParams.put(ReportEngine.URL, "DUMMY");
+			contextParams.put("date", SELECTED_DATE);
+			Map<String, Map<PARAM_CONFIG, String>> list = re.retrieveReportParams(cpr.getInputStream(), "luopan.xlsx", contextParams, true);
+			Assert.assertTrue(list.size() == 7);
+			Assert.assertTrue(list.get("商业产品线").get(PARAM_CONFIG.NAME).equals("lineId"));
+			Assert.assertTrue(list.get("商业产品线").get(PARAM_CONFIG.RENDER_TYPE).equals("select"));
+			Assert.assertTrue(StringUtils.hasText(list.get("商业产品线").get(PARAM_CONFIG.FETCH_URL)));
+			Assert.assertTrue(list.get("分析指标").get(PARAM_CONFIG.DEPENDENCIES).equals("lineId"));
+			Assert.assertTrue(list.get("分析指标").get(PARAM_CONFIG.FETCH_URL).equals("DUMMYexample/ind"));
+			Assert.assertTrue(list.get("选择日期").get(PARAM_CONFIG.VALUE).equals(SELECTED_DATE));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
 	public void retrieveReportParamsLuopanNoContext() {
 		
 		ReportEngine re = ReportEngine.INSTANCE;
