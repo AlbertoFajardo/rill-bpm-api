@@ -30,7 +30,7 @@ Copyright (C) 2004 Potix Corporation. All Rights Reserved.
 	</context-param>
 	<context-param>
 		<param-name>systemPropertiesConfigLocation</param-name>
-		<param-value>mail.mime.encodefilename,reportengine.author</param-value>
+		<param-value>mail.mime.encodefilename,mail.mime.charset</param-value>
 	</context-param>
 	
 	<listener>

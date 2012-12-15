@@ -76,6 +76,11 @@
 		</property>
 		
 		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.mime.charset">UTF8</prop>
+			</props>
+		</property>
 	</bean>
 	
 	<bean id="offMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
@@ -101,6 +106,8 @@
 				<prop key="mail.smtp.starttls.enable">true</prop>
 				<prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
 				<prop key="mail.smtp.socketFactory.fallback">false</prop>
+				
+				<prop key="mail.mime.charset">UTF-8</prop>
 			</props>
 		</property>
 		

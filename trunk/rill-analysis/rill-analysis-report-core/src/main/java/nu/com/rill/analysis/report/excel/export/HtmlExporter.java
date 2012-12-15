@@ -184,7 +184,7 @@ public class HtmlExporter {
 				ChartWidget chartwgt = new ChartWidget((Worksheet) sheet, chartX, zindex, ChartHelper.CHART_LIB_TYPE_PIC_CHART);
 				PicChart picChart = (PicChart) chartwgt.inner();
 				byte[] bytes = picChart.getEngine().drawChart(picChart);
-				String imgName = "htmlExporter_" + workBookName + ".png";
+				String imgName = "htmlExporter_" + workBookName.hashCode() + ".png";
 				
 				// New DIV to hold it.
 				Div div = new Div();
