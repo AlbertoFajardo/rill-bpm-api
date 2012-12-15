@@ -3,6 +3,7 @@ package nu.com.rill.analysis.report.explorer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,6 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.mail.internet.MimeUtility;
+import javax.servlet.http.HttpServletRequest;
 
 import nu.com.rill.analysis.report.ReportManager;
 import nu.com.rill.analysis.report.bo.Report;
@@ -25,6 +29,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -187,12 +192,27 @@ public class ReportExplorerCtrl extends GenericForwardComposer {
 					@Override
 					public void onEvent(Event event) throws Exception {
 						Report report = reportMgr.getReport(event.getTarget().getWidgetAttribute("fileName"));
+						String result = report.getName();
+						try {
+							Execution ex = Executions.getCurrent();
+							HttpServletRequest request = (HttpServletRequest) ex.getNativeRequest();
+							if (request.getHeader("User-Agent").indexOf("MSIE") != -1) {
+								// IE
+								result = URLEncoder.encode(result, "UTF-8");
+							} else {
+								// NON-IE
+								result = MimeUtility.encodeText(result, "GBK", "B");
+							}
+						} catch (Exception e) {
+							// Ignore
+						}
+						
 						try {
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							IOUtils.write(report.getReportContent(), baos);
 							Filedownload.save(baos.toByteArray(), 
 									"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-									report.getName());
+									result);
 						} catch (Exception e) {
 							// Ignore~~
 						}
