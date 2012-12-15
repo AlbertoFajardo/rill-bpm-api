@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import nu.com.rill.analysis.report.ReportExportService;
 import nu.com.rill.analysis.report.excel.ReportEngine;
@@ -73,6 +74,47 @@ public class OPInlineMailContentExporterTests {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static String mapToString(Map<String, String> m) {
+		
+		StringBuilder sb = new StringBuilder();
+		for (Entry<String, String> e : m.entrySet()) {
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+			sb.append(e.getKey()).append(" ").append(e.getValue());
+		}
+		
+		return sb.toString();
+	}
+	
+	@Test
+	public void byMachineOverHttp() {
+		
+		Assert.notNull(ReportEngine.INSTANCE);
+		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
+		
+		try {
+			StringBuilder sb = new StringBuilder("http://localhost:8111/remoting/ViaEmailReportExportService?");
+			
+			sb.append("&aaa=accesscnt-daily-bymachine.xlsx");
+			
+			Map<String, String> mailParams = new HashMap<String, String>();
+			mailParams.put("from", "hahahahhahahh@baidu.com");
+			sb.append("&bbb=" + mapToString(mailParams));
+			
+			sb.append("&ccc=" + mapToString(contextParams));
+			
+			System.out.println(sb.toString());
+			
+			String result = ReportEngine.fetchUrl(sb.toString(), new HashMap<String, String>(0));
+			
+			System.out.println(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	@Test

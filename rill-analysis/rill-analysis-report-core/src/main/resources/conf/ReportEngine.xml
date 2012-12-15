@@ -131,29 +131,25 @@
     </bean>
 	 
     <bean id="emailExportServiceBean" class="nu.com.rill.analysis.report.excel.export.ViaEmailReportExportService"></bean>
+    
     <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
 		<property name="serviceName" value="ViaEmailReportExportService"/>
 		<property name="service" ref="emailExportServiceBean"/>
 		<property name="serviceInterface" value="nu.com.rill.analysis.report.ReportExportService"/>
 		<property name="registryPort" value="8110"/>
 	</bean>
-	
-	<!-- 
-	<bean name="emailExportServiceExporter"
-		class="org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter">
-		<property name="service" ref="emailExportService" />
-		<property name="serviceInterface" value="nu.com.rill.analysis.report.ReportExportService" />
+
+	<bean name="viaEmailReportExportHttpInvokerHandler"
+		class="nu.com.rill.analysis.report.excel.export.ViaEmailReportExportHttpInvokerHandler">
 	</bean>
-	
 	<bean id="httpServer"
 		class="org.springframework.remoting.support.SimpleHttpServerFactoryBean">
 		<property name="contexts">
 			<map>
-				<entry key="/remoting/EmailExportService" value-ref="emailExportServiceExporter" />
+				<entry key="/remoting/ViaEmailReportExportService" value-ref="viaEmailReportExportHttpInvokerHandler" />
 			</map>
 		</property>
-		<property name="port" value="8110" />
+		<property name="port" value="8111" />
 	</bean>
-	 -->
 
 </beans>
