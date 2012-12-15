@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
+ -5.7.jar antlr-2.7.2.jar aopalliance-1.0.jar aspectjweaver-1.6.8.jar 
+ commons-beanutils-1.7.0.jar commons-chain-1.1.jar commons-collections
+ -3.2.1.jar commons-dbcp-1.4.jar commons-digester-1.8.jar commons-emai
+ l-1.2.jar commons-fileupload-1.2.2.jar commons-io-1.4.jar commons-lan
+ g-2.4.jar commons-logging-1.1.jar commons-pool-1.5.6.jar commons-vali
+ dator-1.3.1.jar dom4j-1.1.jar draw2d-3.2.100-v20070529.jar freemarker
+ -2.3.8.jar infinispan-cachestore-jdbc-5.1.1.FINAL.jar infinispan-core
+ -5.1.1.FINAL.jar infinispan-spring-5.1.1.FINAL.jar java-uuid-generato
+ r-3.1.3.jar jboss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.GA.ja
+ r jboss-marshalling-river-1.3.6.GA.jar jboss-transaction-api-1.0.1.GA
+ .jar jgroups-3.0.4.Final.jar log4j-1.2.16.jar mail-1.4.1.jar mybatis-
+ 3.0.4.jar mysql-connector-java-5.1.18.jar oro-2.0.8.jar rhq-pluginAnn
+ otations-3.0.4.jar rill-bpm-api-1.0.1.jar rill-bpm-embeddedgf-3.1.2.j
+ ar rill-bpm-ws-1.0.1.jar spring-aop-3.1.0.RELEASE.jar spring-asm-3.1.
+ 0.RELEASE.jar spring-beans-3.1.0.RELEASE.jar spring-context-3.1.0.REL
+ EASE.jar spring-context-support-3.1.0.RELEASE.jar spring-core-3.1.0.R
+ ELEASE.jar spring-expression-3.1.0.RELEASE.jar spring-jdbc-3.1.0.RELE
+ ASE.jar spring-orm-3.1.0.RELEASE.jar spring-tx-3.1.0.RELEASE.jar spri
+ ng-web-3.1.0.RELEASE.jar spring-webmvc-3.1.0.RELEASE.jar sslext-1.2-0
+ .jar stax2-api-3.1.1.jar staxmapper-1.0.0.Final.jar struts-core-1.3.8
+ .jar struts-taglib-1.3.8.jar struts-tiles-1.3.8.jar swt-3.3.0-v3346.j
+ ar velocity-1.6.3.jar velocity-tools-2.0.jar woodstox-core-asl-4.1.1.
+ jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar
+

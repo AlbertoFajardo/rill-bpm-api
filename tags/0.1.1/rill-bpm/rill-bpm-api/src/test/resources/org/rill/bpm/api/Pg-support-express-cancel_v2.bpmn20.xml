@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-express-cancel_v2" name="Pg-support-express-cancel_v2">
+    <documentation>Place documentation for the 'Pg-support-express-cancel_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="cancel_express_audit" name="撤销快递审核" default="flow3" activiti:candidateGroups="ht_support_express_manager" activiti:formKey="express/expressCancelAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=120</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=121</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>9</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="cancel_express_audit"></sequenceFlow>
+    <userTask id="confirm_cancel_express" name="确认撤销快递单" activiti:candidateGroups="ht_support_assistanter" activiti:formKey="express/expressCancelConfirmInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="ex_init_status">
+            <activiti:string>status=122</activiti:string>
+          </activiti:field>
+          <activiti:field name="ex_post_status">
+            <activiti:string>status=123</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>10</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="驳回" sourceRef="cancel_express_audit" targetRef="exclusivegateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__expressAudit_auditResult==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow3" name="" sourceRef="cancel_express_audit" targetRef="confirm_cancel_express"></sequenceFlow>
+    <sequenceFlow id="flow4" name="" sourceRef="confirm_cancel_express" targetRef="exclusivegateway1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow5" name="" sourceRef="exclusivegateway1" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-express-cancel_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-express-cancel_v2" id="BPMNPlane_Pg-support-express-cancel_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="60" y="180"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancel_express_audit" id="BPMNShape_cancel_express_audit">
+        <omgdc:Bounds height="55" width="105" x="190" y="170"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_cancel_express" id="BPMNShape_confirm_cancel_express">
+        <omgdc:Bounds height="55" width="105" x="390" y="170"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="422" y="310"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="507" y="313"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="95" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="190" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="242" y="225"></omgdi:waypoint>
+        <omgdi:waypoint x="442" y="310"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="295" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="390" y="197"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="442" y="225"></omgdi:waypoint>
+        <omgdi:waypoint x="442" y="310"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="462" y="330"></omgdi:waypoint>
+        <omgdi:waypoint x="507" y="330"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

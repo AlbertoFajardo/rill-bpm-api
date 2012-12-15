@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  	<import resource="classpath:applicationContext-cache.xml" />
+	
+    <!-- Work bean below -->
+    <bean id="workflowAccessor" class="org.rill.bpm.api.activiti.ActivitiTemplate">
+        <!-- open comment when you want to integrate with spring.
+        <property name="processEngine" ref="processEngine" />
+         -->
+        <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+        <property name="commonTaskLifecycleInterceptor">
+            <list>
+                <bean class="org.rill.bpm.api.support.XpathVarConvertTaskLifecycleInterceptor" />
+            </list>
+        </property>
+   </bean>
+
+   <bean id="rillWfTransitionTraceListener" class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceListener" />
+   <bean id="processMonitorChartInfoHelper" class="org.rill.bpm.api.activiti.bpmndiagram.ProcessMonitorChartInfoHelper" />
+
+   <!-- Test bean below -->
+   <bean id="dummyTLI" class="org.rill.bpm.api.extendattr.DummyTaskLifecycleInterceptor" />
+   <bean id="dummySchemaOperationListener"
+		class="org.rill.bpm.api.RillProcessEngineConfigurationTest.DummySchemaOperationListener">
+	</bean>
+
+	<bean id="riglWfTransitionTraceSchemaListener"
+		class="org.rill.bpm.api.activiti.bpmndiagram.RillWfTransitionTraceSchemaListener">
+	</bean>
+
+
+	<!-- ##Activiti5 configuration## start -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="org.h2.Driver" />
+		<property name="url"
+			value="jdbc:h2:mem:activiti-ws;DB_CLOSE_DELAY=1000;MVCC=TRUE" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="processEngineConfiguration"
+		class="org.rill.bpm.ws.activiti.WSProcessEngineConfiguration">
+		<property name="dataSource" ref="dataSource" />
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="databaseSchemaUpdate" value="true" />
+		<property name="mailServerHost" value="localhost" />
+		<property name="mailServerPort" value="5025" />
+		<property name="jobExecutorActivate" value="true" />
+		<!-- Rill extension -->
+		<property name="postParseListeners">
+			<list>
+				<bean class="org.rill.bpm.api.activiti.RetrieveNextTasksHelper">
+				</bean>
+				<bean class="org.rill.bpm.ws.activiti.MetroBpmnParseListener">
+				</bean>
+			</list>
+		</property>
+		<property name="wsXmlImporter">
+			<bean class="org.rill.bpm.ws.metro.WSImportToolImporterImpl"></bean>
+		</property>
+		
+		<property name="processEngineName" value="activiti.cfg.xml"/>
+	</bean>
+	<!-- ##Activiti5 configuration## end -->
+
+</beans>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-contractQualification_v2" name="Pg-support-contractQualification_v2">
+    <documentation>Place documentation for the 'Pg-support-contractQualification_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow3"></exclusiveGateway>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="contractbak" name="确认合同返还" default="flow4" activiti:candidateGroups="ht_support_fgsywzc_constract_supporter" activiti:formKey="contract/returnContractInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>107</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>contractStatus=202,contractDeductStatus=202</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>contractReturnPostStatusTaskLifecycleInterceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" name="合同未发放" sourceRef="exclusivegateway1" targetRef="contractbak">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__order_contractStatus != 206}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow3" name="" sourceRef="exclusivegateway1" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow4" name="" sourceRef="contractbak" targetRef="exclusivegateway2"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow5" name="非正常返还" sourceRef="contractbak" targetRef="exclusivegateway3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction!=0}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow6" name="" sourceRef="exclusivegateway3" targetRef="endevent1"></sequenceFlow>
+    <userTask id="qualityaudit" name="资质审核" default="flow14" activiti:candidateGroups="ht_support_fgsywzc_order_qualification_checker" activiti:formKey="qualityaudit/qualificationAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=16</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>24</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>qualityAuditTaskLifecycleInterceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" name="" sourceRef="exclusivegateway2" targetRef="qualityaudit"></sequenceFlow>
+    <userTask id="qualityaudit_layup" name="资质审核" activiti:candidateGroups="ht_support_fgsywzc_order_qualification_checker" activiti:formKey="qualityaudit/qualificationAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=43</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>24</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>qualityAuditTaskLifecycleInterceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow9" name="搁置" sourceRef="qualityaudit" targetRef="qualityaudit_layup">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==2}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway" default="flow12"></exclusiveGateway>
+    <sequenceFlow id="flow10" name="" sourceRef="qualityaudit_layup" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow11" name="搁置" sourceRef="exclusivegateway4" targetRef="qualityaudit_layup">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==2}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway" default="flow17"></exclusiveGateway>
+    <sequenceFlow id="flow12" name="" sourceRef="exclusivegateway4" targetRef="exclusivegateway5"></sequenceFlow>
+    <userTask id="mod_website_info" name="修改网站信息" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="qualityaudit/qualityModCustInfo.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=47</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>437</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow13" name="驳回" sourceRef="exclusivegateway5" targetRef="mod_website_info">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway" default="flow16"></exclusiveGateway>
+    <sequenceFlow id="flow14" name="" sourceRef="qualityaudit" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="flow15" name="驳回" sourceRef="exclusivegateway6" targetRef="mod_website_info">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway" default="flow21"></exclusiveGateway>
+    <sequenceFlow id="flow16" name="" sourceRef="exclusivegateway6" targetRef="exclusivegateway7"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway8" name="Exclusive Gateway" default="flow20"></exclusiveGateway>
+    <sequenceFlow id="flow17" name="" sourceRef="exclusivegateway5" targetRef="exclusivegateway8"></sequenceFlow>
+    <userTask id="qualtiction_audit_qual_fix_url" name="资质审核修改网站" activiti:candidateGroups="ht_support_fgsywzc_order_qualification_checker" activiti:formKey="qualityaudit/qualAuditQualFixUrlInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=38</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>464</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow18" name="再审-网建" sourceRef="exclusivegateway8" targetRef="qualtiction_audit_qual_fix_url">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==8 && __order_orderBuildWebType==2}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow19" name="再审-网建" sourceRef="exclusivegateway7" targetRef="qualtiction_audit_qual_fix_url">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==8 && __order_orderBuildWebType==2}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway9" name="Exclusive Gateway" default="flow24"></exclusiveGateway>
+    <sequenceFlow id="flow20" name="" sourceRef="exclusivegateway8" targetRef="exclusivegateway9"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway10" name="Exclusive Gateway" default="flow25"></exclusiveGateway>
+    <sequenceFlow id="flow21" name="" sourceRef="exclusivegateway7" targetRef="exclusivegateway10"></sequenceFlow>
+    <userTask id="qualtiction_audit_fix_url" name="资质审核需再审完善网站信息" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="qualityaudit/qualAuditManagerFixUrlInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>status=37</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>463</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow22" name="再审-非网建" sourceRef="exclusivegateway9" targetRef="qualtiction_audit_fix_url">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==8 && __order_orderBuildWebType!=2}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow23" name="再审-非网建" sourceRef="exclusivegateway10" targetRef="qualtiction_audit_fix_url">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==8 && __order_orderBuildWebType!=2}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow24" name="" sourceRef="exclusivegateway9" targetRef="exclusivegateway11"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway12" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow25" name="" sourceRef="exclusivegateway10" targetRef="exclusivegateway12"></sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow26" name="" sourceRef="exclusivegateway11" targetRef="endevent2"></sequenceFlow>
+    <sequenceFlow id="flow27" name="" sourceRef="exclusivegateway12" targetRef="endevent2"></sequenceFlow>
+    <sequenceFlow id="flow28" name="" sourceRef="mod_website_info" targetRef="qualityaudit"></sequenceFlow>
+    <sequenceFlow id="flow29" name="" sourceRef="qualtiction_audit_qual_fix_url" targetRef="qualityaudit"></sequenceFlow>
+    <sequenceFlow id="flow30" name="" sourceRef="qualtiction_audit_fix_url" targetRef="qualityaudit"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-contractQualification_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-contractQualification_v2" id="BPMNPlane_Pg-support-contractQualification_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="50" y="203"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="150" y="200"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="contractbak" id="BPMNShape_contractbak">
+        <omgdc:Bounds height="55" width="105" x="118" y="310"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="300" y="200"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40" width="40" x="300" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="420" y="320"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="qualityaudit" id="BPMNShape_qualityaudit">
+        <omgdc:Bounds height="55" width="105" x="385" y="193"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="qualityaudit_layup" id="BPMNShape_qualityaudit_layup">
+        <omgdc:Bounds height="55" width="105" x="385" y="90"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40" width="40" x="542" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40" width="40" x="640" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mod_website_info" id="BPMNShape_mod_website_info">
+        <omgdc:Bounds height="55" width="105" x="608" y="193"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40" width="40" x="542" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
+        <omgdc:Bounds height="40" width="40" x="770" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway8" id="BPMNShape_exclusivegateway8">
+        <omgdc:Bounds height="40" width="40" x="770" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="qualtiction_audit_qual_fix_url" id="BPMNShape_qualtiction_audit_qual_fix_url">
+        <omgdc:Bounds height="55" width="105" x="738" y="237"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway9" id="BPMNShape_exclusivegateway9">
+        <omgdc:Bounds height="40" width="40" x="920" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway10" id="BPMNShape_exclusivegateway10">
+        <omgdc:Bounds height="40" width="40" x="920" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="qualtiction_audit_fix_url" id="BPMNShape_qualtiction_audit_fix_url">
+        <omgdc:Bounds height="55" width="105" x="888" y="160"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway11" id="BPMNShape_exclusivegateway11">
+        <omgdc:Bounds height="40" width="40" x="1040" y="97"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway12" id="BPMNShape_exclusivegateway12">
+        <omgdc:Bounds height="40" width="40" x="1040" y="317"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35" width="35" x="1043" y="203"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="85" y="220"></omgdi:waypoint>
+        <omgdi:waypoint x="150" y="220"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="170" y="240"></omgdi:waypoint>
+        <omgdi:waypoint x="170" y="310"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="190" y="220"></omgdi:waypoint>
+        <omgdi:waypoint x="320" y="240"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="223" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="320" y="240"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="223" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="300" y="337"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="340" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="420" y="337"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="340" y="220"></omgdi:waypoint>
+        <omgdi:waypoint x="385" y="220"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="490" y="220"></omgdi:waypoint>
+        <omgdi:waypoint x="437" y="145"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="490" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="542" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="562" y="97"></omgdi:waypoint>
+        <omgdi:waypoint x="508" y="38"></omgdi:waypoint>
+        <omgdi:waypoint x="437" y="90"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="582" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="640" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="660" y="137"></omgdi:waypoint>
+        <omgdi:waypoint x="660" y="193"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="437" y="248"></omgdi:waypoint>
+        <omgdi:waypoint x="562" y="317"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="562" y="317"></omgdi:waypoint>
+        <omgdi:waypoint x="660" y="248"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="582" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="770" y="337"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="680" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="770" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="790" y="137"></omgdi:waypoint>
+        <omgdi:waypoint x="790" y="237"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="790" y="317"></omgdi:waypoint>
+        <omgdi:waypoint x="790" y="292"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="810" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="920" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="810" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="920" y="337"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="940" y="137"></omgdi:waypoint>
+        <omgdi:waypoint x="940" y="160"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="940" y="317"></omgdi:waypoint>
+        <omgdi:waypoint x="940" y="215"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="960" y="117"></omgdi:waypoint>
+        <omgdi:waypoint x="1040" y="117"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="960" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="1040" y="337"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="1060" y="137"></omgdi:waypoint>
+        <omgdi:waypoint x="1060" y="203"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="1080" y="337"></omgdi:waypoint>
+        <omgdi:waypoint x="1060" y="238"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
+        <omgdi:waypoint x="608" y="220"></omgdi:waypoint>
+        <omgdi:waypoint x="490" y="220"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="738" y="264"></omgdi:waypoint>
+        <omgdi:waypoint x="581" y="264"></omgdi:waypoint>
+        <omgdi:waypoint x="437" y="248"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="888" y="187"></omgdi:waypoint>
+        <omgdi:waypoint x="582" y="187"></omgdi:waypoint>
+        <omgdi:waypoint x="490" y="220"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

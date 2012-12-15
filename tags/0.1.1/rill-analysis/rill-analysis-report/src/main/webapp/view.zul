@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?page id="p1" title="Report View Page"?>
+<?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
+
+<zk xmlns:h="native">
+	<custom-attributes scope="request" org.zkoss.zk.ui.page.redrawCtrl="page"/>
+	<style>
+	    .z-button-os { 
+	        width: 85px;
+	        height: 22px;
+	        margin-left: 5px;
+	        border-color: #7FAFC5
+	    }
+	    
+	    .param-label-class {
+	    	color: #949494;
+	    	font-size: 14px;
+	    	vertical-align:middle;
+	    }
+	    .paramDiv-class {
+	    	background-color: #F7F7F7; padding: 5px; 
+	    	position: relative;	
+	    	font-size: 12px;
+	    }
+	    .ui-panel {
+	    	font-size: 12px;
+	    }
+	    .paramDiv-floatParamDiv-class {
+	    	float: right;
+	    	position: absolute;
+	    	top: 40px;
+	    	right: 80px;
+	    	z-index: 999;
+	    	font-size: 12px;
+	    }
+	    .search-class, .download-class {
+	    	background-color: #DEEBF1;
+	    	float: right;
+	    }
+	    .reset-class {
+	    	background-color: #EFEFF5;
+	    	float: right;
+	    }
+	    
+	    .zstop, .zscorner {
+	    	display: none;
+	    }
+	    .zscell {
+	    	border-right: 1px solid #FFFFFF;
+			border-bottom: 1px solid #FFFFFF;
+	    }
+	</style>
+	<div id="paramDiv" use="org.zkoss.zss.app.zul.IdDiv" apply="nu.com.rill.analysis.report.param.ParamDivCtrl" />
+	<zssapp width="100%" class="zssappDiv-class"></zssapp>
+</zk>

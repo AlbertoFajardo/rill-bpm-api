@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?page id="p1" title="Report Service"?>
+
+<zk xmlns:h="xhtml">
+	<style>
+        tr.z-row td.z-row-inner { 
+            padding: 5px 
+        }
+    </style>
+	<div width="100%" height="100%" apply="nu.com.rill.analysis.report.explorer.ReportExplorerCtrl">
+		<menubar id="menubar" width="100%" style="border-bottom:0;border-right:1px solid #D8D8D8;border-left:1px solid #D8D8D8;">
+			<filemenu id="fileMenu" label="文件"></filemenu>
+		</menubar>
+		<grid id="reportGrid">
+			<columns>
+				<column hflex="1">ID.</column>
+				<column hflex="4">报表名称</column>
+				<column hflex="2">调度表达式</column>
+				<column hflex="1">查看调度结果</column>
+				<column hflex="2">生成日期</column>
+				<column hflex="2">动作</column>
+			</columns>
+		</grid>
+		
+		<window id="reportScheduleDialog" title="调度结果窗口" border="normal" mode="modal"
+			width="580px" height="300px" closable="true" position="center" use="org.zkoss.zss.app.zul.Dialog" >
+			<grid id="reportScheduleGrid" height="260px">
+				<columns>
+					<column hflex="1">序列</column>
+					<column hflex="4">报表名称</column>
+				</columns>
+			</grid>
+		</window>
+	</div>
+</zk>
