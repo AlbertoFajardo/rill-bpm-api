@@ -41,18 +41,15 @@ public class OPInlineMailContentExporterTests {
 	@BeforeClass
 	public static void before() {
 		
-//		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
 		contextParams.put("moduleName", MODULE_NAME);
 		contextParams.put("topN", MODULE_TOPN);
 		contextParams.put("threshold", MODULE_THRESHOLDS.get(MODULE_NAME));
 		contextParams.put("moduleCnName", CN_EN_NAMES.get(MODULE_NAME));
 		contextParams.put("selectedDate", SELECTED_DATE);
-//		contextParams.put(ReportEngine.SYSTEM_VIEW_PAGE, "http://ai-rigel-prd00.ai01.baidu.com:8080/_report/view2.zul?");
 		
 //		System.setProperty("re.mail.offlineMode", "false");
 		
-		// FIXME: MENGRAN. Where to set?
-//		System.setProperty("mail.mime.encodefilename", "true");
+		System.setProperty("mail.mime.encodefilename", "true");
 		
 	}
 	
