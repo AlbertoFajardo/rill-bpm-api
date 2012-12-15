@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -33,10 +34,10 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.poi.ss.usermodel.Cell;
 import org.zkoss.poi.ss.usermodel.CellStyle;
-import org.zkoss.poi.ss.usermodel.DateUtil;
 import org.zkoss.poi.ss.usermodel.Row;
 import org.zkoss.poi.ss.usermodel.Workbook;
 import org.zkoss.poi.ss.util.CellRangeAddress;
@@ -461,10 +462,10 @@ public final class ReportEngine {
 			return bookAfterProcess;
 		
 		} catch (REException e) {
-			LOG.error(e);
+			LOG.error("Can't generate report of " + bookName + " " + ObjectUtils.getDisplayString(reportParams), e);
 			throw new REException("无法生成报表。", e);	
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error("Error occurred when try to generate report of " + bookName + " " + ObjectUtils.getDisplayString(reportParams), e);
 			throw new REException(e);
 		} finally {
 			LOG.debug("End generateReport " + (System.currentTimeMillis() - startTime));
@@ -499,19 +500,26 @@ public final class ReportEngine {
 						
 						String paramName = settingsSheet.getRow(i).getCell(startCell.getCol() + 1).getStringCellValue();
 						if (StringUtils.hasText(paramName)) {
-							if (contextParams.containsKey(paramName)) {
+							Cell formatCell = settingsSheet.getRow(i).getCell(startCell.getCol() + 1 + PARAM_CONFIG.FORMAT.ordinal());
+							Cell renderTypeCell = settingsSheet.getRow(i).getCell(startCell.getCol() + 1 + PARAM_CONFIG.RENDER_TYPE.ordinal());
+							if (contextParams.containsKey(paramName) && renderTypeCell.getCellType() != Cell.CELL_TYPE_BLANK) {
 								Cell c = settingsSheet.getRow(i).getCell(startCell.getCol() + 2);
-								Cell formatCell = settingsSheet.getRow(i).getCell(startCell.getCol() + 1 + PARAM_CONFIG.FORMAT.ordinal());
+								
 								if (c.getCellType() == Cell.CELL_TYPE_FORMULA) {
 //									BookHelper.setCellFormula(c, "TEXT(DATE(2012,12,10),\""+ formatCell.getStringCellValue() + "\")");
-									Date d = DateUtil.parseYYYYMMDDDate(contextParams.get(paramName));
-									Calendar calendar = Calendar.getInstance();
-									calendar.setTime(d);
-									StringBuilder sb = new StringBuilder();
-									sb.append(calendar.get(Calendar.YEAR)).append(",");
-									sb.append(calendar.get(Calendar.MONTH) + 1).append(",");
-									sb.append(calendar.get(Calendar.DAY_OF_MONTH)).append("");
-									c.setCellFormula("TEXT(DATE(" + sb.toString() + "),\""+ formatCell.getStringCellValue() + "\")");
+									try {
+										Date d = new SimpleDateFormat(formatCell.getStringCellValue()).parse(contextParams.get(paramName));
+										
+										Calendar calendar = Calendar.getInstance();
+										calendar.setTime(d);
+										StringBuilder sb = new StringBuilder();
+										sb.append(calendar.get(Calendar.YEAR)).append(",");
+										sb.append(calendar.get(Calendar.MONTH) + 1).append(",");
+										sb.append(calendar.get(Calendar.DAY_OF_MONTH)).append("");
+										c.setCellFormula("TEXT(DATE(" + sb.toString() + "),\""+ formatCell.getStringCellValue() + "\")");
+									} catch (Exception e) {
+										throw new REException(e);
+									}
 //									int column = c.getColumnIndex();
 //									settingsSheet.getRow(i).removeCell(c);
 //									c = settingsSheet.getRow(i).createCell(column, Cell.CELL_TYPE_STRING);

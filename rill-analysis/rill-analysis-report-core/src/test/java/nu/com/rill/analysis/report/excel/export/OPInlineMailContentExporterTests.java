@@ -52,7 +52,7 @@ public class OPInlineMailContentExporterTests {
 //		System.setProperty("re.mail.offlineMode", "false");
 		
 		// FIXME: MENGRAN. Where to set?
-		System.setProperty("mail.mime.encodefilename", "true");
+//		System.setProperty("mail.mime.encodefilename", "true");
 		
 	}
 	
@@ -92,13 +92,16 @@ public class OPInlineMailContentExporterTests {
 	@Test
 	public void byMachineOverHttp() {
 		
-		Assert.notNull(ReportEngine.INSTANCE);
-		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
+//		Assert.notNull(ReportEngine.INSTANCE);
+//		contextParams.put(ReportEngine.URL, "jdbc:mysql://db-rigel-dev00.db01.baidu.com:8556/crmdb");
 		
 		try {
-			StringBuilder sb = new StringBuilder("http://localhost:8111/remoting/ViaEmailReportExportService?");
+			// ai-rigel-prd00.ai01.baidu.com
+			StringBuilder sb = new StringBuilder("http://ai-rigel-prd00.ai01.baidu.com:8111/remoting/ViaEmailReportExportService?");
 			
-			sb.append("&aaa=accesscnt-daily-bymachine.xlsx");
+			// 服务器维度日访问量数据表.xlsx
+			// accesscnt-daily-bymachine.xlsx
+			sb.append("&aaa=服务器维度日访问量数据表.xlsx");
 			
 			Map<String, String> mailParams = new HashMap<String, String>();
 			mailParams.put("from", "hahahahhahahh@baidu.com");
@@ -108,9 +111,9 @@ public class OPInlineMailContentExporterTests {
 			
 			System.out.println(sb.toString());
 			
-			String result = ReportEngine.fetchUrl(sb.toString(), new HashMap<String, String>(0));
+//			String result = ReportEngine.fetchUrl(sb.toString(), new HashMap<String, String>(0));
 			
-			System.out.println(result);
+//			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -132,7 +135,7 @@ public class OPInlineMailContentExporterTests {
 		
 		Map<String, String> mailParams = new HashMap<String, String>();
 		mailParams.put("from", "watchdog@baidu.com");
-		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
+//		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
 		service.export("accesscnt-daily-bymachine.xlsx", mailParams, contextParams);
 		
 	}
@@ -151,7 +154,7 @@ public class OPInlineMailContentExporterTests {
 		
 		Map<String, String> mailParams = new HashMap<String, String>();
 		mailParams.put("from", "watchdog@baidu.com");
-		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
+//		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
 		service.export("accesscnt-daily-bystatus.xlsx", mailParams, contextParams);
 		
 	}
@@ -170,7 +173,7 @@ public class OPInlineMailContentExporterTests {
 		
 		Map<String, String> mailParams = new HashMap<String, String>();
 		mailParams.put("from", "watchdog@baidu.com");
-		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
+//		mailParams.put("to", "sfcrm-mon@baidu.com,Rigel-op@baidu.com");
 		service.export("accesscnt-daily-bysecond.xlsx", mailParams, contextParams);
 		
 	}

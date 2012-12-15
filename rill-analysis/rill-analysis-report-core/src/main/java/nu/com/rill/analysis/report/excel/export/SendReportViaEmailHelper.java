@@ -118,6 +118,7 @@ public class SendReportViaEmailHelper {
 		try {
 			htmlExporter.getWb().write(baos);
 			AttachmentWarper att = new AttachmentWarper(attachementName, null, new ByteArrayResource(baos.toByteArray()));
+			LOGGER.debug("Add attachement " + attachementName);
 			attachment.add(att);
 		} catch (IOException e) {
 			LOGGER.warn("Error occurred when try to add attachemet " + htmlExporter.getWorkBookName(), e);
