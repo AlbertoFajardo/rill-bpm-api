@@ -29,13 +29,12 @@ public class ViaEmailReportExportHttpInvokerHandler implements HttpHandler {
 			exchange.getResponseHeaders().set("Content-Type", "text/html;charset=UTF-8");
 			exchange.sendResponseHeaders(200, 0);
 			exchange.getResponseBody().write("OK".getBytes("UTF8"));
+			exchange.getResponseBody().flush();
+			exchange.close();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			exchange.getResponseHeaders().set("Content-Type", "text/html;charset=UTF-8");
 			exchange.sendResponseHeaders(500, -1);
-			exchange.getResponseBody().write(e.getMessage().getBytes("UTF8"));
-		} finally {
-			exchange.getResponseBody().flush();
 		}
 	}
 	
