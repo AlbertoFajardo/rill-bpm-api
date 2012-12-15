@@ -3,6 +3,7 @@ package nu.com.rill.analysis.report.excel.export;
 import java.util.HashMap;
 import java.util.Map;
 
+import nu.com.rill.analysis.report.REException;
 import nu.com.rill.analysis.report.ReportExportService;
 
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
@@ -59,8 +60,7 @@ public class ViaEmailReportExportMain {
 			System.out.println("Send with params " + templateName + " " + ObjectUtils.getDisplayString(mailParams) + " " + ObjectUtils.getDisplayString(contextParams));
 			service.export(templateName, mailParams, contextParams);
 		} catch (Exception e) {
-			e.printStackTrace();
-			// TODO
+			throw new REException(e);
 		}
 
 	}
