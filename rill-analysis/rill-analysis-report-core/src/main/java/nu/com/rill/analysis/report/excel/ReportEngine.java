@@ -279,9 +279,9 @@ public final class ReportEngine {
 		 }
 		 
 		 systemViewPage = systemViewPage.endsWith("?") ? systemViewPage : systemViewPage + "?";
-		 systemViewPage = systemViewPage + "fileName=" + bookName;
 		 
 		 try {
+			 systemViewPage = systemViewPage + "fileName=" + URLEncoder.encode(bookName, "UTF-8");
 			 StringBuilder sb = new StringBuilder();
 			 for(Entry<String, Map<PARAM_CONFIG, String>> entry : params.entrySet()) {
 				 if (entry.getValue().get(PARAM_CONFIG.RENDER_TYPE) != null) {
