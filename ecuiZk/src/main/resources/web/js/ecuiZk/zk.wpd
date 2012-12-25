@@ -58,9 +58,6 @@
 
 	-->
 
-	<!--
-	<script src="ecui-2.0.1-source.js" />
-	-->
 	<script src="custom-checkboxs.js" />
 	<script src="pop.js" />
 	<widget name="Select" />
