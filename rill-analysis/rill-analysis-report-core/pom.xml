@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>nu.com.rill</groupId>
 	<artifactId>rill-analysis-report-core</artifactId>
-	<version>0.1.1</version>
+	<version>0.2.0</version>
 	<name>rill-analysis-report-core</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -20,6 +20,7 @@
 		<zkbind.version>6.0.1</zkbind.version>
 		<zss-r.version>2.4.0-r</zss-r.version>
 		<zss-r1.version>2.4.0-r1</zss-r1.version>
+		<zssex-r.version>2.4.0-r2</zssex-r.version>
 		<spring.framework.version>3.1.0.RELEASE</spring.framework.version>
 		<googlecode.releases.url>svn:https://rill-bpm-api.googlecode.com/svn/maven-repo/releases</googlecode.releases.url>
     	<googlecode.releases.repositoryId>googlecode-repo-releases</googlecode.releases.repositoryId>
@@ -74,7 +75,7 @@
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
 			<artifactId>zssex</artifactId>
-			<version>${zss-r1.version}</version>
+			<version>${zssex-r.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zss</groupId>
