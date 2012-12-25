@@ -7,7 +7,7 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  mons-fileupload-1.2.1.jar commons-httpclient-3.1.jar commons-io-1.3.1
  .jar commons-lang-2.4.jar commons-logging-1.1.jar commons-math-1.2.ja
  r commons-pool-1.6.jar commons-validator-1.3.1.jar commons-vfs-1.0.ja
- r dom4j-1.1.jar draw2d-3.2.100-v20070529.jar ecuiZk-0.1.0.jar eigenba
+ r dom4j-1.1.jar draw2d-3.2.100-v20070529.jar ecuiZk-0.1.1.jar eigenba
  se-properties-1.1.0.10924.jar eigenbase-resgen-1.3.0.13768.jar eigenb
  ase-xom-1.3.0.13768.jar filters-2.0.235.jar freemarker-2.3.8.jar goog
  le-collections-1.0.jar gson-1.4.jar infinispan-cachestore-jdbc-5.1.1.
@@ -41,5 +41,5 @@ Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
  pp3_min-1.1.3.4.O.jar xstream-1.2.2.jar zcommon-5.0.11.jar zcommons-e
  l-1.1.0.jar zhtml-5.0.11.jar zk-5.0.11.jar zkex-5.0.11-r.jar zkplus-5
  .0.11.jar zkspring-core-3.1.jar zpoi-2.4.0-r1.jar zpoiex-2.4.0-r.jar 
- zss-2.4.0-r1.jar zssex-2.4.0-r1.jar zul-5.0.11.jar zweb-5.0.11.jar
+ zss-2.4.0-r1.jar zssex-2.4.0-r2.jar zul-5.0.11.jar zweb-5.0.11.jar
 
