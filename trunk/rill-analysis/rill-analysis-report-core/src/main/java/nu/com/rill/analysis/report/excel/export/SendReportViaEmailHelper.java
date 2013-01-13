@@ -129,6 +129,7 @@ public class SendReportViaEmailHelper {
 		SimpleMailMessage sendUse = new SimpleMailMessage();
 		simpleMailMessage.copyTo(sendUse);
 		
+		LOGGER.info("Send report: " + sendUse);
 		templateMailSender.sendMimeMeesage(sendUse, htmlExporter.getWorkBookName(), model);
 	}
 	

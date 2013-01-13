@@ -84,6 +84,10 @@ public class InlineMailContentMailSender extends FreeMarkerTemplateMailSender im
 									if (div instanceof Div && ((Div) div).getStyle().contains(ConditionalFormattingHelper.HIDDENTEXT4ICONSET)) {
 										int startIndex = ((Div) div).getStyle().indexOf("url('");
 										int endIndex = ((Div) div).getStyle().indexOf(".png", startIndex);
+										if (startIndex < 0 || endIndex < 0) {
+											logger.debug("Do not have png. Continue... " + div.toString());
+											continue;
+										}
 										String url = ((Div) div).getStyle().substring(startIndex + 5, endIndex + 4);
 										Img icon = new Img("", url);
 										for (Entry<String, byte[]> entry : exporter.getImages().entrySet()) {
