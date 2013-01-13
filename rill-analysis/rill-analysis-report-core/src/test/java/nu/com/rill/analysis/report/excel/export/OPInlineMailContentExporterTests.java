@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
 
 public class OPInlineMailContentExporterTests {
 
-	private static final String MODULE_NAME = "crm_tomcat_kt";
+	private static final String MODULE_NAME = "crm_tomcat_pss";
 	private static final String MODULE_TOPN = "50";
 	private static Map<String, String> CN_EN_NAMES = new HashMap<String, String>();
 	private static Map<String, String> MODULE_THRESHOLDS = new HashMap<String, String>();
@@ -94,7 +94,7 @@ public class OPInlineMailContentExporterTests {
 		
 		try {
 			// ai-rigel-prd00.ai01.baidu.com
-			StringBuilder sb = new StringBuilder("http://ai-rigel-prd00.ai01.baidu.com:8111/remoting/ViaEmailReportExportService?");
+			StringBuilder sb = new StringBuilder("http://db-rigel-prd00.db01.baidu.com:8111/remoting/ViaEmailReportExportService?");
 			
 			// 服务器维度日访问量数据表.xlsx
 			// accesscnt-daily-bymachine.xlsx
