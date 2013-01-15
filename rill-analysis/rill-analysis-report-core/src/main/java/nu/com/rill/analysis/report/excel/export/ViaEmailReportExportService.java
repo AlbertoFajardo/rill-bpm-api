@@ -80,13 +80,13 @@ public class ViaEmailReportExportService implements BeanFactoryAware, Initializi
 			ori.setFrom(mailParams.get("from"));
 		}
 		if (mailParams.containsKey("cc")) {
-			ori.setCc(StringUtils.commaDelimitedListToStringArray(mailParams.get("cc")));
+			ori.setCc(StringUtils.delimitedListToStringArray(mailParams.get("cc"), ";"));
 		}
 		if (mailParams.containsKey("bcc")) {
-			ori.setBcc(StringUtils.commaDelimitedListToStringArray(mailParams.get("bcc")));
+			ori.setBcc(StringUtils.delimitedListToStringArray(mailParams.get("bcc"), ";"));
 		}
 		if (mailParams.containsKey("to")) {
-			ori.setTo(StringUtils.commaDelimitedListToStringArray(mailParams.get("to")));
+			ori.setTo(StringUtils.delimitedListToStringArray(mailParams.get("to"), ";"));
 		}
 		if (mailParams.containsKey("subject")) {
 			ori.setSubject(mailParams.get("subject") + ori.getSubject());
