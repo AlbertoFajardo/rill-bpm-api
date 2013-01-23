@@ -380,7 +380,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			return;
 		}
 		
-		paramComponentConstruct(paramDiv, report);
+		boolean hasRenderredParam = paramComponentConstruct(paramDiv, report);
 		
 		// Initialize parameter components
 		paramComponentInit(paramDiv, report, false);
@@ -398,7 +398,12 @@ public class ParamDivCtrl extends GenericForwardComposer {
 //			}
 //		});
 //		paramDiv.appendChild(reset);
-				
+		
+		
+		if (!hasRenderredParam) {
+			paramDiv.setVisible(false);
+			paramDiv.setStyle("display: none");
+		}
 		// Append search button
 		Button search = new Button("查询");
 		search.setClass("ui-button ui-button-g search-class");
@@ -505,7 +510,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		return callBack.action(c);
 	}
 	
-	private void paramComponentConstruct(final Div paramDiv, final Report report) {
+	private boolean paramComponentConstruct(final Div paramDiv, final Report report) {
 		
 		final Div userParamDiv = paramDiv;
 		Div floatParamDiv = new Div();
@@ -544,12 +549,17 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		});
 		floatParamDiv.appendChild(download);
 		
+		boolean hasRenderredParam = false;
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
 			final Entry<String, Map<PARAM_CONFIG, String>> paramEntry = entry;
 			final String paramName = entry.getKey();
 			final Map<PARAM_CONFIG, String> config = entry.getValue();
 			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				continue;
+			}
+			
+			if (StringUtils.hasLength(config.get(PARAM_CONFIG.RENDER_TYPE)) && !"provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				hasRenderredParam = true;
 			}
 			
 			if ("input".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
@@ -705,6 +715,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 		
 		}
+		
+		return hasRenderredParam;
 		
 	}
 	
