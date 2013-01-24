@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?page id="p1" title="Report View Page"?>
 <?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
-<?script type="text/javascript" src="ecui-2.0.1-source.js"?>
+<?script type="text/javascript" src="ecui-2.0.1.js"?>
 <zk xmlns:h="native">
 	
 	<style>
@@ -17,8 +17,7 @@
 	    	font-size: 14px;
 	    	vertical-align:middle;
 	    }
-	    .paramDiv-class {
-	    	background-color: #F7F7F7; padding: 5px; 
+	    .paramDiv-class { 
 	    	position: relative;	
 	    	font-size: 12px;
 	    	zoom: 1;

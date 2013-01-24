@@ -376,7 +376,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			return;
 		}
 		
-		paramComponentConstruct(paramDiv, report);
+		boolean hasRenderredParam = paramComponentConstruct(paramDiv, report);
 		
 		// Initialize parameter components
 		paramComponentInit(paramDiv, report, false);
@@ -394,7 +394,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 //			}
 //		});
 //		paramDiv.appendChild(reset);
-				
+		
 		// Append search button
 		Button search = new Button("查询");
 		search.setClass("ui-button ui-button-g search-class");
@@ -426,7 +426,13 @@ public class ParamDivCtrl extends GenericForwardComposer {
 				app.setReport(report);
 			}
 		});
+		search.setVisible(false);
 		paramDiv.appendChild(search);
+		
+		if (hasRenderredParam) {
+			search.setVisible(true);
+			paramDiv.setStyle("background-color: #F7F7F7; padding: 5px;");
+		}
 		
 		paramDiv.setClass("paramDiv-class");
 		
@@ -493,7 +499,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		return callBack.action(c);
 	}
 	
-	private void paramComponentConstruct(final Div paramDiv, final Report report) {
+	private boolean paramComponentConstruct(final Div paramDiv, final Report report) {
 		
 		final Div userParamDiv = paramDiv;
 		Div floatParamDiv = new Div();
@@ -532,6 +538,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		});
 		floatParamDiv.appendChild(download);
 		
+		boolean hasRenderredParam = false;
 		for (Entry<String, Map<PARAM_CONFIG, String>> entry : report.getParams().entrySet()) {
 			final Entry<String, Map<PARAM_CONFIG, String>> paramEntry = entry;
 			final String paramName = entry.getKey();
@@ -539,7 +546,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
 				continue;
 			}
-
+			
+			if (StringUtils.hasLength(config.get(PARAM_CONFIG.RENDER_TYPE)) && !"provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				hasRenderredParam = true;
+			}
+			
 			if ("provided".equals(config.get(PARAM_CONFIG.RENDER_TYPE))) {
 				Input input = new Input();
 				input.setId(config.get(PARAM_CONFIG.NAME));
@@ -665,6 +676,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 		
 		}
+		
+		return hasRenderredParam;
 		
 	}
 	
