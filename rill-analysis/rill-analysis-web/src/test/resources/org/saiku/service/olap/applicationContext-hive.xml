@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:hdp="http://www.springframework.org/schema/hadoop"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+
+
+	<context:property-placeholder location="org/saiku/service/olap/hadoop.properties"/>
+	
+	<!-- 
+	<hdp:configuration>
+		hadoop.job.ugi=${job.ugi}
+		fs.default.name=${hd.fs}
+		mapred.job.tracker=${mapred.job.tracker}
+	</hdp:configuration>
+	 -->
+
+	<!-- hive integration -->
+	<!-- 
+	<hdp:hive-server />
+	 -->
+	<hdp:hive-client  host="10.23.245.26" port="8888"/>
+	
+	<!-- basic Hive driver bean -->
+    <bean id="hive-driver" class="nu.com.rill.analysis.data.hive.HiveDriver"/>
+
+    
+    
+</beans>
