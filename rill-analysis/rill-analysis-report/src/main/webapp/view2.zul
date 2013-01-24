@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?page id="p1" title="Report View Page"?>
-<?link rel="stylesheet" type="text/css" href="~./zssapp/html/zssapp.css.dsp?v=${desktop.webApp.build}"?>
 <?script type="text/javascript" src="ecui-2.0.1.js"?>
 <zk xmlns:h="native">
 	
