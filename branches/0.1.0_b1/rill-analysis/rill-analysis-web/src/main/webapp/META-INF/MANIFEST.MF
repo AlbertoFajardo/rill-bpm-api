@@ -1,0 +1,56 @@
+Manifest-Version: 1.0
+Class-Path: activation-1.1.jar activiti-engine-5.7.jar activiti-spring
+ -5.7.jar aopalliance-1.0.jar asm-3.1.jar bcmail-jdk14-1.38.jar bcprov
+ -jdk14-1.38.jar bctsp-jdk14-1.38.jar bsh-2.0b4.jar c3p0-0.9.1.2.jar c
+ glib-2.2.jar cglib-nodep-2.1_3.jar commons-codec-1.2.jar commons-coll
+ ections-3.1.jar commons-dbcp-1.2.2.jar commons-digester-1.7.jar commo
+ ns-discovery-0.2.jar commons-email-1.2.jar commons-fileupload-1.2.1.j
+ ar commons-httpclient-3.1.jar commons-io-1.4.jar commons-io-1.3.2.jar
+  commons-lang-2.4.jar commons-logging-1.0.4.jar commons-math-1.1.jar 
+ commons-pool-1.4.jar commons-vfs-1.0.jar dom4j-1.6.1.jar draw2d-3.2.1
+ 00-v20070529.jar eigenbase-properties-1.1.0.10924.jar eigenbase-resge
+ n-1.3.0.11873.jar eigenbase-xom-1.3.0.11999.jar enunciate-core-annota
+ tions-1.23.jar enunciate-core-rt-1.23.jar enunciate-jaxws-ri-rt-1.23.
+ jar enunciate-jersey-rt-1.23.jar enunciate-rt-1.23.jar enunciate-spri
+ ng-jaxws-rt-1.23.jar enunciate-spring3-app-rt-1.23.jar filters-2.0.23
+ 5.jar freemarker-2.3.8.jar hsqldb-1.8.0.10.jar httpclient-4.1.1.jar h
+ ttpcore-4.1.jar infinispan-cachestore-jdbc-5.1.1.FINAL.jar infinispan
+ -core-5.1.1.FINAL.jar infinispan-spring-5.1.1.FINAL.jar itext-2.1.7.j
+ ar jackson-core-asl-1.7.4.jar jackson-jaxrs-1.7.4.jar jackson-mapper-
+ asl-1.7.4.jar jackson-xc-1.7.4.jar jasperreports-4.0.1.jar java-uuid-
+ generator-3.1.3.jar javacc-5.0.jar javacup-10k.jar jaxb-api-2.1.jar j
+ axb-impl-2.1.13.jar jaxws-api-2.1.jar jaxws-rt-2.1.7.jar jaxws-spring
+ -1.8.jar jboss-logging-3.1.0.CR2.jar jboss-marshalling-1.3.6.GA.jar j
+ boss-marshalling-river-1.3.6.GA.jar jboss-transaction-api-1.0.1.GA.ja
+ r jcommon-1.0.16.jar jdom-1.1.jar jersey-client-1.8.jar jersey-core-1
+ .8.jar jersey-json-1.8.jar jersey-server-1.8.jar jersey-spring-1.5.ja
+ r jettison-1.2.jar jfreechart-1.0.13.jar jgroups-3.0.4.Final.jar jlfg
+ r-1.0.jar jsr181-api-1.0-MR1.jar jsr250-api-1.0.jar jsr311-api-1.1.1.
+ jar jstl-1.2.jar jxl-2.6.10.jar log4j-1.2.14.jar mail-1.4.1.jar mimep
+ ull-1.3.jar mondrian-3.4.4.jar mybatis-3.0.4.jar mysql-connector-java
+ -5.1.18.jar olap4j-1.0.1.500.jar olap4j-xmla-1.0.1.500.jar ooxml-sche
+ mas-1.1.jar quartz-1.5.2.jar resolver-20050927.jar rhq-pluginAnnotati
+ ons-3.0.4.jar rill-analysis-mondrian-0.0.1-SNAPSHOT.jar rill-analysis
+ -report-core-0.0.1-SNAPSHOT.jar rill-bpm-api-1.0.2.jar saaj-api-1.3.j
+ ar saaj-impl-1.3.3.jar saiku-service-2.3.jar saiku-web-2.3.jar servle
+ t-api-2.4.jar slf4j-api-1.6.1.jar slf4j-log4j12-1.6.1.jar spring-aop-
+ 3.0.0.RC3.jar spring-asm-3.1.0.RELEASE.jar spring-beans-3.1.0.RELEASE
+ .jar spring-context-3.1.0.RELEASE.jar spring-context-support-3.1.0.RE
+ LEASE.jar spring-core-3.1.0.RELEASE.jar spring-expression-3.1.0.RELEA
+ SE.jar spring-jdbc-3.1.0.RELEASE.jar spring-ldap-core-1.3.1.RELEASE.j
+ ar spring-orm-3.1.0.RELEASE.jar spring-security-acl-3.1.0.RELEASE.jar
+  spring-security-config-3.1.0.RELEASE.jar spring-security-core-3.1.0.
+ RELEASE.jar spring-security-core-tiger-2.0.6.RELEASE.jar spring-secur
+ ity-crypto-3.1.0.RELEASE.jar spring-security-ldap-3.1.0.RELEASE.jar s
+ pring-security-oauth-1.0.0.M4.jar spring-security-taglibs-3.1.0.RELEA
+ SE.jar spring-security-web-3.1.0.RC3.jar spring-test-3.1.0.RELEASE.ja
+ r spring-tx-3.1.0.RELEASE.jar spring-web-3.0.2.RELEASE.jar spring-web
+ mvc-3.0.2.RELEASE.jar stax-api-1.0-2.jar stax-api-1.0.1.jar stax-ex-1
+ .2.jar stax2-api-3.1.1.jar staxmapper-1.0.0.Final.jar streambuffer-0.
+ 9.jar swt-3.3.0-v3346.jar validation-api-1.0.0.GA.jar woodstox-core-a
+ sl-4.1.1.jar xalan-2.4.1.jar xbean-spring-2.7.jar xercesImpl-2.6.0.ja
+ r xmlbeans-2.3.0.jar xpp3_min-1.1.3.4.O.jar xstream-1.2.2.jar zcommon
+ -5.0.11.jar zcommons-el-1.1.0.jar zhtml-5.0.11.jar zk-5.0.11.jar zkex
+ -5.0.11-r.jar zkplus-5.0.11.jar zpoi-2.4.0-r.jar zpoiex-2.4.0-r.jar z
+ ss-2.4.0-r.jar zssex-2.4.0-r.jar zul-5.0.11.jar zweb-5.0.11.jar
+

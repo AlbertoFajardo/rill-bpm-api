@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:cache="http://www.springframework.org/schema/cache" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd"
+	default-autowire="byName">
+	
+	<import resource="ReportEngine-properties.xml"/>
+	
+	<!-- HTTP Client -->
+    <bean id="connectionManagerParams"
+		class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
+		<property name="connectionTimeout" value="${re.httpCon.connectionTimeout}" />
+		<property name="soTimeout" value="${re.httpCon.soTimeout}" />
+		<property name="maxTotalConnections" value="${re.httpCon.maxTotalConnections}" />
+		<property name="defaultMaxConnectionsPerHost" value="${re.httpCon.defaultMaxConnectionsPerHost}" />
+	</bean>
+
+	<bean id="connectionManager"
+		class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager">
+		<property name="params" ref="connectionManagerParams" />
+	</bean>
+
+	<bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
+		<constructor-arg>
+			<ref bean="connectionManager" />
+		</constructor-arg>
+	</bean>
+	<!-- HTTP Client -->
+	
+	<bean id="mdxDataRetriever" class="nu.com.rill.analysis.report.excel.data.MdxDataRetriever">
+	</bean>
+
+	<bean id="jsonDataRetriever"
+		class="nu.com.rill.analysis.report.excel.data.JsonDataRetriever">
+	</bean>
+	
+	<bean id="jdbcDataRetriever" class="nu.com.rill.analysis.report.excel.data.JdbcDataRetriever">
+		<property name="dbcpProperties">
+			<props>
+				<prop key="driverClassName">${re.jdbcData.driverClassName}</prop>
+				<prop key="initialSize">${re.jdbcData.initialSize}</prop>
+				<prop key="maxIdle">${re.jdbcData.maxIdle}</prop>
+				<prop key="minIdle">${re.jdbcData.minIdle}</prop>
+				<prop key="testOnBorrow">${re.jdbcData.testOnBorrow}</prop>
+				<prop key="removeAbandoned">${re.jdbcData.removeAbandoned}</prop>
+				<prop key="removeAbandonedTimeout">${re.jdbcData.removeAbandonedTimeout}</prop>
+				<prop key="minEvictableIdleTimeMillis">${re.jdbcData.minEvictableIdleTimeMillis}</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="bookChartDecorator"
+		class="nu.com.rill.analysis.report.excel.chart.BookChartDecorator">
+	</bean>
+	
+	<bean id="pivotTableDecorator"
+		class="nu.com.rill.analysis.report.excel.pivottable.BookPivottableDecorator">
+	</bean>
+	
+	<bean id="tableDecorator"
+		class="nu.com.rill.analysis.report.excel.table.TableDecorator">
+	</bean>
+
+</beans>
