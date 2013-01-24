@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-addmoney_v2" name="Pg-support-addmoney_v2">
+    <documentation>Place documentation for the 'Pg-support-addmoney_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="add_money" name="确认加款" activiti:candidateGroups="ht_support_fgscwb_addmoney" activiti:formKey="finance/addMoneyInitNew.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>308</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=129,status=19</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>addMoneyRejectInterceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="add_money"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow5"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="" sourceRef="add_money" targetRef="exclusivegateway1"></sequenceFlow>
+    <userTask id="add_money_reject_for_account_error" name="加款驳回修改用户名用户ID" activiti:candidateGroups="ht_support_fgsywzc_openaccount"></userTask>
+    <sequenceFlow id="flow3" name="驳回修改用户名用户ID" sourceRef="exclusivegateway1" targetRef="add_money_reject_for_account_error">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${add_money_reject_reason==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow4" name="" sourceRef="add_money_reject_for_account_error" targetRef="exclusivegateway1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="flow8"></exclusiveGateway>
+    <sequenceFlow id="flow5" name="" sourceRef="exclusivegateway1" targetRef="exclusivegateway2"></sequenceFlow>
+    <userTask id="confirm_openacc_reject_mod_favrate" name="确认加款驳回支持助理修改优惠" activiti:candidateGroups="ht_support_assistanter_and_helper" activiti:formKey="finance/addMoneyRejectModFavrateInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>453</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=164</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow6" name="驳回-修改比率" sourceRef="exclusivegateway2" targetRef="confirm_openacc_reject_mod_favrate">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${add_money_reject_reason==0}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="addMoneyReject_financeInfoError" name="加款驳回财务信息修改" activiti:candidateGroups="ht_support_fgscwb_financemod_commissioner" activiti:formKey="finance/addMoneyRejectModFinanceInfoInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>445</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=173</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>addMoneyRejectModFinanceInfoInterceptor</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" name="驳回-修改财务信息" sourceRef="exclusivegateway2" targetRef="addMoneyReject_financeInfoError">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${add_money_reject_reason==2}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="add_money_audit" name="加款审核" default="flow39" activiti:candidateGroups="ht_support_fgscwb_addmoney_auditor" activiti:formKey="finance/addMoneyAuditInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>326</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=122</activiti:string>
+          </activiti:field>
+          <activiti:field name="post_status">
+            <activiti:string>status=99,financeStatus=123</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow8" name="" sourceRef="exclusivegateway2" targetRef="add_money_audit"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway" default="flow20"></exclusiveGateway>
+    <sequenceFlow id="flow9" name="" sourceRef="confirm_openacc_reject_mod_favrate" targetRef="exclusivegateway3"></sequenceFlow>
+    <userTask id="general_manager_audit_mod_favrate" name="分公司总经理审核优惠" default="flow14" activiti:candidateGroups="ht_support_khfzb_general_manager" activiti:formKey="finance/managerAuditAddMoneyRejectModFavrateInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>457</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=168</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>addMoneyRejectManagerAuditModFavSumTLI</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="director_audit_mod_favrate" name="总监审核优惠" default="flow13" activiti:candidateGroups="ht_support_khfzb_director" activiti:formKey="finance/managerAuditAddMoneyRejectModFavrateInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>456</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=167</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>addMoneyRejectManagerAuditModFavSumTLI</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="senior_manager_audit_mod_favrate" name="高级经理审核优惠" default="flow12" activiti:candidateGroups="ht_support_khfzb_senior_manager" activiti:formKey="finance/managerAuditAddMoneyRejectModFavrateInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>455</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=166</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>addMoneyRejectManagerAuditModFavSumTLI</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="front_manager_audit_mod_favrate" name="一线经理审核优惠" default="flow11" activiti:candidateGroups="ht_support_khfzb_manager">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=165</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>454</activiti:string>
+          </activiti:field>
+          <activiti:field name="task_lifecycle_interceptor">
+            <activiti:string>addMoneyRejectManagerAuditModFavSumTLI</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow10" name="需审核" sourceRef="exclusivegateway3" targetRef="front_manager_audit_mod_favrate">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${fav_rate_changed_and_notzero==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow11" name="" sourceRef="front_manager_audit_mod_favrate" targetRef="senior_manager_audit_mod_favrate"></sequenceFlow>
+    <sequenceFlow id="flow12" name="" sourceRef="senior_manager_audit_mod_favrate" targetRef="director_audit_mod_favrate"></sequenceFlow>
+    <sequenceFlow id="flow13" name="" sourceRef="director_audit_mod_favrate" targetRef="general_manager_audit_mod_favrate"></sequenceFlow>
+    <sequenceFlow id="flow14" name="" sourceRef="general_manager_audit_mod_favrate" targetRef="add_money"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow15" name="驳回" sourceRef="front_manager_audit_mod_favrate" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow16" name="驳回" sourceRef="senior_manager_audit_mod_favrate" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow17" name="驳回" sourceRef="director_audit_mod_favrate" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow18" name="驳回" sourceRef="general_manager_audit_mod_favrate" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow19" name="" sourceRef="exclusivegateway4" targetRef="confirm_openacc_reject_mod_favrate"></sequenceFlow>
+    <sequenceFlow id="flow20" name="" sourceRef="exclusivegateway3" targetRef="add_money"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway" default="flow23"></exclusiveGateway>
+    <sequenceFlow id="flow21" name="" sourceRef="addMoneyReject_financeInfoError" targetRef="exclusivegateway5"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow23" name="" sourceRef="exclusivegateway5" targetRef="exclusivegateway6"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow24" name="无变化" sourceRef="exclusivegateway5" targetRef="exclusivegateway7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${change==false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow25" name="" sourceRef="exclusivegateway7" targetRef="add_money"></sequenceFlow>
+    <userTask id="addMoney_modify_tilte_bjmanager_approve" name="分公司经理审核发票抬头" default="flow36" activiti:candidateGroups="ht_support_khfzb_general_manager" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>459</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=150</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="addMoney_modify_tilte_zongjian_approve" name="总监审核发票抬头" default="flow29" activiti:candidateGroups="ht_support_khfzb_director" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>459</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=148</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="addMoney_modify_tilte_gaojijingli_approve" name="高级经理审核发票抬头" default="flow28" activiti:candidateGroups="ht_support_khfzb_senior_manager" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>459</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=146</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="addMoney_modify_tilte_jingli_approve" name="一线经理审核发票抬头" default="flow27" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=144</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>459</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="addMoneyReject_financeInfoError_receipttype" name="加款驳回财务信息修改" activiti:candidateGroups="ht_support_fgscwb_financemod_commissioner" activiti:formKey="finance/addMoneyRejectModFinanceInfoInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="event">
+            <activiti:string>445</activiti:string>
+          </activiti:field>
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=173</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow26" name="发票抬头不一致" sourceRef="exclusivegateway6" targetRef="addMoney_modify_tilte_jingli_approve">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${addMoneyRejectMod_receiptTitle_comName_same_no==true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow27" name="" sourceRef="addMoney_modify_tilte_jingli_approve" targetRef="addMoney_modify_tilte_gaojijingli_approve"></sequenceFlow>
+    <sequenceFlow id="flow28" name="" sourceRef="addMoney_modify_tilte_gaojijingli_approve" targetRef="addMoney_modify_tilte_zongjian_approve"></sequenceFlow>
+    <sequenceFlow id="flow29" name="" sourceRef="addMoney_modify_tilte_zongjian_approve" targetRef="addMoney_modify_tilte_bjmanager_approve"></sequenceFlow>
+    <sequenceFlow id="flow31" name="驳回" sourceRef="addMoney_modify_tilte_jingli_approve" targetRef="addMoneyReject_financeInfoError_receipttype">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow32" name="驳回" sourceRef="addMoney_modify_tilte_gaojijingli_approve" targetRef="addMoneyReject_financeInfoError_receipttype">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow33" name="驳回" sourceRef="addMoney_modify_tilte_zongjian_approve" targetRef="addMoneyReject_financeInfoError_receipttype">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow34" name="驳回" sourceRef="addMoney_modify_tilte_bjmanager_approve" targetRef="addMoneyReject_financeInfoError_receipttype">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow35" name="" sourceRef="addMoneyReject_financeInfoError_receipttype" targetRef="exclusivegateway6"></sequenceFlow>
+    <userTask id="addMoney_modify_tilte_caiwu_approve" name="财务经理审核发票抬头" default="flow37" activiti:candidateGroups="ht_support_fgscwb_manager" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=152</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>459</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow36" name="" sourceRef="addMoney_modify_tilte_bjmanager_approve" targetRef="addMoney_modify_tilte_caiwu_approve"></sequenceFlow>
+    <sequenceFlow id="flow37" name="" sourceRef="addMoney_modify_tilte_caiwu_approve" targetRef="exclusivegateway7"></sequenceFlow>
+    <sequenceFlow id="flow38" name="驳回" sourceRef="addMoney_modify_tilte_caiwu_approve" targetRef="addMoneyReject_financeInfoError_receipttype">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow39" name="" sourceRef="add_money_audit" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow40" name="驳回" sourceRef="add_money_audit" targetRef="add_money">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="addMoney_modify_payname_jingli_approve" name="一线经理审核付款方名称" default="flow43" activiti:candidateGroups="ht_support_khfzb_manager" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=111</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>460</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow41" name="付款方名称不一致" sourceRef="exclusivegateway6" targetRef="addMoney_modify_payname_jingli_approve">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${addMoneyRejectMod_payname_comName_same_no==true}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="addMoneyReject_financeInfoError_payname" name="加款驳回财务信息修改" activiti:candidateGroups="ht_support_fgscwb_financemod_commissioner" activiti:formKey="finance/addMoneyRejectModFinanceInfoInit.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=173</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>445</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow42" name="驳回" sourceRef="addMoney_modify_payname_jingli_approve" targetRef="addMoneyReject_financeInfoError_payname">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="addMoney_modify_payname_gaojijingli_approve" name="高级经理审核付款方名称" default="flow46" activiti:candidateGroups="ht_support_khfzb_senior_manager" activiti:formKey="finance/modTileOfInvoiceApprove.action">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.rill.bpm.api.activiti.ExtendAttrsClassDelegateAdapter">
+          <activiti:field name="init_status">
+            <activiti:string>financeStatus=112</activiti:string>
+          </activiti:field>
+          <activiti:field name="event">
+            <activiti:string>460</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow43" name="" sourceRef="addMoney_modify_payname_jingli_approve" targetRef="addMoney_modify_payname_gaojijingli_approve"></sequenceFlow>
+    <sequenceFlow id="flow44" name="驳回" sourceRef="addMoney_modify_payname_gaojijingli_approve" targetRef="addMoneyReject_financeInfoError_payname">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${__orderAudit_auditAction==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow45" name="" sourceRef="addMoneyReject_financeInfoError_payname" targetRef="addMoney_modify_payname_jingli_approve"></sequenceFlow>
+    <sequenceFlow id="flow46" name="" sourceRef="addMoney_modify_payname_gaojijingli_approve" targetRef="exclusivegateway7"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-addmoney_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-addmoney_v2" id="BPMNPlane_Pg-support-addmoney_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="50" y="50"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="add_money" id="BPMNShape_add_money">
+        <omgdc:Bounds height="55" width="105" x="15" y="115"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="47" y="240"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="add_money_reject_for_account_error" id="BPMNShape_add_money_reject_for_account_error">
+        <omgdc:Bounds height="55" width="105" x="15" y="330"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="170" y="240"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="confirm_openacc_reject_mod_favrate" id="BPMNShape_confirm_openacc_reject_mod_favrate">
+        <omgdc:Bounds height="55" width="105" x="138" y="87"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoneyReject_financeInfoError" id="BPMNShape_addMoneyReject_financeInfoError">
+        <omgdc:Bounds height="55" width="105" x="138" y="390"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="add_money_audit" id="BPMNShape_add_money_audit">
+        <omgdc:Bounds height="55" width="105" x="470" y="233"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40" width="40" x="302" y="169"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="general_manager_audit_mod_favrate" id="BPMNShape_general_manager_audit_mod_favrate">
+        <omgdc:Bounds height="55" width="105" x="138" y="0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="director_audit_mod_favrate" id="BPMNShape_director_audit_mod_favrate">
+        <omgdc:Bounds height="55" width="105" x="276" y="0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="senior_manager_audit_mod_favrate" id="BPMNShape_senior_manager_audit_mod_favrate">
+        <omgdc:Bounds height="55" width="105" x="440" y="0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="front_manager_audit_mod_favrate" id="BPMNShape_front_manager_audit_mod_favrate">
+        <omgdc:Bounds height="55" width="105" x="440" y="77"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40" width="40" x="302" y="84"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40" width="40" x="302" y="397"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40" width="40" x="380" y="397"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
+        <omgdc:Bounds height="40" width="40" x="119" y="303"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_tilte_bjmanager_approve" id="BPMNShape_addMoney_modify_tilte_bjmanager_approve">
+        <omgdc:Bounds height="55" width="105" x="342" y="296"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_tilte_zongjian_approve" id="BPMNShape_addMoney_modify_tilte_zongjian_approve">
+        <omgdc:Bounds height="55" width="105" x="470" y="296"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_tilte_gaojijingli_approve" id="BPMNShape_addMoney_modify_tilte_gaojijingli_approve">
+        <omgdc:Bounds height="55" width="105" x="590" y="296"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_tilte_jingli_approve" id="BPMNShape_addMoney_modify_tilte_jingli_approve">
+        <omgdc:Bounds height="55" width="105" x="710" y="296"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoneyReject_financeInfoError_receipttype" id="BPMNShape_addMoneyReject_financeInfoError_receipttype">
+        <omgdc:Bounds height="55" width="105" x="540" y="390"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_tilte_caiwu_approve" id="BPMNShape_addMoney_modify_tilte_caiwu_approve">
+        <omgdc:Bounds height="55" width="105" x="224" y="296"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="716" y="243"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_payname_jingli_approve" id="BPMNShape_addMoney_modify_payname_jingli_approve">
+        <omgdc:Bounds height="55" width="105" x="348" y="510"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoneyReject_financeInfoError_payname" id="BPMNShape_addMoneyReject_financeInfoError_payname">
+        <omgdc:Bounds height="55" width="105" x="200" y="510"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="addMoney_modify_payname_gaojijingli_approve" id="BPMNShape_addMoney_modify_payname_gaojijingli_approve">
+        <omgdc:Bounds height="55" width="105" x="50" y="510"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="67" y="85"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="115"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="67" y="170"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="240"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="67" y="280"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="330"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="120" y="357"></omgdi:waypoint>
+        <omgdi:waypoint x="123" y="297"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="280"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="87" y="260"></omgdi:waypoint>
+        <omgdi:waypoint x="170" y="260"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="190" y="240"></omgdi:waypoint>
+        <omgdi:waypoint x="190" y="142"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="190" y="280"></omgdi:waypoint>
+        <omgdi:waypoint x="190" y="390"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="210" y="260"></omgdi:waypoint>
+        <omgdi:waypoint x="470" y="260"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="190" y="142"></omgdi:waypoint>
+        <omgdi:waypoint x="302" y="189"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="322" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="492" y="132"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="545" y="104"></omgdi:waypoint>
+        <omgdi:waypoint x="492" y="55"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="440" y="27"></omgdi:waypoint>
+        <omgdi:waypoint x="381" y="27"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="276" y="27"></omgdi:waypoint>
+        <omgdi:waypoint x="243" y="27"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="190" y="55"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="115"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="440" y="104"></omgdi:waypoint>
+        <omgdi:waypoint x="322" y="84"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="492" y="55"></omgdi:waypoint>
+        <omgdi:waypoint x="322" y="84"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="328" y="55"></omgdi:waypoint>
+        <omgdi:waypoint x="322" y="84"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="190" y="55"></omgdi:waypoint>
+        <omgdi:waypoint x="322" y="84"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="302" y="104"></omgdi:waypoint>
+        <omgdi:waypoint x="243" y="114"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="322" y="169"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="170"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="243" y="417"></omgdi:waypoint>
+        <omgdi:waypoint x="302" y="417"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="342" y="417"></omgdi:waypoint>
+        <omgdi:waypoint x="400" y="437"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="322" y="397"></omgdi:waypoint>
+        <omgdi:waypoint x="139" y="343"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="119" y="323"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="170"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="400" y="437"></omgdi:waypoint>
+        <omgdi:waypoint x="636" y="491"></omgdi:waypoint>
+        <omgdi:waypoint x="762" y="351"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="710" y="323"></omgdi:waypoint>
+        <omgdi:waypoint x="695" y="323"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
+        <omgdi:waypoint x="590" y="323"></omgdi:waypoint>
+        <omgdi:waypoint x="575" y="323"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="470" y="323"></omgdi:waypoint>
+        <omgdi:waypoint x="447" y="323"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="762" y="351"></omgdi:waypoint>
+        <omgdi:waypoint x="645" y="417"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
+        <omgdi:waypoint x="642" y="351"></omgdi:waypoint>
+        <omgdi:waypoint x="645" y="417"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="522" y="351"></omgdi:waypoint>
+        <omgdi:waypoint x="540" y="417"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="394" y="351"></omgdi:waypoint>
+        <omgdi:waypoint x="540" y="417"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="540" y="417"></omgdi:waypoint>
+        <omgdi:waypoint x="400" y="397"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="342" y="323"></omgdi:waypoint>
+        <omgdi:waypoint x="329" y="323"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="224" y="323"></omgdi:waypoint>
+        <omgdi:waypoint x="139" y="303"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="276" y="351"></omgdi:waypoint>
+        <omgdi:waypoint x="540" y="417"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="575" y="260"></omgdi:waypoint>
+        <omgdi:waypoint x="716" y="260"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="470" y="260"></omgdi:waypoint>
+        <omgdi:waypoint x="225" y="225"></omgdi:waypoint>
+        <omgdi:waypoint x="67" y="170"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="400" y="437"></omgdi:waypoint>
+        <omgdi:waypoint x="400" y="510"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
+        <omgdi:waypoint x="348" y="537"></omgdi:waypoint>
+        <omgdi:waypoint x="305" y="537"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="348" y="537"></omgdi:waypoint>
+        <omgdi:waypoint x="246" y="462"></omgdi:waypoint>
+        <omgdi:waypoint x="155" y="537"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="155" y="537"></omgdi:waypoint>
+        <omgdi:waypoint x="200" y="537"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="305" y="537"></omgdi:waypoint>
+        <omgdi:waypoint x="327" y="596"></omgdi:waypoint>
+        <omgdi:waypoint x="400" y="565"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow46" id="BPMNEdge_flow46">
+        <omgdi:waypoint x="155" y="537"></omgdi:waypoint>
+        <omgdi:waypoint x="139" y="343"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

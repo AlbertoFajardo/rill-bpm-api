@@ -1,0 +1,6 @@
+<zk>
+	<window title="Hello World!!" border="normal" width="600px"
+		apply="test.ctrl.PopSelectComposer">
+		<popSelect id="myComp" />
+	</window>
+</zk>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Pg-support-openAccountAudit-trade_v2" name="Pg-support-openAccountAudit-trade_v2">
+    <documentation>Place documentation for the 'Pg-support-openAccountAudit-trade_v2' process here.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <callActivity id="callactivity1" name="优惠财务流程" calledElement="Pg-support-promotionsExpires-finance_v2">
+      <extensionElements>
+        <activiti:in source="need_confirm_activity" target="need_confirm_activity"></activiti:in>
+        <activiti:in source="change_fav" target="change_fav"></activiti:in>
+        <activiti:out source="need_new_contract" target="need_new_contract"></activiti:out>
+        <activiti:out source="finance_info_ok" target="finance_info_ok"></activiti:out>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="flow1" name="" sourceRef="startevent1" targetRef="callactivity1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow5"></exclusiveGateway>
+    <sequenceFlow id="flow2" name="" sourceRef="callactivity1" targetRef="exclusivegateway1"></sequenceFlow>
+    <callActivity id="callactivity2" name="优惠财务流程" calledElement="Pg-support-promotionsExpires-contract_v2"></callActivity>
+    <sequenceFlow id="flow3" name="重新发合同" sourceRef="exclusivegateway1" targetRef="callactivity2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${need_new_contract==true}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow4" name="" sourceRef="callactivity2" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow5" name="" sourceRef="exclusivegateway1" targetRef="exclusivegateway2"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow6" name="" sourceRef="exclusivegateway2" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Pg-support-openAccountAudit-trade_v2">
+    <bpmndi:BPMNPlane bpmnElement="Pg-support-openAccountAudit-trade_v2" id="BPMNPlane_Pg-support-openAccountAudit-trade_v2">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35" width="35" x="70" y="160"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
+        <omgdc:Bounds height="55" width="105" x="210" y="150"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40" width="40" x="390" y="157"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity2" id="BPMNShape_callactivity2">
+        <omgdc:Bounds height="55" width="105" x="510" y="150"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40" width="40" x="542" y="260"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35" width="35" x="545" y="360"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="105" y="177"></omgdi:waypoint>
+        <omgdi:waypoint x="210" y="177"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="315" y="177"></omgdi:waypoint>
+        <omgdi:waypoint x="390" y="177"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="430" y="177"></omgdi:waypoint>
+        <omgdi:waypoint x="510" y="177"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="562" y="205"></omgdi:waypoint>
+        <omgdi:waypoint x="562" y="260"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="410" y="197"></omgdi:waypoint>
+        <omgdi:waypoint x="562" y="260"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="562" y="300"></omgdi:waypoint>
+        <omgdi:waypoint x="562" y="360"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

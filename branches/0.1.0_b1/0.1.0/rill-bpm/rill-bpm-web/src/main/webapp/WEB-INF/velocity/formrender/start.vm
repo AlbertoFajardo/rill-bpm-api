@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Solutions 
+Description: A two-column, fixed-width design for 1024x768 screen resolutions.
+Version    : 1.0
+Released   : 20091102
+
+-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>rill-bpm-web - start process form</title>
+<meta name="keywords" content="BPM" />
+<meta name="description" content="rill-bpm-web" />
+<link type="text/css" href="#springUrl("")/css/solutions/style.css" rel="stylesheet" />
+<link type="text/css" href="#springUrl("")/css/flick/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<link type="text/css" href="#springUrl("")/css/validation/screen.css" rel="stylesheet" />
+<style type="text/css">
+	#startForm-submit {padding: .4em 1em .4em 20px;text-decoration: none;position: relative;}
+	#startForm-submit span.ui-icon {margin: 0 5px 0 0;position: absolute;left: .2em;top: 50%;margin-top: -8px;}
+</style>
+
+<script type="text/javascript" src="#springUrl("")/js/rill.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="#springUrl("")/js/validation/jquery.validate.min.js"></script>
+
+<script type="text/javascript">
+
+// Document ready
+$(document).ready(function() {
+	// alert("Hello jQuery");
+	
+	$("#dialog").hide();
+	
+	//hover states on the static widgets
+	$('#startForm-submit, ul#icons li').hover(
+		function() { $(this).addClass('ui-state-hover'); }, 
+		function() { $(this).removeClass('ui-state-hover'); }
+	);
+	
+	// highlight 
+	var elements = $("input[type!='submit'], textarea, select");
+	elements.focus(function(){
+		$(this).parents('li').addClass('highlight');
+	});
+	elements.blur(function(){
+		$(this).parents('li').removeClass('highlight');
+	});
+	
+	$("#startForm").validate();
+	
+	$('input.datepicker').datepicker();
+	
+	
+});
+
+// Start submit call method
+function afterStart(processInstanceId, message) {
+	
+	var message = processInstanceId < 0 ? "<div>启动失败[" + message + "]</div>" : "<div>启动成功[" + processInstanceId + "]</div>";
+	$("#dialog").empty(); 
+	$(message).appendTo($("#dialog"));
+	$( "#dialog" ).dialog({
+		height: 140,
+		width:400,
+		modal: true
+	});
+}
+
+</script>
+
+</head>
+<body>
+	<div id="logo">
+		<h1><a href="http://code.google.com/p/rill-bpm-api/" target="_blank">rill-bpm-web  </a></h1>
+		<p><em> 基于<a href="http://www.activiti.org/">Activiti</a>的企业级BPM解决方案</em></p>
+	</div>
+	<hr />
+	<!-- end #logo -->
+	<div id="header">
+		<div id="menu">
+			<ul>
+				<li><a href="#springUrl("")" class="first">主页</a></li>
+				<li class="current_page_item"><a href="javascript:void(0);">流程管理</a></li>
+				<li><a href="#">流程分析</a></li>
+				<li><a href="#">关于</a></li>
+			</ul>
+		</div>
+		<!-- end #menu -->
+		<div id="search">
+			<form method="get" action="">
+				<input type="text" name="s" id="search-text" size="15" />
+				<input type="submit" id="search-submit" value="搜索" />
+			</form>
+		</div>
+		<!-- end #search -->
+	</div>
+	<!-- end #header -->
+	<!-- end #header-wrapper -->
+	<div id="page">
+		<div id="content">
+		  <div class="post">
+				<h2 class="title"><a href="javascript:void(0);">启动流程表单 </a></h2>
+				<p class="meta"><em>填充流程表单并发起新流程。</em></p>
+				<div class="entry">
+					<form id="startForm" name="startForm" method="post" 
+					action="#springUrl("")/web/formrender/process/$!{processDefinitionId}/start"
+					 target="hiddenStartIframe" >
+					 	<input type="hidden" name="afterStart" value="afterStart" />
+						<fieldset>
+						<legend>流程定义：</legend>
+							<ul>
+								<li>
+									<label for="${startFormData.processDefinition.id}">流程定义ID</label>
+									<span id="${startFormData.processDefinition.id}">${startFormData.processDefinition.id}</span>
+								</li>
+								<li>
+									<label for="${startFormData.processDefinition.name}">流程定义名称</label>
+									<span id="${startFormData.processDefinition.name}">${startFormData.processDefinition.name}</span>
+								</li>
+								<li>
+									<label for="${startFormData.processDefinition.version}">流程定义版本</label>
+									<span id="${startFormData.processDefinition.version}">${startFormData.processDefinition.version}</span>
+								</li>
+							</ul>
+						</fieldset>
+						<fieldset>
+						<legend>表单：</legend>
+							<ul>
+							#foreach($formProperty in $startFormData.formProperties)
+					            <li>
+									<label for="${formProperty.id}"> #if ($formProperty.required)<span class="required">#end $!{formProperty.name} #if ($formProperty.required)</span>#end</label>
+					            #if ($formProperty.type.name == "string")
+					          		<input name="${formProperty.id}" id="${formProperty.id}" size="35" maxlength="50" type="text" class="text #if ($formProperty.required) required #end"/>
+					            #end
+					            #if ($formProperty.type.name == "date")
+					          		<input name="${formProperty.id}" id="${formProperty.id}" size="35" maxlength="10" type="text" readonly="readonly" class="datepicker #if ($formProperty.required) required #end"/>
+					            #end
+					            </li>
+							#end
+							</ul>
+						</fieldset>
+						<fieldset class="submit">
+							<input type="submit" class="button" value="启动..." />
+						</fieldset>
+					</form>
+					<iframe name="hiddenStartIframe" id="hiddenStartIframe" style="display:none"></iframe>
+				</div>
+		  </div>
+		</div><!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>流程管理</h2>
+					<p>这里集成了常用的流程相关的交互功能。</p>
+				</li>
+				<li>
+					<h2>流程部署 </h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+					</ul>
+				</li>
+				<li>
+					<h2>Turpis nulla</h2>
+					<ul>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+						<li><a href="#">Magna lacus bibendum mauris</a></li>
+						<li><a href="#">Velit semper nisi molestie</a></li>
+						<li><a href="#">Eget tempor eget nonummy</a></li>
+						<li><a href="#">Nec metus sed donec</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+	<div id="footer">
+		<p>Copyright (c) 2011 RillMeng. All rights reserved. Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+	</div>
+	<!-- end #footer -->
+	
+	<div id="dialog" title=""></div>
+</body>
+</html>
