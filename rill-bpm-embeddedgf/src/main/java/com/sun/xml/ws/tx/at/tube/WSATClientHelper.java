@@ -83,7 +83,8 @@ public class WSATClientHelper implements WSATClient {
     public List<Header> doHandleRequest(TransactionalAttribute transactionalAttribute, Map<String, Object> map) {
         try {
         	// Add by MENGRAN at 2011-11-09 for disable WSAT when transaction attribute is not enabled.
-            if (TransactionManagerImpl.getInstance().getTransactionManager().getTransaction()==null || 
+            if (TransactionManagerImpl.getInstance().getTransactionManager() == null || 
+            		TransactionManagerImpl.getInstance().getTransactionManager().getTransaction()==null || 
             		!transactionalAttribute.isEnabled()) 
                 return new ArrayList();
         } catch (SystemException e) {
