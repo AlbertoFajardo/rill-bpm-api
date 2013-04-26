@@ -56,7 +56,7 @@ public class BookChartDecorator extends RefreshDataSourceBookDecorator<XSSFChart
 				StringBuilder catStartCell = new StringBuilder();
 				StringBuilder catEndCell = new StringBuilder();
 				ChartDataSource<String> cats = null;
-				if (arrayEval.getHeight() > arrayEval.getWidth()) {
+				if (arrayEval.getHeight() >= arrayEval.getWidth()) {
 					// By column.
 					catStartCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn())).append(arrayEval.getFirstRow() + 2);
 					catEndCell = new StringBuilder(CellReference.convertNumToColString(arrayEval.getFirstColumn())).append(arrayEval.getLastRow() + 1);
