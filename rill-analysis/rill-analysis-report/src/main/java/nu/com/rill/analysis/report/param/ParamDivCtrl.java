@@ -28,6 +28,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.type.TypeReference;
+import org.rill.bpm.api.ThreadLocalResourceHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -380,6 +381,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			return;
 		}
 		
+		ThreadLocalResourceHolder.unbindProperty("showDownload");
 		boolean hasRenderredParam = paramComponentConstruct(paramDiv, report);
 		
 		// Initialize parameter components
@@ -400,7 +402,8 @@ public class ParamDivCtrl extends GenericForwardComposer {
 //		paramDiv.appendChild(reset);
 		
 		
-		if (!hasRenderredParam) {
+		boolean showDownload = ThreadLocalResourceHolder.getProperty("showDownload") == null ? false : true;
+		if (!hasRenderredParam && !showDownload) {
 			paramDiv.setVisible(false);
 			paramDiv.setStyle("display: none");
 		}
@@ -436,8 +439,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			}
 		});
 		paramDiv.appendChild(search);
-		
-		paramDiv.setClass("paramDiv-class");
+		if (!hasRenderredParam) {
+			search.setVisible(false);
+		} else {
+			paramDiv.setClass("paramDiv-class");
+		}
 		
 		// Post search action event
 		Executions.getCurrent().postEvent(Integer.MAX_VALUE - 1, new Event(Events.ON_CLICK, search));
@@ -447,6 +453,7 @@ public class ParamDivCtrl extends GenericForwardComposer {
 	private String generateDownloadFileName(final Div paramDiv, final Report report) {
 		
 		String result = report.getName();
+		String suffix = result.split("\\.")[1];
 		
 		if (CollectionUtils.isEmpty(report.getParams())) {
 			return result;
@@ -486,6 +493,9 @@ public class ParamDivCtrl extends GenericForwardComposer {
 		}
 		
 		try {
+			if (!result.endsWith(suffix)) {
+				result += "." + suffix;
+			}
 			Execution ex = Executions.getCurrent();
 			HttpServletRequest request = (HttpServletRequest) ex.getNativeRequest();
 			if (request.getHeader("User-Agent").indexOf("MSIE") != -1) {
@@ -554,7 +564,11 @@ public class ParamDivCtrl extends GenericForwardComposer {
 			final Entry<String, Map<PARAM_CONFIG, String>> paramEntry = entry;
 			final String paramName = entry.getKey();
 			final Map<PARAM_CONFIG, String> config = entry.getValue();
-			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE)) {
+			if (!config.containsKey(PARAM_CONFIG.RENDER_TYPE) || !StringUtils.hasLength(config.get(PARAM_CONFIG.RENDER_TYPE))) {
+				if ("hasRenderredParam".equals(entry.getValue().get(PARAM_CONFIG.NAME)) && 
+						"true".equals(entry.getValue().get(PARAM_CONFIG.VALUE))) {
+					ThreadLocalResourceHolder.bindProperty("showDownload", "true");
+				}
 				continue;
 			}
 			
