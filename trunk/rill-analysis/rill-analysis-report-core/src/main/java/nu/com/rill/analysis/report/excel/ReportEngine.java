@@ -662,6 +662,9 @@ public final class ReportEngine {
 		String url = null, username = null, password = null, type = "mdx";
 		Boolean reload = new Boolean(true);
 		for (Row row : settingsSheet) {
+			if (row == null || row.getCell(0) == null) {
+				continue;
+			}
 			if ("url".equals(row.getCell(0).getStringCellValue())) {
 				url = row.getCell(1).getStringCellValue();
 			}
