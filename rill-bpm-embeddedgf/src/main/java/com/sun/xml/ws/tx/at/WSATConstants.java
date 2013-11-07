@@ -46,6 +46,8 @@ import javax.xml.namespace.QName;
  * Copy from embedded GF 3.1.
  * <p>
  * 	Open WSAT_CONTEXT_ROOT value configuration interface: System.getProperty("WSAT_CONTEXT_ROOT")
+ * <p>
+ * 	Fix when contextPath is ""
  * 
  * @author mengran
  *
@@ -113,23 +115,23 @@ public interface WSATConstants {
     static final String ROUTING = "routing";
     static final QName ROUTING_QNAME = new QName(WLA_WSAT_NS_URI, ROUTING, WSAT_WSAT);
     // outbound endpoints
-    public static final String WSAT_COORDINATORPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/CoordinatorPortType";
-    public static final String WSAT_REGISTRATIONCOORDINATORPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/RegistrationPortTypeRPC";
+    public static final String WSAT_COORDINATORPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/CoordinatorPortType";
+    public static final String WSAT_REGISTRATIONCOORDINATORPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/RegistrationPortTypeRPC";
     // inbound endpoints
-    public static final String WSAT_REGISTRATIONREQUESTERPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/RegistrationRequesterPortType";
+    public static final String WSAT_REGISTRATIONREQUESTERPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/RegistrationRequesterPortType";
     //RegistrationRequesterPortTypeRPC";
-    public static final String WSAT_PARTICIPANTPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/ParticipantPortType";
+    public static final String WSAT_PARTICIPANTPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/ParticipantPortType";
     // logger                                                     
     public static final String DEBUG_WSAT = "DebugWSAT";
 
     static final String WSAT11_NS_URI = "http://docs.oasis-open.org/ws-tx/wsat/2006/06";
     static final String WSAT11_DURABLE_2PC = WSAT11_NS_URI + "/" + DURABLE_2PC;
     static final String WSAT11_VOLATILE_2PC = WSAT11_NS_URI + "/" + VOLATILE_2PC;
-    public static final String WSAT11_REGISTRATIONCOORDINATORPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/RegistrationPortTypeRPC11";
-    public static final String WSAT11_PARTICIPANTPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/ParticipantPortType11";
-    public static final String WSAT11_COORDINATORPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/CoordinatorPortType11";
+    public static final String WSAT11_REGISTRATIONCOORDINATORPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/RegistrationPortTypeRPC11";
+    public static final String WSAT11_PARTICIPANTPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/ParticipantPortType11";
+    public static final String WSAT11_COORDINATORPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/CoordinatorPortType11";
     // inbound endpoints
-    public static final String WSAT11_REGISTRATIONREQUESTERPORTTYPEPORT = "/"+ WSAT_CONTEXT_ROOT +"/RegistrationRequesterPortType11";
+    public static final String WSAT11_REGISTRATIONREQUESTERPORTTYPEPORT = ("".equals(WSAT_CONTEXT_ROOT) ? "" : "/") + WSAT_CONTEXT_ROOT +"/RegistrationRequesterPortType11";
     //  TM
     public static final String TXPROP_WSAT_FOREIGN_RECOVERY_CONTEXT = "com.sun.xml.ws.tx.foreignContext";
     // tube request map storage
